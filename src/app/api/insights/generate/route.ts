@@ -27,12 +27,12 @@ export async function POST(request: NextRequest) {
         workspace_id: user.id,
         title: insights.title,
         executive_summary: insights.executive_summary,
-        severity_chips: insights.severity_chips as any,
-        kpis: insights.kpis as any,
-        key_findings: insights.key_findings as any,
-        recommendations: insights.recommendations as any,
-        anomalies: insights.anomalies as any,
-        deep_dives: insights.deep_dives as any,
+        severity_chips: insights.severity_chips,
+        kpis: insights.kpis,
+        key_findings: insights.key_findings,
+        recommendations: insights.recommendations,
+        anomalies: insights.anomalies,
+        deep_dives: insights.deep_dives,
       })
       .select()
       .single();

@@ -103,8 +103,8 @@ export async function POST(request: NextRequest) {
         category,
         encrypted_credentials: encryptedCreds,
         status: 'active',
-        schema_snapshot: schemaSnapshot as any,
-        sample_data: sampleData as any,
+        schema_snapshot: schemaSnapshot,
+        sample_data: sampleData,
         row_count: totalRows,
         last_synced_at: new Date().toISOString(),
       })

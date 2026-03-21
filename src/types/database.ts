@@ -149,44 +149,77 @@ export interface SyncLog {
 }
 
 // Supabase Database type definition for typed client usage
+
+export type ProfileInsert = Partial<Profile> & Pick<Profile, 'id'>;
+export type ProfileUpdate = Partial<Profile>;
+
+export type DataSourceInsert = Partial<DataSource> & Pick<DataSource, 'workspace_id' | 'name' | 'source_type' | 'category'>;
+export type DataSourceUpdate = Partial<DataSource>;
+
+export type InsightDocumentInsert = Partial<InsightDocument> & Pick<InsightDocument, 'workspace_id'>;
+export type InsightDocumentUpdate = Partial<InsightDocument>;
+
+export type ConversationInsert = Partial<Conversation> & Pick<Conversation, 'workspace_id'>;
+export type ConversationUpdate = Partial<Conversation>;
+
+export type DashboardInsert = Partial<Dashboard> & Pick<Dashboard, 'workspace_id'>;
+export type DashboardUpdate = Partial<Dashboard>;
+
+export type AnomalyRecordInsert = Partial<AnomalyRecord> & Pick<AnomalyRecord, 'workspace_id' | 'metric_name'>;
+export type AnomalyRecordUpdate = Partial<AnomalyRecord>;
+
+export type SyncLogInsert = Partial<SyncLog> & Pick<SyncLog, 'source_id' | 'status'>;
+export type SyncLogUpdate = Partial<SyncLog>;
+
 export interface Database {
   public: {
     Tables: {
       profiles: {
         Row: Profile;
-        Insert: Partial<Profile> & Pick<Profile, 'id'>;
-        Update: Partial<Profile>;
+        Insert: ProfileInsert;
+        Update: ProfileUpdate;
+        Relationships: [];
       };
       data_sources: {
         Row: DataSource;
-        Insert: Partial<DataSource> & Pick<DataSource, 'workspace_id' | 'name' | 'source_type' | 'category'>;
-        Update: Partial<DataSource>;
+        Insert: DataSourceInsert;
+        Update: DataSourceUpdate;
+        Relationships: [];
       };
       insight_documents: {
         Row: InsightDocument;
-        Insert: Partial<InsightDocument> & Pick<InsightDocument, 'workspace_id'>;
-        Update: Partial<InsightDocument>;
+        Insert: InsightDocumentInsert;
+        Update: InsightDocumentUpdate;
+        Relationships: [];
       };
       conversations: {
         Row: Conversation;
-        Insert: Partial<Conversation> & Pick<Conversation, 'workspace_id'>;
-        Update: Partial<Conversation>;
+        Insert: ConversationInsert;
+        Update: ConversationUpdate;
+        Relationships: [];
       };
       dashboards: {
         Row: Dashboard;
-        Insert: Partial<Dashboard> & Pick<Dashboard, 'workspace_id'>;
-        Update: Partial<Dashboard>;
+        Insert: DashboardInsert;
+        Update: DashboardUpdate;
+        Relationships: [];
       };
       anomalies: {
         Row: AnomalyRecord;
-        Insert: Partial<AnomalyRecord> & Pick<AnomalyRecord, 'workspace_id' | 'metric_name'>;
-        Update: Partial<AnomalyRecord>;
+        Insert: AnomalyRecordInsert;
+        Update: AnomalyRecordUpdate;
+        Relationships: [];
       };
       sync_logs: {
         Row: SyncLog;
-        Insert: Partial<SyncLog> & Pick<SyncLog, 'source_id' | 'status'>;
-        Update: Partial<SyncLog>;
+        Insert: SyncLogInsert;
+        Update: SyncLogUpdate;
+        Relationships: [];
       };
     };
+    Views: {};
+    Functions: {};
+    Enums: {};
+    CompositeTypes: {};
   };
 }

@@ -11,8 +11,6 @@ export type {
   InsightDocument,
 } from './database';
 
-export type { InsightResponse } from '@/lib/ai/claude';
-
 // Chart and table embed types parsed from Ask Data responses
 export interface ChartEmbed {
   type: 'line' | 'bar' | 'pie' | 'area' | 'scatter';
