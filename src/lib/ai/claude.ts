@@ -6,6 +6,7 @@ import {
   SYSTEM_PROMPT_INSIGHTS,
   SYSTEM_PROMPT_ASK,
   SYSTEM_PROMPT_ANOMALY,
+  SYSTEM_PROMPT_SUGGEST_METRICS,
 } from './prompts';
 
 // --- Singleton client ---
@@ -200,4 +201,88 @@ export async function explainAnomaly(
   }
 
   return textBlock.text.trim();
+}
+
+// --- Metric suggestion schemas ---
+
+const suggestedMetricSchema = z.object({
+  name: z.string(),
+  column: z.string(),
+  aggregation: z.enum(['sum', 'avg', 'count', 'rate', 'min', 'max', 'median', 'distribution']),
+  reason: z.string(),
+});
+
+const dimensionSchema = z.object({
+  name: z.string(),
+  column: z.string(),
+  reason: z.string(),
+});
+
+const metricSuggestionResponseSchema = z.object({
+  metrics: z.array(suggestedMetricSchema),
+  dimensions: z.array(dimensionSchema),
+  data_summary: z.string(),
+});
+
+export type MetricSuggestion = z.infer<typeof suggestedMetricSchema>;
+export type DimensionSuggestion = z.infer<typeof dimensionSchema>;
+export type MetricSuggestionResponse = z.infer<typeof metricSuggestionResponseSchema>;
+
+/**
+ * Analyze uploaded data columns + samples and suggest relevant metrics & dimensions.
+ */
+export async function suggestMetrics(
+  files: { name: string; rows: number; columns: { name: string; dtype: string; sample: string[] }[] }[]
+): Promise<MetricSuggestionResponse> {
+  const client = getClient();
+
+  // Build a compact data summary for Claude
+  const validFiles = files.filter(f => Array.isArray(f.columns) && f.columns.length > 0);
+  if (validFiles.length === 0) {
+    throw new Error('No column data to analyze');
+  }
+
+  const dataSummary = validFiles.map(f => {
+    const colDetails = f.columns.map(c => {
+      const samples = Array.isArray(c.sample) ? c.sample : [];
+      return `  - ${c.name} (${c.dtype})${samples.length > 0 ? `: ${samples.slice(0, 5).join(', ')}` : ''}`;
+    }).join('\n');
+    return `File: ${f.name} (${f.rows.toLocaleString()} rows)\nColumns:\n${colDetails}`;
+  }).join('\n\n');
+
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 2000,
+    system: SYSTEM_PROMPT_SUGGEST_METRICS,
+    messages: [
+      {
+        role: 'user',
+        content: `Analyze this data and suggest metrics:\n\n${dataSummary}`,
+      },
+    ],
+  });
+
+  const textBlock = response.content.find((block) => block.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') {
+    throw new Error('No text response from Claude');
+  }
+
+  let jsonStr = textBlock.text.trim();
+  if (jsonStr.startsWith('```')) {
+    jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch (e) {
+    throw new Error(`Failed to parse metric suggestions: ${(e as Error).message}`);
+  }
+
+  const validated = metricSuggestionResponseSchema.safeParse(parsed);
+  if (!validated.success) {
+    throw new Error(`Metric suggestion response invalid: ${JSON.stringify(validated.error.flatten().fieldErrors)}`);
+  }
+
+  return validated.data;
 }

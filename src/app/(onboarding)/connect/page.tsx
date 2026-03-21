@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useDropzone } from 'react-dropzone'
 import { UploadCloud, X } from 'lucide-react'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
+import Papa from 'papaparse'
 import StepIndicator from '@/components/onboarding/StepIndicator'
+import { ConnectorIcon } from '@/components/onboarding/ConnectorIcons'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,217 @@ import {
 } from '@/components/ui/dialog'
 
 type Connector = { name: string; icon: string; type: string; category: string }
-type UploadedFile = { name: string; rows: number }
+
+type ColumnMeta = {
+  name: string
+  dtype: 'numeric' | 'categorical' | 'date' | 'id' | 'text'
+  sample: string[]
+  nullRate: number
+  uniqueRate: number
+  mixedTypes: boolean
+  formatIssues: boolean
+  totalValues: number
+}
+
+type UploadedFile = {
+  name: string
+  rows: number
+  columns: ColumnMeta[]
+  sampleRows: string[][]  // first 5 full rows for insights pipeline
+}
+
+const NULL_VALUES = new Set(['', 'null', 'NULL', 'NA', 'N/A', '#N/A', 'NaN', 'undefined', '\\N', 'None', 'nil', '#VALUE!', '#REF!', '?'])
+
+function isNullValue(v: string): boolean {
+  return v === undefined || v === null || NULL_VALUES.has(v.trim())
+}
+
+/** Detect column type from sample values */
+function detectColumnType(name: string, values: string[]): ColumnMeta['dtype'] {
+  const lower = name.toLowerCase()
+  // ID-like columns
+  if (/^(id|_id|uuid|key)$/.test(lower) || lower.endsWith('_id') || lower.endsWith('id') && lower.length <= 20) {
+    return 'id'
+  }
+  // Date-like columns
+  if (/date|time|created|updated|timestamp|_at$|_on$/.test(lower)) {
+    return 'date'
+  }
+  // Check actual values — are they mostly numbers?
+  const nonEmpty = values.filter(v => !isNullValue(v))
+  if (nonEmpty.length === 0) return 'text'
+  const numericCount = nonEmpty.filter(v => !isNaN(Number(v)) && v.trim() !== '').length
+  if (numericCount / nonEmpty.length >= 0.8) return 'numeric'
+  // Long text
+  const avgLen = nonEmpty.reduce((sum, v) => sum + v.length, 0) / nonEmpty.length
+  if (avgLen > 50) return 'text'
+  return 'categorical'
+}
+
+/** Build column metadata from parsed rows */
+function buildColumnMeta(
+  headers: string[],
+  allRows: string[][],
+  totalRowCount: number
+): ColumnMeta[] {
+  // Use up to 200 rows for quality stats
+  const qualityRows = allRows.slice(0, 200)
+  const qualityCount = qualityRows.length
+
+  return headers.map((name, i) => {
+    const rawValues = qualityRows.map(row => row[i] ?? '')
+    const nonNull = rawValues.filter(v => !isNullValue(v))
+    const nullCount = qualityCount - nonNull.length
+    const nullRate = qualityCount > 0 ? nullCount / qualityCount : 0
+    const uniqueRate = nonNull.length > 0 ? new Set(nonNull).size / nonNull.length : 0
+
+    const sampleValues = nonNull.slice(0, 20)
+    const dtype = detectColumnType(name, sampleValues)
+
+    // Mixed types: genuine non-numeric text in a numeric column
+    let mixedTypes = false
+    if (dtype === 'numeric' && sampleValues.length > 0) {
+      const genuineText = sampleValues.filter(v => {
+        const t = v.trim()
+        return t !== '' && isNaN(Number(t))
+      })
+      mixedTypes = genuineText.length > 0 && genuineText.length < sampleValues.length
+    }
+
+    let formatIssues = false
+    if (dtype === 'date') {
+      const formats = new Set<string>()
+      for (const v of sampleValues) {
+        if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(v)) formats.add('MM/DD/YYYY')
+        else if (/^\d{4}-\d{2}-\d{2}/.test(v)) formats.add('YYYY-MM-DD')
+        else if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(v)) formats.add('DD-MM-YYYY')
+        else if (/^[A-Za-z]+ \d{1,2},? \d{4}$/.test(v)) formats.add('Month DD YYYY')
+      }
+      formatIssues = formats.size > 1
+    }
+
+    return {
+      name,
+      dtype,
+      sample: sampleValues.slice(0, 5),
+      nullRate,
+      uniqueRate,
+      mixedTypes,
+      formatIssues,
+      totalValues: qualityCount > 0 ? Math.round(nonNull.length * (totalRowCount / qualityCount)) : 0,
+    }
+  })
+}
+
+/** Parse CSV using Papa Parse — handles all edge cases */
+function parseCSV(text: string): { columns: ColumnMeta[]; rows: number; sampleRows: string[][] } {
+  const result = Papa.parse(text, {
+    header: false,
+    skipEmptyLines: true,
+    dynamicTyping: false,   // keep everything as strings for our type detection
+  })
+
+  const allRows = result.data as string[][]
+  if (allRows.length === 0) return { columns: [], rows: 0, sampleRows: [] }
+
+  const headers = allRows[0].map(h => (h ?? '').trim())
+  const dataRows = allRows.slice(1)
+
+  const columns = buildColumnMeta(headers, dataRows, dataRows.length)
+  const sampleRows = dataRows.slice(0, 5)
+
+  return { columns, rows: dataRows.length, sampleRows }
+}
+
+/** Parse JSON — extract keys, detect types from sample values */
+function parseJSON(text: string): { columns: ColumnMeta[]; rows: number; sampleRows: string[][] } {
+  try {
+    const data = JSON.parse(text)
+    const arr = Array.isArray(data) ? data : [data]
+    if (arr.length === 0) return { columns: [], rows: 0, sampleRows: [] }
+
+    const keys = Object.keys(arr[0])
+    const allStringRows = arr.map(row => keys.map(key => String(row[key] ?? '')))
+    const columns = buildColumnMeta(keys, allStringRows, arr.length)
+    const sampleRows = allStringRows.slice(0, 5)
+
+    return { columns, rows: arr.length, sampleRows }
+  } catch { /* ignore */ }
+  return { columns: [], rows: 0, sampleRows: [] }
+}
+
+/** Parse XLSX using SheetJS — reads the first sheet */
+async function parseXLSX(buffer: ArrayBuffer): Promise<{ columns: ColumnMeta[]; rows: number; sampleRows: string[][] }> {
+  const XLSX = await import('xlsx')
+  const workbook = XLSX.read(buffer, { type: 'array' })
+  const sheetName = workbook.SheetNames[0]
+  if (!sheetName) return { columns: [], rows: 0, sampleRows: [] }
+
+  const sheet = workbook.Sheets[sheetName]
+  // Convert to array of arrays (all as strings)
+  const raw: string[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false })
+  if (raw.length === 0) return { columns: [], rows: 0, sampleRows: [] }
+
+  const headers = raw[0].map(h => String(h ?? '').trim())
+  const dataRows = raw.slice(1).map(row =>
+    headers.map((_, i) => String(row[i] ?? ''))
+  )
+
+  const columns = buildColumnMeta(headers, dataRows, dataRows.length)
+  const sampleRows = dataRows.slice(0, 5)
+
+  return { columns, rows: dataRows.length, sampleRows }
+}
+
+/** Parse Parquet using parquet-wasm + Apache Arrow */
+async function parseParquet(buffer: ArrayBuffer): Promise<{ columns: ColumnMeta[]; rows: number; sampleRows: string[][] }> {
+  try {
+    // @ts-expect-error - parquet-wasm ESM module path
+    const parquetModule = await import('parquet-wasm/esm/parquet_wasm')
+    await parquetModule.default()
+
+    const arrowIPC = parquetModule.readParquet(new Uint8Array(buffer))
+
+    const arrow = await import('apache-arrow')
+    const table = arrow.tableFromIPC(arrowIPC)
+
+    const headers = table.schema.fields.map(f => f.name)
+    const numRows = table.numRows
+
+    // Extract up to 200 rows as string arrays
+    const limit = Math.min(numRows, 200)
+    const allRows: string[][] = []
+    for (let r = 0; r < limit; r++) {
+      const row: string[] = headers.map(h => {
+        const val = table.getChild(h)?.get(r)
+        return val === null || val === undefined ? '' : String(val)
+      })
+      allRows.push(row)
+    }
+
+    const columns = buildColumnMeta(headers, allRows, numRows)
+    const sampleRows = allRows.slice(0, 5)
+
+    return { columns, rows: numRows, sampleRows }
+  } catch (err) {
+    console.error('Parquet parse error:', err)
+    return { columns: [], rows: 0, sampleRows: [] }
+  }
+}
+
+/** Persist source info so calibrate page can derive smart metrics + save to DB */
+function persistSourceInfo(files: UploadedFile[], connectedSources: string[]) {
+  const info = {
+    files: files.map(f => ({
+      name: f.name,
+      rows: f.rows,
+      columns: f.columns,
+      sampleRows: f.sampleRows || [],
+    })),
+    connectedSources,
+  }
+  localStorage.setItem('datalaser_connect_info', JSON.stringify(info))
+}
 
 const CONNECTORS: Connector[] = [
   { name: 'PostgreSQL', icon: '🐘', type: 'Database', category: 'Databases' },
@@ -80,16 +292,68 @@ export default function ConnectPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
+  const addParsedFile = useCallback((parsed: { columns: ColumnMeta[]; rows: number; sampleRows: string[][] }, fileName: string) => {
+    setUploadedFiles(prev => {
+      const updated = [...prev, {
+        name: fileName,
+        rows: parsed.rows,
+        columns: parsed.columns,
+        sampleRows: parsed.sampleRows,
+      }]
+      persistSourceInfo(updated, connectedSources)
+      return updated
+    })
+  }, [connectedSources])
+
   const onDrop = useCallback((accepted: File[]) => {
-    const newFiles = accepted.map(f => ({ name: f.name, rows: Math.floor(Math.random() * 10000) + 100 }))
-    setUploadedFiles(prev => [...prev, ...newFiles])
-  }, [])
+    accepted.forEach(file => {
+      const ext = file.name.split('.').pop()?.toLowerCase()
+
+      if (ext === 'csv') {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const text = e.target?.result as string
+          addParsedFile(parseCSV(text), file.name)
+        }
+        reader.readAsText(file)
+      } else if (ext === 'json') {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const text = e.target?.result as string
+          addParsedFile(parseJSON(text), file.name)
+        }
+        reader.readAsText(file)
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+          const buffer = e.target?.result as ArrayBuffer
+          const parsed = await parseXLSX(buffer)
+          addParsedFile(parsed, file.name)
+        }
+        reader.readAsArrayBuffer(file)
+      } else if (ext === 'parquet') {
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+          const buffer = e.target?.result as ArrayBuffer
+          const parsed = await parseParquet(buffer)
+          if (parsed.columns.length > 0) {
+            addParsedFile(parsed, file.name)
+          } else {
+            // Parquet parsing failed — store with metadata only
+            addParsedFile({ columns: [], rows: 0, sampleRows: [] }, file.name)
+          }
+        }
+        reader.readAsArrayBuffer(file)
+      }
+    })
+  }, [connectedSources, addParsedFile])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
       'text/csv': ['.csv'],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls'],
       'application/json': ['.json'],
       'application/octet-stream': ['.parquet'],
     },
@@ -116,12 +380,29 @@ export default function ConnectPage() {
     if (!selectedConnector) return
     setSaving(true)
     await new Promise(r => setTimeout(r, 800))
-    setConnectedSources(prev => [...prev, selectedConnector.name])
+    setConnectedSources(prev => {
+      const updated = [...prev, selectedConnector.name]
+      persistSourceInfo(uploadedFiles, updated)
+      return updated
+    })
     setSaving(false)
     setModalOpen(false)
   }
 
   const totalConnected = connectedSources.length + uploadedFiles.length
+
+  const handleContinue = () => {
+    const hasOnlyFiles = uploadedFiles.length > 0 && connectedSources.length === 0
+    if (hasOnlyFiles) {
+      router.push('/intent')
+    } else {
+      router.push('/calibrate')
+    }
+  }
+
+  const handleSkip = () => {
+    router.push('/calibrate')
+  }
 
   return (
     <>
@@ -148,7 +429,7 @@ export default function ConnectPage() {
               <input {...getInputProps()} />
               <UploadCloud className="w-8 h-8 text-mb-text-light mx-auto mb-2" />
               <p className="text-mb-text-medium text-mb-sm">Drag files here, or click to browse</p>
-              <p className="text-mb-text-light text-mb-xs mt-1">Supports CSV, XLSX, JSON, Parquet</p>
+              <p className="text-mb-text-light text-mb-xs mt-1">Supports CSV, Excel (.xlsx/.xls), JSON, Parquet</p>
             </div>
 
             {uploadedFiles.length > 0 && (
@@ -160,6 +441,9 @@ export default function ConnectPage() {
                   >
                     <span className="text-mb-sm font-bold text-mb-text-dark">{f.name}</span>
                     <div className="flex items-center gap-2">
+                      {f.columns?.length > 0 && (
+                        <span className="mb-badge-neutral">{f.columns.length} cols</span>
+                      )}
                       <span className="mb-badge-success">{f.rows.toLocaleString()} rows</span>
                       <button
                         onClick={() => setUploadedFiles(prev => prev.filter((_, j) => j !== i))}
@@ -207,8 +491,8 @@ export default function ConnectPage() {
                     className="flex items-center justify-between px-3 py-2 rounded-mb-md hover:bg-mb-bg-light cursor-pointer transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-mb-md bg-mb-bg-medium flex items-center justify-center text-xs">
-                        {conn.icon}
+                      <div className="w-7 h-7 rounded-mb-md bg-mb-bg-medium flex items-center justify-center">
+                        <ConnectorIcon name={conn.name} />
                       </div>
                       <span className="text-mb-sm font-bold text-mb-text-dark">{conn.name}</span>
                       <span className="mb-badge-neutral">{conn.type}</span>
@@ -236,8 +520,8 @@ export default function ConnectPage() {
           {totalConnected} source{totalConnected !== 1 ? 's' : ''} connected
         </span>
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/calibrate')} className="mb-btn-subtle">Skip</button>
-          <button onClick={() => router.push('/calibrate')} className="mb-btn-primary">Continue</button>
+          <button onClick={handleSkip} className="mb-btn-subtle">Skip</button>
+          <button onClick={handleContinue} className="mb-btn-primary">Continue</button>
         </div>
       </div>
 
