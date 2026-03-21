@@ -3,7 +3,29 @@
     "allow": [
       "Bash(npx:*)",
       "Read(//Users/shramishkafle/Desktop/**)",
-      "Bash(yes \"\")"
+      "Bash(yes \"\")",
+      "Bash(npm install:*)",
+      "Bash(lsof -ti:3000)",
+      "Bash(curl -s -X POST http://localhost:3000/api/sources/test -H \"Content-Type: application/json\" -d '{\"\"\"\"source_type\"\"\"\":\"\"\"\"postgres\"\"\"\",\"\"\"\"credentials\"\"\"\":{\"\"\"\"host\"\"\"\":\"\"\"\"localhost\"\"\"\",\"\"\"\"port\"\"\"\":\"\"\"\"5432\"\"\"\",\"\"\"\"database\"\"\"\":\"\"\"\"testdb\"\"\"\",\"\"\"\"username\"\"\"\":\"\"\"\"postgres\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"password\"\"\"\",\"\"\"\"ssl\"\"\"\":\"\"\"\"false\"\"\"\"}}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X POST http://localhost:3000/api/sources/connect -H \"Content-Type: application/json\" -d '{\"\"\"\"name\"\"\"\":\"\"\"\"My PG\"\"\"\",\"\"\"\"source_type\"\"\"\":\"\"\"\"postgres\"\"\"\",\"\"\"\"category\"\"\"\":\"\"\"\"database\"\"\"\",\"\"\"\"credentials\"\"\"\":{\"\"\"\"host\"\"\"\":\"\"\"\"localhost\"\"\"\",\"\"\"\"port\"\"\"\":\"\"\"\"5432\"\"\"\",\"\"\"\"database\"\"\"\":\"\"\"\"testdb\"\"\"\",\"\"\"\"username\"\"\"\":\"\"\"\"postgres\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"password\"\"\"\",\"\"\"\"ssl\"\"\"\":\"\"\"\"false\"\"\"\"}}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"\"\"source_id\"\"\"\":\"\"\"\"550e8400-e29b-41d4-a716-446655440000\"\"\"\",\"\"\"\"query\"\"\"\":\"\"\"\"SELECT 1\"\"\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/test -H \"Content-Type: application/json\" -d '{\"\"source_type\"\":\"\"postgres\"\",\"\"credentials\"\":{\"\"host\"\":\"\"localhost\"\",\"\"port\"\":\"\"5432\"\",\"\"database\"\":\"\"testdb\"\",\"\"username\"\":\"\"postgres\"\",\"\"password\"\":\"\"password\"\",\"\"ssl\"\":\"\"false\"\"}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/connect -H \"Content-Type: application/json\" -d '{\"\"name\"\":\"\"My PG\"\",\"\"source_type\"\":\"\"postgres\"\",\"\"category\"\":\"\"database\"\",\"\"credentials\"\":{\"\"host\"\":\"\"localhost\"\",\"\"port\"\":\"\"5432\"\",\"\"database\"\":\"\"testdb\"\",\"\"username\"\":\"\"postgres\"\",\"\"password\"\":\"\"password\"\",\"\"ssl\"\":\"\"false\"\"}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"source_id\"\":\"\"550e8400-e29b-41d4-a716-446655440000\"\",\"\"query\"\":\"\"SELECT 1\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"source_id\"\":\"\"550e8400-e29b-41d4-a716-446655440000\"\",\"\"query\"\":\"\"DROP TABLE users\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"source_id\"\":\"\"550e8400-e29b-41d4-a716-446655440000\"\",\"\"query\"\":\"\"DELETE FROM users WHERE id = 1\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"source_id\"\":\"\"550e8400-e29b-41d4-a716-446655440000\"\",\"\"query\"\":\"\"SELECT * FROM users\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"source_id\"\":\"\"not-a-uuid\"\",\"\"query\"\":\"\"\"\"}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/test -H \"Content-Type: application/json\" -d '{\"\"source_type\"\":\"\"oracle\"\",\"\"credentials\"\":{}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\" -X POST http://localhost:3000/api/sources/connect -H \"Content-Type: application/json\" -d '{\"\"credentials\"\":{}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/sources/test -H \"Content-Type: application/json\" -d '{\"\"source_type\"\":\"\"postgres\"\",\"\"credentials\"\":{\"\"host\"\":\"\"localhost\"\",\"\"port\"\":\"\"5432\"\",\"\"database\"\":\"\"testdb\"\",\"\"username\"\":\"\"postgres\"\",\"\"password\"\":\"\"password\"\",\"\"ssl\"\":\"\"false\"\"}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/sources/test -H \"Content-Type: application/json\" -d '{\"\"source_type\"\":\"\"oracle\"\",\"\"credentials\"\":{}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/sources/connect -H \"Content-Type: application/json\" -d '{\"\"credentials\"\":{}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/sources/connect -H \"Content-Type: application/json\" -d '{\"\"name\"\":\"\"My PG\"\",\"\"source_type\"\":\"\"postgres\"\",\"\"category\"\":\"\"database\"\",\"\"credentials\"\":{\"\"host\"\":\"\"localhost\"\"}}')",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" -X POST http://localhost:3000/api/sources/query -H \"Content-Type: application/json\" -d '{\"\"source_id\"\":\"\"550e8400-e29b-41d4-a716-446655440000\"\",\"\"query\"\":\"\"DROP TABLE users\"\"}')",
+      "Bash(echo \"$ANTHROPIC_API_KEY:-\\(not set\\)\")",
+      "Bash(xargs kill:*)"
     ]
   }
 }
