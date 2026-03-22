@@ -63,24 +63,32 @@ export default function DataHealthPage() {
 
   useEffect(() => {
     async function init() {
-      // Fetch source record
-      const { data: src } = await supabase
+      // Fetch source record — use select('*') to avoid column-not-found errors
+      const { data: src, error: srcErr } = await supabase
         .from('data_sources')
-        .select('name, source_type, file_path, sample_data, schema_snapshot')
+        .select('*')
         .eq('id', sourceId)
         .single()
+
+      if (srcErr) {
+        console.error('Health page fetch error:', srcErr.message, srcErr.details)
+        setError(`Could not load data source: ${srcErr.message}`)
+        setLoading(false)
+        return
+      }
 
       if (!src) { setError('Data source not found'); setLoading(false); return }
       setSourceName(src.name)
 
       // Get the file
       let file: File | null = null
+      const filePath = src.file_path as string | null
 
       // Try Storage first
-      if (src.file_path) {
+      if (filePath) {
         const { data: blob, error: dlErr } = await supabase.storage
           .from('data-sources')
-          .download(src.file_path)
+          .download(filePath)
         if (!dlErr && blob) {
           file = new File([blob], src.name, { type: blob.type || 'text/csv' })
         }

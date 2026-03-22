@@ -107,7 +107,7 @@ export default function PreparePage() {
     // Fallback: reconstruct from sample_data
     const { data: src } = await supabase
       .from('data_sources')
-      .select('sample_data, schema_snapshot')
+      .select('*')
       .eq('id', sourceId)
       .single()
 
@@ -129,14 +129,14 @@ export default function PreparePage() {
   // Load source info + file on mount, then auto-profile
   useEffect(() => {
     async function init() {
-      const { data: src } = await supabase
+      const { data: src, error: srcErr } = await supabase
         .from('data_sources')
-        .select('name, source_type, sample_data, schema_snapshot, row_count, file_path')
+        .select('*')
         .eq('id', sourceId)
         .single()
 
-      if (!src) { setError('Data source not found'); return }
-      setSourceType(src.source_type)
+      if (!src) { setError(srcErr ? `Source error: ${srcErr.message}` : 'Data source not found'); return }
+      setSourceType(src.source_type as string)
 
       if (FILE_TYPES.includes(src.source_type)) {
         const file = await getFile(src.name, src.file_path)
