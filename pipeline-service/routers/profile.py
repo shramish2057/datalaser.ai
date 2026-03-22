@@ -19,6 +19,9 @@ async def profile_file(
 
     file_bytes = await file.read()
     print(f'[PROFILE] Received file: {file.filename}, size={len(file_bytes)}, first_100={file_bytes[:100]}')
+    # Debug: save received file for inspection
+    with open('/tmp/received_from_proxy.csv', 'wb') as dbg:
+        dbg.write(file_bytes)
 
     # 500MB limit
     max_size = 500 * 1024 * 1024

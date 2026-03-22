@@ -7,7 +7,7 @@ URL_RE = re.compile(r'^https?://\S+$')
 ZIP_RE = re.compile(r'^\d{5}(-\d{4})?$')
 UUID_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
 
-NULL_STRINGS = {'', 'null', 'none', 'na', 'n/a', 'nan', '#n/a', '-', '--', 'missing', 'unknown', '?'}
+NULL_STRINGS = {'', 'null', 'none', 'na', 'n/a', 'nan', '#n/a', '-', '--', 'missing', 'unknown', '?', '\\n', '\\\\n'}
 
 
 def is_null_value(value: str) -> bool:

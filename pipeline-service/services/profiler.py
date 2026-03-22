@@ -61,7 +61,7 @@ class DataProfiler:
             if file_type == 'csv':
                 return pl.read_csv(
                     buf, encoding=encoding, ignore_errors=True,
-                    null_values=["", "null", "NULL", "NA", "N/A", "nan", "NaN", "None"],
+                    null_values=["", "null", "NULL", "NA", "N/A", "nan", "NaN", "None", "\\N", "\\\\N"],
                 )
             elif file_type in ('xlsx', 'xls'):
                 return pl.from_pandas(pd.read_excel(buf))
@@ -74,7 +74,7 @@ class DataProfiler:
 
         # Fallback to pandas
         buf.seek(0)
-        na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "NaN", "None", "-", "--"]
+        na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "NaN", "None", "-", "--", "\\N"]
         if file_type == 'csv':
             df_pd = pd.read_csv(buf, encoding=encoding, encoding_errors='replace', na_values=na_vals)
         elif file_type in ('xlsx', 'xls'):
