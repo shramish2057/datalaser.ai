@@ -171,7 +171,7 @@ export default function IntentPage() {
       setSavedSourceId(inserted.id)
 
       // Use the raw file content (full data) if available, fallback to sample
-      const rawFileContent = localStorage.getItem('datalaser_raw_file')
+      const rawFileContent = sessionStorage.getItem('datalaser_raw_file') || localStorage.getItem('datalaser_raw_file')
       let csvBlob: Blob
       if (rawFileContent) {
         csvBlob = new Blob([rawFileContent], { type: 'text/csv' })
@@ -191,7 +191,9 @@ export default function IntentPage() {
         .update({ file_path: storagePath })
         .eq('id', inserted.id)
 
-      // Clean up raw file from localStorage
+      // Clean up raw file
+      sessionStorage.removeItem('datalaser_raw_file')
+      sessionStorage.removeItem('datalaser_raw_file_name')
       localStorage.removeItem('datalaser_raw_file')
 
       // Now profile via pipeline service

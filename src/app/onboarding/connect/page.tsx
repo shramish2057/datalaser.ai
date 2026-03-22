@@ -314,10 +314,11 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
         reader.onload = (e) => {
           const text = e.target?.result as string
           addParsedFile(parseCSV(text), file.name)
-          // Store raw file content for pipeline profiling (up to 4MB)
-          if (text.length < 4 * 1024 * 1024) {
-            try { localStorage.setItem('datalaser_raw_file', text) } catch { /* quota exceeded */ }
-          }
+          // Store raw file for pipeline profiling
+          try {
+            sessionStorage.setItem('datalaser_raw_file', text)
+            sessionStorage.setItem('datalaser_raw_file_name', file.name)
+          } catch { /* quota exceeded — will fall back to sample */ }
         }
         reader.readAsText(file)
       } else if (ext === 'json') {
@@ -325,9 +326,10 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
         reader.onload = (e) => {
           const text = e.target?.result as string
           addParsedFile(parseJSON(text), file.name)
-          if (text.length < 4 * 1024 * 1024) {
-            try { localStorage.setItem('datalaser_raw_file', text) } catch { /* quota exceeded */ }
-          }
+          try {
+            sessionStorage.setItem('datalaser_raw_file', text)
+            sessionStorage.setItem('datalaser_raw_file_name', file.name)
+          } catch { /* quota exceeded */ }
         }
         reader.readAsText(file)
       } else if (ext === 'xlsx' || ext === 'xls') {
