@@ -255,11 +255,14 @@ export default function PreparePage() {
       setResult(data)
 
       // Store transformed CSV for validation step
+      console.log('[Prepare] Transform response has transformed_csv_b64:', !!data.transformed_csv_b64,
+        data.transformed_csv_b64 ? `(${data.transformed_csv_b64.length} chars)` : '')
       if (data.transformed_csv_b64) {
         const binaryStr = atob(data.transformed_csv_b64)
         const bytes = new Uint8Array(binaryStr.length)
         for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i)
         transformedFileRef.current = new Blob([bytes], { type: 'text/csv' })
+        console.log('[Prepare] Transformed blob size:', transformedFileRef.current.size)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Transform failed')
@@ -276,6 +279,8 @@ export default function PreparePage() {
     try {
       // Use transformed file if available, otherwise original
       const fileToValidate = transformedFileRef.current || sourceFile.bytes
+      console.log('[Prepare] Validating:', transformedFileRef.current ? 'TRANSFORMED file' : 'ORIGINAL file',
+        'size:', fileToValidate instanceof Blob ? fileToValidate.size : 'unknown')
       const fd = new FormData()
       fd.append('file', fileToValidate, sourceFile.name)
       fd.append('source_id', sourceId)
@@ -702,64 +707,109 @@ export default function PreparePage() {
                 <p className="text-mb-text-dark text-mb-sm font-bold">Running quality checks...</p>
               </div>
             ) : validation ? (
-              <div>
-                {/* Status banner */}
-                <div className={`rounded-mb-lg p-4 mb-6 flex items-center gap-3 ${
-                  validation.overall_status === 'passed' ? 'bg-green-50 border border-mb-success' :
-                  validation.overall_status === 'warning' ? 'bg-orange-50 border border-orange-400' :
-                  'bg-red-50 border border-mb-error'
-                }`}>
-                  {validation.overall_status === 'passed' ? <CheckCircle2 size={20} className="text-mb-success" /> :
-                   validation.overall_status === 'warning' ? <AlertTriangle size={20} className="text-orange-400" /> :
-                   <XCircle size={20} className="text-mb-error" />}
-                  <div>
-                    <p className="text-mb-sm font-black text-mb-text-dark">{validation.summary}</p>
-                    <p className="text-mb-xs text-mb-text-medium">Score: {validation.score}/100</p>
+              (() => {
+                const issues = validation.tests.filter(t => t.category === 'issue' && t.status !== 'passed')
+                const characteristics = validation.tests.filter(t => t.category === 'characteristic')
+                const fixableResolved = (validation as unknown as { fixable_resolved?: boolean }).fixable_resolved ?? issues.length === 0
+
+                return (
+                <div>
+                  {/* Status banner */}
+                  <div className={`rounded-mb-lg p-4 mb-6 flex items-center gap-3 ${
+                    fixableResolved ? 'bg-green-50 border border-mb-success' :
+                    validation.overall_status === 'warning' ? 'bg-orange-50 border border-orange-400' :
+                    validation.overall_status === 'failed' ? 'bg-red-50 border border-mb-error' :
+                    'bg-green-50 border border-mb-success'
+                  }`}>
+                    {fixableResolved ? <CheckCircle2 size={20} className="text-mb-success" /> :
+                     validation.overall_status === 'warning' ? <AlertTriangle size={20} className="text-orange-400" /> :
+                     <XCircle size={20} className="text-mb-error" />}
+                    <div>
+                      <p className="text-mb-sm font-black text-mb-text-dark">{validation.summary}</p>
+                      <p className="text-mb-xs text-mb-text-medium">Score: {validation.score}/100</p>
+                    </div>
+                  </div>
+
+                  {/* Issues (if any) */}
+                  {issues.length > 0 && (
+                    <div className="mb-6">
+                      <p className="mb-section-header mb-2">Issues to fix</p>
+                      <div className="space-y-2">
+                        {issues.map((t, i) => (
+                          <div key={i} className="flex items-start gap-3 p-3 rounded-mb-md border border-mb-error bg-red-50">
+                            <XCircle size={14} className="text-mb-error flex-shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-mb-xs font-black text-mb-text-dark">{t.column || 'Dataset'}</span>
+                              <span className="text-mb-xs text-mb-text-medium ml-2">{t.message}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Characteristics */}
+                  {characteristics.length > 0 && (
+                    <div className="mb-6">
+                      <p className="mb-section-header mb-2">Data characteristics (no action needed)</p>
+                      <div className="space-y-2">
+                        {characteristics.map((t, i) => (
+                          <div key={i} className="flex items-start gap-2 p-3 rounded-mb-md border border-mb-border bg-mb-bg-light">
+                            <AlertTriangle size={13} className="text-mb-text-light flex-shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-mb-xs font-bold text-mb-text-dark">{t.column || 'Dataset'}</span>
+                              <span className="text-mb-xs text-mb-text-medium ml-2">{t.message}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Full test table (collapsed by default) */}
+                  <details className="mb-6">
+                    <summary className="text-mb-xs font-bold text-mb-text-light cursor-pointer hover:text-mb-brand">
+                      View all {validation.tests.length} checks
+                    </summary>
+                    <div className="mb-card overflow-hidden mt-2">
+                      <table className="mb-table">
+                        <thead>
+                          <tr><th>Test</th><th>Column</th><th>Status</th><th>Message</th></tr>
+                        </thead>
+                        <tbody>
+                          {validation.tests.map((t, i) => (
+                            <tr key={i}>
+                              <td className="font-bold text-mb-xs">{t.test_name}</td>
+                              <td className="text-mb-text-medium text-mb-xs">{t.column || '—'}</td>
+                              <td>
+                                <span className={
+                                  t.status === 'passed' ? 'mb-badge-success' :
+                                  t.status === 'warning' ? 'mb-badge-warning' : 'mb-badge-error'
+                                }>{t.status}</span>
+                              </td>
+                              <td className="text-mb-xs text-mb-text-medium">{t.message}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+
+                  <div className="flex gap-2">
+                    {!fixableResolved ? (
+                      <>
+                        <button onClick={() => setStep('suggest')} className="mb-btn-secondary">Fix issues</button>
+                        <button onClick={finishPipeline} className="mb-btn-subtle">Use anyway</button>
+                      </>
+                    ) : (
+                      <button onClick={finishPipeline} className="mb-btn-primary px-6 py-2.5 font-black">
+                        Use this data <ArrowRight size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                {/* Test results */}
-                <div className="mb-card overflow-hidden mb-6">
-                  <table className="mb-table">
-                    <thead>
-                      <tr><th>Test</th><th>Column</th><th>Status</th><th>Message</th><th>Rows</th></tr>
-                    </thead>
-                    <tbody>
-                      {validation.tests.map((t, i) => (
-                        <tr key={i} className="cursor-pointer" onClick={() => {
-                          const next = new Set(expandedTests)
-                          next.has(String(i)) ? next.delete(String(i)) : next.add(String(i))
-                          setExpandedTests(next)
-                        }}>
-                          <td className="font-bold text-mb-xs">{t.test_name}</td>
-                          <td className="text-mb-text-medium text-mb-xs">{t.column || '—'}</td>
-                          <td>
-                            <span className={
-                              t.status === 'passed' ? 'mb-badge-success' :
-                              t.status === 'warning' ? 'mb-badge-warning' : 'mb-badge-error'
-                            }>{t.status}</span>
-                          </td>
-                          <td className="text-mb-xs text-mb-text-medium">{t.message}</td>
-                          <td className="text-mb-xs font-mono text-mb-text-light">{t.failing_rows}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="flex gap-2">
-                  {validation.overall_status === 'failed' ? (
-                    <>
-                      <button onClick={() => setStep('suggest')} className="mb-btn-secondary">Fix issues</button>
-                      <button onClick={finishPipeline} className="mb-btn-subtle">Use anyway</button>
-                    </>
-                  ) : (
-                    <button onClick={finishPipeline} className="mb-btn-primary px-6 py-2.5 font-black">
-                      Use this data <ArrowRight size={14} />
-                    </button>
-                  )}
-                </div>
-              </div>
+                )
+              })()
             ) : null
           )}
 

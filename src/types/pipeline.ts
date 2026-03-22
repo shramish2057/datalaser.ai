@@ -81,6 +81,7 @@ export interface ValidationResult {
   message: string
   failing_rows: number
   examples: unknown[]
+  category: 'issue' | 'characteristic' | 'info'
 }
 
 export interface ValidationReport {
@@ -89,6 +90,9 @@ export interface ValidationReport {
   score: number
   tests: ValidationResult[]
   summary: string
+  issues_count: number
+  characteristics_count: number
+  fixable_resolved: boolean
 }
 
 export interface JoinCandidate {
