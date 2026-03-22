@@ -178,40 +178,10 @@ async function parseXLSX(buffer: ArrayBuffer): Promise<{ columns: ColumnMeta[]; 
   return { columns, rows: dataRows.length, sampleRows }
 }
 
-/** Parse Parquet using parquet-wasm + Apache Arrow */
-async function parseParquet(buffer: ArrayBuffer): Promise<{ columns: ColumnMeta[]; rows: number; sampleRows: string[][] }> {
-  try {
-    // @ts-expect-error - parquet-wasm ESM module path
-    const parquetModule = await import('parquet-wasm/esm/parquet_wasm')
-    await parquetModule.default()
-
-    const arrowIPC = parquetModule.readParquet(new Uint8Array(buffer))
-
-    const arrow = await import('apache-arrow')
-    const table = arrow.tableFromIPC(arrowIPC)
-
-    const headers = table.schema.fields.map(f => f.name)
-    const numRows = table.numRows
-
-    // Extract up to 200 rows as string arrays
-    const limit = Math.min(numRows, 200)
-    const allRows: string[][] = []
-    for (let r = 0; r < limit; r++) {
-      const row: string[] = headers.map(h => {
-        const val = table.getChild(h)?.get(r)
-        return val === null || val === undefined ? '' : String(val)
-      })
-      allRows.push(row)
-    }
-
-    const columns = buildColumnMeta(headers, allRows, numRows)
-    const sampleRows = allRows.slice(0, 5)
-
-    return { columns, rows: numRows, sampleRows }
-  } catch (err) {
-    console.error('Parquet parse error:', err)
-    return { columns: [], rows: 0, sampleRows: [] }
-  }
+/** Parse Parquet — server-side only via pipeline service */
+async function parseParquet(_buffer: ArrayBuffer): Promise<{ columns: ColumnMeta[]; rows: number; sampleRows: string[][] }> {
+  // Parquet files are profiled server-side by the pipeline service
+  return { columns: [], rows: 0, sampleRows: [] }
 }
 
 /** Persist source info so calibrate page can derive smart metrics + save to DB */
