@@ -632,7 +632,7 @@ export default function PreparePage() {
                     <div key={i} className="flex items-center gap-2 text-mb-xs">
                       <CheckCircle2 size={14} className="text-mb-success" />
                       <span className="font-bold text-mb-text-dark">{String(l.operation)}</span>
-                      {l.column && <span className="text-mb-text-light">on {String(l.column)}</span>}
+                      {l.column ? <span className="text-mb-text-light">on {String(l.column)}</span> : null}
                       <span className="text-mb-text-light">— {String(l.rows_affected ?? 0)} rows affected</span>
                     </div>
                   ))}

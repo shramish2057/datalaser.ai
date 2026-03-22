@@ -108,9 +108,15 @@ export default function IntentPage() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { router.push('/login'); return }
 
-        // Get project's org_id
+        // Ensure profile exists (FK: data_sources.workspace_id → profiles.id)
+        await supabase.from('profiles').upsert({
+          id: user.id,
+          workspace_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'My Workspace',
+        })
+
+        // Get project's org_id and workspace_id
         const { data: proj } = await supabase
-          .from('projects').select('org_id').eq('id', projectId).single()
+          .from('projects').select('org_id, workspace_id').eq('id', projectId).single()
 
         const cols = Array.isArray(file.columns) ? file.columns : []
         const sampleRows = Array.isArray(file.sampleRows) ? file.sampleRows : []
@@ -157,6 +163,10 @@ export default function IntentPage() {
           .select('id')
           .single()
 
+        if (insertErr) {
+          console.error('data_sources insert failed:', insertErr.message, insertErr.details, insertErr.hint)
+        }
+
         if (!insertErr && inserted) {
           // Upload to Storage
           try {
@@ -190,10 +200,12 @@ export default function IntentPage() {
       }
     }
 
-    // Fallback: old flow (no project context or save failed)
+    // Fallback: save failed or no project context
+    // Still go to ask but keep intent data for the quality banner
     if (projectId) {
       localStorage.removeItem('datalaser_project_id')
-      router.push(`/projects/${projectId}/ask`)
+      // Go to project overview instead of ask — user can choose their path
+      router.push(`/projects/${projectId}`)
     } else {
       router.push('/app/ask')
     }

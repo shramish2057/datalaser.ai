@@ -111,7 +111,7 @@ export function DataQualityBanner({ report, prepareUrl }: { report: DataQualityR
           </div>
 
           {/* Clean this data action */}
-          {prepareUrl && report.level !== 'good' && (
+          {prepareUrl && (
             <div className={`flex items-center justify-between pt-3 border-t ${c.border} mb-3`}>
               <span className={`text-mb-xs font-bold ${c.text}`}>
                 Fix these issues with the data preparation pipeline
