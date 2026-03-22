@@ -28,6 +28,7 @@ export interface DataSource {
   schema_snapshot: Record<string, unknown>;
   sample_data: Record<string, unknown>;
   file_path: string | null;
+  cleaned_file_path: string | null;
   pipeline_status: string | null;
   pipeline_recipe_id: string | null;
   error_message: string | null;

@@ -177,7 +177,7 @@ export default function ProjectSourcesPage() {
                       <HeartPulse size={14} />
                     </Link>
                     <Link
-                      href={`${base}/sources/${src.id}/prepare`}
+                      href={`${base}/prep/${src.id}`}
                       className="mb-btn-subtle p-1.5 text-mb-brand"
                       title="Prepare data"
                     >

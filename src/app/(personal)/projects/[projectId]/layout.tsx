@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
-  ChevronRight, LogOut, Plus, FolderOpen
+  ChevronRight, LogOut, Plus, FolderOpen, Wand2
 } from 'lucide-react'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
@@ -102,6 +102,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
     { icon: MessageSquare, label: 'Ask Data', path: '/ask' },
     { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
     { icon: Database, label: 'Data Sources', path: '/sources' },
+    { icon: Wand2, label: 'Data Prep', path: '/prep' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ]
 

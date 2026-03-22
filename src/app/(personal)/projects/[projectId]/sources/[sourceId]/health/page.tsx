@@ -298,7 +298,7 @@ export default function DataHealthPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Option 1: Clean first */}
           <button
-            onClick={() => router.push(`${base}/sources/${sourceId}/prepare`)}
+            onClick={() => router.push(`/projects/${projectId}/prep/${sourceId}`)}
             className={`text-left p-5 rounded-mb-lg border transition-all group
               ${hasIssues ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover'}`}
           >

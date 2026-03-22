@@ -8,3 +8,6 @@ ALTER TABLE data_sources ADD COLUMN IF NOT EXISTS pipeline_recipe_id uuid;
 -- Add project_id and org_id if not already there
 ALTER TABLE data_sources ADD COLUMN IF NOT EXISTS project_id uuid;
 ALTER TABLE data_sources ADD COLUMN IF NOT EXISTS org_id uuid;
+
+-- Cleaned file path for pipeline-processed data
+ALTER TABLE data_sources ADD COLUMN IF NOT EXISTS cleaned_file_path text;

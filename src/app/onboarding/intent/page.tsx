@@ -229,7 +229,7 @@ export default function IntentPage() {
     if (projectId && savedSourceId) {
       localStorage.removeItem('datalaser_project_id')
       localStorage.removeItem('datalaser_connect_info')
-      router.push(`/projects/${projectId}/sources/${savedSourceId}/prepare`)
+      router.push(`/projects/${projectId}/prep/${savedSourceId}`)
     }
   }
 

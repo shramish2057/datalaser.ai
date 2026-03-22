@@ -53,7 +53,7 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
 
   let query = supabase
     .from('data_sources')
-    .select('id, name, source_type, schema_snapshot, sample_data, row_count')
+    .select('id, name, source_type, schema_snapshot, sample_data, row_count, cleaned_file_path, file_path')
     .eq('status', 'active');
 
   if (sourceIds && sourceIds.length > 0) {
@@ -73,10 +73,36 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
   const sections: string[] = [];
 
   for (const source of sources) {
+    const cleanedPath = source.cleaned_file_path as string | null;
     const schema = source.schema_snapshot as unknown as SchemaSnapshot | null;
     const sample = source.sample_data as unknown as SampleData | null;
 
-    let section = `SOURCE: ${source.name} (${source.source_type})\n`;
+    let section = `SOURCE: ${source.name} (${source.source_type})`;
+    if (cleanedPath) section += ` [CLEANED]`;
+    section += '\n';
+
+    // If cleaned data exists in Storage, use it for context
+    if (cleanedPath) {
+      try {
+        const { data: blob } = await supabase.storage
+          .from('data-sources')
+          .download(cleanedPath);
+        if (blob) {
+          const text = await blob.text();
+          const lines = text.split('\n').filter(l => l.trim());
+          const headers = lines[0];
+          const sampleLines = lines.slice(1, 6).join('\n');
+          section += `COLUMNS: ${headers}\n`;
+          section += `ROWS: ${lines.length - 1}\n`;
+          section += `SAMPLE DATA (first 5 rows):\n${headers}\n${sampleLines}\n`;
+          section += '----';
+          sections.push(section);
+          continue;
+        }
+      } catch {
+        // Fall through to sample_data
+      }
+    }
 
     if (schema?.tables) {
       section += `TABLES: ${schema.tables.map((t) => `${t.name} (${t.row_count.toLocaleString()} rows)`).join(', ')}\n`;

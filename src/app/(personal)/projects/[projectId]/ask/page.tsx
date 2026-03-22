@@ -363,7 +363,7 @@ export default function ProjectAskPage() {
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="max-w-[860px] mx-auto space-y-6">
             {qualityReport && <DataQualityBanner report={qualityReport}
-              prepareUrl={latestSourceId ? `/projects/${projectId}/sources/${latestSourceId}/prepare` : undefined} />}
+              prepareUrl={latestSourceId ? `/projects/${projectId}/prep/${latestSourceId}` : undefined} />}
 
             {/* Empty state */}
             {messages.length === 0 && !loading && (
