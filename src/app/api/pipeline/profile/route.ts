@@ -29,7 +29,9 @@ export async function POST(request: NextRequest) {
     if (!upstream.ok) {
       return NextResponse.json({ error: data.detail || 'Profiling failed' }, { status: upstream.status })
     }
-    return NextResponse.json(data)
+    const response = NextResponse.json(data)
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate')
+    return response
   } catch (err) {
     return NextResponse.json({ error: 'Pipeline service unavailable' }, { status: 503 })
   }

@@ -18,6 +18,7 @@ async def profile_file(
         run_id = str(uuid.uuid4())
 
     file_bytes = await file.read()
+    print(f'[PROFILE] Received file: {file.filename}, size={len(file_bytes)}, first_100={file_bytes[:100]}')
 
     # 500MB limit
     max_size = 500 * 1024 * 1024
@@ -36,6 +37,9 @@ async def profile_file(
             run_id=run_id,
             source_id=source_id,
         )
+        print(f'[PROFILE] Result: score={result.quality_score}, warnings={len(result.warnings)}, rows={result.total_rows}')
+        for w in result.warnings:
+            print(f'[PROFILE]   {w.column}: {w.detail}')
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Profiling failed: {str(e)}")
