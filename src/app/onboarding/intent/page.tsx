@@ -170,13 +170,19 @@ export default function IntentPage() {
 
       setSavedSourceId(inserted.id)
 
-      // Upload CSV to Storage
-      const csvHeader = cols.map(c => c.name).join(',')
-      const csvRows = sampleRows.map(r => r.join(','))
-      const csvContent = [csvHeader, ...csvRows].join('\n')
-      const csvBlob = new Blob([csvContent], { type: 'text/csv' })
-      const storagePath = `${user.id}/${inserted.id}/${file.name}`
+      // Use the raw file content (full data) if available, fallback to sample
+      const rawFileContent = localStorage.getItem('datalaser_raw_file')
+      let csvBlob: Blob
+      if (rawFileContent) {
+        csvBlob = new Blob([rawFileContent], { type: 'text/csv' })
+      } else {
+        const csvHeader = cols.map(c => c.name).join(',')
+        const csvRows = sampleRows.map(r => r.join(','))
+        csvBlob = new Blob([csvHeader + '\n' + csvRows.join('\n')], { type: 'text/csv' })
+      }
 
+      // Upload to Storage
+      const storagePath = `${user.id}/${inserted.id}/${file.name}`
       await supabase.storage
         .from('data-sources')
         .upload(storagePath, csvBlob, { contentType: 'text/csv', upsert: true })
@@ -184,6 +190,9 @@ export default function IntentPage() {
       await supabase.from('data_sources')
         .update({ file_path: storagePath })
         .eq('id', inserted.id)
+
+      // Clean up raw file from localStorage
+      localStorage.removeItem('datalaser_raw_file')
 
       // Now profile via pipeline service
       setPageStep('profiling')
