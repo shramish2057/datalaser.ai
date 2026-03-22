@@ -199,6 +199,8 @@ export default function IntentPage() {
       // Now profile via pipeline service
       setPageStep('profiling')
 
+      console.log('[Intent] CSV blob size:', csvBlob.size, 'bytes, raw file found:', !!rawFileContent)
+
       const fd = new FormData()
       fd.append('file', csvBlob, file.name)
       fd.append('source_id', inserted.id)
