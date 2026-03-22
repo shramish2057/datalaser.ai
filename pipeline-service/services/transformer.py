@@ -11,7 +11,7 @@ class DataTransformer:
 
     def load_dataframe(self, file_bytes: bytes, file_type: str) -> pd.DataFrame:
         buf = io.BytesIO(file_bytes)
-        na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "NaN", "-"]
+        na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "NaN", "-", "\\N"]
         if file_type == "csv":
             return pd.read_csv(buf, na_values=na_vals)
         elif file_type in ("xlsx", "xls"):

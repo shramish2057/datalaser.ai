@@ -23,7 +23,7 @@ async def run_validation(
     try:
         file_bytes = await file.read()
         buf = io.BytesIO(file_bytes)
-        na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "NaN", "-"]
+        na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "NaN", "-", "\\N"]
 
         if file_type == "csv":
             df = pd.read_csv(buf, na_values=na_vals)
