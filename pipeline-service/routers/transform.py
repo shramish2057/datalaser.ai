@@ -46,7 +46,7 @@ async def preview_transform(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/apply", response_model=TransformResult)
+@router.post("/apply")
 async def apply_transform(
     file: UploadFile = File(...),
     steps: str = Form(...),
