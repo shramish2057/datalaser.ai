@@ -22,7 +22,7 @@ export default function LoginPage() {
     setError(null)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) { setError(error.message); setLoading(false); return }
-    router.push('/app/insights')
+    router.push('/projects')
   }
 
   const handleGoogle = async () => {

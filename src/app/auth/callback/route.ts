@@ -22,7 +22,29 @@ export async function GET(request: Request) {
         },
       }
     )
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data: { session } } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (session) {
+      // Check if user has an org — determines where to redirect
+      const { data: membership } = await supabase
+        .from('org_members')
+        .select('organizations(type, slug)')
+        .eq('user_id', session.user.id)
+        .limit(1)
+        .single()
+
+      if (!membership) {
+        // New user — send to onboarding
+        return NextResponse.redirect(new URL('/onboarding/setup', request.url))
+      }
+
+      const org = membership.organizations as unknown as { type: string; slug: string }
+      const home = org.type === 'team' ? `/${org.slug}` : '/projects'
+
+      const redirect = NextResponse.redirect(new URL(home, request.url))
+      redirect.cookies.set('dl_home', home, { maxAge: 3600, path: '/' })
+      return redirect
+    }
   }
 
   return NextResponse.redirect(new URL('/projects', request.url))
