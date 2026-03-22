@@ -1,7 +1,9 @@
 export interface StudioCell {
   id: string
-  type: 'python' | 'markdown'
+  type: 'python' | 'sql' | 'r' | 'text' | 'heading'
   code: string
+  content?: string
+  level?: 1 | 2 | 3
   output: CellOutput | null
   status: 'idle' | 'running' | 'done' | 'error'
   created_at: string

@@ -267,6 +267,13 @@
   }
 }
 
+/* Print styles for Studio report export */
+@media print {
+  [data-panel="left"] { display: none !important; }
+  [data-panel="right"] { width: 100% !important; flex-basis: 100% !important; padding: 20px !important; }
+  .no-print { display: none !important; }
+}
+
 /* Markdown prose styling for AI chat responses */
 .prose-mb { line-height: 1.65; }
 .prose-mb h1 {
