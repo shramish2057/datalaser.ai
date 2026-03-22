@@ -287,6 +287,20 @@ export default function CalibratePage() {
       localStorage.removeItem('datalaser_connect_info')
 
       const storedProjectId = localStorage.getItem('datalaser_project_id')
+
+      // If no file source was saved, find the latest source for this project
+      // (could be a DB source saved by the connect modal)
+      if (!firstSourceId && storedProjectId) {
+        const { data: latestSrc } = await supabase
+          .from('data_sources')
+          .select('id')
+          .eq('project_id', storedProjectId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+        if (latestSrc) firstSourceId = latestSrc.id
+      }
+
       if (storedProjectId && firstSourceId) {
         localStorage.removeItem('datalaser_project_id')
         router.push(`/projects/${storedProjectId}/sources/${firstSourceId}/health`)

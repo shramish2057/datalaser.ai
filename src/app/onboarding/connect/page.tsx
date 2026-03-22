@@ -369,24 +369,82 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
     setModalOpen(true)
   }
 
+  // Map connector name → API source_type
+  const connectorToSourceType: Record<string, string> = {
+    PostgreSQL: 'postgres', MySQL: 'mysql', MongoDB: 'mongodb',
+    'SQL Server': 'mssql', Snowflake: 'snowflake', BigQuery: 'bigquery',
+    Redshift: 'redshift', Databricks: 'databricks', Shopify: 'shopify',
+    Stripe: 'stripe', Square: 'square', 'Google Ads': 'google_ads',
+    'Meta Ads': 'meta_ads', 'Google Analytics': 'google_analytics',
+    QuickBooks: 'quickbooks', Xero: 'xero', Plaid: 'plaid',
+  }
+
+  const connectorToCategory: Record<string, string> = {
+    Databases: 'database', Warehouses: 'warehouse', Commerce: 'ecommerce',
+    Marketing: 'marketing', Finance: 'finance',
+  }
+
   const handleTest = async () => {
+    if (!selectedConnector) return
     setTestResult('testing')
-    // Simulate test
-    await new Promise(r => setTimeout(r, 1500))
-    setTestResult('success')
+    setTestError('')
+    try {
+      const res = await fetch('/api/sources/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source_type: connectorToSourceType[selectedConnector.name] || selectedConnector.name.toLowerCase(),
+          credentials: formValues,
+        }),
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setTestResult('success')
+      } else {
+        setTestResult('error')
+        setTestError(data.error || data.message || 'Connection failed')
+      }
+    } catch (e) {
+      setTestResult('error')
+      setTestError(e instanceof Error ? e.message : 'Connection test failed')
+    }
   }
 
   const handleSave = async () => {
     if (!selectedConnector) return
     setSaving(true)
-    await new Promise(r => setTimeout(r, 800))
-    setConnectedSources(prev => {
-      const updated = [...prev, selectedConnector.name]
-      persistSourceInfo(uploadedFiles, updated)
-      return updated
-    })
-    setSaving(false)
-    setModalOpen(false)
+    try {
+      const sourceType = connectorToSourceType[selectedConnector.name] || selectedConnector.name.toLowerCase()
+      const category = connectorToCategory[selectedConnector.category] || 'database'
+
+      const res = await fetch('/api/sources/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: selectedConnector.name,
+          source_type: sourceType,
+          category,
+          credentials: formValues,
+          project_id: projectId || undefined,
+        }),
+      })
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setConnectedSources(prev => {
+          const updated = [...prev, selectedConnector.name]
+          persistSourceInfo(uploadedFiles, updated)
+          return updated
+        })
+        setModalOpen(false)
+      } else {
+        setTestError(data.error || data.message || 'Failed to save connection')
+      }
+    } catch (e) {
+      setTestError(e instanceof Error ? e.message : 'Failed to save')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const totalConnected = connectedSources.length + uploadedFiles.length
