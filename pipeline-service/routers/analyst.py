@@ -188,3 +188,30 @@ return ONLY valid JSON:
 
     execution = executor.execute(suggestion["code"], df)
     return JSONResponse(content=sanitize({"suggestion": suggestion, "execution": execution}))
+
+
+@router.post("/execute-db")
+async def execute_code_db(
+    source_type: str = Form(...),
+    connection_string: str = Form(...),
+    table_name: str = Form(...),
+    code: str = Form(...),
+    cell_id: Optional[str] = Form(None),
+    row_limit: int = Form(100000),
+):
+    """Execute Python code against a live database connection."""
+    try:
+        import sqlalchemy
+        engine = sqlalchemy.create_engine(
+            connection_string, connect_args={"connect_timeout": 10}
+        )
+        df = pd.read_sql(f"SELECT * FROM {table_name} LIMIT {row_limit}", engine)
+        result = executor.execute(code, df)
+        return JSONResponse(content=sanitize({
+            "cell_id": cell_id or str(uuid.uuid4()),
+            "row_count": len(df),
+            "source_type": source_type,
+            **result,
+        }))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database execution failed: {str(e)}")
