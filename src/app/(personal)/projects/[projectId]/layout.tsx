@@ -6,12 +6,21 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
-  ChevronRight, LogOut, Plus, FolderOpen, Wand2
+  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical
 } from 'lucide-react'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  // Studio has its own full-screen layout — pass through
+  if (pathname.includes('/studio')) {
+    return <>{children}</>
+  }
+  return <ProjectShell>{children}</ProjectShell>
+}
+
+function ProjectShell({ children }: { children: React.ReactNode }) {
   const [project, setProject] = useState<Project | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [org, setOrg] = useState<Organization | null>(null)
@@ -100,6 +109,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   const projectNav = [
     { icon: BarChart2, label: 'Insights', path: '' },
     { icon: MessageSquare, label: 'Ask Data', path: '/ask' },
+    { icon: FlaskConical, label: 'Studio', path: '/studio', badge: 'Pro' },
     { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
     { icon: Database, label: 'Data Sources', path: '/sources' },
     { icon: Wand2, label: 'Data Prep', path: '/prep' },
@@ -179,7 +189,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
 
         {/* Nav items */}
         <nav className="flex-1 py-2 overflow-y-auto">
-          {projectNav.map(({ icon: Icon, label, path }) => {
+          {projectNav.map(({ icon: Icon, label, path, badge }: { icon: typeof BarChart2; label: string; path: string; badge?: string }) => {
             const active = isActive(path)
             return (
               <Link
@@ -198,7 +208,14 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
                   <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-mb-brand rounded-r-sm" />
                 )}
                 <Icon size={16} className="flex-shrink-0" />
-                {sidebarExpanded && <span>{label}</span>}
+                {sidebarExpanded && (
+                  <span className="flex items-center gap-1.5">
+                    {label}
+                    {badge && (
+                      <span className="text-[10px] font-semibold px-1 py-px rounded bg-yellow-100 text-yellow-700">{badge}</span>
+                    )}
+                  </span>
+                )}
               </Link>
             )
           })}
