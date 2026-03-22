@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from typing import Optional
 import uuid
 import json
+import base64
 from models.schemas import TransformRequest, TransformResult, TransformStep, DataProfile
 from services.transformer import transformer
 from services.suggester import generate_suggestions
@@ -65,7 +66,11 @@ async def apply_transform(
         df_transformed, lineage, errors = transformer.apply_steps(df, steps_list, run_id)
         preview = transformer.get_preview(df_transformed)
 
-        return TransformResult(
+        # Encode transformed CSV as base64 so client can use it for validation
+        csv_bytes = transformer.to_csv_bytes(df_transformed)
+        transformed_csv_b64 = base64.b64encode(csv_bytes).decode('ascii')
+
+        result = TransformResult(
             run_id=run_id,
             success=len(errors) == 0,
             rows_before=rows_before,
@@ -75,5 +80,10 @@ async def apply_transform(
             errors=errors,
             lineage=lineage,
         )
+
+        # Return as dict so we can add the extra field
+        result_dict = result.model_dump()
+        result_dict["transformed_csv_b64"] = transformed_csv_b64
+        return result_dict
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

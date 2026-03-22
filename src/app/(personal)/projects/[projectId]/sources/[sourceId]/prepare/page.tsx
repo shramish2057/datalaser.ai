@@ -78,6 +78,7 @@ export default function PreparePage() {
   const [expandedTests, setExpandedTests] = useState<Set<string>>(new Set())
   const [dbTableName, setDbTableName] = useState('')
   const fileRef = useRef<File | null>(null)
+  const transformedFileRef = useRef<Blob | null>(null)
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -94,14 +95,21 @@ export default function PreparePage() {
 
     // Try Storage download
     if (filePath) {
+      console.log('[Prepare] Downloading from Storage:', filePath)
       const { data: blob, error: dlError } = await supabase.storage
         .from('data-sources')
         .download(filePath)
+      if (dlError) {
+        console.error('[Prepare] Storage download failed:', dlError.message)
+      }
       if (!dlError && blob) {
+        console.log('[Prepare] Storage download OK, size:', blob.size)
         const file = new File([blob], fileName, { type: blob.type || 'text/csv' })
         fileRef.current = file
         return file
       }
+    } else {
+      console.log('[Prepare] No file_path on source record, falling back to sample_data')
     }
 
     // Fallback: reconstruct from sample_data
@@ -245,6 +253,14 @@ export default function PreparePage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Transform failed')
       setResult(data)
+
+      // Store transformed CSV for validation step
+      if (data.transformed_csv_b64) {
+        const binaryStr = atob(data.transformed_csv_b64)
+        const bytes = new Uint8Array(binaryStr.length)
+        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i)
+        transformedFileRef.current = new Blob([bytes], { type: 'text/csv' })
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Transform failed')
     } finally {
@@ -258,8 +274,10 @@ export default function PreparePage() {
     setError(null)
     setStep('validate')
     try {
+      // Use transformed file if available, otherwise original
+      const fileToValidate = transformedFileRef.current || sourceFile.bytes
       const fd = new FormData()
-      fd.append('file', sourceFile.bytes, sourceFile.name)
+      fd.append('file', fileToValidate, sourceFile.name)
       fd.append('source_id', sourceId)
       const res = await fetch('/api/pipeline/validate', { method: 'POST', body: fd })
       const data = await res.json()
