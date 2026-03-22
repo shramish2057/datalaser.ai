@@ -138,8 +138,12 @@ export default function NotebookWorkspace() {
     const src = sources.find(s => s.id === activeSourceId)
     try {
       let execResult: Record<string, unknown>
-      if (['csv','xlsx','xls','json','parquet','file'].includes(src?.source_type || '')) {
-        if (!fileRef.current) throw new Error('No file loaded.')
+      // File-based sources: use FormData upload. DB sources: use JSON with source_id
+      const fileTypes = ['csv','xlsx','xls','json','parquet','file']
+      const isFileSource = !src || fileTypes.includes(src.source_type) || src.file_path
+      console.log('[Studio] runCell source:', src?.name, 'type:', src?.source_type, 'isFile:', isFileSource, 'hasFile:', !!fileRef.current)
+      if (isFileSource) {
+        if (!fileRef.current) throw new Error('No file loaded. Select a data source in the sidebar.')
         const fd = new FormData()
         fd.append('file', fileRef.current); fd.append('code', cell.code)
         fd.append('file_type', src?.source_type || 'csv'); fd.append('cell_id', cellId)
