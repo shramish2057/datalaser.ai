@@ -48,14 +48,23 @@ function formatSampleRows(table: SampleTable, maxRows: number): string {
   return [header, ...rows].join('\n');
 }
 
-export async function buildDataContext(workspaceId: string): Promise<string> {
+export async function buildDataContext(workspaceId: string, projectId?: string, sourceIds?: string[]): Promise<string> {
   const supabase = createAdminClient();
 
-  const { data: sources, error } = await supabase
+  let query = supabase
     .from('data_sources')
     .select('id, name, source_type, schema_snapshot, sample_data, row_count')
-    .eq('workspace_id', workspaceId)
     .eq('status', 'active');
+
+  if (sourceIds && sourceIds.length > 0) {
+    query = query.in('id', sourceIds);
+  } else if (projectId) {
+    query = query.eq('project_id', projectId);
+  } else {
+    query = query.eq('workspace_id', workspaceId);
+  }
+
+  const { data: sources, error } = await query;
 
   if (error || !sources || sources.length === 0) {
     return 'No active data sources found for this workspace.';

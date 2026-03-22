@@ -1,11 +1,11 @@
 export const chartTheme = {
-  cartesianGrid: { strokeDasharray: '3 3', stroke: '#EEECEC' },
+  cartesianGrid: { strokeDasharray: '3 3', stroke: '#E8ECEE' },
   xAxis: {
-    stroke: '#EEECEC',
+    stroke: '#E8ECEE',
     tick: { fill: '#949AAB', fontSize: 11, fontFamily: 'Lato' },
   },
   yAxis: {
-    stroke: '#EEECEC',
+    stroke: '#E8ECEE',
     tick: { fill: '#949AAB', fontSize: 11, fontFamily: 'Lato' },
   },
   tooltip: {
@@ -18,5 +18,5 @@ export const chartTheme = {
       fontFamily: 'Lato',
     },
   },
-  colors: ['#509EE3', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556'],
+  colors: ['#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556'],
 }

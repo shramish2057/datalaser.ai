@@ -1,0 +1,6 @@
+customer_id,customer_name,email,city,signup_date
+C001,Alice Johnson,alice@example.com,New York,2023-06-01
+C002,Bob Smith,bob@example.com,London,2023-07-15
+C003,Carol White,carol@example.com,Sydney,2023-08-20
+C004,Dave Brown,dave@example.com,Toronto,2023-09-10
+C005,Eve Davis,eve@example.com,Paris,2023-10-05

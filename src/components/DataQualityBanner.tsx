@@ -1,9 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, AlertTriangle, AlertCircle, CheckCircle, ArrowUpRight } from 'lucide-react'
+import { ChevronDown, ChevronUp, AlertTriangle, AlertCircle, CheckCircle, ArrowUpRight, Wand2 } from 'lucide-react'
 import type { DataQualityReport } from '@/lib/dataQuality'
 
-export function DataQualityBanner({ report }: { report: DataQualityReport }) {
+export function DataQualityBanner({ report, prepareUrl }: { report: DataQualityReport; prepareUrl?: string }) {
   const [expanded, setExpanded] = useState(report.level === 'red')
 
   if (report.level === 'good') {
@@ -109,6 +109,22 @@ export function DataQualityBanner({ report }: { report: DataQualityReport }) {
               </div>
             ))}
           </div>
+
+          {/* Clean this data action */}
+          {prepareUrl && report.level !== 'good' && (
+            <div className={`flex items-center justify-between pt-3 border-t ${c.border} mb-3`}>
+              <span className={`text-mb-xs font-bold ${c.text}`}>
+                Fix these issues with the data preparation pipeline
+              </span>
+              <a
+                href={prepareUrl}
+                className="mb-btn-primary text-mb-xs px-3 py-1.5 flex items-center gap-1 ml-4 flex-shrink-0"
+              >
+                <Wand2 size={12} />
+                Clean this data
+              </a>
+            </div>
+          )}
 
           {/* Upgrade prompt */}
           {report.upgradePrompt && (

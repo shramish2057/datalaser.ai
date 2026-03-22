@@ -19,7 +19,7 @@ export type ChartData = {
   colors?: string[]
 }
 
-const MB_COLORS = ['#509EE3','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
+const MB_COLORS = ['#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 export function InteractiveChart({ chart, onPin }: { chart: ChartData; onPin?: () => void }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)

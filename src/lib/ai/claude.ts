@@ -83,9 +83,9 @@ export type InsightResponse = z.infer<typeof insightResponseSchema>;
 /**
  * Generate structured insights from all active data sources in a workspace.
  */
-export async function generateInsights(workspaceId: string): Promise<InsightResponse> {
+export async function generateInsights(workspaceId: string, projectId?: string, sourceIds?: string[]): Promise<InsightResponse> {
   const client = getClient();
-  const context = await buildDataContext(workspaceId);
+  const context = await buildDataContext(workspaceId, projectId, sourceIds);
   return _generateInsightsFromContext(client, context);
 }
 

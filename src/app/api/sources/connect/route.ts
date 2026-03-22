@@ -26,6 +26,7 @@ const connectSchema = z.object({
   source_type: z.enum(SOURCE_TYPES as [string, ...string[]]),
   category: z.enum(SOURCE_CATEGORIES as [string, ...string[]]),
   credentials: z.record(z.string(), z.any()),
+  project_id: z.string().uuid().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, source_type, category, credentials } = parsed.data;
+    const { name, source_type, category, credentials, project_id } = parsed.data;
 
     // 2. Authenticate
     const supabase = await createClient();
@@ -94,20 +95,36 @@ export async function POST(request: NextRequest) {
 
     const totalRows = schemaSnapshot.tables.reduce((sum, t) => sum + t.row_count, 0);
 
+    // Resolve org_id from project if provided
+    let orgId: string | undefined;
+    if (project_id) {
+      const { data: proj } = await supabase
+        .from('projects')
+        .select('org_id')
+        .eq('id', project_id)
+        .single();
+      orgId = proj?.org_id;
+    }
+
+    const insertData: Record<string, unknown> = {
+      workspace_id: user.id,
+      name,
+      source_type,
+      category,
+      encrypted_credentials: encryptedCreds,
+      status: 'active',
+      schema_snapshot: schemaSnapshot,
+      sample_data: sampleData,
+      row_count: totalRows,
+      last_synced_at: new Date().toISOString(),
+    };
+
+    if (project_id) insertData.project_id = project_id;
+    if (orgId) insertData.org_id = orgId;
+
     const { data: source, error: insertError } = await supabase
       .from('data_sources')
-      .insert({
-        workspace_id: user.id,
-        name,
-        source_type,
-        category,
-        encrypted_credentials: encryptedCreds,
-        status: 'active',
-        schema_snapshot: schemaSnapshot,
-        sample_data: sampleData,
-        row_count: totalRows,
-        last_synced_at: new Date().toISOString(),
-      })
+      .insert(insertData)
       .select('id, name, source_type, category, status, schema_snapshot, row_count, created_at')
       .single();
 

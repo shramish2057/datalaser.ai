@@ -1,0 +1,7 @@
+customer_id,name,email,phone,age,signup_date,status,revenue
+C001,Alice,alice@example.com,555-1234,28,2024-01-15,active,1200.00
+C002,Bob,not-an-email,abc,150,2024-01-16,ACTIVE,85000.00
+C003,Carol,carol@example.com,555-9012,-5,not-a-date,Active,950.00
+C001,Alice Duplicate,alice2@example.com,555-1234,28,2024-01-15,active,1200.00
+C004,Dave,,555-3456,35,2024-01-18,inactive,
+C005,Eve,eve@example.com,555-7890,29,2025-12-01,active,2100.00

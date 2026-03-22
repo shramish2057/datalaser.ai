@@ -17,23 +17,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Generate insights via Claude
-    const insights = await generateInsights(user.id);
+    // 2. Read optional project_id and source_ids from body
+    let projectId: string | undefined;
+    let sourceIds: string[] | undefined;
+    try {
+      const body = await request.json();
+      projectId = body.project_id;
+      sourceIds = body.source_ids;
+    } catch {
+      // No body or invalid JSON — use workspace-level fallback
+    }
 
-    // 3. Save to insight_documents table
+    // 3. Generate insights via Claude
+    const insights = await generateInsights(user.id, projectId, sourceIds);
+
+    // 4. Save to insight_documents table
+    const insertData: Record<string, unknown> = {
+      workspace_id: user.id,
+      title: insights.title,
+      executive_summary: insights.executive_summary,
+      severity_chips: insights.severity_chips,
+      kpis: insights.kpis,
+      key_findings: insights.key_findings,
+      recommendations: insights.recommendations,
+      anomalies: insights.anomalies,
+      deep_dives: insights.deep_dives,
+    };
+
+    if (projectId) {
+      insertData.project_id = projectId;
+    }
+
     const { data: doc, error: insertError } = await supabase
       .from('insight_documents')
-      .insert({
-        workspace_id: user.id,
-        title: insights.title,
-        executive_summary: insights.executive_summary,
-        severity_chips: insights.severity_chips,
-        kpis: insights.kpis,
-        key_findings: insights.key_findings,
-        recommendations: insights.recommendations,
-        anomalies: insights.anomalies,
-        deep_dives: insights.deep_dives,
-      })
+      .insert(insertData)
       .select()
       .single();
 

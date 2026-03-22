@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { buildDataContext } from '@/lib/ai/sampler';
 
 const getClient = (() => {
   let client: Anthropic | null = null;
@@ -16,7 +17,7 @@ const getClient = (() => {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, history, intent, qualityReport } = body;
+    const { message, history, intent, qualityReport, project_id, source_ids } = body;
 
     if (!message) {
       return new Response(JSON.stringify({ error: 'No message' }), { status: 400 });
@@ -24,8 +25,14 @@ export async function POST(request: NextRequest) {
 
     const client = getClient();
 
-    // Build data context from intent if available
+    // Build data context — from intent if available, otherwise from project's data sources
     let dataContext = '';
+    if (!intent?.columns && project_id) {
+      // No intent data — fetch from project's saved data sources
+      try {
+        dataContext = await buildDataContext('', project_id, source_ids);
+      } catch { /* fallback to empty context */ }
+    }
     if (intent?.columns && intent.sampleRows) {
       const colList = intent.columns
         .map((c: { name: string; dtype: string; sample: string[] }) =>
@@ -70,9 +77,16 @@ You answer questions about the user's data with precision and always include vis
 
 ${dataContext ? `DATA CONTEXT:\n${dataContext}\n` : ''}${qualityContext}
 RESPONSE FORMAT:
+- Use **Markdown** formatting in every response
+- Use ## for section headings (e.g. ## Revenue Analysis)
+- Use **bold** for key numbers and important terms
+- Use bullet points or numbered lists for comparisons
+- Use > blockquotes for warnings or caveats about data quality
 - ALWAYS include at least one [CHART] block in every response
-- After the chart, write 2-3 sentences of plain-English insight explaining the chart
+- Place each [CHART] block right after the section it illustrates
+- After each chart, write 2-3 sentences of insight explaining it
 - You can include multiple charts if useful
+- End every answer with a **Key Takeaway** section using ## heading
 
 CHART BLOCK FORMAT (must be on a single line, data as a JSON array):
 [CHART type="bar" title="Chart Title" xKey="columnName" yKey="columnName" data='[{"columnName":"value","columnName2":123}]']
@@ -88,8 +102,7 @@ RULES:
 - Keep data arrays concise (max 20 data points for charts)
 - The data array MUST be valid JSON — use double quotes for keys and string values
 - Always reference actual values from the data
-- Be specific with numbers, not vague
-- End every answer with one bold actionable insight`;
+- Be specific with numbers, not vague`;
 
     const messages: { role: 'user' | 'assistant'; content: string }[] = [
       ...(history || []).map((h: { role: string; content: string }) => ({
