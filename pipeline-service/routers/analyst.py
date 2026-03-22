@@ -1,0 +1,190 @@
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi.responses import JSONResponse
+from typing import Optional
+import uuid
+import json
+import numpy as np
+import pandas as pd
+import io
+import os
+import httpx
+from services.analyst import executor, analyst
+
+
+def sanitize(obj):
+    """Convert numpy types to native Python for JSON serialization."""
+    if isinstance(obj, dict):
+        return {str(k): sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [sanitize(v) for v in obj]
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    if isinstance(obj, (np.floating,)):
+        return float(obj)
+    if isinstance(obj, (np.bool_,)):
+        return bool(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
+        return None
+    return obj
+
+router = APIRouter()
+
+
+def load_df(file_bytes: bytes, file_type: str) -> pd.DataFrame:
+    buf = io.BytesIO(file_bytes)
+    na_vals = ["", "null", "NULL", "NA", "N/A", "nan", "\\N"]
+    if file_type == "csv":
+        return pd.read_csv(buf, na_values=na_vals)
+    elif file_type in ("xlsx", "xls"):
+        return pd.read_excel(buf)
+    elif file_type == "json":
+        return pd.read_json(buf)
+    elif file_type == "parquet":
+        return pd.read_parquet(buf)
+    raise ValueError(f"Unsupported: {file_type}")
+
+
+@router.post("/execute")
+async def execute_code(
+    file: UploadFile = File(...),
+    code: str = Form(...),
+    file_type: str = Form("csv"),
+    cell_id: Optional[str] = Form(None),
+):
+    try:
+        df = load_df(await file.read(), file_type)
+        result = executor.execute(code, df)
+        return JSONResponse(content=sanitize({"cell_id": cell_id or str(uuid.uuid4()), **result}))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/descriptive")
+async def descriptive_stats(file: UploadFile = File(...), file_type: str = Form("csv")):
+    try:
+        df = load_df(await file.read(), file_type)
+        return JSONResponse(content=sanitize(analyst.descriptive_stats(df)))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/correlation")
+async def correlation(
+    file: UploadFile = File(...),
+    file_type: str = Form("csv"),
+    columns: Optional[str] = Form(None),
+):
+    try:
+        df = load_df(await file.read(), file_type)
+        cols = json.loads(columns) if columns else None
+        return JSONResponse(content=sanitize(analyst.correlation_matrix(df, cols)))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/regression")
+async def regression(
+    file: UploadFile = File(...),
+    file_type: str = Form("csv"),
+    target: str = Form(...),
+    features: str = Form(...),
+):
+    try:
+        df = load_df(await file.read(), file_type)
+        return JSONResponse(content=sanitize(analyst.linear_regression(df, target, json.loads(features))))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/anova")
+async def anova(
+    file: UploadFile = File(...),
+    file_type: str = Form("csv"),
+    value_col: str = Form(...),
+    group_col: str = Form(...),
+):
+    try:
+        df = load_df(await file.read(), file_type)
+        return JSONResponse(content=sanitize(analyst.anova(df, value_col, group_col)))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/ttest")
+async def ttest(
+    file: UploadFile = File(...),
+    file_type: str = Form("csv"),
+    col1: str = Form(...),
+    col2: Optional[str] = Form(None),
+    group_col: Optional[str] = Form(None),
+    mu: float = Form(0),
+):
+    try:
+        df = load_df(await file.read(), file_type)
+        return JSONResponse(content=sanitize(analyst.t_test(df, col1, col2, group_col, mu)))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/chisquare")
+async def chisquare(
+    file: UploadFile = File(...),
+    file_type: str = Form("csv"),
+    col1: str = Form(...),
+    col2: str = Form(...),
+):
+    try:
+        df = load_df(await file.read(), file_type)
+        return JSONResponse(content=sanitize(analyst.chi_square(df, col1, col2)))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/suggest-analysis")
+async def suggest_analysis(
+    file: UploadFile = File(...),
+    file_type: str = Form("csv"),
+    question: str = Form(...),
+):
+    file_bytes = await file.read()
+    df = load_df(file_bytes, file_type)
+
+    col_info = []
+    for col in df.columns:
+        dtype = "numeric" if pd.api.types.is_numeric_dtype(df[col]) else "categorical"
+        col_info.append({"name": col, "dtype": dtype,
+                         "sample": df[col].dropna().head(3).astype(str).tolist()})
+
+    system_prompt = """You are a data analyst. Given a question and dataset columns,
+return ONLY valid JSON:
+{"operation":"regression|anova|correlation|ttest|chisquare|descriptive|custom",
+"code":"python code (df is available, store result in 'result' variable)",
+"columns_used":["col1","col2"],
+"explanation":"what this shows"}"""
+
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY not set")
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
+                     "content-type": "application/json"},
+            json={"model": "claude-sonnet-4-20250514", "max_tokens": 1000,
+                  "system": system_prompt,
+                  "messages": [{"role": "user",
+                                "content": f"Question: {question}\n\nColumns:\n{json.dumps(col_info, indent=2)}"}]},
+        )
+        resp.raise_for_status()
+        text = resp.json()["content"][0]["text"].strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        suggestion = json.loads(text.strip())
+
+    execution = executor.execute(suggestion["code"], df)
+    return JSONResponse(content=sanitize({"suggestion": suggestion, "execution": execution}))
