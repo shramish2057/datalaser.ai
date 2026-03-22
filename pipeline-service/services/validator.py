@@ -40,12 +40,18 @@ class DataValidator:
         overall, score = self._compute_overall(tests)
         summary = self._build_summary(tests, df)
 
+        issues_count = sum(1 for t in tests if t.category == "issue" and t.status in ("warning", "failed"))
+        characteristics_count = sum(1 for t in tests if t.category == "characteristic")
+
         return ValidationReport(
             run_id=run_id,
             overall_status=overall,
             score=score,
             tests=tests,
             summary=summary,
+            issues_count=issues_count,
+            characteristics_count=characteristics_count,
+            fixable_resolved=issues_count == 0,
         )
 
     # ── Row count ─────────────────────────────────────────────────
@@ -55,25 +61,25 @@ class DataValidator:
         if len(df) == 0:
             results.append(ValidationResult(
                 test_name="row_count_not_empty", column=None, status="failed",
-                message="Dataset is empty — no rows to analyse", failing_rows=0,
+                message="Dataset is empty — no rows to analyse", failing_rows=0, category="info",
             ))
         else:
             results.append(ValidationResult(
                 test_name="row_count_not_empty", column=None, status="passed",
-                message=f"Dataset has {len(df):,} rows", failing_rows=0,
+                message=f"Dataset has {len(df):,} rows", failing_rows=0, category="info",
             ))
 
         if 0 < len(df) < 10:
             results.append(ValidationResult(
                 test_name="row_count_sufficient", column=None, status="warning",
                 message=f"Dataset has only {len(df)} rows — results may not be statistically reliable",
-                failing_rows=0,
+                failing_rows=0, category="info",
             ))
         elif len(df) >= 10:
             results.append(ValidationResult(
                 test_name="row_count_sufficient", column=None, status="passed",
                 message=f"Dataset has sufficient rows ({len(df):,}) for analysis",
-                failing_rows=0,
+                failing_rows=0, category="info",
             ))
         return results
 
@@ -167,7 +173,7 @@ class DataValidator:
                     test_name="type_consistency", column=col, status="warning",
                     message=f"Mixed types: {int(numeric_rate*100)}% numeric, {int((1-numeric_rate)*100)}% text",
                     failing_rows=int(total - numeric_count) if numeric_rate > 0.5 else int(numeric_count),
-                    examples=bad_examples,
+                    examples=bad_examples, category="characteristic",
                 ))
             else:
                 results.append(ValidationResult(
@@ -180,9 +186,25 @@ class DataValidator:
 
     def _test_value_ranges(self, df: pd.DataFrame) -> List[ValidationResult]:
         results = []
+
+        ID_KEYWORDS = ['id', 'key', 'code', 'number', 'no', 'ref',
+                       'ticket', 'order', 'invoice', 'sku', 'zip',
+                       'phone', 'mobile', 'postcode', 'passport']
+
         for col in df.columns:
+            col_lower = col.lower()
+
+            # Skip ID-like and code-like columns
+            if any(kw in col_lower for kw in ID_KEYWORDS):
+                continue
+
             numeric = pd.to_numeric(df[col], errors='coerce').dropna()
             if len(numeric) < 10:
+                continue
+
+            # Skip high-cardinality columns (likely IDs or codes)
+            unique_rate = df[col].nunique() / len(df[col].dropna()) if len(df[col].dropna()) > 0 else 0
+            if unique_rate > 0.8:
                 continue
 
             q1 = numeric.quantile(0.25)
@@ -208,6 +230,7 @@ class DataValidator:
                     message=f"{len(outliers)} extreme outliers ({round(outlier_rate*100,1)}%). Range: {numeric.min():.2f} — {numeric.max():.2f}",
                     failing_rows=len(outliers),
                     examples=[str(round(v, 2)) for v in outliers.head(3).tolist()],
+                    category="characteristic",
                 ))
             else:
                 results.append(ValidationResult(
@@ -239,7 +262,7 @@ class DataValidator:
                 results.append(ValidationResult(
                     test_name="categorical_consistency", column=col, status="warning",
                     message=f"Case variants detected in categorical column. Values: {unique_vals[:5]}",
-                    failing_rows=0, examples=unique_vals[:5],
+                    failing_rows=0, examples=unique_vals[:5], category="characteristic",
                 ))
             else:
                 results.append(ValidationResult(
@@ -356,23 +379,39 @@ class DataValidator:
     def _compute_overall(self, tests: List[ValidationResult]) -> Tuple[str, int]:
         if not tests:
             return "passed", 100
-        failed = sum(1 for t in tests if t.status == "failed")
-        warnings = sum(1 for t in tests if t.status == "warning")
-        score = max(0, min(100, 100 - (failed * 15) - (warnings * 5)))
-        overall = "failed" if failed > 0 else ("warning" if warnings > 0 else "passed")
+
+        # Only "issue" category affects score — characteristics and info don't
+        issue_failures = sum(1 for t in tests if t.status == "failed" and t.category == "issue")
+        issue_warnings = sum(1 for t in tests if t.status == "warning" and t.category == "issue")
+
+        score = 100
+        score -= (issue_failures * 15)
+        score -= (issue_warnings * 5)
+        score = max(0, min(100, score))
+
+        if issue_failures > 0:
+            overall = "failed"
+        elif issue_warnings > 0:
+            overall = "warning"
+        else:
+            overall = "passed"
+
         return overall, score
 
     def _build_summary(self, tests: List[ValidationResult], df: pd.DataFrame) -> str:
-        total = len(tests)
-        passed = sum(1 for t in tests if t.status == "passed")
-        warnings = sum(1 for t in tests if t.status == "warning")
-        failed = sum(1 for t in tests if t.status == "failed")
-        return (
-            f"{passed}/{total} checks passed. "
-            f"{warnings} warning{'s' if warnings != 1 else ''}. "
-            f"{failed} failure{'s' if failed != 1 else ''}. "
-            f"Dataset: {len(df):,} rows x {len(df.columns)} columns."
-        )
+        issues = [t for t in tests if t.category == "issue" and t.status in ("warning", "failed")]
+        chars = [t for t in tests if t.category == "characteristic"]
+        passed_count = sum(1 for t in tests if t.status == "passed")
+
+        if not issues:
+            summary = "All fixable issues resolved. "
+            if chars:
+                summary += f"{len(chars)} data characteristic(s) noted (no action needed). "
+        else:
+            summary = f"{len(issues)} issue(s) need attention. "
+
+        summary += f"{len(df):,} rows x {len(df.columns)} columns."
+        return summary
 
 
     # ── Drift detection ────────────────────────────────────────

@@ -146,6 +146,7 @@ class ValidationResult(BaseModel):
     message: str
     failing_rows: int
     examples: List[Any] = []
+    category: str = "issue"  # issue | characteristic | info
 
 
 class ValidationReport(BaseModel):
@@ -154,3 +155,6 @@ class ValidationReport(BaseModel):
     score: int
     tests: List[ValidationResult]
     summary: str
+    issues_count: int = 0
+    characteristics_count: int = 0
+    fixable_resolved: bool = False
