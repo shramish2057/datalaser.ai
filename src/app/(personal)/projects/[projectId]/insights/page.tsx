@@ -7,7 +7,8 @@ import {
   BarChart2, Database, Zap, ArrowRight, Loader2, Play,
   CheckCircle2, Clock, AlertTriangle
 } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { translateFinding } from '@/lib/i18n/findingsMap'
 
 interface SourceAnalysis {
   id: string
@@ -23,6 +24,7 @@ interface SourceAnalysis {
 
 export default function InsightsPage() {
   const t = useTranslations()
+  const locale = useLocale()
   const [sources, setSources] = useState<SourceAnalysis[]>([])
   const [loading, setLoading] = useState(true)
   const [runningId, setRunningId] = useState<string | null>(null)
@@ -173,8 +175,8 @@ export default function InsightsPage() {
                 <div className="ml-7 space-y-1">
                   {src.top_insights.map((ins, i) => (
                     <p key={i} className="text-[12px] text-mb-text-medium truncate">
-                      <span className="text-[10px] text-mb-text-light mr-1.5">{ins.type.replace(/_/g, ' ')}</span>
-                      {ins.headline}
+                      <span className="text-[10px] text-mb-text-light mr-1.5">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
+                      {translateFinding(ins.headline, locale)}
                     </p>
                   ))}
                 </div>

@@ -111,6 +111,11 @@ def _fmt(val, decimals=2):
     return str(val)
 
 
+def _finding(key: str, args: dict, text: str) -> dict:
+    """Create a structured finding with i18n key, args, and English text."""
+    return {'key': key, 'args': {k: str(v) for k, v in args.items()}, 'text': text}
+
+
 # -- Template definitions ------------------------------------------------------
 
 TEMPLATES = [
@@ -337,11 +342,17 @@ class TemplateEngine:
             'title': 'Data Quality Dimensions',
         }
 
+        avg_null = _fmt(np.mean([p['null_rate'] for p in profiles]) * 100)
+        mixed_count = sum(1 for p in profiles if p.get('mixed_types'))
         findings = [
-            f"Dataset has {total_rows:,} rows across {total_cols} columns — {complete_cols}/{total_cols} columns are fully complete.",
-            f"Completeness score: {completeness}% — average {_fmt(np.mean([p['null_rate'] for p in profiles]) * 100)}% null rate per column.",
-            f"Consistency score: {consistency}% — {sum(1 for p in profiles if p.get('mixed_types'))} columns have mixed data types.",
-            f"Validity score: {validity}% — {outlier_cols} columns contain statistical outliers.",
+            _finding('quality.overview', {'rows': f"{total_rows:,}", 'cols': str(total_cols), 'complete': str(complete_cols)},
+                     f"Dataset has {total_rows:,} rows across {total_cols} columns — {complete_cols}/{total_cols} columns are fully complete."),
+            _finding('quality.completeness', {'score': str(completeness), 'avg_null': avg_null},
+                     f"Completeness score: {completeness}% — average {avg_null}% null rate per column."),
+            _finding('quality.consistency', {'score': str(consistency), 'mixed': str(mixed_count)},
+                     f"Consistency score: {consistency}% — {mixed_count} columns have mixed data types."),
+            _finding('quality.validity', {'score': str(validity), 'outlier_cols': str(outlier_cols)},
+                     f"Validity score: {validity}% — {outlier_cols} columns contain statistical outliers."),
         ]
 
         return TemplateResult(template_id='T01', name=tmpl['name'], category=tmpl['category'],
@@ -372,14 +383,18 @@ class TemplateEngine:
             })
 
         findings = [
-            f"Tested {len(pairs)} variable pairs — {len(sig_pairs)} statistically significant (p<0.05).",
+            _finding('corr.tested', {'total': str(len(pairs)), 'sig': str(len(sig_pairs))},
+                     f"Tested {len(pairs)} variable pairs — {len(sig_pairs)} statistically significant (p<0.05)."),
         ]
         if pairs:
             top = pairs[0]
-            findings.append(f"Strongest correlation: {top['col1']} ↔ {top['col2']} (r={top['r']}, {top['strength']}, p={'<0.001' if top['p_value'] < 0.001 else _fmt(top['p_value'], 4)}).")
+            p_str = '<0.001' if top['p_value'] < 0.001 else _fmt(top['p_value'], 4)
+            findings.append(_finding('corr.strongest', {'col1': top['col1'], 'col2': top['col2'], 'r': str(top['r']), 'strength': top['strength'], 'p': p_str},
+                     f"Strongest correlation: {top['col1']} ↔ {top['col2']} (r={top['r']}, {top['strength']}, p={p_str})."))
         if len(sig_pairs) > 1:
             second = sig_pairs[1]
-            findings.append(f"Second strongest: {second['col1']} ↔ {second['col2']} (r={second['r']}, {second['strength']}).")
+            findings.append(_finding('corr.second', {'col1': second['col1'], 'col2': second['col2'], 'r': str(second['r']), 'strength': second['strength']},
+                     f"Second strongest: {second['col1']} ↔ {second['col2']} (r={second['r']}, {second['strength']})."))
 
         return TemplateResult(template_id='T02', name=tmpl['name'], category=tmpl['category'],
                               success=True, metrics={'total_pairs': len(pairs), 'significant_pairs': len(sig_pairs),

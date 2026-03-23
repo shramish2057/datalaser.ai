@@ -226,12 +226,33 @@
     "runAutoAnalysis": "Run Auto-Analysis (no AI)",
     "aiInsights": "Or go to AI Insights"
   },
+  "landing": {
+    "hero": "AI-Native Business Analytics",
+    "heroSub": "Upload your data. Get insights in 10 seconds.",
+    "cta": "Get started free",
+    "login": "Sign in",
+    "feature1Title": "Insights Document",
+    "feature1Body": "AI generates a full analyst report from your data. Key findings, anomalies, and recommendations.",
+    "feature2Title": "Ask Data",
+    "feature2Body": "Ask any question in plain language. Get answers with charts, tables, and statistical analysis.",
+    "feature3Title": "Studio",
+    "feature3Body": "Notebook-style analysis with Python, SQL, and AI-assisted code generation.",
+    "trusted": "Trusted by data teams",
+    "madeInGermany": "Data hosted in Germany"
+  },
   "errors": {
     "sourceNotFound": "Data source not found",
     "analysisError": "Analysis failed",
     "connectionError": "Pipeline service unavailable",
     "noFile": "No file available for analysis",
     "unauthorized": "Not authenticated"
+  },
+  "strength": {
+    "very strong": "very strong",
+    "strong": "strong",
+    "moderate": "moderate",
+    "weak": "weak",
+    "negligible": "negligible"
   },
   "insightTypes": {
     "correlation": "correlation",

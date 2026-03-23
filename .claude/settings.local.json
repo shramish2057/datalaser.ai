@@ -112,7 +112,11 @@
       "Bash(cd:*)",
       "Bash(grep -v test/ echo '\\(should be empty\\)' __NEW_LINE_8b64a02f4fee2d31__ echo echo '2. Remaining title= without t\\(\\):' grep -rn title=\"\"[A-Z][^\"\"]*\"\" src/app src/components --include=*.tsx)",
       "Bash(grep -v test/ echo '\\(should be empty\\)' __NEW_LINE_8b64a02f4fee2d31__ echo echo '3. Remaining >English Text< without t\\(\\):' grep -rnP '>\\\\s*[A-Z][a-zA-Z ]{4,}\\\\s*</' src/app src/components --include=*.tsx)",
-      "Bash(head -30 echo \"\\(should be mostly empty — some dynamic content OK\\)\")"
+      "Bash(head -30 echo \"\\(should be mostly empty — some dynamic content OK\\)\")",
+      "Bash(grep -v .json echo '\\(should be empty or only AI-generated content\\)' __NEW_LINE_8b98ae31f4b2c7f4__ echo echo '2. .strength rendered without t\\(\\):' grep -rn .strength} src/app src/components --include=*.tsx)",
+      "Bash(grep -v \"import\\\\|type \\\\|interface\" echo '\\(should be empty\\)' __NEW_LINE_8b98ae31f4b2c7f4__ echo echo '3. .type.replace still used \\(should use t\\(insightTypes.xxx\\)\\):' grep -rn .type.replace src/app src/components --include=*.tsx)",
+      "Bash(grep -v /api/ echo '\\(should be empty\\)' __NEW_LINE_8b98ae31f4b2c7f4__ echo echo \"4. Effect size labels \\(''''small'''',''''medium'''',''''large''''\\) rendered:\" grep -rn \"effect_size\\\\|\\\\.effect}\" src/app src/components --include=*.tsx)",
+      "Bash(head -5 echo \"\\(these render numbers, not labels — OK\\)\")"
     ]
   }
 }

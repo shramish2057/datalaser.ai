@@ -7,7 +7,8 @@ import {
   Zap, TrendingUp, GitBranch, AlertTriangle, Target, Layers, Search
 } from 'lucide-react'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { translateFinding } from '@/lib/i18n/findingsMap'
 import type { Project } from '@/types/database'
 
 const INSIGHT_ICONS: Record<string, typeof Zap> = {
@@ -48,6 +49,7 @@ interface SourceSummary {
 
 export default function ProjectHomePage() {
   const t = useTranslations()
+  const locale = useLocale()
   const [project, setProject] = useState<Project | null>(null)
   const [sources, setSources] = useState<SourceSummary[]>([])
   const [topInsights, setTopInsights] = useState<TopInsight[]>([])
@@ -160,11 +162,11 @@ export default function ProjectHomePage() {
                 <div key={i} className={`bg-white border border-mb-border ${borderColor} border-l-4 rounded-mb-md px-4 py-3 flex items-start gap-3`}>
                   <Icon size={14} className="text-mb-text-light mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] text-mb-text-dark leading-relaxed">{ins.headline}</p>
+                    <p className="text-[13px] text-mb-text-dark leading-relaxed">{translateFinding(ins.headline, locale)}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[10px] text-mb-text-light">{ins.source_name}</span>
                       <span className="text-[10px] text-mb-text-light">•</span>
-                      <span className="text-[10px] text-mb-text-light">{ins.type.replace(/_/g, ' ')}</span>
+                      <span className="text-[10px] text-mb-text-light">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
                     </div>
                   </div>
                 </div>

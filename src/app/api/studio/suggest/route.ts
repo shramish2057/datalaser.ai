@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getEngineContext, formatFactsForPrompt } from '@/lib/ai/engineContext'
+import { getEngineContext, formatFactsForPrompt, getLocaleFromRequest } from '@/lib/ai/engineContext'
 
 const PIPELINE_URL = process.env.PIPELINE_SERVICE_URL || 'http://localhost:8001'
 
@@ -77,7 +77,8 @@ export async function POST(request: NextRequest) {
         file instanceof Blob ? file : null,
         formData.get('file_type')?.toString(),
       )
-      const verifiedBlock = formatFactsForPrompt(engineCtx.facts)
+      const locale = getLocaleFromRequest(request)
+      const verifiedBlock = formatFactsForPrompt(engineCtx.facts, locale)
 
       const userMsg = `Analysis request: ${question}\n\nDataset context:\n${schemaContext}${verifiedBlock}`
 
@@ -114,7 +115,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Single cell suggestion via pipeline service
-    const enhanced = question + (schemaContext ? `\n\nDataset context:\n${schemaContext}` : '')
+    const singleLocale = getLocaleFromRequest(request)
+    const langNote = singleLocale === 'de' ? '\n\n[Antworte auf Deutsch. Verwende deutsche Fachbegriffe.]' : ''
+    const enhanced = question + (schemaContext ? `\n\nDataset context:\n${schemaContext}` : '') + langNote
     const outgoing = new FormData()
     const file = formData.get('file')
     if (file instanceof Blob) outgoing.append('file', file, file instanceof File ? file.name : 'data.csv')

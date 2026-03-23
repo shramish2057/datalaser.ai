@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { buildDataContext } from '@/lib/ai/sampler';
-import { getEngineContext, formatFactsForPrompt } from '@/lib/ai/engineContext';
+import { getEngineContext, formatFactsForPrompt, getLocaleFromRequest } from '@/lib/ai/engineContext';
 
 const getClient = (() => {
   let client: Anthropic | null = null;
@@ -73,15 +73,21 @@ When answering, note where results may be affected by these issues.
 If a specific column has a red warning, mention it when that column is used in analysis.\n`;
     }
 
-    // Fetch engine-computed verified facts
+    // Fetch engine-computed verified facts + locale
+    const locale = getLocaleFromRequest(request)
     let verifiedBlock = ''
     try {
       const sourceIdList = source_ids as string[] | undefined
       if (sourceIdList?.length) {
         const engineCtx = await getEngineContext(sourceIdList[0], project_id)
-        verifiedBlock = formatFactsForPrompt(engineCtx.facts)
+        verifiedBlock = formatFactsForPrompt(engineCtx.facts, locale)
+      } else {
+        // Even without engine context, inject language instruction
+        verifiedBlock = formatFactsForPrompt([], locale)
       }
-    } catch { /* continue without engine context */ }
+    } catch {
+      verifiedBlock = formatFactsForPrompt([], locale)
+    }
 
     const systemPrompt = `You are DataLaser's data analyst AI.
 You answer questions about the user's data with precision and always include visualisations.

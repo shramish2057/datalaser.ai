@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getEngineContext, formatFactsForPrompt } from '@/lib/ai/engineContext'
+import { getEngineContext, formatFactsForPrompt, getLocaleFromRequest } from '@/lib/ai/engineContext'
 
 const SYSTEM_PROMPT = `You are a data analyst. Suggest exactly 3 high-value analyses.
 Return ONLY a valid JSON array, no markdown, no explanation:
@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
 
     // Fetch engine-computed context
     const engineCtx = await getEngineContext(source_id)
-    const verifiedBlock = formatFactsForPrompt(engineCtx.facts)
+    const locale = getLocaleFromRequest(request)
+    const verifiedBlock = formatFactsForPrompt(engineCtx.facts, locale)
 
     const userMsg = `Dataset: ${source_name}
 Columns: ${JSON.stringify(columns)}

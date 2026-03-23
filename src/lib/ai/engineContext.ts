@@ -108,13 +108,56 @@ function formatAnalysis(analysis: Record<string, unknown>): VerifiedContext {
 }
 
 /**
- * Format verified facts as a string block for prompt injection.
+ * German language instruction block for Claude.
+ * Appended to system prompts when locale is 'de'.
  */
-export function formatFactsForPrompt(facts: string[]): string {
-  if (facts.length === 0) return ''
-  return `\nPRE-COMPUTED VERIFIED FACTS (from DataLaser engine — these are TRUE, use them):
+const GERMAN_PROMPT_BLOCK = `
+SPRACHE: Antworte IMMER auf Deutsch.
+- Verwende deutsche Fachbegriffe (Deckungsbeitrag, Rohertrag, Kennzahl, Ausreißer, Korrelation, etc.)
+- Zahlenformat: 1.234,56 (deutsches Format mit Punkt als Tausendertrennzeichen, Komma als Dezimaltrennzeichen)
+- Datumsformat: TT.MM.JJJJ
+- Währung: € (wenn zutreffend)
+- Prozentangaben: 45,3% (mit Komma)
+- Statistische Begriffe: Mittelwert, Median, Standardabweichung, Signifikanz, Effektstärke
+- Verwende "Sie" (formelle Anrede), nicht "du"
+- Alle Überschriften, Erklärungen, Befunde und Empfehlungen auf Deutsch
+`
+
+/**
+ * Format verified facts as a string block for prompt injection.
+ * Includes locale-aware language instruction.
+ */
+export function formatFactsForPrompt(facts: string[], locale: string = 'en'): string {
+  const languageBlock = locale === 'de' ? GERMAN_PROMPT_BLOCK : ''
+
+  if (facts.length === 0) return languageBlock
+
+  return `${languageBlock}
+PRE-COMPUTED VERIFIED FACTS (from DataLaser engine — these are TRUE, use them):
 ${facts.join('\n')}
 
 IMPORTANT: Reference these verified facts in your response. Do NOT contradict them.
-When citing numbers, prefer these verified values over any estimates.\n`
+When citing numbers, prefer these verified values over any estimates.
+`
+}
+
+/**
+ * Extract locale from request headers or cookies.
+ * Used by API routes to determine response language.
+ */
+export function getLocaleFromRequest(request: Request): string {
+  // Check custom header (set by frontend)
+  const headerLocale = request.headers.get('x-locale')
+  if (headerLocale && ['de', 'en'].includes(headerLocale)) return headerLocale
+
+  // Check cookie
+  const cookies = request.headers.get('cookie') || ''
+  const match = cookies.match(/dl_locale=(\w+)/)
+  if (match && ['de', 'en'].includes(match[1])) return match[1]
+
+  // Check Accept-Language
+  const acceptLang = request.headers.get('accept-language') || ''
+  if (acceptLang.includes('de')) return 'de'
+
+  return 'en'
 }

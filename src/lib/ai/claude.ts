@@ -24,6 +24,15 @@ function getClient(): Anthropic {
   return _client;
 }
 
+// --- Locale-aware prompt helper ---
+
+const GERMAN_INSTRUCTION = `\nSPRACHE: Antworte IMMER auf Deutsch. Verwende deutsche Fachbegriffe (Deckungsbeitrag, Rohertrag, Kennzahl, etc.). Zahlenformat: 1.234,56. Datumsformat: TT.MM.JJJJ. Verwende "Sie" (formelle Anrede). Alle Überschriften, Erklärungen und Empfehlungen auf Deutsch.\n`;
+
+function localizePrompt(prompt: string, locale: string = 'en'): string {
+  if (locale === 'de') return GERMAN_INSTRUCTION + prompt;
+  return prompt;
+}
+
 // --- Zod schemas for response validation ---
 
 const severityChipSchema = z.object({
@@ -97,11 +106,11 @@ export async function generateInsightsFromContext(context: string): Promise<Insi
   return _generateInsightsFromContext(client, context);
 }
 
-async function _generateInsightsFromContext(client: Anthropic, context: string): Promise<InsightResponse> {
+async function _generateInsightsFromContext(client: Anthropic, context: string, locale: string = 'en'): Promise<InsightResponse> {
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 4000,
-    system: SYSTEM_PROMPT_INSIGHTS,
+    system: localizePrompt(SYSTEM_PROMPT_INSIGHTS, locale),
     messages: [
       {
         role: 'user',
@@ -144,11 +153,12 @@ async function _generateInsightsFromContext(client: Anthropic, context: string):
 export async function* streamAskData(
   workspaceId: string,
   message: string,
-  history: { role: string; content: string }[]
+  history: { role: string; content: string }[],
+  locale: string = 'en'
 ): AsyncGenerator<string> {
   const client = getClient();
   const context = await buildDataContext(workspaceId);
-  const systemPrompt = SYSTEM_PROMPT_ASK.replace('{DATA_CONTEXT}', context);
+  const systemPrompt = localizePrompt(SYSTEM_PROMPT_ASK.replace('{DATA_CONTEXT}', context), locale);
 
   const messages: { role: 'user' | 'assistant'; content: string }[] = [
     ...history.map((h) => ({
@@ -179,14 +189,15 @@ export async function explainAnomaly(
   metricName: string,
   currentValue: number,
   baselineValue: number,
-  deviationPct: number
+  deviationPct: number,
+  locale: string = 'en'
 ): Promise<string> {
   const client = getClient();
 
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 300,
-    system: SYSTEM_PROMPT_ANOMALY,
+    system: localizePrompt(SYSTEM_PROMPT_ANOMALY, locale),
     messages: [
       {
         role: 'user',
@@ -232,7 +243,8 @@ export type MetricSuggestionResponse = z.infer<typeof metricSuggestionResponseSc
  * Analyze uploaded data columns + samples and suggest relevant metrics & dimensions.
  */
 export async function suggestMetrics(
-  files: { name: string; rows: number; columns: { name: string; dtype: string; sample: string[] }[] }[]
+  files: { name: string; rows: number; columns: { name: string; dtype: string; sample: string[] }[] }[],
+  locale: string = 'en'
 ): Promise<MetricSuggestionResponse> {
   const client = getClient();
 
@@ -253,7 +265,7 @@ export async function suggestMetrics(
   const response = await client.messages.create({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 2000,
-    system: SYSTEM_PROMPT_SUGGEST_METRICS,
+    system: localizePrompt(SYSTEM_PROMPT_SUGGEST_METRICS, locale),
     messages: [
       {
         role: 'user',

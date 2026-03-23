@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getEngineContext, formatFactsForPrompt } from '@/lib/ai/engineContext'
+import { getEngineContext, formatFactsForPrompt, getLocaleFromRequest } from '@/lib/ai/engineContext'
 
 const SYSTEM_PROMPT = `You are a senior data analyst interpreting statistical results for a business audience.
 Be specific with numbers. Concise. Connect findings to the broader dataset context.
@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
 
     // Fetch engine context for richer interpretation
     const engineCtx = await getEngineContext(source_id)
-    const verifiedBlock = formatFactsForPrompt(engineCtx.facts)
+    const locale = getLocaleFromRequest(request)
+    const verifiedBlock = formatFactsForPrompt(engineCtx.facts, locale)
 
     const userMsg = `Operation: ${operation}
 Columns: ${JSON.stringify(columns_used)}

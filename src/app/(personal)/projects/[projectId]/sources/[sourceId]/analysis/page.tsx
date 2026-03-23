@@ -12,7 +12,8 @@ import { HeatmapChart } from '@/components/charts/HeatmapChart'
 import { KPICard } from '@/components/charts/KPICard'
 import { DrillProvider } from '@/components/charts/DrillContext'
 import { DrillDownPanel } from '@/components/charts/DrillDownPanel'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { translateFinding } from '@/lib/i18n/findingsMap'
 import type { AutoAnalysisResult, AutoAnalysisInsight } from '@/types/pipeline'
 import type { DrillFilter } from '@/types/drill'
 
@@ -245,7 +246,7 @@ export default function AutoAnalysisPage() {
                         <span className="text-mb-text-dark font-medium">{p.col1} ↔ {p.col2}</span>
                         <span className="text-mb-text-light">r={p.r}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${p.significant ? 'bg-green-50 text-green-700' : 'bg-mb-bg-light text-mb-text-light'}`}>
-                          {p.strength}
+                          {t(`strength.${p.strength}` as Parameters<typeof t>[0])}
                         </span>
                       </div>
                     ))}
@@ -472,6 +473,8 @@ export default function AutoAnalysisPage() {
 
 
 function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight; index: number; onDrill: (f: DrillFilter) => void }) {
+  const locale = useLocale()
+  const t = useTranslations()
   const Icon = INSIGHT_ICONS[insight.type] || Zap
   const colorClass = INSIGHT_COLORS[insight.type] || 'border-mb-border bg-white'
 
@@ -483,9 +486,9 @@ function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight
           <Icon size={16} className="text-mb-text-medium" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] text-mb-text-dark leading-relaxed">{insight.headline}</p>
+          <p className="text-[13px] text-mb-text-dark leading-relaxed">{translateFinding(insight.headline, locale)}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 text-mb-text-medium font-medium">{insight.type.replace(/_/g, ' ')}</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 text-mb-text-medium font-medium">{t(`insightTypes.${insight.type}` as Parameters<typeof t>[0])}</span>
             <span className="text-[10px] text-mb-text-light">
               p={insight.p_value < 0.001 ? '<0.001' : insight.p_value.toFixed(4)}
             </span>

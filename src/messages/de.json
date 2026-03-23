@@ -226,12 +226,33 @@
     "runAutoAnalysis": "Auto-Analyse starten (ohne KI)",
     "aiInsights": "Oder zu KI-Analysen"
   },
+  "landing": {
+    "hero": "KI-gestützte Geschäftsanalyse",
+    "heroSub": "Daten hochladen. Erkenntnisse in 10 Sekunden.",
+    "cta": "Kostenlos starten",
+    "login": "Anmelden",
+    "feature1Title": "Analyse-Bericht",
+    "feature1Body": "KI erstellt einen vollständigen Analysebericht aus Ihren Daten. Kernerkenntnisse, Anomalien und Empfehlungen.",
+    "feature2Title": "Daten fragen",
+    "feature2Body": "Stellen Sie eine Frage in natürlicher Sprache. Erhalten Sie Antworten mit Diagrammen, Tabellen und statistischer Analyse.",
+    "feature3Title": "Studio",
+    "feature3Body": "Notebook-basierte Analyse mit Python, SQL und KI-unterstützter Code-Generierung.",
+    "trusted": "Vertrauen von Datenteams",
+    "madeInGermany": "Daten in Deutschland gehostet"
+  },
   "errors": {
     "sourceNotFound": "Datenquelle nicht gefunden",
     "analysisError": "Analyse fehlgeschlagen",
     "connectionError": "Pipeline-Service nicht erreichbar",
     "noFile": "Keine Datei für Analyse verfügbar",
     "unauthorized": "Nicht authentifiziert"
+  },
+  "strength": {
+    "very strong": "sehr stark",
+    "strong": "stark",
+    "moderate": "moderat",
+    "weak": "schwach",
+    "negligible": "vernachlässigbar"
   },
   "insightTypes": {
     "correlation": "Korrelation",
