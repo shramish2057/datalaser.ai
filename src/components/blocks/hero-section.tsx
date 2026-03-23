@@ -21,8 +21,8 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* 3D GLSL Hills background — shifted up */}
-      <div className="absolute inset-0 z-0 opacity-55" style={{ top: '-350px' }}>
-        <GLSLHills width="100%" height="calc(100% + 350px)" cameraZ={110} speed={0.35} />
+      <div className="absolute inset-0 z-0 opacity-55" style={{ top: '-350px', bottom: '-200px' }}>
+        <GLSLHills width="100%" height="calc(100% + 550px)" cameraZ={110} speed={0.35} />
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/40 via-white/20 to-white pointer-events-none" />
 
@@ -31,7 +31,7 @@ export function HeroSection() {
         <div className="w-[35rem] h-[80rem] -translate-y-[350px] absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(270,70%,85%,.08)_0,hsla(270,50%,55%,.02)_50%,hsla(270,50%,45%,0)_80%)]" />
       </div>
 
-      <div className="relative pt-28 md:pt-36 pb-20 z-10">
+      <div className="relative pt-28 md:pt-36 pb-4 z-10">
         <div className="mx-auto max-w-7xl px-6">
           {/* ── SIDE-BY-SIDE LAYOUT: Text Left + Dashboard Right ── */}
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
@@ -160,7 +160,7 @@ export function HeroSection() {
         </div>
 
         {/* Logo bar */}
-        <div className="bg-white pb-2 pt-12">
+        <div className="bg-white pb-0 pt-10">
           <p className="text-center text-xs text-gray-400 uppercase tracking-[0.2em] font-semibold mb-6">
             {locale === 'de' ? 'Funktioniert mit Ihrem gesamten Stack' : 'Works with your entire stack'}
           </p>
