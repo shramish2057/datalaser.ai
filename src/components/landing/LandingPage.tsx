@@ -12,6 +12,7 @@ import {
 import { GLSLHills } from '@/components/ui/glsl-hills'
 import { Features } from '@/components/blocks/features-8'
 import { Testimonials } from '@/components/blocks/testimonials'
+import { FeaturesHow } from '@/components/blocks/features-10'
 
 /* ── scroll-triggered reveal ── */
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -248,37 +249,7 @@ export default function LandingPage() {
       </div>
 
       {/* ━━ HOW IT WORKS ━━ */}
-      <section className="py-28 px-6 bg-gray-50/70">
-        <div className="max-w-5xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-20">
-              <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 mb-5">{t('landing.platformTitle')}</h2>
-              <p className="text-gray-500 text-lg max-w-xl mx-auto">{t('landing.platformSubtitle')}</p>
-            </div>
-          </Reveal>
-
-          <div className="grid gap-5">
-            {[
-              { num: '01', icon: BarChart3, title: t('landing.prod1Title'), desc: t('landing.prod1Desc') },
-              { num: '02', icon: Search, title: t('landing.prod2Title'), desc: t('landing.prod2Desc') },
-              { num: '03', icon: TrendingUp, title: t('landing.prod3Title'), desc: t('landing.prod3Desc') },
-            ].map((s, i) => (
-              <Reveal key={s.num} delay={i * 0.08}>
-                <div className="group flex items-start gap-6 bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg hover:shadow-gray-100/60 transition-all">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center">
-                    <span className="text-violet-600 font-bold text-lg">{s.num}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors">{s.title}</h3>
-                    <p className="text-gray-500 text-[15px] leading-relaxed">{s.desc}</p>
-                  </div>
-                  <ArrowRight size={20} className="text-gray-200 group-hover:text-violet-400 transition-colors flex-shrink-0 mt-2 hidden md:block" />
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturesHow />
 
       {/* ━━ TESTIMONIALS ━━ */}
       <Testimonials />
