@@ -292,7 +292,7 @@ export default function NotebookWorkspace() {
       }
       const introCell: StudioCell = {
         id: crypto.randomUUID(), type: 'text', code: '',
-        content: explanation || `Analysing: ${question}`,
+        content: explanation || t('studio.analysing', { question }),
         output: null, status: 'idle', created_at: now,
       }
       const codeCell: StudioCell = {
@@ -354,16 +354,16 @@ export default function NotebookWorkspace() {
     return (
       <div className="h-full flex flex-col items-center justify-center px-8">
         <FlaskConical size={48} className="text-mb-brand mb-4" />
-        <h2 className="text-[20px] font-bold text-mb-text-dark mb-2">Describe your analysis</h2>
+        <h2 className="text-[20px] font-bold text-mb-text-dark mb-2">{t('studio.describeAnalysis')}</h2>
         <p className="text-mb-text-medium text-mb-sm mb-6 text-center max-w-lg">
-          DataLaser will generate a complete notebook with headings, code, charts, and narrative
+          {t('studio.generateDesc')}
         </p>
         <textarea value={genPrompt} onChange={e => setGenPrompt(e.target.value)}
           onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleGenerateNotebook() }}
-          rows={4} placeholder={`e.g. Analyse how passenger class affected survival rates and ticket pricing. Include correlation analysis, statistical significance tests, and visualisations.`}
+          rows={4} placeholder={t('studio.askPlaceholder')}
           className="w-full max-w-[600px] border border-mb-border rounded-mb-lg p-3 text-[14px] resize-none outline-none focus:border-mb-brand" />
         <div className="flex gap-2 mt-3 flex-wrap justify-center">
-          {[`Correlation analysis of all numeric columns`, `Which factors predict ${firstNumeric}?`, `Trend analysis and forecasting`].map(chip => (
+          {[t('studio.chipCorrelation'), t('studio.chipPredict', { col: firstNumeric }), t('studio.chipTrend')].map(chip => (
             <button key={chip} onClick={() => setGenPrompt(chip)}
               className="text-[12px] px-3 py-1.5 rounded-full border border-mb-border text-mb-text-medium hover:border-mb-brand hover:text-mb-brand transition-colors">
               {chip}

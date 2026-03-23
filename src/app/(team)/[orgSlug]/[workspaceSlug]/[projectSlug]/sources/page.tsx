@@ -26,7 +26,7 @@ export default function TeamSourcesPage() {
   useEffect(() => { loadSources() }, [projectId])
 
   const handleRefresh = async (sourceId: string) => { setRefreshingId(sourceId); await supabase.from('data_sources').update({ status: 'syncing', last_synced_at: new Date().toISOString() }).eq('id', sourceId); await loadSources(); setRefreshingId(null) }
-  const handleDelete = async (sourceId: string, sourceName: string) => { if (!confirm(`Delete data source "${sourceName}"? This cannot be undone.`)) return; await supabase.from('data_sources').delete().eq('id', sourceId); setSources(prev => prev.filter(s => s.id !== sourceId)) }
+  const handleDelete = async (sourceId: string, sourceName: string) => { if (!confirm(t('studio.deleteConfirm', { name: sourceName }))) return; await supabase.from('data_sources').delete().eq('id', sourceId); setSources(prev => prev.filter(s => s.id !== sourceId)) }
 
   if (loading) return <div className="max-w-4xl mx-auto px-6 py-8 space-y-3"><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /></div>
 

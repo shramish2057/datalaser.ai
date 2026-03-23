@@ -120,7 +120,7 @@ export default function SourceSettingsPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Pipeline run failed')
-      setToast(`Pipeline completed — quality score: ${data.quality_score}/100`)
+      setToast(t('studio.pipelineComplete', { score: String(data.quality_score) }))
       setTimeout(() => setToast(''), 4000)
 
       // Refresh data

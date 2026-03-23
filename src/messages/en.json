@@ -137,7 +137,20 @@
     "keyFindings": "Key findings",
     "noFile": "No file loaded.",
     "sectionHeading": "Section heading...",
-    "writeNotes": "Write analysis notes..."
+    "writeNotes": "Write analysis notes...",
+    "describeAnalysis": "Describe your analysis",
+    "generateDesc": "DataLaser will generate a complete notebook with headings, code, charts, and narrative",
+    "chipCorrelation": "Correlation analysis of all numeric columns",
+    "chipPredict": "Which factors predict {col}?",
+    "chipTrend": "Trend analysis and forecasting",
+    "analysing": "Analysing: {question}",
+    "deleteConfirm": "Delete \"{name}\"? This cannot be undone.",
+    "fixIssues": "Fix {count} issue(s) with AI-suggested transformations",
+    "runPipeline": "Run the full pipeline for best results",
+    "sourceNotFound": "Data source not found",
+    "apiError": "API error",
+    "pipelineComplete": "Pipeline completed — quality score: {score}/100",
+    "analyzing": "Analyzing {count} fields from your data..."
   },
   "sources": {
     "title": "Data Sources",

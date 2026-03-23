@@ -232,7 +232,7 @@ export default function DataPrepPage() {
         .from('data_sources').insert(insertPayload).select('id').single()
 
       if (insertErr || !inserted) {
-        setUploadError(`Failed to save: ${insertErr?.message || 'Unknown error'}`)
+        setUploadError(`${t('common.error')}: ${insertErr?.message || ''}`)
         setSaving(false)
         return
       }

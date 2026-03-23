@@ -119,7 +119,9 @@
       "Bash(head -5 echo \"\\(these render numbers, not labels — OK\\)\")",
       "Bash(sleep 3 __NEW_LINE_1e5cd34e515b6f94__ echo \"=== T36 QuickBooks \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T36/run -F \"file=@/tmp/quickbooks_test.csv\" -F \"file_type=csv\")",
       "Bash(1 __NEW_LINE_1e5cd34e515b6f94__ echo \"\" echo \"=== T41 Companies House \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T41/run -F \"file=@/tmp/hmrc_test.csv\" -F \"file_type=csv\")",
-      "Bash(1 __NEW_LINE_1e5cd34e515b6f94__ echo \"\" echo \"=== T32 BWA \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T32/run -F \"file=@/tmp/bwa_test.csv\" -F \"file_type=csv\")"
+      "Bash(1 __NEW_LINE_1e5cd34e515b6f94__ echo \"\" echo \"=== T32 BWA \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T32/run -F \"file=@/tmp/bwa_test.csv\" -F \"file_type=csv\")",
+      "Bash(grep:*)",
+      "Bash(head -20 echo __NEW_LINE_fa3b5de2a56fcb5c__ echo '3. Specific strings user flagged:' grep -rn \"Describe your analysis\\\\|DataLaser will generate\\\\|Correlation analysis of all\\\\|Which factors predict\\\\|Trend analysis and forecast\" src/app --include=*.tsx)"
     ]
   }
 }

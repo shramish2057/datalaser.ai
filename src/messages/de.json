@@ -137,7 +137,20 @@
     "keyFindings": "Kernerkenntnisse",
     "noFile": "Keine Datei geladen.",
     "sectionHeading": "Abschnittsüberschrift...",
-    "writeNotes": "Analysenotizen schreiben..."
+    "writeNotes": "Analysenotizen schreiben...",
+    "describeAnalysis": "Beschreiben Sie Ihre Analyse",
+    "generateDesc": "DataLaser generiert ein vollständiges Notizbuch mit Überschriften, Code, Diagrammen und Erklärungen",
+    "chipCorrelation": "Korrelationsanalyse aller numerischen Spalten",
+    "chipPredict": "Welche Faktoren beeinflussen {col}?",
+    "chipTrend": "Trendanalyse und Prognose",
+    "analysing": "Analyse: {question}",
+    "deleteConfirm": "\"{name}\" löschen? Dies kann nicht rückgängig gemacht werden.",
+    "fixIssues": "{count} Problem(e) mit KI-gestützten Transformationen beheben",
+    "runPipeline": "Vollständige Pipeline für beste Ergebnisse ausführen",
+    "sourceNotFound": "Datenquelle nicht gefunden",
+    "apiError": "API-Fehler",
+    "pipelineComplete": "Pipeline abgeschlossen — Qualitätsbewertung: {score}/100",
+    "analyzing": "{count} Felder aus Ihren Daten werden analysiert..."
   },
   "sources": {
     "title": "Datenquellen",

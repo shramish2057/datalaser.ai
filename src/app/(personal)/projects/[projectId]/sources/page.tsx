@@ -60,7 +60,7 @@ export default function ProjectSourcesPage() {
   }
 
   const handleDelete = async (sourceId: string, sourceName: string) => {
-    if (!confirm(`Delete data source "${sourceName}"? This cannot be undone.`)) return
+    if (!confirm(t('studio.deleteConfirm', { name: sourceName }))) return
     await supabase.from('data_sources').delete().eq('id', sourceId)
     setSources(prev => prev.filter(s => s.id !== sourceId))
   }

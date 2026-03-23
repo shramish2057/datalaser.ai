@@ -74,7 +74,7 @@ export default function DataHealthPage() {
 
       if (srcErr) {
         console.error('Health page fetch error:', srcErr.message, srcErr.details)
-        setError(`Could not load data source: ${srcErr.message}`)
+        setError(`${t('errors.sourceNotFound')}: ${srcErr.message}`)
         setLoading(false)
         return
       }
@@ -313,8 +313,8 @@ export default function DataHealthPage() {
             </p>
             <p className="text-mb-xs text-mb-text-medium">
               {hasIssues
-                ? `Fix ${issueCount} issue${issueCount !== 1 ? 's' : ''} with AI-suggested transformations`
-                : 'Run the full pipeline for best results'}
+                ? t('studio.fixIssues', { count: String(issueCount) })
+                : t('studio.runPipeline')}
             </p>
             {hasIssues && (redCount > 0 || amberCount > 0) && (
               <p className="text-mb-xs text-mb-text-light mt-2">

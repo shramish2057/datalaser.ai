@@ -105,7 +105,7 @@ export default function IntentPage() {
 
     // Save intent to localStorage
     const intent = {
-      question: question.trim() || `Give me a complete analysis of my ${file.name} data`,
+      question: question.trim() || `${t('studio.analyzeBtn')}: ${file.name}`,
       chartTypes: selectedCharts, xAxis, yAxis,
       fileName: file.name, columns: file.columns,
       sampleRows: file.sampleRows, rows: file.rows, qualityReport,
@@ -159,7 +159,7 @@ export default function IntentPage() {
         .from('data_sources').insert(insertPayload).select('id').single()
 
       if (insertErr) {
-        setError(`Failed to save data source: ${insertErr.message}`)
+        setError(`${t('common.error')}: ${insertErr.message}`)
         setPageStep('configure')
         return
       }
@@ -301,7 +301,7 @@ export default function IntentPage() {
             <label className="mb-label">What question do you want answered? (optional)</label>
             <textarea
               className="mb-input min-h-[80px] resize-none"
-              placeholder={`e.g. "What factors most influenced survival?" or "Show me sales by region over time"`}
+              placeholder={t("studio.askPlaceholder")}
               value={question}
               onChange={e => setQuestion(e.target.value)}
             />

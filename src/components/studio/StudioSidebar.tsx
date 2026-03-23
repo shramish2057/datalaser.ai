@@ -531,7 +531,7 @@ function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone:
         <div>
           <label className="text-[11px] font-semibold text-mb-text-medium uppercase tracking-wider">Display Name</label>
           <input value={sourceName} onChange={e => setSourceName(e.target.value)}
-            placeholder={`My ${connector!.name} Database`}
+            placeholder={t('sources.displayName')}
             className="w-full mt-1 px-3 py-2 text-[13px] border border-mb-border rounded-mb-md outline-none focus:border-mb-brand" />
         </div>
         {connector!.fields.map(field => (
