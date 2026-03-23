@@ -979,36 +979,349 @@ class TemplateEngine:
         return self._run_t32(df, profiles, cols, tmpl)  # Reuse BWA analysis
 
     def _run_t36(self, df, profiles, cols, tmpl):
-        """QuickBooks P&L Analysis — revenue/COGS/expenses margins."""
-        return self._run_t10(df, profiles, cols, tmpl)  # Reuse profitability
+        """QuickBooks P&L Analysis — standard P&L structure."""
+        # Map QuickBooks P&L line items
+        qb_map = {}
+        for concept in ['revenue', 'cost', 'profit', 'quickbooks']:
+            col = _find_col(profiles, concept, 'measure')
+            if col:
+                qb_map[concept] = col
+
+        measures = _cols_by_role(profiles, 'measure')
+        findings = []
+        charts = []
+        metrics = {}
+
+        # Compute P&L structure
+        income_col = qb_map.get('revenue') or _find_col(profiles, 'quickbooks')
+        cogs_col = qb_map.get('cost')
+        if not income_col:
+            income_col = measures[0] if measures else None
+
+        if income_col and income_col in df.columns:
+            total_income = float(df[income_col].sum())
+            metrics['total_income'] = round(total_income, 2)
+
+            # Find and compute each P&L line
+            pl_lines = []
+            for col in measures:
+                if col in df.columns:
+                    val = float(df[col].sum())
+                    pct = round(val / total_income * 100, 1) if total_income != 0 else 0
+                    pl_lines.append({'line_item': col, 'total': round(val, 2), 'pct_of_income': pct})
+                    metrics[col] = round(val, 2)
+
+            pl_lines.sort(key=lambda x: -abs(x['total']))
+
+            charts.append({
+                'chart_type': 'bar',
+                'data': pl_lines[:10],
+                'x_key': 'line_item', 'y_keys': ['pct_of_income'],
+                'title': 'P&L Line Items (% of Total Income)',
+            })
+
+            # Compute key margins
+            if cogs_col and cogs_col in df.columns:
+                total_cogs = float(df[cogs_col].sum())
+                gross_margin = round((total_income - total_cogs) / total_income * 100, 1) if total_income != 0 else 0
+                metrics['gross_margin_pct'] = gross_margin
+                findings.append(f"Gross margin: {gross_margin}% (Total Income: ${total_income:,.0f}, COGS: ${total_cogs:,.0f}).")
+
+            # Find operating expenses
+            expense_cols = [c for c in measures if _match(c, 'cost') and c != cogs_col]
+            if expense_cols:
+                total_expenses = sum(float(df[c].sum()) for c in expense_cols if c in df.columns)
+                expense_ratio = round(total_expenses / total_income * 100, 1) if total_income != 0 else 0
+                metrics['operating_expense_ratio'] = expense_ratio
+                findings.append(f"Operating expense ratio: {expense_ratio}% (${total_expenses:,.0f} across {len(expense_cols)} expense categories).")
+
+            # Net income
+            net_col = next((c for c in measures if _match(c, 'quickbooks') and 'net' in c.lower()), None)
+            if net_col and net_col in df.columns:
+                net_income = float(df[net_col].sum())
+                net_margin = round(net_income / total_income * 100, 1) if total_income != 0 else 0
+                metrics['net_margin_pct'] = net_margin
+                findings.append(f"Net margin: {net_margin}% (Net Income: ${net_income:,.0f}).")
+
+            if not findings:
+                findings.append(f"Total income: ${total_income:,.0f} across {len(measures)} line items.")
+
+        return TemplateResult(template_id='T36', name=tmpl['name'], category=tmpl['category'],
+                              success=bool(findings), metrics=metrics, charts=charts, findings=findings)
 
     def _run_t37(self, df, profiles, cols, tmpl):
-        """US Tax Bracket Impact."""
-        return self._generic_measure_template(df, profiles, cols, tmpl, 'us_tax')
+        """US Tax Bracket Impact — analyze income against federal brackets."""
+        income_col = _find_col(profiles, 'us_tax', 'measure') or _find_col(profiles, 'revenue', 'measure')
+        if not income_col or income_col not in df.columns:
+            return self._generic_measure_template(df, profiles, cols, tmpl, 'us_tax')
+
+        series = df[income_col].dropna().astype(float)
+        # 2025 US federal tax brackets (single filer)
+        brackets = [
+            (11600, 10), (47150, 12), (100525, 22), (191950, 24),
+            (243725, 32), (609350, 35), (float('inf'), 37),
+        ]
+
+        bracket_counts = [0] * len(brackets)
+        for val in series:
+            for i, (threshold, _) in enumerate(brackets):
+                if val <= threshold:
+                    bracket_counts[i] += 1
+                    break
+
+        bracket_data = []
+        for i, (threshold, rate) in enumerate(brackets):
+            prev = brackets[i - 1][0] if i > 0 else 0
+            label = f"${prev:,.0f}-${threshold:,.0f}" if threshold != float('inf') else f"${brackets[-2][0]:,.0f}+"
+            bracket_data.append({'bracket': f"{rate}% ({label})", 'count': bracket_counts[i]})
+
+        charts = [{'chart_type': 'bar', 'data': bracket_data, 'x_key': 'bracket', 'y_keys': ['count'],
+                   'title': 'Income Distribution by Federal Tax Bracket'}]
+
+        median_income = float(series.median())
+        mean_income = float(series.mean())
+        findings = [
+            f"Median income: ${median_income:,.0f}, Mean: ${mean_income:,.0f} across {len(series):,} records.",
+            f"Highest concentration: {max(bracket_counts)} records in a single tax bracket.",
+        ]
+        # Find effective bracket for median
+        for threshold, rate in brackets:
+            if median_income <= threshold:
+                findings.append(f"Median income falls in the {rate}% marginal tax bracket.")
+                break
+
+        return TemplateResult(template_id='T37', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics={'median_income': round(median_income, 2), 'mean_income': round(mean_income, 2),
+                              'record_count': len(series)}, charts=charts, findings=findings)
 
     def _run_t38(self, df, profiles, cols, tmpl):
-        """GAAP Revenue Recognition — revenue by period."""
-        # Try time trend first, fall back to generic measure
+        """GAAP Revenue Recognition — revenue by period with deferred/accrued."""
+        # Try time trend first
         result = self._run_t06(df, profiles, cols, tmpl)
         if result.success:
             return result
-        return self._generic_measure_template(df, profiles, cols, tmpl, 'quickbooks')
+
+        # Fall back to period-over-period analysis using dimensions
+        dims = _cols_by_role(profiles, 'dimension')
+        rev_col = _find_col(profiles, 'quickbooks', 'measure') or _find_col(profiles, 'revenue', 'measure')
+        if not rev_col or not dims:
+            return self._generic_measure_template(df, profiles, cols, tmpl, 'quickbooks')
+
+        dim = dims[0]
+        grouped = df.groupby(dim)[rev_col].sum().sort_index()
+        if len(grouped) < 2:
+            return self._generic_measure_template(df, profiles, cols, tmpl, 'quickbooks')
+
+        # Period-over-period change
+        changes = grouped.pct_change().dropna() * 100
+        avg_growth = round(float(changes.mean()), 1)
+        total_rev = round(float(grouped.sum()), 2)
+
+        charts = [{'chart_type': 'bar', 'data': [{'period': str(k), 'revenue': round(float(v), 2)} for k, v in grouped.items()],
+                   'x_key': 'period', 'y_keys': ['revenue'], 'title': f'{rev_col} by Period'}]
+
+        findings = [
+            f"Total revenue: ${total_rev:,.0f} across {len(grouped)} periods.",
+            f"Average period-over-period growth: {avg_growth:+.1f}%.",
+            f"Highest period: {grouped.idxmax()} (${float(grouped.max()):,.0f}), Lowest: {grouped.idxmin()} (${float(grouped.min()):,.0f}).",
+        ]
+
+        return TemplateResult(template_id='T38', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics={'total_revenue': total_rev, 'avg_growth_pct': avg_growth,
+                              'periods': len(grouped)}, charts=charts, findings=findings)
 
     def _run_t39(self, df, profiles, cols, tmpl):
-        """Sales Tax Nexus — revenue by state."""
-        return self._generic_segment_template(df, profiles, cols, tmpl, 'revenue', 'us_state')
+        """Sales Tax Nexus — revenue by state with nexus threshold analysis."""
+        state_col = _find_col(profiles, 'us_state', 'dimension')
+        rev_col = _find_col(profiles, 'revenue', 'measure') or _find_col(profiles, 'quickbooks', 'measure')
+        measures = _cols_by_role(profiles, 'measure')
+
+        if not state_col or state_col not in df.columns:
+            return self._generic_segment_template(df, profiles, cols, tmpl, 'revenue', 'us_state')
+
+        if not rev_col:
+            rev_col = measures[0] if measures else None
+        if not rev_col or rev_col not in df.columns:
+            return TemplateResult(template_id='T39', name=tmpl['name'], category=tmpl['category'],
+                                  success=False, warnings=['No revenue column found'])
+
+        # Revenue by state
+        by_state = df.groupby(state_col)[rev_col].agg(['sum', 'count']).sort_values('sum', ascending=False)
+        total = by_state['sum'].sum()
+
+        # Common economic nexus threshold: $100K or 200 transactions
+        NEXUS_THRESHOLD = 100000
+        NEXUS_TRANSACTIONS = 200
+        nexus_states = []
+        for state, row in by_state.iterrows():
+            has_nexus = row['sum'] >= NEXUS_THRESHOLD or row['count'] >= NEXUS_TRANSACTIONS
+            nexus_states.append({
+                'state': str(state), 'revenue': round(float(row['sum']), 2),
+                'transactions': int(row['count']), 'nexus': has_nexus,
+                'pct': round(float(row['sum'] / total * 100), 1) if total > 0 else 0,
+            })
+
+        charts = [{'chart_type': 'bar', 'data': nexus_states[:15],
+                   'x_key': 'state', 'y_keys': ['revenue'],
+                   'title': 'Revenue by State (Sales Tax Nexus)',
+                   'referenceLines': [{'value': NEXUS_THRESHOLD, 'label': '$100K nexus threshold', 'color': '#ED6E6E'}]}]
+
+        nexus_count = sum(1 for s in nexus_states if s['nexus'])
+        findings = [
+            f"{nexus_count} of {len(nexus_states)} states exceed economic nexus threshold ($100K revenue or 200 transactions).",
+            f"Total revenue: ${total:,.0f} across {len(nexus_states)} states.",
+        ]
+        if nexus_states:
+            top = nexus_states[0]
+            findings.append(f"Highest: {top['state']} — ${top['revenue']:,.0f} ({top['pct']}% of total, {top['transactions']} transactions).")
+
+        return TemplateResult(template_id='T39', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics={'nexus_states': nexus_count, 'total_states': len(nexus_states),
+                              'total_revenue': round(float(total), 2)}, charts=charts, findings=findings)
 
     def _run_t40(self, df, profiles, cols, tmpl):
-        """HMRC VAT Return Prep — VAT rate breakdown."""
-        return self._generic_measure_template(df, profiles, cols, tmpl, 'uk_vat')
+        """HMRC VAT Return Prep — compute Box 1-9 equivalents."""
+        vat_cols = [p['name'] for p in profiles if _match(p['name'], 'uk_vat')]
+        measures = _cols_by_role(profiles, 'measure')
+
+        findings = []
+        charts = []
+        metrics = {}
+
+        # Try to find standard/reduced/zero-rated/exempt columns
+        std_col = next((c for c in vat_cols if 'standard' in c.lower()), None)
+        red_col = next((c for c in vat_cols if 'reduced' in c.lower()), None)
+        zero_col = next((c for c in vat_cols if 'zero' in c.lower()), None)
+        exempt_col = next((c for c in vat_cols if 'exempt' in c.lower()), None)
+
+        # Compute VAT totals
+        vat_breakdown = []
+        total_output_vat = 0
+        for col in vat_cols:
+            if col in df.columns:
+                val = float(df[col].sum())
+                metrics[col] = round(val, 2)
+                total_output_vat += val
+                rate_label = 'Standard (20%)' if col == std_col else 'Reduced (5%)' if col == red_col else 'Zero-rated' if col == zero_col else 'Exempt' if col == exempt_col else col
+                vat_breakdown.append({'category': rate_label, 'amount': round(val, 2)})
+
+        # Find input VAT if available
+        input_col = next((c for c in measures if 'input' in c.lower() and 'vat' in c.lower()), None)
+        total_input_vat = float(df[input_col].sum()) if input_col and input_col in df.columns else 0
+
+        vat_due = total_output_vat - total_input_vat
+        metrics['total_output_vat'] = round(total_output_vat, 2)
+        metrics['total_input_vat'] = round(total_input_vat, 2)
+        metrics['vat_due'] = round(vat_due, 2)
+
+        if vat_breakdown:
+            charts.append({'chart_type': 'pie', 'data': vat_breakdown,
+                           'x_key': 'category', 'y_keys': ['amount'],
+                           'title': 'VAT Output by Rate Category'})
+
+        findings.append(f"Total output VAT (Box 1): £{total_output_vat:,.2f} across {len(vat_breakdown)} rate categories.")
+        if total_input_vat > 0:
+            findings.append(f"Total input VAT (Box 4): £{total_input_vat:,.2f}.")
+            findings.append(f"Net VAT due (Box 5): £{vat_due:,.2f} ({'owed to HMRC' if vat_due > 0 else 'reclaimable'}).")
+        if std_col and std_col in df.columns:
+            std_total = float(df[std_col].sum())
+            std_pct = round(std_total / total_output_vat * 100, 1) if total_output_vat > 0 else 0
+            findings.append(f"Standard rate (20%) accounts for {std_pct}% of output VAT (£{std_total:,.2f}).")
+
+        return TemplateResult(template_id='T40', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics=metrics, charts=charts, findings=findings)
 
     def _run_t41(self, df, profiles, cols, tmpl):
-        """Companies House Filing — key financial ratios."""
-        return self._generic_measure_template(df, profiles, cols, tmpl, 'uk_tax')
+        """Companies House Filing — statutory financial ratios."""
+        measures = _cols_by_role(profiles, 'measure')
+        findings = []
+        charts = []
+        metrics = {}
+
+        # Find key financial columns
+        turnover_col = _find_col(profiles, 'revenue', 'measure') or _find_col(profiles, 'uk_tax')
+        profit_col = _find_col(profiles, 'profit', 'measure')
+        tax_col = next((c for c in measures if _match(c, 'uk_tax') and c in df.columns), None)
+
+        for col in measures:
+            if col in df.columns:
+                metrics[col] = round(float(df[col].sum()), 2)
+
+        # Compute key statutory ratios
+        if turnover_col and turnover_col in df.columns:
+            turnover = float(df[turnover_col].sum())
+            metrics['turnover'] = round(turnover, 2)
+            findings.append(f"Turnover: £{turnover:,.0f} across {len(df)} records.")
+
+            if profit_col and profit_col in df.columns:
+                profit = float(df[profit_col].sum())
+                profit_margin = round(profit / turnover * 100, 1) if turnover != 0 else 0
+                metrics['profit_margin_pct'] = profit_margin
+                findings.append(f"Profit margin: {profit_margin}% (Gross Profit: £{profit:,.0f}).")
+
+            # Expense ratio
+            expense_total = sum(float(df[c].sum()) for c in measures if c in df.columns and c != turnover_col and c != profit_col)
+            if expense_total > 0:
+                expense_ratio = round(expense_total / turnover * 100, 1) if turnover != 0 else 0
+                findings.append(f"Total expenses: £{expense_total:,.0f} ({expense_ratio}% of turnover).")
+
+        # Chart: breakdown of financial lines
+        if metrics:
+            chart_data = [{'item': k, 'amount': v} for k, v in sorted(metrics.items(), key=lambda x: -abs(x[1]))][:10]
+            charts.append({'chart_type': 'bar', 'data': chart_data, 'x_key': 'item', 'y_keys': ['amount'],
+                           'title': 'Financial Summary for Companies House'})
+
+        if not findings:
+            findings.append(f"Dataset contains {len(measures)} financial measures across {len(df)} records.")
+
+        return TemplateResult(template_id='T41', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics=metrics, charts=charts, findings=findings)
 
     def _run_t42(self, df, profiles, cols, tmpl):
-        """FRS 102 Compliance Check — ratio analysis."""
-        return self._generic_measure_template(df, profiles, cols, tmpl, 'uk_tax')
+        """FRS 102 Compliance Check — key financial reporting ratios."""
+        measures = _cols_by_role(profiles, 'measure')
+        findings = []
+        metrics = {}
+        charts = []
+
+        turnover_col = _find_col(profiles, 'revenue', 'measure') or _find_col(profiles, 'uk_tax')
+        profit_col = _find_col(profiles, 'profit', 'measure')
+
+        for col in measures:
+            if col in df.columns:
+                metrics[col] = round(float(df[col].sum()), 2)
+
+        if turnover_col and turnover_col in df.columns:
+            turnover = float(df[turnover_col].sum())
+
+            # FRS 102 size thresholds (2025)
+            is_micro = turnover <= 1_000_000
+            is_small = turnover <= 15_000_000
+            size_class = 'Micro-entity' if is_micro else 'Small company' if is_small else 'Medium/Large company'
+            findings.append(f"Company classification: {size_class} (turnover £{turnover:,.0f}). Micro threshold: £1M, Small: £15M.")
+
+            if profit_col and profit_col in df.columns:
+                profit = float(df[profit_col].sum())
+                margin = round(profit / turnover * 100, 1) if turnover != 0 else 0
+                findings.append(f"Profit margin: {margin}% — {'healthy' if margin > 10 else 'below average' if margin > 0 else 'loss-making'}.")
+
+            # Compute period-over-period if dimension available
+            dims = _cols_by_role(profiles, 'dimension')
+            if dims:
+                dim = dims[0]
+                if dim in df.columns:
+                    by_period = df.groupby(dim)[turnover_col].sum()
+                    if len(by_period) >= 2:
+                        change = round(float((by_period.iloc[-1] - by_period.iloc[0]) / (by_period.iloc[0] + 1e-10) * 100), 1)
+                        findings.append(f"Turnover trend: {change:+.1f}% from {by_period.index[0]} to {by_period.index[-1]}.")
+                        charts.append({'chart_type': 'bar', 'data': [{'period': str(k), 'turnover': round(float(v), 2)} for k, v in by_period.items()],
+                                       'x_key': 'period', 'y_keys': ['turnover'], 'title': 'Turnover by Period'})
+
+        if not findings:
+            findings.append(f"Dataset contains {len(measures)} financial measures for FRS 102 review.")
+
+        return TemplateResult(template_id='T42', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics=metrics, charts=charts, findings=findings)
 
     # ==========================================================================
     # GENERIC REUSABLE RUNNERS
