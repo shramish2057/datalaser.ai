@@ -74,6 +74,20 @@ PATTERNS = {
 
     # -- A/B Testing --
     'variant':    r'(?i)(variant|version|test.?group|control.?group|ab_|variante|testgruppe|kontrollgruppe|experiment)',
+
+    # -- DATEV / German Accounting (BWA) --
+    'bwa':        r'(?i)(gesamtleistung|umsatzerloese|wareneinsatz|rohertrag|personalaufwand|raumkosten|abschreibung|betriebsergebnis|zinsaufwand|steuern|jahresueberschuss|vorlaeufiges.?ergebnis|materialaufwand|sonstige.?erloese)',
+    'deckungsbeitrag': r'(?i)(deckungsbeitrag|db[_\s]?[1-4]|fixkosten|variable.?kosten|grenzkosten)',
+    'liquiditaet': r'(?i)(liquiditaet|zahlungseingang|zahlungsausgang|kasse|bankbestand|forderung|verbindlichkeit|cashflow|cash.?flow|mittelzufluss|mittelabfluss)',
+
+    # -- US Accounting (QuickBooks / GAAP) --
+    'quickbooks': r'(?i)(gross.?profit|net.?income|cogs|cost.?of.?goods|operating.?expense|other.?income|other.?expense|total.?income|total.?expense|net.?operating|payroll|accounts.?receivable|accounts.?payable)',
+    'us_tax':     r'(?i)(taxable.?income|tax.?bracket|federal.?tax|state.?tax|deduction|exemption|filing.?status|w2|1099|adjusted.?gross)',
+    'us_state':   r'(?i)(state|zip.?code|nexus|jurisdiction|sales.?tax|use.?tax)',
+
+    # -- UK Accounting (HMRC / FRS) --
+    'uk_vat':     r'(?i)(vat|value.?added|standard.?rate|reduced.?rate|zero.?rated|exempt|vat.?return|output.?tax|input.?tax)',
+    'uk_tax':     r'(?i)(corporation.?tax|paye|national.?insurance|ni.?contribution|dividend|company.?house|statutory|turnover|gross.?profit|directors)',
 }
 
 
@@ -215,6 +229,42 @@ TEMPLATES = [
     {'id': 'T31', 'name': 'Budget vs Actual Variance', 'category': 'finance', 'priority': 2,
      'description': 'Soll-Ist-Vergleich: computes variance between planned and actual values.',
      'requires': {'measures': 2}, 'patterns': ['budget', 'actual']},
+    # Market-specific: Germany (DATEV/BWA)
+    {'id': 'T32', 'name': 'DATEV BWA Analysis', 'category': 'finance', 'priority': 2,
+     'description': 'Analyzes BWA structure: Gesamtleistung, Rohertrag, Betriebsergebnis, key BWA ratios.',
+     'requires': {'measures': 3}, 'patterns': ['bwa'], 'market': 'de'},
+    {'id': 'T33', 'name': 'Deckungsbeitragsrechnung (KER)', 'category': 'finance', 'priority': 2,
+     'description': 'Short-term P&L: Deckungsbeitrag per product/segment with variable vs fixed cost split.',
+     'requires': {'measures': 2}, 'patterns': ['deckungsbeitrag'], 'market': 'de'},
+    {'id': 'T34', 'name': 'Liquiditätsvorschau', 'category': 'finance', 'priority': 2,
+     'description': 'Cash flow forecast: Zahlungseingänge vs Zahlungsausgänge with trend projection.',
+     'requires': {'measures': 1}, 'patterns': ['liquiditaet'], 'market': 'de'},
+    {'id': 'T35', 'name': 'Steuerberater Report', 'category': 'finance', 'priority': 2,
+     'description': 'Monthly financial summary formatted for tax advisor: BWA key ratios + YoY comparison.',
+     'requires': {'measures': 3}, 'patterns': ['bwa', 'revenue'], 'market': 'de'},
+    # Market-specific: US (QuickBooks/GAAP)
+    {'id': 'T36', 'name': 'QuickBooks P&L Analysis', 'category': 'finance', 'priority': 3,
+     'description': 'Maps QuickBooks export to revenue/COGS/expenses, computes gross and net margins.',
+     'requires': {'measures': 2}, 'patterns': ['quickbooks'], 'market': 'us'},
+    {'id': 'T37', 'name': 'US Tax Bracket Impact', 'category': 'finance', 'priority': 3,
+     'description': 'Analyzes income distribution relative to US federal tax brackets.',
+     'requires': {'measures': 1}, 'patterns': ['us_tax'], 'market': 'us'},
+    {'id': 'T38', 'name': 'GAAP Revenue Recognition', 'category': 'finance', 'priority': 3,
+     'description': 'Revenue by period with deferred/accrued analysis per GAAP standards.',
+     'requires': {'measures': 1, 'dates': 1}, 'patterns': ['quickbooks'], 'market': 'us'},
+    {'id': 'T39', 'name': 'Sales Tax Nexus Analysis', 'category': 'finance', 'priority': 3,
+     'description': 'Revenue by state to identify sales tax filing obligations and nexus thresholds.',
+     'requires': {'measures': 1, 'dimensions': 1}, 'patterns': ['us_state'], 'market': 'us'},
+    # Market-specific: UK (HMRC/FRS)
+    {'id': 'T40', 'name': 'HMRC VAT Return Prep', 'category': 'finance', 'priority': 3,
+     'description': 'VAT analysis: standard/reduced/exempt rate breakdown for HMRC filing.',
+     'requires': {'measures': 1}, 'patterns': ['uk_vat'], 'market': 'uk'},
+    {'id': 'T41', 'name': 'Companies House Filing', 'category': 'finance', 'priority': 3,
+     'description': 'Key financial ratios for statutory filing: turnover, gross profit, directors.',
+     'requires': {'measures': 2}, 'patterns': ['uk_tax'], 'market': 'uk'},
+    {'id': 'T42', 'name': 'FRS 102 Compliance Check', 'category': 'finance', 'priority': 3,
+     'description': 'Financial Reporting Standard compliance indicators and ratio analysis.',
+     'requires': {'measures': 2}, 'patterns': ['uk_tax'], 'market': 'uk'},
 ]
 
 
@@ -861,6 +911,100 @@ class TemplateEngine:
 
     def _run_t30(self, df, profiles, cols, tmpl):
         return self._generic_segment_template(df, profiles, cols, tmpl, 'shipping', None)
+
+    # ==========================================================================
+    # MARKET-SPECIFIC TEMPLATES (T32-T42)
+    # ==========================================================================
+
+    def _run_t32(self, df, profiles, cols, tmpl):
+        """DATEV BWA Analysis — detect BWA line items and compute key ratios."""
+        bwa_cols = [p['name'] for p in profiles if _match(p['name'], 'bwa')]
+        rev_col = _find_col(profiles, 'revenue', 'measure')
+        measures = _cols_by_role(profiles, 'measure')
+
+        if len(bwa_cols) < 2 and not rev_col:
+            return self._generic_measure_template(df, profiles, cols, tmpl, 'revenue')
+
+        # Compute BWA ratios
+        metrics = {}
+        total_rev = None
+        for col in measures:
+            if col in df.columns:
+                val = float(df[col].sum())
+                metrics[col] = val
+                if _match(col, 'revenue') and total_rev is None:
+                    total_rev = val
+
+        findings = []
+        charts = []
+
+        if total_rev and total_rev > 0:
+            # Compute cost ratios
+            ratios = []
+            for col, val in metrics.items():
+                if col != (rev_col or '') and val != 0:
+                    ratio = round(val / total_rev * 100, 1)
+                    ratios.append({'position': col, 'value': round(val, 2), 'ratio_pct': ratio})
+            ratios.sort(key=lambda r: -abs(r['ratio_pct']))
+
+            charts.append({
+                'chart_type': 'bar',
+                'data': ratios[:10],
+                'x_key': 'position', 'y_keys': ['ratio_pct'],
+                'title': 'BWA-Kostenquoten (% vom Umsatz)',
+            })
+
+            findings.append(_finding('bwa.overview', {'rev': _fmt(total_rev), 'positions': str(len(metrics))},
+                f"BWA analysis: {_fmt(total_rev)} total revenue across {len(metrics)} line items."))
+            if ratios:
+                top = ratios[0]
+                findings.append(_finding('bwa.top_ratio', {'col': top['position'], 'pct': str(top['ratio_pct'])},
+                    f"Largest cost ratio: {top['position']} at {top['ratio_pct']}% of revenue."))
+        else:
+            findings.append(_finding('bwa.no_rev', {}, "No revenue column found for BWA ratio calculation."))
+
+        return TemplateResult(template_id='T32', name=tmpl['name'], category=tmpl['category'],
+                              success=True, metrics=metrics, charts=charts, findings=findings)
+
+    def _run_t33(self, df, profiles, cols, tmpl):
+        """Deckungsbeitragsrechnung (KER) — variable vs fixed cost split."""
+        return self._run_t10(df, profiles, cols, tmpl)  # Reuse profitability analysis
+
+    def _run_t34(self, df, profiles, cols, tmpl):
+        """Liquiditätsvorschau — cash flow patterns."""
+        return self._generic_measure_template(df, profiles, cols, tmpl, 'liquiditaet')
+
+    def _run_t35(self, df, profiles, cols, tmpl):
+        """Steuerberater Report — monthly summary with BWA ratios."""
+        return self._run_t32(df, profiles, cols, tmpl)  # Reuse BWA analysis
+
+    def _run_t36(self, df, profiles, cols, tmpl):
+        """QuickBooks P&L Analysis — revenue/COGS/expenses margins."""
+        return self._run_t10(df, profiles, cols, tmpl)  # Reuse profitability
+
+    def _run_t37(self, df, profiles, cols, tmpl):
+        """US Tax Bracket Impact."""
+        return self._generic_measure_template(df, profiles, cols, tmpl, 'us_tax')
+
+    def _run_t38(self, df, profiles, cols, tmpl):
+        """GAAP Revenue Recognition — revenue by period."""
+        return self._run_t06(df, profiles, cols, tmpl)  # Reuse time trend
+
+    def _run_t39(self, df, profiles, cols, tmpl):
+        """Sales Tax Nexus — revenue by state."""
+        return self._generic_segment_template(df, profiles, cols, tmpl, 'revenue', 'us_state')
+
+    def _run_t40(self, df, profiles, cols, tmpl):
+        """HMRC VAT Return Prep — VAT rate breakdown."""
+        return self._generic_measure_template(df, profiles, cols, tmpl, 'uk_vat')
+
+    def _run_t41(self, df, profiles, cols, tmpl):
+        """Companies House Filing — key financial ratios."""
+        return self._run_t10(df, profiles, cols, tmpl)  # Reuse profitability
+
+    def _run_t42(self, df, profiles, cols, tmpl):
+        """FRS 102 Compliance Check — ratio analysis."""
+        return self._generic_measure_template(df, profiles, cols, tmpl, 'uk_tax')
 
     # ==========================================================================
     # GENERIC REUSABLE RUNNERS

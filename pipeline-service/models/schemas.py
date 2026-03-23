@@ -179,5 +179,5 @@ class TemplateResult(BaseModel):
     success: bool
     metrics: Dict[str, Any] = {}
     charts: List[Dict[str, Any]] = []
-    findings: List[str] = []
+    findings: List[Any] = []  # str or {key, args, text} dict for i18n
     warnings: List[str] = []
