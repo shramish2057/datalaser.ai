@@ -124,7 +124,8 @@
       "Bash(head -20 echo __NEW_LINE_fa3b5de2a56fcb5c__ echo '3. Specific strings user flagged:' grep -rn \"Describe your analysis\\\\|DataLaser will generate\\\\|Correlation analysis of all\\\\|Which factors predict\\\\|Trend analysis and forecast\" src/app --include=*.tsx)",
       "Bash(grep -rn \"export default\\\\|return.*<div\\\\|return.*<>\" src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/studio/layout.tsx)",
       "Bash(grep -n \"function \" src/app/\\\\\\(team\\\\\\)/[orgSlug]/[workspaceSlug]/layout.tsx)",
-      "Bash(head -10 echo \"\\(should be empty\\)\")"
+      "Bash(head -10 echo \"\\(should be empty\\)\")",
+      "WebFetch(domain:yeldra.com)"
     ]
   }
 }
