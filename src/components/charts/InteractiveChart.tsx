@@ -9,6 +9,7 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from 'recharts'
 import { chartTheme } from '@/lib/chartTheme'
+import { useLocale } from 'next-intl'
 import { smartFormat } from '@/lib/formatNumber'
 import { Download, Maximize2, Minimize2, Pin, MousePointer } from 'lucide-react'
 import { HistogramChart } from './HistogramChart'
@@ -53,6 +54,7 @@ type Props = {
 }
 
 export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
+  const locale = useLocale()
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const chartRef = useRef<HTMLDivElement>(null)
@@ -112,9 +114,9 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
       interval={0} angle={dataLen > 6 ? -30 : 0}
       textAnchor={dataLen > 6 ? 'end' : 'middle'}
       height={dataLen > 6 ? 60 : 30} />,
-    yAxis: <YAxis {...chartTheme.yAxis} tick={{ fontSize: 11 }} tickFormatter={(v) => smartFormat(v)} />,
+    yAxis: <YAxis {...chartTheme.yAxis} tick={{ fontSize: 11 }} tickFormatter={(v) => smartFormat(v, locale)} />,
     grid: <CartesianGrid {...chartTheme.cartesianGrid} />,
-    tooltip: <Tooltip {...chartTheme.tooltip} formatter={(value) => [smartFormat(Number(value)), undefined]} />,
+    tooltip: <Tooltip {...chartTheme.tooltip} formatter={(value) => [smartFormat(Number(value), locale), undefined]} />,
     legend: <Legend wrapperStyle={{ fontSize: '11px', color: '#74838F' }} />,
   }
 
@@ -161,12 +163,12 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
             onClick={(e: Record<string, unknown>) => { const ap = (e as { activePayload?: { payload: Record<string, unknown> }[] })?.activePayload; if (ap?.[0]) handleDataClick(ap[0].payload, chart.xKey) }}>
             <PolarGrid stroke="#E8ECEE" />
             <PolarAngleAxis dataKey={chart.xKey} tick={{ fontSize: 10, fill: '#74838F' }} className={cursorClass} />
-            <PolarRadiusAxis tick={{ fontSize: 9 }} tickFormatter={(v) => smartFormat(v)} />
+            <PolarRadiusAxis tick={{ fontSize: 9 }} tickFormatter={(v) => smartFormat(v, locale)} />
             {radarKeys.map((key, ki) => (
               <Radar key={key} name={key} dataKey={key} stroke={colors[ki % colors.length]}
                 fill={colors[ki % colors.length]} fillOpacity={0.15} strokeWidth={2} />
             ))}
-            <Tooltip {...chartTheme.tooltip} formatter={(value) => [smartFormat(Number(value)), undefined]} />
+            <Tooltip {...chartTheme.tooltip} formatter={(value) => [smartFormat(Number(value), locale), undefined]} />
             <Legend wrapperStyle={{ fontSize: '11px', color: '#74838F' }} />
           </RadarChart>
         )

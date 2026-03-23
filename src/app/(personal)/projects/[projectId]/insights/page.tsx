@@ -184,7 +184,7 @@ export default function InsightsPage() {
                 <div className="ml-7 mt-2 flex items-center gap-3 text-[10px] text-mb-text-light">
                   <span>{src.row_count.toLocaleString()} rows</span>
                   {src.analyzed_at && (
-                    <span>Analyzed {new Date(src.analyzed_at).toLocaleDateString('de-DE')}</span>
+                    <span>{t('insights.analyzed')} {new Date(src.analyzed_at).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span>
                   )}
                 </div>
               </button>

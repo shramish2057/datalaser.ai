@@ -1,5 +1,6 @@
 'use client'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { useLocale } from 'next-intl'
 import { smartFormat } from '@/lib/formatNumber'
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 }
 
 export function KPICard({ label, value, delta, deltaLabel, unit = '', trend, size = 'md', sparkline, sparklineColor }: Props) {
+  const locale = useLocale()
   const autoTrend = trend || (delta && delta > 0 ? 'up' : delta && delta < 0 ? 'down' : 'flat')
   const trendColor = autoTrend === 'up' ? 'text-green-600' : autoTrend === 'down' ? 'text-red-500' : 'text-mb-text-light'
   const trendBg = autoTrend === 'up' ? 'bg-green-50' : autoTrend === 'down' ? 'bg-red-50' : 'bg-mb-bg-light'
@@ -22,7 +24,7 @@ export function KPICard({ label, value, delta, deltaLabel, unit = '', trend, siz
   const valueSizes = { sm: 'text-[18px]', md: 'text-[24px]', lg: 'text-[32px]' }
   const labelSizes = { sm: 'text-[10px]', md: 'text-[11px]', lg: 'text-[12px]' }
 
-  const formattedValue = typeof value === 'number' ? smartFormat(value) : value
+  const formattedValue = typeof value === 'number' ? smartFormat(value, locale) : value
 
   return (
     <div className="bg-white border border-mb-border rounded-mb-lg p-4 flex flex-col">
