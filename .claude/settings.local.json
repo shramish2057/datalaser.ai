@@ -116,7 +116,10 @@
       "Bash(grep -v .json echo '\\(should be empty or only AI-generated content\\)' __NEW_LINE_8b98ae31f4b2c7f4__ echo echo '2. .strength rendered without t\\(\\):' grep -rn .strength} src/app src/components --include=*.tsx)",
       "Bash(grep -v \"import\\\\|type \\\\|interface\" echo '\\(should be empty\\)' __NEW_LINE_8b98ae31f4b2c7f4__ echo echo '3. .type.replace still used \\(should use t\\(insightTypes.xxx\\)\\):' grep -rn .type.replace src/app src/components --include=*.tsx)",
       "Bash(grep -v /api/ echo '\\(should be empty\\)' __NEW_LINE_8b98ae31f4b2c7f4__ echo echo \"4. Effect size labels \\(''''small'''',''''medium'''',''''large''''\\) rendered:\" grep -rn \"effect_size\\\\|\\\\.effect}\" src/app src/components --include=*.tsx)",
-      "Bash(head -5 echo \"\\(these render numbers, not labels — OK\\)\")"
+      "Bash(head -5 echo \"\\(these render numbers, not labels — OK\\)\")",
+      "Bash(sleep 3 __NEW_LINE_1e5cd34e515b6f94__ echo \"=== T36 QuickBooks \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T36/run -F \"file=@/tmp/quickbooks_test.csv\" -F \"file_type=csv\")",
+      "Bash(1 __NEW_LINE_1e5cd34e515b6f94__ echo \"\" echo \"=== T41 Companies House \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T41/run -F \"file=@/tmp/hmrc_test.csv\" -F \"file_type=csv\")",
+      "Bash(1 __NEW_LINE_1e5cd34e515b6f94__ echo \"\" echo \"=== T32 BWA \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T32/run -F \"file=@/tmp/bwa_test.csv\" -F \"file_type=csv\")"
     ]
   }
 }

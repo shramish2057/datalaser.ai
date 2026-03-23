@@ -17,7 +17,7 @@ from models.schemas import TemplateMatch, TemplateResult
 
 PATTERNS = {
     # -- Finance / BWA (DATEV standard) --
-    'revenue':    r'(?i)(revenue|umsatz|sales|verkauf|ertrag|einnahm|turnover|erloes|gesamtleistung|nettoumsatz|bruttoumsatz|absatz_wert|omzet)',
+    'revenue':    r'(?i)(revenue|umsatz|(?<!_)sales(?!_tax)|verkauf|ertrag|einnahm|turnover|erloes|gesamtleistung|nettoumsatz|bruttoumsatz|absatz_wert|omzet|total.?income)',
     'cost':       r'(?i)(cost|kosten|expense|ausgabe|aufwand|spend|wareneinsatz|materialaufwand|herstellkosten|betriebsaufwand|sachkosten|fremdleistung|gemeinkosten)',
     'profit':     r'(?i)(profit|gewinn|margin|marge|earning|rohertrag|betriebsergebnis|ebit|ebitda|deckungsbeitrag|db[_\s]|ergebnis_vor|jahresueberschuss|rohmarge)',
     'personnel':  r'(?i)(personal|gehalt|lohn|salary|wage|personalkosten|personalaufwand|bruttolohn|arbeitgeber.?anteil|sozialversicherung|lohnnebenkosten|fte|headcount|mitarbeiterkosten)',
@@ -988,7 +988,11 @@ class TemplateEngine:
 
     def _run_t38(self, df, profiles, cols, tmpl):
         """GAAP Revenue Recognition — revenue by period."""
-        return self._run_t06(df, profiles, cols, tmpl)  # Reuse time trend
+        # Try time trend first, fall back to generic measure
+        result = self._run_t06(df, profiles, cols, tmpl)
+        if result.success:
+            return result
+        return self._generic_measure_template(df, profiles, cols, tmpl, 'quickbooks')
 
     def _run_t39(self, df, profiles, cols, tmpl):
         """Sales Tax Nexus — revenue by state."""
@@ -1000,7 +1004,7 @@ class TemplateEngine:
 
     def _run_t41(self, df, profiles, cols, tmpl):
         """Companies House Filing — key financial ratios."""
-        return self._run_t10(df, profiles, cols, tmpl)  # Reuse profitability
+        return self._generic_measure_template(df, profiles, cols, tmpl, 'uk_tax')
 
     def _run_t42(self, df, profiles, cols, tmpl):
         """FRS 102 Compliance Check — ratio analysis."""
