@@ -71,7 +71,7 @@ export default function LoginPage() {
 
         {/* Password */}
         <div className="mb-4">
-          <label className="mb-label">Password</label>
+          <label className="mb-label">{t("common.password")}</label>
           <input
             className="mb-input"
             type="password"

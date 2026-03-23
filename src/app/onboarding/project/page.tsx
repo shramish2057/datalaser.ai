@@ -76,7 +76,7 @@ export default function ProjectPage() {
       )}
 
       <div className="mb-6">
-        <label className="mb-label">Project name</label>
+        <label className="mb-label">{t("common.projectName")}</label>
         <input
           className="mb-input"
           placeholder={t("settings.projectName")}

@@ -79,11 +79,11 @@ export default function WorkspaceMembersPage() {
                 <option value="">{t("common.choose")}</option>
                 {availableOrgMembers.map(om => <option key={om.user_id} value={om.user_id}>{om.user_id.slice(0, 12)}...</option>)}
               </select></div>
-              <div><label className="mb-label">Role</label><select className="mb-input" value={addRole} onChange={e => setAddRole(e.target.value)}>
+              <div><label className="mb-label">{t("common.role")}</label><select className="mb-input" value={addRole} onChange={e => setAddRole(e.target.value)}>
                 <option value="admin">{t("common.admin")}</option><option value="editor">{t("common.editor")}</option><option value="viewer">{t("common.viewer")}</option>
               </select></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => setAddOpen(false)} className="mb-btn-secondary">Cancel</button>
+                <button onClick={() => setAddOpen(false)} className="mb-btn-secondary">{t("common.cancel")}</button>
                 <button onClick={handleAdd} disabled={!selectedUser || adding} className={`mb-btn-primary ${!selectedUser || adding ? 'opacity-40' : ''}`}>{adding ? 'Adding...' : 'Add member'}</button>
               </div>
             </div>

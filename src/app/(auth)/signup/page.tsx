@@ -64,7 +64,7 @@ export default function SignupPage() {
 
         {/* Full name */}
         <div className="mb-4">
-          <label className="mb-label">Full name</label>
+          <label className="mb-label">{t("onboarding.fullName")}</label>
           <input
             className="mb-input"
             type="text"
@@ -88,7 +88,7 @@ export default function SignupPage() {
 
         {/* Password */}
         <div className="mb-4">
-          <label className="mb-label">Password</label>
+          <label className="mb-label">{t("common.password")}</label>
           <input
             className="mb-input"
             type="password"

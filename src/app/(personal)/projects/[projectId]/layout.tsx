@@ -186,7 +186,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-1.5 text-mb-xs text-mb-text-light
                 hover:text-mb-brand mt-1.5 transition-colors"
             >
-              <Plus size={11} /> {t('common.new')} project
+              <Plus size={11} /> {t('common.newProject')}
             </button>
           </div>
         )}
@@ -297,7 +297,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
               onClick={() => router.push(`/projects/${projectId}/sources/new`)}
               className="mb-btn-secondary flex items-center gap-1.5 text-mb-sm py-1.5"
             >
-              <Plus size={13} /> {t('common.add')} data
+              <Plus size={13} /> {t('sources.addSource')}
             </button>
           </div>
         </header>

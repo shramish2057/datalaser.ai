@@ -99,15 +99,15 @@ export default function OrgMembersPage() {
 
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
           <DialogContent className="bg-mb-bg border border-mb-border rounded-mb-lg shadow-mb-lg p-0 max-w-md">
-            <DialogHeader className="p-6 pb-0"><DialogTitle className="text-mb-xl font-black text-mb-text-dark">Invite a member</DialogTitle></DialogHeader>
+            <DialogHeader className="p-6 pb-0"><DialogTitle className="text-mb-xl font-black text-mb-text-dark">{t("common.inviteMembers")}</DialogTitle></DialogHeader>
             <div className="p-6 pt-4 space-y-4">
-              <div><label className="mb-label">Email</label><input className="mb-input" type="email" placeholder="colleague@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} /></div>
-              <div><label className="mb-label">Role</label><select className="mb-input" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+              <div><label className="mb-label">{t("common.email")}</label><input className="mb-input" type="email" placeholder="colleague@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} /></div>
+              <div><label className="mb-label">{t("common.role")}</label><select className="mb-input" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
                 <option value="admin">{t("common.admin")}</option><option value="member">{t("common.member")}</option><option value="viewer">{t("common.viewer")}</option>
               </select></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => setInviteOpen(false)} className="mb-btn-secondary">Cancel</button>
-                <button onClick={handleInvite} disabled={!inviteEmail.trim() || inviting} className={`mb-btn-primary ${!inviteEmail.trim() || inviting ? 'opacity-40' : ''}`}>{inviting ? 'Sending...' : 'Send invite'}</button>
+                <button onClick={() => setInviteOpen(false)} className="mb-btn-secondary">{t("common.cancel")}</button>
+                <button onClick={handleInvite} disabled={!inviteEmail.trim() || inviting} className={`mb-btn-primary ${!inviteEmail.trim() || inviting ? 'opacity-40' : ''}`}>{inviting ? t('common.saving') : t('common.invite')}</button>
               </div>
             </div>
           </DialogContent>

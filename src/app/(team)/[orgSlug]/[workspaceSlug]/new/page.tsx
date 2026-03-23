@@ -61,7 +61,7 @@ export default function TeamNewProjectPage() {
         <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">New Project</h1>
         <p className="text-mb-text-medium text-mb-base mb-10">A project holds your data sources, insights, and dashboards.</p>
         {error && <div className="px-3 py-2 rounded-mb-md bg-red-50 border border-mb-error text-mb-error text-mb-sm font-bold mb-4">{error}</div>}
-        <div className="mb-6"><label className="mb-label">Project name</label><input className="mb-input" placeholder={t("settings.projectName")} value={name} onChange={e => setName(e.target.value)} autoFocus onKeyDown={e => e.key === 'Enter' && handleCreate()} /></div>
+        <div className="mb-6"><label className="mb-label">{t("common.projectName")}</label><input className="mb-input" placeholder={t("settings.projectName")} value={name} onChange={e => setName(e.target.value)} autoFocus onKeyDown={e => e.key === 'Enter' && handleCreate()} /></div>
         <div className="mb-6"><label className="mb-label">Icon</label><ProjectIconPicker value={icon} color={color} onChange={setIcon} /></div>
         <div className="mb-10"><label className="mb-label">Color</label><div className="flex gap-2 mt-1">{COLORS.map(c => (<button key={c} onClick={() => setColor(c)} className={`w-8 h-8 rounded-full border-2 transition-all ${color === c ? 'border-mb-text-dark scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />))}</div></div>
         <div className="flex gap-3">
