@@ -24,7 +24,7 @@ export default function LandingPage() {
               <span className="font-display font-bold text-mb-text-dark text-lg">DataLaser</span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
-              {['Features', 'Connectors', 'Pricing', 'Docs'].map(link => (
+              {[t('landing.nav.features'), t('landing.nav.connectors'), t('landing.nav.pricing'), t('landing.nav.docs')].map(link => (
                 <Link key={link} href="#" className="text-sm text-mb-text-medium hover:text-mb-text-dark transition-colors">
                   {link}
                 </Link>
@@ -36,7 +36,7 @@ export default function LandingPage() {
               Sign in
             </Link>
             <Link href="/signup" className="text-sm bg-mb-brand text-white px-4 py-2 rounded-lg hover:bg-mb-brand-dark transition-colors font-medium">
-              Get started free
+              {t('landing.getStarted')} free
             </Link>
           </div>
           <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -59,13 +59,13 @@ export default function LandingPage() {
       <section className="pt-40 pb-24 px-6 text-center max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 bg-mb-brand-hover text-mb-brand text-xs font-semibold px-3 py-1.5 rounded-full mb-8 border border-mb-brand/20">
           <span className="w-1.5 h-1.5 bg-mb-brand rounded-full" />
-          Now with proactive anomaly detection
+          {t('landing.badge')}
         </div>
 
         <h1 className="font-display font-bold text-5xl md:text-7xl text-mb-text-dark leading-[1.05] tracking-tight mb-6">
-          Your data.
+          {t('landing.tagline')}
           <br />
-          <span className="text-mb-brand">Interrogated.</span>
+          <span className="text-mb-brand"></span>
         </h1>
 
         <p className="text-mb-text-medium text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
@@ -78,19 +78,19 @@ export default function LandingPage() {
             href="/signup"
             className="flex items-center gap-2 bg-mb-brand text-white px-6 py-3 rounded-lg font-medium hover:bg-mb-brand-dark transition-colors text-sm w-full sm:w-auto justify-center"
           >
-            Start for free
+            {t('landing.cta')}
             <ArrowRight size={16} />
           </Link>
           <Link
             href="#"
             className="flex items-center gap-2 border border-mb-border-dark text-mb-text-medium px-6 py-3 rounded-lg font-medium hover:border-mb-brand hover:text-mb-brand transition-colors text-sm w-full sm:w-auto justify-center"
           >
-            See a demo
+            {t('landing.ctaDemo')}
           </Link>
         </div>
 
         <p className="text-mb-text-light text-xs">
-          No credit card · Setup in 2 minutes · First insight in 5 minutes
+          {t('landing.ctaFooter')}
         </p>
       </section>
 
@@ -177,7 +177,7 @@ export default function LandingPage() {
       {/* INTEGRATION STRIP */}
       <section className="border-y border-mb-border py-8 overflow-hidden bg-white">
         <p className="text-center text-mb-text-light text-xs font-medium uppercase tracking-widest mb-6">
-          Works with your entire stack
+          {t('landing.stack')}
         </p>
         <div className="flex gap-3 animate-marquee whitespace-nowrap">
           {[...Array(2)].map((_, di) => (
@@ -201,10 +201,10 @@ export default function LandingPage() {
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="font-display font-bold text-3xl md:text-4xl text-mb-text-dark mb-4">
-            Everything you need to understand your business
+            {t('landing.everythingTitle')}
           </h2>
           <p className="text-mb-text-medium text-lg max-w-xl mx-auto">
-            No analysts. No dashboards to build. No SQL. Just answers.
+            {t('landing.everythingSubtitle')}
           </p>
         </div>
 
@@ -213,22 +213,22 @@ export default function LandingPage() {
             {
               icon: <Database size={22} className="text-mb-brand" />,
               iconBg: 'bg-mb-brand-hover',
-              title: 'Connect Everything',
-              body: '40+ native connectors. Databases, warehouses, SaaS tools, ad platforms. Live sync. Zero configuration.',
+              title: t('landing.feat1Title'),
+              body: t('landing.feat1Desc'),
               chips: ['PostgreSQL', 'Snowflake', 'Shopify', 'Google Ads'],
             },
             {
               icon: <Zap size={22} className="text-mb-brand" />,
               iconBg: 'bg-mb-brand-hover',
-              title: 'AI Reads Your Business',
-              body: 'Auto-generated insight reports, anomaly detection, and plain-English answers. No analyst needed.',
+              title: t('landing.feat2Title'),
+              body: t('landing.feat2Desc'),
               chips: ['Insights', 'Anomalies', 'KPIs', 'Forecasts'],
             },
             {
               icon: <BarChart3 size={22} className="text-mb-brand" />,
               iconBg: 'bg-mb-brand-hover',
-              title: 'Monitor Continuously',
-              body: 'DataLaser watches every metric 24/7 and alerts you the moment something changes — before it costs you.',
+              title: t('landing.feat3Title'),
+              body: t('landing.feat3Desc'),
               chips: ['Live sync', 'Alerts', 'Trends', 'Real-time'],
             },
           ].map(f => (
@@ -253,10 +253,10 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-display font-bold text-3xl md:text-4xl text-mb-text-dark mb-4">
-              One platform. Three ways to understand your data.
+              {t('landing.platformTitle')}
             </h2>
             <p className="text-mb-text-medium text-lg">
-              From AI-written reports to live dashboards — all powered by your real data.
+              {t('landing.platformSubtitle')}
             </p>
           </div>
 
@@ -264,18 +264,18 @@ export default function LandingPage() {
             {[
               {
                 num: '01',
-                title: 'Insights Document',
-                body: 'AI generates a full analyst report from your data every morning. Key findings, anomalies, and recommendations — in plain English.',
+                title: t('landing.prod1Title'),
+                body: t('landing.prod1Desc'),
               },
               {
                 num: '02',
                 title: 'Ask Data',
-                body: 'Ask any business question in plain English. Get charts, tables, and narrative answers instantly — no SQL required.',
+                body: t('landing.prod2Desc'),
               },
               {
                 num: '03',
-                title: 'Live Dashboard',
-                body: 'Build a live monitoring dashboard in seconds. Describe what you want — AI builds the widgets and wires them to your data.',
+                title: t('landing.prod3Title'),
+                body: t('landing.prod3Desc'),
               },
             ].map(s => (
               <div key={s.num} className="bg-white border border-mb-border rounded-xl p-6 relative hover:shadow-sm hover:border-mb-brand/40 transition-all">
@@ -285,7 +285,7 @@ export default function LandingPage() {
                 <h3 className="font-display font-semibold text-mb-text-dark text-lg mb-2">{s.title}</h3>
                 <p className="text-mb-text-medium text-sm leading-relaxed">{s.body}</p>
                 <div className="flex items-center gap-1 mt-4 text-mb-brand text-xs font-medium">
-                  Learn more <ChevronRight size={14} />
+                  {t('landing.learnMore')} <ChevronRight size={14} />
                 </div>
               </div>
             ))}
@@ -299,7 +299,7 @@ export default function LandingPage() {
           <div className="flex justify-center gap-1 mb-3">
             {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-mb-warning text-mb-warning" />)}
           </div>
-          <p className="text-mb-text-light text-sm">Loved by operators, founders, and analysts</p>
+          <p className="text-mb-text-light text-sm">{t('landing.testimonialTitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -341,9 +341,9 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-display font-bold text-3xl md:text-4xl text-mb-text-dark mb-4">
-              Simple, transparent pricing
+              {t('landing.pricingTitle')}
             </h2>
-            <p className="text-mb-text-medium">Start free. Scale when you need to.</p>
+            <p className="text-mb-text-medium">{t('landing.pricingSubtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -359,7 +359,7 @@ export default function LandingPage() {
               {
                 name: 'Pro',
                 price: '$49',
-                sub: 'per month',
+                sub: t('landing.proPrice').split(' ').slice(1).join(' '),
                 features: ['3 users', '10 data sources', '10M rows', 'All 3 interfaces', 'Proactive alerts', 'Email support'],
                 cta: 'Get started',
                 highlight: true,
@@ -407,10 +407,10 @@ export default function LandingPage() {
       {/* FINAL CTA */}
       <section className="py-24 px-6 text-center max-w-2xl mx-auto">
         <h2 className="font-display font-bold text-4xl md:text-5xl text-mb-text-dark mb-4">
-          Ready to interrogate your data?
+          {t('landing.readyTitle')}
         </h2>
         <p className="text-mb-text-medium text-lg mb-8">
-          Connect in 2 minutes. First insight in 5.
+          {t('landing.readySubtitle')}
         </p>
         <Link
           href="/signup"
@@ -419,7 +419,7 @@ export default function LandingPage() {
           Start for free
           <ArrowRight size={18} />
         </Link>
-        <p className="text-mb-text-light text-xs mt-4">No credit card required</p>
+        <p className="text-mb-text-light text-xs mt-4">{t('landing.noCreditCard')}</p>
       </section>
 
       {/* FOOTER */}
@@ -428,7 +428,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-2">
             <span className="text-mb-brand font-bold">▲</span>
             <span className="font-display font-bold text-mb-text-dark text-sm">DataLaser</span>
-            <span className="text-mb-text-light text-xs ml-2">© 2025 DataLaser. All rights reserved.</span>
+            <span className="text-mb-text-light text-xs ml-2">{t('landing.copyright')}</span>
           </div>
           <div className="flex items-center gap-6">
             {['Privacy', 'Terms', 'Docs', 'Status', 'GitHub'].map(link => (
