@@ -21,8 +21,8 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* 3D GLSL Hills background — shifted up */}
-      <div className="absolute inset-0 z-0 opacity-55" style={{ top: '-350px', bottom: '-200px' }}>
-        <GLSLHills width="100%" height="calc(100% + 550px)" cameraZ={110} speed={0.35} />
+      <div className="absolute z-0 opacity-55 left-0 right-0" style={{ top: '-350px', bottom: '-500px' }}>
+        <GLSLHills width="100%" height="calc(100% + 850px)" cameraZ={110} speed={0.35} />
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/40 via-white/20 to-white pointer-events-none" />
 
@@ -160,7 +160,7 @@ export function HeroSection() {
         </div>
 
         {/* Logo bar */}
-        <div className="bg-white pb-0 pt-10">
+        <div className="bg-white pb-0 pt-20">
           <p className="text-center text-xs text-gray-400 uppercase tracking-[0.2em] font-semibold mb-6">
             {locale === 'de' ? 'Funktioniert mit Ihrem gesamten Stack' : 'Works with your entire stack'}
           </p>
