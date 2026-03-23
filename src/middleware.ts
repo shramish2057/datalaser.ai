@@ -30,15 +30,23 @@ export async function middleware(req: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
+  // Locale-prefixed public routes
+  const isLocalePublic = /^\/(de|en)(\/|$)/.test(pathname)
+
+  // Redirect old /login, /signup to locale-prefixed version
+  if (pathname === '/login' || pathname === '/signup') {
+    const locale = req.cookies.get('dl_locale')?.value || (req.headers.get('accept-language')?.includes('de') ? 'de' : 'en')
+    return NextResponse.redirect(new URL(`/${locale}${pathname}`, req.url))
+  }
+
   // Public routes — no auth needed
   const isPublic = pathname === '/' ||
-    pathname === '/login' ||
-    pathname === '/signup' ||
+    isLocalePublic ||
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/invite/')
 
   // Auth routes — redirect if already logged in
-  const isAuthRoute = pathname === '/login' || pathname === '/signup'
+  const isAuthRoute = /^\/(de|en)\/(login|signup)$/.test(pathname)
 
   // Protected routes
   const isProtected = pathname.startsWith('/projects') ||
@@ -49,7 +57,8 @@ export async function middleware(req: NextRequest) {
     (!isPublic && pathname.split('/').filter(Boolean).length >= 2)
 
   if (!session && isProtected) {
-    const redirectUrl = new URL('/login', req.url)
+    const locale = req.cookies.get('dl_locale')?.value || (req.headers.get('accept-language')?.includes('de') ? 'de' : 'en')
+    const redirectUrl = new URL(`/${locale}/login`, req.url)
     redirectUrl.searchParams.set('next', pathname)
     return NextResponse.redirect(redirectUrl)
   }
