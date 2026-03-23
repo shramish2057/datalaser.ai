@@ -346,7 +346,8 @@
     "feat3Tags": "Live-Sync,Benachrichtigungen,Trends,Echtzeit",
     "plan1Features": "1 Arbeitsbereich,2 Datenquellen,100.000 Zeilen,Analysen + Daten fragen,Community-Support",
     "plan2Features": "3 Benutzer,10 Datenquellen,10 Mio. Zeilen,Alle 3 Oberflächen,Proaktive Benachrichtigungen,E-Mail-Support",
-    "plan3Features": "15 Benutzer,Unbegrenzte Quellen,100 Mio. Zeilen,Anomalie-Überwachung,Team-Zusammenarbeit,Prioritäts-Support"
+    "plan3Features": "15 Benutzer,Unbegrenzte Quellen,100 Mio. Zeilen,Anomalie-Überwachung,Team-Zusammenarbeit,Prioritäts-Support",
+    "perMonth": "pro Monat"
   },
   "errors": {
     "sourceNotFound": "Datenquelle nicht gefunden",

@@ -346,7 +346,8 @@
     "feat3Tags": "Live sync,Alerts,Trends,Real-time",
     "plan1Features": "1 workspace,2 data sources,100K rows,Insights + Ask Data,Community support",
     "plan2Features": "3 users,10 data sources,10M rows,All 3 interfaces,Proactive alerts,Email support",
-    "plan3Features": "15 users,Unlimited sources,100M rows,Anomaly monitoring,Team collaboration,Priority support"
+    "plan3Features": "15 users,Unlimited sources,100M rows,Anomaly monitoring,Team collaboration,Priority support",
+    "perMonth": "per month"
   },
   "errors": {
     "sourceNotFound": "Data source not found",

@@ -34,7 +34,7 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-3">
             <Link href="/de/login" className="text-sm text-dl-text-medium hover:text-dl-text-dark px-4 py-2 transition-colors">
-              Sign in
+              {t('landing.login')}
             </Link>
             <Link href="/de/signup" className="text-sm bg-dl-brand text-white px-4 py-2 rounded-lg hover:bg-dl-brand-dark transition-colors font-medium">
               {t('landing.getStarted')} free
@@ -50,7 +50,7 @@ export default function LandingPage() {
               <Link key={link} href="#" className="text-sm text-dl-text-medium">{link}</Link>
             ))}
             <Link href="/de/signup" className="text-sm bg-dl-brand text-white px-4 py-2 rounded-lg text-center font-medium">
-              Get started free
+              {t('landing.getStarted')}
             </Link>
           </div>
         )}
@@ -354,7 +354,7 @@ export default function LandingPage() {
                 price: 'Free',
                 sub: 'forever',
                 features: ['1 workspace', '2 data sources', '100K rows', 'Insights + Ask Data', 'Community support'],
-                cta: 'Start for free',
+                cta: t('landing.cta'),
                 highlight: false,
               },
               {
@@ -362,15 +362,15 @@ export default function LandingPage() {
                 price: '$49',
                 sub: t('landing.proPrice').split(' ').slice(1).join(' '),
                 features: ['3 users', '10 data sources', '10M rows', 'All 3 interfaces', 'Proactive alerts', 'Email support'],
-                cta: 'Get started',
+                cta: t('landing.getStarted'),
                 highlight: true,
               },
               {
                 name: 'Business',
                 price: '$199',
-                sub: 'per month',
+                sub: t('landing.perMonth'),
                 features: ['15 users', 'Unlimited sources', '100M rows', 'Anomaly monitoring', 'Team collaboration', 'Priority support'],
-                cta: 'Get started',
+                cta: t('landing.getStarted'),
                 highlight: false,
               },
             ].map(p => (
@@ -417,7 +417,7 @@ export default function LandingPage() {
           href="/de/signup"
           className="inline-flex items-center gap-2 bg-dl-brand text-white px-8 py-4 rounded-lg font-medium hover:bg-dl-brand-dark transition-colors text-base"
         >
-          Start for free
+          {t('landing.cta')}
           <ArrowRight size={18} />
         </Link>
         <p className="text-dl-text-light text-xs mt-4">{t('landing.noCreditCard')}</p>
