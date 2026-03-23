@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { GLSLHills } from '@/components/ui/glsl-hills'
 import { Features } from '@/components/blocks/features-8'
+import { Testimonials } from '@/components/blocks/testimonials'
 
 /* ── scroll-triggered reveal ── */
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -278,6 +279,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ━━ TESTIMONIALS ━━ */}
+      <Testimonials />
 
       {/* ━━ PRICING ━━ */}
       <section id="pricing" className="py-28 px-6">
