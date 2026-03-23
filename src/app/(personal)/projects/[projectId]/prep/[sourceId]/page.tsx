@@ -481,7 +481,7 @@ export default function PreparePage() {
                 {/* Quality bar */}
                 <div className="mb-6">
                   <div className="flex items-center gap-3 mb-1">
-                    <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider">Quality</p>
+                    <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider">{t("common.quality")}</p>
                     <span className={`mb-badge-${profile.quality_level === 'good' ? 'success' : profile.quality_level === 'red' ? 'error' : 'warning'}`}>
                       {profile.quality_level}
                     </span>
@@ -497,13 +497,13 @@ export default function PreparePage() {
                   <table className="mb-table">
                     <thead>
                       <tr>
-                        <th>Column</th>
-                        <th>Type</th>
-                        <th>Null Rate</th>
-                        <th>Unique</th>
-                        <th>Min</th>
-                        <th>Max</th>
-                        <th>Issues</th>
+                        <th>{t("common.column")}</th>
+                        <th>{t("common.type")}</th>
+                        <th>{t("common.nullRate")}</th>
+                        <th>{t("common.unique")}</th>
+                        <th>{t("common.min")}</th>
+                        <th>{t("common.max")}</th>
+                        <th>{t("common.issues")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -792,7 +792,7 @@ export default function PreparePage() {
                     <div className="mb-card overflow-hidden mt-2">
                       <table className="mb-table">
                         <thead>
-                          <tr><th>Test</th><th>Column</th><th>Status</th><th>Message</th></tr>
+                          <tr><th>{t("common.test")}</th><th>{t("common.column")}</th><th>{t("common.status")}</th><th>{t("common.message")}</th></tr>
                         </thead>
                         <tbody>
                           {validation.tests.map((t, i) => (

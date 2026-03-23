@@ -114,7 +114,7 @@ export default function ProjectSourcesPage() {
           onClick={() => router.push(`${base}/sources/new`)}
         >
           <Plus size={14} />
-          Add data source
+          {t("sources.addSource")}
         </button>
       </div>
 
@@ -123,10 +123,10 @@ export default function ProjectSourcesPage() {
         <table className="mb-table">
           <thead>
             <tr>
-              <th>Source Name</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Last Synced</th>
+              <th>{t("common.sourceName")}</th>
+              <th>{t("common.type")}</th>
+              <th>{t("common.status")}</th>
+              <th>{t("common.lastSynced")}</th>
               <th className="text-right">Row Count</th>
               <th className="text-right">Actions</th>
             </tr>

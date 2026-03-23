@@ -43,9 +43,9 @@ export default function TeamSourcesPage() {
     <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <div><h1 className="text-mb-2xl font-black text-mb-text-dark">Data Sources</h1><p className="text-mb-text-light text-mb-sm mt-0.5">{sources.length} source{sources.length !== 1 ? 's' : ''} connected</p></div>
-        <button className="mb-btn-primary" onClick={() => router.push(`${base}/sources/new`)}><Plus size={14} /> Add data source</button>
+        <button className="mb-btn-primary" onClick={() => router.push(`${base}/sources/new`)}><Plus size={14} /> {t("sources.addSource")}</button>
       </div>
-      <div className="mb-card overflow-hidden"><table className="mb-table"><thead><tr><th>Source Name</th><th>Type</th><th>Status</th><th>Last Synced</th><th className="text-right">Row Count</th><th className="text-right">Actions</th></tr></thead><tbody>
+      <div className="mb-card overflow-hidden"><table className="mb-table"><thead><tr><th>{t("common.sourceName")}</th><th>{t("common.type")}</th><th>{t("common.status")}</th><th>{t("common.lastSynced")}</th><th className="text-right">Row Count</th><th className="text-right">Actions</th></tr></thead><tbody>
         {sources.map(src => (<tr key={src.id}><td className="font-bold">{src.name}</td><td>{src.source_type}</td>
           <td><span className={src.status === 'active' ? 'mb-badge-success' : src.status === 'error' ? 'mb-badge-error' : 'mb-badge-neutral'}>{src.status}</span></td>
           <td className="text-mb-text-medium">{src.last_synced_at ? formatDistanceToNow(new Date(src.last_synced_at), { addSuffix: true }) : '—'}</td>

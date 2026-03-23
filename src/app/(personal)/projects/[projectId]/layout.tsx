@@ -290,7 +290,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-mb-text-medium text-mb-sm">
               <div className="w-2 h-2 rounded-full bg-mb-success" />
-              Connected
+              {t("common.connected")}
             </div>
             <div className="w-px h-4 bg-mb-border mx-1" />
             <button

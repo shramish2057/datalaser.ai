@@ -327,7 +327,7 @@ export default function AutoAnalysisPage() {
                   <tr className="border-b border-mb-border bg-mb-bg-light">
                     <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Target</th>
                     <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Influencer</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Type</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">{t("common.type")}</th>
                     <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Effect</th>
                     <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Detail</th>
                   </tr>

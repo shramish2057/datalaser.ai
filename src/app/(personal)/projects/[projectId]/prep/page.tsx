@@ -485,13 +485,13 @@ export default function DataPrepPage() {
             <table className="mb-table">
               <thead>
                 <tr>
-                  <th>Source</th>
-                  <th>When</th>
-                  <th>Duration</th>
-                  <th>Status</th>
-                  <th>Rows</th>
-                  <th>Quality</th>
-                  <th>Transforms</th>
+                  <th>{t("common.source")}</th>
+                  <th>{t("common.when")}</th>
+                  <th>{t("common.duration")}</th>
+                  <th>{t("common.status")}</th>
+                  <th>{t("common.rows")}</th>
+                  <th>{t("common.quality")}</th>
+                  <th>{t("common.transforms")}</th>
                 </tr>
               </thead>
               <tbody>

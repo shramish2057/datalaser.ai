@@ -113,10 +113,10 @@ export default function TeamAskPage() {
   return (
     <div className="flex h-full">
       <div className="w-[220px] flex-shrink-0 border-r border-mb-border bg-mb-bg flex flex-col">
-        <div className="p-3 border-b border-mb-border"><button onClick={startNewChat} className="mb-btn-primary w-full text-mb-xs py-1.5 justify-center"><Plus size={13} /> New chat</button></div>
+        <div className="p-3 border-b border-mb-border"><button onClick={startNewChat} className="mb-btn-primary w-full text-mb-xs py-1.5 justify-center"><Plus size={13} /> {t("ask.newChat")}</button></div>
         <div className="flex-1 overflow-y-auto py-1">
           {convoLoading ? <div className="px-3 py-2"><div className="h-6 rounded-mb-md mb-shimmer mb-2" /><div className="h-6 rounded-mb-md mb-shimmer mb-2" /><div className="h-6 rounded-mb-md mb-shimmer" /></div>
-          : conversations.length === 0 ? <p className="text-mb-text-light text-mb-xs px-3 py-4 text-center">No conversations yet</p>
+          : conversations.length === 0 ? <p className="text-mb-text-light text-mb-xs px-3 py-4 text-center">{t("ask.noConversations")}</p>
           : conversations.map(c => (
             <button key={c.id} onClick={() => loadConversation(c.id)} className={`w-full flex items-center gap-2 px-3 py-2 text-left text-mb-xs transition-colors group ${activeConvoId === c.id ? 'bg-mb-brand-hover text-mb-brand font-bold' : 'text-mb-text-medium hover:bg-mb-bg-light'}`}>
               <MessageSquare size={12} className="flex-shrink-0" /><span className="flex-1 truncate">{c.title}</span>
@@ -129,7 +129,7 @@ export default function TeamAskPage() {
           <div className="max-w-[860px] mx-auto space-y-6">
             {qualityReport && <DataQualityBanner report={qualityReport} />}
             {messages.length === 0 && !loading && (
-              <div className="text-center py-20"><Sparkles className="w-10 h-10 text-mb-text-light mx-auto mb-4" /><h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Ask your data anything</h2><p className="text-mb-text-medium text-mb-sm max-w-md mx-auto">Type a question in plain English. DataLaser will analyze your data and respond with interactive charts and insights.</p></div>
+              <div className="text-center py-20"><Sparkles className="w-10 h-10 text-mb-text-light mx-auto mb-4" /><h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t("ask.askAnything")}</h2><p className="text-mb-text-medium text-mb-sm max-w-md mx-auto">{t("ask.askDesc")}</p></div>
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>

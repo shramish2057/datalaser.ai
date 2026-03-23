@@ -312,7 +312,7 @@ export default function ProjectAskPage() {
             className="mb-btn-primary w-full text-mb-xs py-1.5 justify-center"
           >
             <Plus size={13} />
-            New chat
+            {t("ask.newChat")}
           </button>
         </div>
 
@@ -325,7 +325,7 @@ export default function ProjectAskPage() {
             </div>
           ) : conversations.length === 0 ? (
             <p className="text-mb-text-light text-mb-xs px-3 py-4 text-center">
-              No conversations yet
+              {t("ask.noConversations")}
             </p>
           ) : (
             conversations.map(c => (
@@ -371,10 +371,9 @@ export default function ProjectAskPage() {
             {messages.length === 0 && !loading && (
               <div className="text-center py-20">
                 <Sparkles className="w-10 h-10 text-mb-text-light mx-auto mb-4" />
-                <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Ask your data anything</h2>
+                <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t("ask.askAnything")}</h2>
                 <p className="text-mb-text-medium text-mb-sm max-w-md mx-auto">
-                  Type a question in plain English. DataLaser will analyze your data and respond with
-                  interactive charts and insights.
+                  {t("ask.askDesc")}
                 </p>
               </div>
             )}

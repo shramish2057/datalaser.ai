@@ -547,7 +547,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                     </div>
                     <div>
                       {isConnected ? (
-                        <span className="mb-badge-success">Connected</span>
+                        <span className="mb-badge-success">{t("common.connected")}</span>
                       ) : (
                         <span className="mb-btn-secondary text-mb-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           Connect

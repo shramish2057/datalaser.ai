@@ -316,7 +316,7 @@ export default function IntentPage() {
               <div>
                 <label className="mb-label">X Axis (categories / time)</label>
                 <select className="mb-input" value={xAxis} onChange={e => setXAxis(e.target.value)}>
-                  <option value="">Auto-detect</option>
+                  <option value="">{t("common.autoDetect")}</option>
                   {[...categoricalCols, ...file?.columns.filter(c => c.dtype === 'id') ?? []].map(c => (
                     <option key={c.name} value={c.name}>{c.name}</option>
                   ))}
@@ -325,7 +325,7 @@ export default function IntentPage() {
               <div>
                 <label className="mb-label">Y Axis (values to measure)</label>
                 <select className="mb-input" value={yAxis} onChange={e => setYAxis(e.target.value)}>
-                  <option value="">Auto-detect</option>
+                  <option value="">{t("common.autoDetect")}</option>
                   {numericCols.map(c => (
                     <option key={c.name} value={c.name}>{c.name}</option>
                   ))}

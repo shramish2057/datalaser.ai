@@ -245,10 +245,10 @@ export default function DataHealthPage() {
           <table className="mb-table">
             <thead>
               <tr>
-                <th>Column</th>
-                <th>Type</th>
-                <th>Null %</th>
-                <th>Issues</th>
+                <th>{t("common.column")}</th>
+                <th>{t("common.type")}</th>
+                <th>{t("common.nullRate")}</th>
+                <th>{t("common.issues")}</th>
               </tr>
             </thead>
             <tbody>

@@ -285,13 +285,13 @@ export default function SourceSettingsPage() {
             <table className="mb-table">
               <thead>
                 <tr>
-                  <th>Started</th>
-                  <th>Duration</th>
-                  <th>Status</th>
-                  <th>Rows</th>
-                  <th>Quality</th>
-                  <th>Transforms</th>
-                  <th>Drift</th>
+                  <th>{t("common.started")}</th>
+                  <th>{t("common.duration")}</th>
+                  <th>{t("common.status")}</th>
+                  <th>{t("common.rows")}</th>
+                  <th>{t("common.quality")}</th>
+                  <th>{t("common.transforms")}</th>
+                  <th>{t("common.drift")}</th>
                 </tr>
               </thead>
               <tbody>

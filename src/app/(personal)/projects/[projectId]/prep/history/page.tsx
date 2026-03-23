@@ -113,13 +113,13 @@ export default function PrepHistoryPage() {
           <table className="mb-table">
             <thead>
               <tr>
-                <th>Source</th>
-                <th>Started</th>
-                <th>Duration</th>
-                <th>Status</th>
-                <th>Rows</th>
-                <th>Quality</th>
-                <th>Transforms</th>
+                <th>{t("common.source")}</th>
+                <th>{t("common.started")}</th>
+                <th>{t("common.duration")}</th>
+                <th>{t("common.status")}</th>
+                <th>{t("common.rows")}</th>
+                <th>{t("common.quality")}</th>
+                <th>{t("common.transforms")}</th>
               </tr>
             </thead>
             <tbody>

@@ -59,7 +59,7 @@ export default function TeamProjectOverviewPage() {
           </div>
           <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Connect your first data source</h2>
           <p className="text-mb-text-medium text-mb-base mb-6 max-w-sm mx-auto">Upload a CSV, connect a database, or link a SaaS tool to start generating insights.</p>
-          <button onClick={() => router.push(`${base}/sources/new`)} className="mb-btn-primary px-6 py-2.5 font-black">Add data source &rarr;</button>
+          <button onClick={() => router.push(`${base}/sources/new`)} className="mb-btn-primary px-6 py-2.5 font-black">{t("sources.addSource")} →</button>
         </div>
       )}
 

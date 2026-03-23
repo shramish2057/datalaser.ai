@@ -83,7 +83,7 @@ export default function OrgMembersPage() {
           <div>
             <p className="mb-section-header mb-3">Pending Invitations</p>
             <div className="mb-card overflow-hidden">
-              <table className="mb-table"><thead><tr><th>Email</th><th>Role</th><th>Sent</th><th>Status</th></tr></thead><tbody>
+              <table className="mb-table"><thead><tr><th>Email</th><th>Role</th><th>Sent</th><th>{t("common.status")}</th></tr></thead><tbody>
                 {invites.map(inv => (
                   <tr key={inv.id}>
                     <td className="font-bold flex items-center gap-2"><Mail size={12} className="text-mb-text-light" />{inv.email}</td>
@@ -103,7 +103,7 @@ export default function OrgMembersPage() {
             <div className="p-6 pt-4 space-y-4">
               <div><label className="mb-label">Email</label><input className="mb-input" type="email" placeholder="colleague@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} /></div>
               <div><label className="mb-label">Role</label><select className="mb-input" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
-                <option value="admin">Admin</option><option value="member">Member</option><option value="viewer">Viewer</option>
+                <option value="admin">{t("common.admin")}</option><option value="member">{t("common.member")}</option><option value="viewer">{t("common.viewer")}</option>
               </select></div>
               <div className="flex justify-end gap-3 pt-2">
                 <button onClick={() => setInviteOpen(false)} className="mb-btn-secondary">Cancel</button>
