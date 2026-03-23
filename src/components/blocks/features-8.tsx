@@ -29,7 +29,7 @@ export function Features() {
                         <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
                             <CardContent className="pt-6">
                                 <div className="relative mx-auto flex aspect-square size-32 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                                    <Shield className="m-auto size-12 text-violet-600" strokeWidth={1} />
+                                    <Shield className="m-auto size-12 text-gray-900" strokeWidth={1} />
                                 </div>
                                 <div className="relative z-10 mt-6 space-y-2 text-center">
                                     <h2 className="text-lg font-medium transition">{t('landing.feat3Title')}</h2>
@@ -49,14 +49,14 @@ export function Features() {
                                             fill="url(#paint_feat_grad)"
                                         />
                                         <path
-                                            className="text-violet-600"
+                                            className="text-gray-900"
                                             d="M3 121.077C3 121.077 15.3041 93.6691 36.0195 87.756C56.7349 81.8429 66.6632 80.9723 66.6632 80.9723C66.6632 80.9723 80.0327 80.9723 91.4656 80.9723C102.898 80.9723 100.415 64.2824 108.556 64.2824C116.696 64.2824 117.693 92.1332 125.226 92.1332C132.759 92.1332 142.07 78.5115 153.591 80.9723C165.113 83.433 186.092 92.1332 193 92.1332C199.908 92.1332 205.274 64.2824 213.017 64.2824C220.76 64.2824 237.832 93.8946 243.39 92.1332C248.948 90.3718 257.923 60.5 265.284 60.5C271.145 60.5 283.204 87.7182 285.772 87.756C293.823 87.8746 299.2 73.0802 304.411 73.0802C311.283 73.0802 321.425 65.9506 333.552 64.2824C345.68 62.6141 346.91 82.4553 362.27 80.9723C377.629 79.4892 383 106.605 383 106.605"
                                             stroke="currentColor"
                                             strokeWidth="3"
                                         />
                                         <defs>
                                             <linearGradient id="paint_feat_grad" x1="3" y1="60" x2="3" y2="123" gradientUnits="userSpaceOnUse">
-                                                <stop className="text-violet-600/15" stopColor="currentColor" />
+                                                <stop className="text-gray-900/15" stopColor="currentColor" />
                                                 <stop className="text-transparent" offset="1" stopColor="currentColor" stopOpacity="0.1" />
                                             </linearGradient>
                                         </defs>
@@ -72,7 +72,7 @@ export function Features() {
                             <CardContent className="grid pt-6 sm:grid-cols-2">
                                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                                     <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                                        <BarChart3 className="m-auto size-5 text-violet-600" strokeWidth={1} />
+                                        <BarChart3 className="m-auto size-5 text-gray-900" strokeWidth={1} />
                                     </div>
                                     <div className="space-y-2">
                                         <h2 className="text-lg font-medium text-zinc-800 transition dark:text-white">{t('landing.prod1Title')}</h2>
@@ -88,7 +88,7 @@ export function Features() {
                                     {/* Mini chart visualization */}
                                     <div className="flex items-end gap-[2px] h-32 pt-6">
                                         {Array.from({ length: 20 }, (_, i) => (
-                                            <div key={i} className="flex-1 bg-gradient-to-t from-violet-500 to-violet-300 rounded-[1px] opacity-60"
+                                            <div key={i} className="flex-1 bg-gradient-to-t from-gray-700 to-gray-400 rounded-[1px] opacity-60"
                                                 style={{ height: `${25 + Math.sin(i * 0.6) * 20 + (i % 3) * 10}%` }} />
                                         ))}
                                     </div>
@@ -99,7 +99,7 @@ export function Features() {
                             <CardContent className="grid h-full pt-6 sm:grid-cols-2">
                                 <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                                     <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                                        <Users className="m-auto size-6 text-violet-600" strokeWidth={1} />
+                                        <Users className="m-auto size-6 text-gray-900" strokeWidth={1} />
                                     </div>
                                     <div className="space-y-2">
                                         <h2 className="text-lg font-medium transition">{t('landing.prod3Title')}</h2>

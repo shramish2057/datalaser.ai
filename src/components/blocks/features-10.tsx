@@ -55,7 +55,7 @@ export function FeaturesHow() {
                                     <div className="px-3 pb-3">
                                         <div className="h-16 flex items-end gap-[2px]">
                                             {Array.from({ length: 20 }, (_, i) => (
-                                                <div key={i} className="flex-1 bg-gradient-to-t from-violet-500 to-violet-300 rounded-[1px] opacity-70"
+                                                <div key={i} className="flex-1 bg-gradient-to-t from-gray-700 to-gray-400 rounded-[1px] opacity-70"
                                                     style={{ height: `${30 + Math.sin(i * 0.5) * 20 + (i % 3) * 8}%` }} />
                                             ))}
                                         </div>
@@ -81,7 +81,7 @@ export function FeaturesHow() {
                                 <div className="border rounded-lg overflow-hidden bg-white">
                                     <div className="p-3 space-y-2">
                                         <div className="flex justify-end">
-                                            <div className="bg-violet-600 text-white text-[10px] px-3 py-1.5 rounded-lg max-w-[70%]">
+                                            <div className="bg-gray-900 text-white text-[10px] px-3 py-1.5 rounded-lg max-w-[70%]">
                                                 {locale === 'de' ? 'Welches Produkt hat die höchste Marge?' : 'Which product has the highest margin?'}
                                             </div>
                                         </div>
@@ -114,7 +114,7 @@ export function FeaturesHow() {
 
                     <FeatureCard className="p-6 lg:col-span-2">
                         <div className="flex items-center justify-center gap-2 mb-4">
-                            <LayoutGrid className="size-5 text-violet-600" />
+                            <LayoutGrid className="size-5 text-gray-900" />
                             <span className="text-sm text-gray-500 font-medium">
                                 {locale === 'de' ? 'Live-Dashboard' : 'Live Dashboard'}
                             </span>
@@ -179,7 +179,7 @@ interface CardHeadingProps {
 const CardHeading = ({ icon: Icon, title, description }: CardHeadingProps) => (
     <div className="p-6">
         <span className="text-muted-foreground flex items-center gap-2">
-            <Icon className="size-4 text-violet-600" />
+            <Icon className="size-4 text-gray-900" />
             {title}
         </span>
         <p className="mt-8 text-2xl font-semibold text-gray-900">{description}</p>

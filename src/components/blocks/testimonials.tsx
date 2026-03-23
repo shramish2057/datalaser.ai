@@ -138,7 +138,7 @@ export function Testimonials() {
           className="flex flex-col items-center justify-center max-w-[540px] mx-auto"
         >
           <div className="flex justify-center">
-            <div className="border py-1 px-4 rounded-lg text-sm font-medium text-violet-600 border-violet-200 bg-violet-50">
+            <div className="border py-1 px-4 rounded-lg text-sm font-medium text-gray-900 border-gray-200 bg-gray-50">
               {t("landing.testimonialTitle")}
             </div>
           </div>

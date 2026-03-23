@@ -81,7 +81,7 @@ export default function LandingPage() {
       }`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-[72px] flex items-center justify-between">
           <Link href={`/${locale}`} className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center shadow-lg shadow-violet-600/25">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center shadow-lg shadow-gray-900/15">
               <Zap size={18} className="text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-gray-900">DataLaser</span>
@@ -98,7 +98,7 @@ export default function LandingPage() {
               {t('landing.login')}
             </Link>
             <Link href={`/${locale}/signup`}
-              className="text-[15px] font-medium bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-xl transition-colors shadow-lg shadow-violet-600/25">
+              className="text-[15px] font-medium bg-gray-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-xl transition-colors shadow-lg shadow-gray-900/15">
               {t('landing.getStarted')}
             </Link>
           </div>
@@ -112,7 +112,7 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="lg:hidden bg-white border-t border-gray-100 px-6 py-6 space-y-4 shadow-lg">
             {links.map(l => <a key={l.label} href={l.href} className="block text-gray-600" onClick={() => setMobileOpen(false)}>{l.label}</a>)}
-            <Link href={`/${locale}/signup`} className="block bg-violet-600 text-white text-center py-3 rounded-xl font-medium">
+            <Link href={`/${locale}/signup`} className="block bg-gray-900 text-white text-center py-3 rounded-xl font-medium">
               {t('landing.getStarted')}
             </Link>
           </motion.div>
@@ -163,10 +163,10 @@ export default function LandingPage() {
             ].map((p, i) => (
               <Reveal key={p.name} delay={i * 0.08}>
                 <div className={`relative rounded-2xl p-8 border transition-all ${
-                  p.pop ? 'bg-violet-600 text-white border-violet-600 shadow-xl shadow-violet-600/25' : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-lg'
+                  p.pop ? 'bg-gray-900 text-white border-violet-600 shadow-xl shadow-gray-900/15' : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-lg'
                 }`}>
                   {p.pop && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-violet-600 text-xs font-bold shadow">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-gray-900 text-xs font-bold shadow">
                       {locale === 'de' ? 'Am beliebtesten' : 'Most Popular'}
                     </div>
                   )}
@@ -177,7 +177,7 @@ export default function LandingPage() {
                   <p className={`text-sm mb-8 ${p.pop ? 'text-white/60' : 'text-gray-400'}`}>{p.sub}</p>
                   <Link href={`/${locale}/signup`}
                     className={`block text-center py-3 rounded-xl text-sm font-semibold transition-colors mb-8 ${
-                      p.pop ? 'bg-white text-violet-600 hover:bg-violet-50' : 'bg-violet-600 text-white hover:bg-violet-700 shadow-lg shadow-violet-600/20'
+                      p.pop ? 'bg-white text-gray-900 hover:bg-gray-50' : 'bg-gray-900 text-white hover:bg-gray-800 shadow-lg shadow-gray-900/10'
                     }`}>
                     {t('landing.getStarted')}
                   </Link>
@@ -229,14 +229,14 @@ export default function LandingPage() {
       {/* ━━ CTA ━━ */}
       <section className="py-28 px-6 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-violet-100/40 rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gray-100/40 rounded-full blur-[150px]" />
         </div>
         <div className="max-w-2xl mx-auto text-center relative">
           <Reveal>
             <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 mb-5">{t('landing.readyTitle')}</h2>
             <p className="text-gray-500 text-lg mb-10">{t('landing.readySubtitle')}</p>
             <Link href={`/${locale}/signup`}
-              className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-10 py-4 rounded-xl font-semibold transition-all shadow-xl shadow-violet-600/25 text-base">
+              className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-10 py-4 rounded-xl font-semibold transition-all shadow-xl shadow-gray-900/15 text-base">
               {t('landing.cta')}
               <ArrowRight size={18} />
             </Link>

@@ -18,5 +18,5 @@ export const chartTheme = {
       fontFamily: 'Lato',
     },
   },
-  colors: ['#7C3AED', '#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556'],
+  colors: ['#191919', '#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556'],
 }

@@ -21,8 +21,9 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* 3D GLSL Hills background — shifted up */}
-      <div className="absolute z-0 opacity-55 left-0 right-0 top-0 bottom-0">
-        <GLSLHills width="100%" height="200vh" cameraZ={100} speed={0.35} />
+      <div className="absolute z-0 opacity-85 left-0 right-0" style={{ top: '-350px', bottom: '-500px' }}>                                                      
+        <GLSLHills width="100%" height="190px" cameraZ={110} speed={0.35} /> 
+        <GLSLHills width="100%" height="190px" cameraZ={110} speed={0.35} /> 
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/40 via-white/20 to-white pointer-events-none" />
 
@@ -42,13 +43,13 @@ export function HeroSection() {
                 {/* Badge */}
                 <Link
                   href={`/${locale}/signup`}
-                  className="hover:bg-white bg-violet-50 group inline-flex items-center gap-4 rounded-full border border-violet-200 p-1 pl-4 shadow-md shadow-violet-500/5 transition-all duration-300">
-                  <span className="text-violet-700 text-sm font-medium">{t('landing.badge')}</span>
-                  <span className="block h-4 w-0.5 bg-violet-200"></span>
-                  <div className="bg-white group-hover:bg-violet-50 size-6 overflow-hidden rounded-full duration-500">
+                  className="hover:bg-white bg-gray-50 group inline-flex items-center gap-4 rounded-full border border-gray-200 p-1 pl-4 shadow-md shadow-gray-900/5 transition-all duration-300">
+                  <span className="text-gray-900 text-sm font-medium">{t('landing.badge')}</span>
+                  <span className="block h-4 w-0.5 bg-gray-200"></span>
+                  <div className="bg-white group-hover:bg-gray-50 size-6 overflow-hidden rounded-full duration-500">
                     <div className="flex w-12 -translate-x-1/2 duration-500 ease-in-out group-hover:translate-x-0">
-                      <span className="flex size-6"><ArrowRight className="m-auto size-3 text-violet-600" /></span>
-                      <span className="flex size-6"><ArrowRight className="m-auto size-3 text-violet-600" /></span>
+                      <span className="flex size-6"><ArrowRight className="m-auto size-3 text-gray-900" /></span>
+                      <span className="flex size-6"><ArrowRight className="m-auto size-3 text-gray-900" /></span>
                     </div>
                   </div>
                 </Link>
@@ -56,9 +57,9 @@ export function HeroSection() {
                 {/* Heading */}
                 <h1 className="mt-8 text-5xl sm:text-6xl xl:text-7xl font-extrabold tracking-tight text-gray-900 leading-[1.05]">
                   {locale === 'de' ? (
-                    <>Ihre Daten.<br /><span className="text-violet-600">Durchleuchtet.</span></>
+                    <>Ihre Daten.<br /><span className="text-gray-900">Durchleuchtet.</span></>
                   ) : (
-                    <>Your data.<br /><span className="text-violet-600">Interrogated.</span></>
+                    <>Your data.<br /><span className="text-gray-900">Interrogated.</span></>
                   )}
                 </h1>
 
@@ -75,9 +76,9 @@ export function HeroSection() {
                   ...transitionVariants,
                 }}
                 className="mt-10 flex flex-col sm:flex-row items-center lg:items-start gap-3">
-                <div className="bg-violet-600/10 rounded-[14px] border border-violet-200 p-0.5">
+                <div className="bg-gray-900/10 rounded-[14px] border border-gray-200 p-0.5">
                   <Link href={`/${locale}/signup`}
-                    className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-7 py-3.5 rounded-xl font-medium transition-colors text-sm shadow-lg shadow-violet-600/25">
+                    className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-7 py-3.5 rounded-xl font-medium transition-colors text-sm shadow-lg shadow-gray-900/15">
                     {t('landing.cta')}
                     <ArrowRight size={16} />
                   </Link>
@@ -100,7 +101,7 @@ export function HeroSection() {
               className="flex-1 w-full max-w-xl lg:max-w-none">
               <div className="relative">
                 {/* Glow behind dashboard */}
-                <div className="absolute -inset-8 bg-gradient-to-br from-violet-200/30 to-indigo-200/20 rounded-3xl blur-2xl" />
+                <div className="absolute -inset-8 bg-gradient-to-br from-gray-200/30 to-gray-200/20 rounded-3xl blur-2xl" />
 
                 {/* Dashboard card — tilted */}
                 <div className="relative bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-2xl shadow-gray-300/40 lg:rotate-2 lg:hover:rotate-0 transition-transform duration-700">
@@ -138,15 +139,15 @@ export function HeroSection() {
                     {/* Chart */}
                     <div className="bg-gray-50/50 rounded-lg border border-gray-100 p-3 h-28 flex items-end gap-[2px]">
                       {Array.from({ length: 28 }, (_, i) => (
-                        <div key={i} className="flex-1 bg-gradient-to-t from-violet-500 to-violet-300 rounded-[1px] opacity-75"
+                        <div key={i} className="flex-1 bg-gradient-to-t from-gray-700 to-gray-400 rounded-[1px] opacity-75"
                           style={{ height: `${25 + Math.sin(i * 0.45) * 18 + Math.random() * 25}%` }} />
                       ))}
                     </div>
 
                     {/* AI insight bar */}
-                    <div className="mt-3 bg-violet-50 border border-violet-100 rounded-lg p-2.5 flex items-start gap-2">
-                      <Zap size={14} className="text-violet-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-[10px] text-violet-800 leading-relaxed">
+                    <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-2.5 flex items-start gap-2">
+                      <Zap size={14} className="text-gray-900 mt-0.5 flex-shrink-0" />
+                      <p className="text-[10px] text-gray-800 leading-relaxed">
                         {locale === 'de'
                           ? 'Umsatz stieg 18,4% MoM — Elektronik-Segment treibt das Wachstum. CAC-Anstieg von 12% erfordert Marketing-Review.'
                           : 'Revenue grew 18.4% MoM driven by Electronics. CAC increased 12% — flag for marketing review. Churn held at 2.3%.'}

@@ -86,7 +86,7 @@ export default function OrgHomePage() {
                 className="text-left dl-card p-5 hover:shadow-dl-md transition-all hover:border-dl-brand group"
               >
                 <div className="w-10 h-10 rounded-dl-md flex items-center justify-center text-xl mb-3"
-                  style={{ backgroundColor: (ws.color || '#7C3AED') + '20' }}>
+                  style={{ backgroundColor: (ws.color || '#191919') + '20' }}>
                   <span>{ws.icon || '💼'}</span>
                 </div>
                 <h3 className="text-dl-base font-black text-dl-text-dark mb-1 group-hover:text-dl-brand transition-colors">

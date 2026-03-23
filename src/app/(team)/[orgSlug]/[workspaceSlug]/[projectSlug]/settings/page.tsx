@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ProjectIconPicker } from '@/components/ProjectIconPicker'
 import { useTeamProjectContext } from '@/lib/teamContext'
 
-const COLORS = ['#7C3AED','#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
+const COLORS = ['#191919','#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 export default function TeamProjectSettingsPage() {
   const t = useTranslations()
@@ -16,7 +16,7 @@ export default function TeamProjectSettingsPage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('bar-chart')
-  const [color, setColor] = useState('#7C3AED')
+  const [color, setColor] = useState('#191919')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)

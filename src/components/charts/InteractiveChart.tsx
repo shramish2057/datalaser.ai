@@ -45,7 +45,7 @@ export type ChartData = {
   waterfallData?: { name: string; value: number }[]
 }
 
-const DL_COLORS = ['#7C3AED', '#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556', '#98D9D9', '#7172AD']
+const DL_COLORS = ['#191919', '#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556', '#98D9D9', '#7172AD']
 
 type Props = {
   chart: ChartData
