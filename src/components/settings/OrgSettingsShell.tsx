@@ -15,22 +15,22 @@ export function OrgSettingsShell({ orgSlug, children }: { orgSlug: string; child
 
   return (
     <div className="flex h-full font-sans">
-      <nav className="w-[160px] flex-shrink-0 border-r border-mb-border bg-mb-bg flex flex-col">
-        <div className="px-4 pt-5 pb-3 border-b border-mb-border">
+      <nav className="w-[160px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
+        <div className="px-4 pt-5 pb-3 border-b border-dl-border">
           <Link href={`/${orgSlug}`}
-            className="flex items-center gap-1.5 text-mb-xs font-bold text-mb-text-light hover:text-mb-brand transition-colors">
+            className="flex items-center gap-1.5 text-dl-xs font-bold text-dl-text-light hover:text-dl-brand transition-colors">
             <ArrowLeft size={12} /> Back to workspaces
           </Link>
         </div>
         <div className="px-4 py-4 flex-1">
-          <p className="mb-section-header mb-3">Organization</p>
+          <p className="dl-section-header mb-3">Organization</p>
           <div className="space-y-0.5">
             {nav.map(item => {
               const active = pathname === item.href
               return (
                 <Link key={item.href} href={item.href}
-                  className={`block px-3 py-1.5 rounded-mb-md text-mb-sm transition-colors
-                    ${active ? 'text-mb-brand font-black bg-mb-brand-hover' : 'text-mb-text-medium font-bold hover:text-mb-text-dark hover:bg-mb-bg-light'}`}>
+                  className={`block px-3 py-1.5 rounded-dl-md text-dl-sm transition-colors
+                    ${active ? 'text-dl-brand font-black bg-dl-brand-hover' : 'text-dl-text-medium font-bold hover:text-dl-text-dark hover:bg-dl-bg-light'}`}>
                   {item.label}
                 </Link>
               )

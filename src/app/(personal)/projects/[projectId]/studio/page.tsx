@@ -55,8 +55,8 @@ export default function StudioRedirectPage() {
 
   return (
     <div className="h-full flex flex-col items-center justify-center">
-      <FlaskConical size={48} className="text-mb-text-light animate-pulse mb-4" />
-      <p className="text-mb-sm text-mb-text-medium">Opening Studio...</p>
+      <FlaskConical size={48} className="text-dl-text-light animate-pulse mb-4" />
+      <p className="text-dl-sm text-dl-text-medium">Opening Studio...</p>
     </div>
   )
 }

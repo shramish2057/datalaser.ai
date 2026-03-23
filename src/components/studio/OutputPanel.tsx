@@ -21,9 +21,9 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
   if (cells.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center px-8" data-panel="right">
-        <FlaskConical size={56} className="text-mb-text-light mb-4" />
-        <p className="text-mb-base text-mb-text-medium font-bold mb-1">Your report will appear here</p>
-        <p className="text-mb-text-light text-mb-sm">Generate an analysis or add cells to get started</p>
+        <FlaskConical size={56} className="text-dl-text-light mb-4" />
+        <p className="text-dl-base text-dl-text-medium font-bold mb-1">Your report will appear here</p>
+        <p className="text-dl-text-light text-dl-sm">Generate an analysis or add cells to get started</p>
       </div>
     )
   }
@@ -71,11 +71,11 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
     <div className="h-full overflow-y-auto px-8 py-6" data-panel="right">
       {/* Cover */}
       <div className="mb-8">
-        <h1 className="text-[28px] font-bold text-mb-text-dark">{notebook?.title || 'Analysis'}</h1>
-        {activeSource && <p className="text-mb-sm text-mb-text-medium mt-1">{activeSource.name}</p>}
-        <p className="text-mb-sm text-mb-text-light mt-0.5">{new Date().toLocaleDateString()}</p>
-        <p className="text-[10px] text-mb-text-light mt-1">DataLaser Studio</p>
-        <div className="h-px bg-mb-border my-6" />
+        <h1 className="text-[28px] font-bold text-dl-text-dark">{notebook?.title || 'Analysis'}</h1>
+        {activeSource && <p className="text-dl-sm text-dl-text-medium mt-1">{activeSource.name}</p>}
+        <p className="text-dl-sm text-dl-text-light mt-0.5">{new Date().toLocaleDateString()}</p>
+        <p className="text-[10px] text-dl-text-light mt-1">DataLaser Studio</p>
+        <div className="h-px bg-dl-border my-6" />
       </div>
 
       {/* Render each cell */}
@@ -83,28 +83,28 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
         <div key={cell.id}>
           {/* HEADING */}
           {cell.type === 'heading' && (
-            cell.level === 1 ? <h2 className="text-[24px] font-bold text-mb-text-dark mt-8 mb-3 border-b border-mb-border pb-2">{cell.content}</h2> :
-            cell.level === 3 ? <h4 className="text-[16px] font-semibold text-mb-text-dark mt-4 mb-1">{cell.content}</h4> :
-            <h3 className="text-[19px] font-semibold text-mb-text-dark mt-6 mb-2">{cell.content}</h3>
+            cell.level === 1 ? <h2 className="text-[24px] font-bold text-dl-text-dark mt-8 mb-3 border-b border-dl-border pb-2">{cell.content}</h2> :
+            cell.level === 3 ? <h4 className="text-[16px] font-semibold text-dl-text-dark mt-4 mb-1">{cell.content}</h4> :
+            <h3 className="text-[19px] font-semibold text-dl-text-dark mt-6 mb-2">{cell.content}</h3>
           )}
 
           {/* TEXT */}
           {cell.type === 'text' && (
-            <p className="text-[15px] leading-[1.85] text-mb-text-dark mb-4">{cell.content}</p>
+            <p className="text-[15px] leading-[1.85] text-dl-text-dark mb-4">{cell.content}</p>
           )}
 
           {/* CODE OUTPUT */}
           {(cell.type === 'python' || cell.type === 'sql' || cell.type === 'r') && (
             <div className="mb-4">
               {cell.status === 'idle' && (
-                <div className="border border-dashed border-mb-border-dark p-4 rounded-mb-lg text-center text-[13px] text-mb-text-light">
+                <div className="border border-dashed border-dl-border-dark p-4 rounded-dl-lg text-center text-[13px] text-dl-text-light">
                   [ Run this cell to see results ]
                 </div>
               )}
-              {cell.status === 'running' && <div className="h-24 rounded-mb-lg bg-mb-bg-medium animate-pulse" />}
+              {cell.status === 'running' && <div className="h-24 rounded-dl-lg bg-dl-bg-medium animate-pulse" />}
               {cell.status === 'error' && (
-                <div className="border-l-4 border-red-400 bg-red-50 p-4 rounded-r-mb-lg">
-                  <p className="font-mono text-mb-sm text-red-600">{cell.output?.error}</p>
+                <div className="border-l-4 border-red-400 bg-red-50 p-4 rounded-r-dl-lg">
+                  <p className="font-mono text-dl-sm text-red-600">{cell.output?.error}</p>
                 </div>
               )}
               {cell.status === 'done' && cell.output?.success && (
@@ -113,11 +113,11 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
               {/* View code toggle */}
               {(cell.type === 'python' || cell.type === 'sql') && cell.code && (
                 <div className="no-print">
-                  <button onClick={() => toggleCode(cell.id)} className="text-[11px] text-mb-text-light hover:text-mb-brand mt-1 flex items-center gap-1">
+                  <button onClick={() => toggleCode(cell.id)} className="text-[11px] text-dl-text-light hover:text-dl-brand mt-1 flex items-center gap-1">
                     {expandedCode.has(cell.id) ? <ChevronDown size={11} /> : <ChevronRight size={11} />} {t('studio.viewCode')}
                   </button>
                   {expandedCode.has(cell.id) && (
-                    <pre className="mt-1 bg-[#1e1e1e] rounded-mb-lg p-3 font-mono text-[12px] text-[#d4d4d4] max-h-60 overflow-y-auto">{cell.code}</pre>
+                    <pre className="mt-1 bg-[#1e1e1e] rounded-dl-lg p-3 font-mono text-[12px] text-[#d4d4d4] max-h-60 overflow-y-auto">{cell.code}</pre>
                   )}
                 </div>
               )}
@@ -127,20 +127,20 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
       ))}
 
       {/* Export section */}
-      <div className="border-t border-mb-border mt-8 pt-6 text-center no-print">
-        <p className="text-mb-sm text-mb-text-medium font-bold mb-4">Export this report</p>
+      <div className="border-t border-dl-border mt-8 pt-6 text-center no-print">
+        <p className="text-dl-sm text-dl-text-medium font-bold mb-4">Export this report</p>
         <div className="flex gap-2 justify-center flex-wrap">
-          <button onClick={() => window.print()} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
+          <button onClick={() => window.print()} className="text-dl-xs px-3 py-2 rounded border border-dl-border hover:bg-dl-bg-light flex items-center gap-1.5">
             <Download size={13} /> {t('studio.exportPdf')}
           </button>
-          <button onClick={downloadIpynb} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
+          <button onClick={downloadIpynb} className="text-dl-xs px-3 py-2 rounded border border-dl-border hover:bg-dl-bg-light flex items-center gap-1.5">
             <Download size={13} /> {t('studio.exportJupyter')}
           </button>
-          <button onClick={downloadPy} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
+          <button onClick={downloadPy} className="text-dl-xs px-3 py-2 rounded border border-dl-border hover:bg-dl-bg-light flex items-center gap-1.5">
             <Download size={13} /> {t('studio.exportPython')}
           </button>
-          <button onClick={copyLink} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
-            {copiedLink ? <Check size={13} className="text-mb-success" /> : <Link2 size={13} />}
+          <button onClick={copyLink} className="text-dl-xs px-3 py-2 rounded border border-dl-border hover:bg-dl-bg-light flex items-center gap-1.5">
+            {copiedLink ? <Check size={13} className="text-dl-success" /> : <Link2 size={13} />}
             {copiedLink ? t('common.copied') : t('studio.copyLink')}
           </button>
         </div>
@@ -199,14 +199,14 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
     <>
       {/* Interpretation */}
       {output.interpretation && (
-        <div className="border-l-4 border-mb-brand bg-white shadow-sm rounded-r-mb-lg p-5 mb-4">
-          <p className="text-[15px] leading-[1.7] text-mb-text-dark">{output.interpretation}</p>
+        <div className="border-l-4 border-dl-brand bg-white shadow-sm rounded-r-dl-lg p-5 mb-4">
+          <p className="text-[15px] leading-[1.7] text-dl-text-dark">{output.interpretation}</p>
           {output.key_findings?.length > 0 && (
-            <div className="mt-3 border-t border-mb-border pt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">{t('studio.keyFindings')}</p>
+            <div className="mt-3 border-t border-dl-border pt-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light mb-2">{t('studio.keyFindings')}</p>
               <ul className="space-y-1.5">
                 {output.key_findings.map((f, i) => (
-                  <li key={i} className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-mb-brand mt-2 flex-shrink-0" /><span className="text-mb-sm text-mb-text-dark">{f}</span></li>
+                  <li key={i} className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-dl-brand mt-2 flex-shrink-0" /><span className="text-dl-sm text-dl-text-dark">{f}</span></li>
                 ))}
               </ul>
             </div>
@@ -216,31 +216,31 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
 
       {chart && (
         <div className="mb-4">
-          <p className="text-mb-sm font-medium text-mb-text-dark mb-2">{chart.title}</p>
-          <div className="border border-mb-border rounded-mb-lg p-3"><InteractiveChart chart={chart} /></div>
+          <p className="text-dl-sm font-medium text-dl-text-dark mb-2">{chart.title}</p>
+          <div className="border border-dl-border rounded-dl-lg p-3"><InteractiveChart chart={chart} /></div>
         </div>
       )}
 
       {dfResult && (
         <div className="mb-4 overflow-x-auto">
-          <table className="w-full border-collapse text-mb-sm">
+          <table className="w-full border-collapse text-dl-sm">
             <thead><tr>{dfResult.columns.map(c => <th key={c} className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">{c}</th>)}</tr></thead>
             <tbody>{dfResult.data.slice(0, 10).map((row, i) => (
               <tr key={i} className={i % 2 === 0 ? '' : 'bg-slate-50/30'}>{dfResult.columns.map(c => <td key={c} className="py-2 px-3 text-[12px] border-b border-slate-100 whitespace-nowrap">{String(row[c] ?? '')}</td>)}</tr>
             ))}</tbody>
           </table>
-          {dfResult.shape[0] > 10 && <p className="text-[11px] text-mb-text-light mt-1">Showing 10 of {dfResult.shape[0]} rows</p>}
+          {dfResult.shape[0] > 10 && <p className="text-[11px] text-dl-text-light mt-1">Showing 10 of {dfResult.shape[0]} rows</p>}
         </div>
       )}
 
       {statsRows.length > 0 && (
         <div className="mb-4">
-          <table className="w-full border-collapse text-mb-sm">
+          <table className="w-full border-collapse text-dl-sm">
             <thead><tr><th className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">Metric</th><th className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">Value</th></tr></thead>
             <tbody>{statsRows.map((r, i) => (
               <tr key={i} className="border-b border-slate-100">
-                <td className="py-2 px-3 text-mb-text-medium">{r.label}</td>
-                <td className={`py-2 px-3 font-mono ${r.pVal === true ? 'text-mb-success font-bold' : r.pVal === false ? 'text-mb-text-light' : 'text-mb-text-dark'}`}>{r.value}</td>
+                <td className="py-2 px-3 text-dl-text-medium">{r.label}</td>
+                <td className={`py-2 px-3 font-mono ${r.pVal === true ? 'text-dl-success font-bold' : r.pVal === false ? 'text-dl-text-light' : 'text-dl-text-dark'}`}>{r.value}</td>
               </tr>
             ))}</tbody>
           </table>
@@ -248,7 +248,7 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
       )}
 
       {output.stdout && (
-        <pre className="bg-slate-900 text-slate-300 font-mono text-[11px] p-4 rounded-mb-lg mb-4 max-h-32 overflow-y-auto">{output.stdout}</pre>
+        <pre className="bg-slate-900 text-slate-300 font-mono text-[11px] p-4 rounded-dl-lg mb-4 max-h-32 overflow-y-auto">{output.stdout}</pre>
       )}
     </>
   )

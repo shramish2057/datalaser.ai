@@ -112,15 +112,15 @@ export default function TeamAskPage() {
 
   return (
     <div className="flex h-full">
-      <div className="w-[220px] flex-shrink-0 border-r border-mb-border bg-mb-bg flex flex-col">
-        <div className="p-3 border-b border-mb-border"><button onClick={startNewChat} className="mb-btn-primary w-full text-mb-xs py-1.5 justify-center"><Plus size={13} /> {t("ask.newChat")}</button></div>
+      <div className="w-[220px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
+        <div className="p-3 border-b border-dl-border"><button onClick={startNewChat} className="dl-btn-primary w-full text-dl-xs py-1.5 justify-center"><Plus size={13} /> {t("ask.newChat")}</button></div>
         <div className="flex-1 overflow-y-auto py-1">
-          {convoLoading ? <div className="px-3 py-2"><div className="h-6 rounded-mb-md mb-shimmer mb-2" /><div className="h-6 rounded-mb-md mb-shimmer mb-2" /><div className="h-6 rounded-mb-md mb-shimmer" /></div>
-          : conversations.length === 0 ? <p className="text-mb-text-light text-mb-xs px-3 py-4 text-center">{t("ask.noConversations")}</p>
+          {convoLoading ? <div className="px-3 py-2"><div className="h-6 rounded-dl-md dl-shimmer mb-2" /><div className="h-6 rounded-dl-md dl-shimmer mb-2" /><div className="h-6 rounded-dl-md dl-shimmer" /></div>
+          : conversations.length === 0 ? <p className="text-dl-text-light text-dl-xs px-3 py-4 text-center">{t("ask.noConversations")}</p>
           : conversations.map(c => (
-            <button key={c.id} onClick={() => loadConversation(c.id)} className={`w-full flex items-center gap-2 px-3 py-2 text-left text-mb-xs transition-colors group ${activeConvoId === c.id ? 'bg-mb-brand-hover text-mb-brand font-bold' : 'text-mb-text-medium hover:bg-mb-bg-light'}`}>
+            <button key={c.id} onClick={() => loadConversation(c.id)} className={`w-full flex items-center gap-2 px-3 py-2 text-left text-dl-xs transition-colors group ${activeConvoId === c.id ? 'bg-dl-brand-hover text-dl-brand font-bold' : 'text-dl-text-medium hover:bg-dl-bg-light'}`}>
               <MessageSquare size={12} className="flex-shrink-0" /><span className="flex-1 truncate">{c.title}</span>
-              <button onClick={(e) => deleteConversation(c.id, e)} className="opacity-0 group-hover:opacity-100 text-mb-text-light hover:text-mb-error transition-all flex-shrink-0"><Trash2 size={11} /></button>
+              <button onClick={(e) => deleteConversation(c.id, e)} className="opacity-0 group-hover:opacity-100 text-dl-text-light hover:text-dl-error transition-all flex-shrink-0"><Trash2 size={11} /></button>
             </button>))}
         </div>
       </div>
@@ -129,12 +129,12 @@ export default function TeamAskPage() {
           <div className="max-w-[860px] mx-auto space-y-6">
             {qualityReport && <DataQualityBanner report={qualityReport} />}
             {messages.length === 0 && !loading && (
-              <div className="text-center py-20"><Sparkles className="w-10 h-10 text-mb-text-light mx-auto mb-4" /><h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t("ask.askAnything")}</h2><p className="text-mb-text-medium text-mb-sm max-w-md mx-auto">{t("ask.askDesc")}</p></div>
+              <div className="text-center py-20"><Sparkles className="w-10 h-10 text-dl-text-light mx-auto mb-4" /><h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t("ask.askAnything")}</h2><p className="text-dl-text-medium text-dl-sm max-w-md mx-auto">{t("ask.askDesc")}</p></div>
             )}
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[90%] ${msg.role === 'user' ? 'ml-12' : 'mr-12'}`}>
-                  {msg.content && <div className={`rounded-mb-lg px-4 py-3 text-mb-sm leading-relaxed ${msg.role === 'user' ? 'bg-mb-brand text-white font-bold' : 'bg-mb-bg border border-mb-border text-mb-text-dark shadow-mb-sm'}`}>
+                  {msg.content && <div className={`rounded-dl-lg px-4 py-3 text-dl-sm leading-relaxed ${msg.role === 'user' ? 'bg-dl-brand text-white font-bold' : 'bg-dl-bg border border-dl-border text-dl-text-dark shadow-dl-sm'}`}>
                     {msg.role === 'user' ? <p>{msg.content}</p> : <div className="prose-mb"><ReactMarkdown>{msg.content}</ReactMarkdown></div>}
                   </div>}
                   {msg.charts.length > 0 && <div className="mt-3 space-y-3">{msg.charts.map((chart, j) => <InteractiveChart key={j} chart={chart} />)}</div>}
@@ -142,15 +142,15 @@ export default function TeamAskPage() {
               </div>
             ))}
             {loading && (messages.length === 0 || messages[messages.length - 1]?.role === 'user') && (
-              <div className="flex justify-start"><div className="bg-mb-bg border border-mb-border rounded-mb-lg px-4 py-3 flex items-center gap-2 shadow-mb-sm"><Loader2 className="w-4 h-4 animate-spin text-mb-brand" /><span className="text-mb-sm text-mb-text-medium">Analyzing your data...</span></div></div>
+              <div className="flex justify-start"><div className="bg-dl-bg border border-dl-border rounded-dl-lg px-4 py-3 flex items-center gap-2 shadow-dl-sm"><Loader2 className="w-4 h-4 animate-spin text-dl-brand" /><span className="text-dl-sm text-dl-text-medium">Analyzing your data...</span></div></div>
             )}
             <div ref={bottomRef} />
           </div>
         </div>
-        <div className="border-t border-mb-border bg-mb-bg px-6 py-4">
+        <div className="border-t border-dl-border bg-dl-bg px-6 py-4">
           <div className="max-w-[860px] mx-auto flex items-end gap-3">
-            <textarea className="mb-input flex-1 min-h-[44px] max-h-32 resize-none" placeholder={t("ask.placeholder")} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} rows={1} />
-            <button onClick={handleSend} disabled={loading || !input.trim()} className={`mb-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}><Send size={16} /></button>
+            <textarea className="dl-input flex-1 min-h-[44px] max-h-32 resize-none" placeholder={t("ask.placeholder")} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} rows={1} />
+            <button onClick={handleSend} disabled={loading || !input.trim()} className={`dl-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}><Send size={16} /></button>
           </div>
         </div>
       </div>

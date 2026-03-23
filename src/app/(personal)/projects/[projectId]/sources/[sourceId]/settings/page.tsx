@@ -166,9 +166,9 @@ export default function SourceSettingsPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-8 space-y-4">
-        <div className="h-10 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-        <div className="h-32 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-        <div className="h-20 rounded-mb-md bg-mb-bg-medium animate-pulse" />
+        <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+        <div className="h-32 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+        <div className="h-20 rounded-dl-md bg-dl-bg-medium animate-pulse" />
       </div>
     )
   }
@@ -177,29 +177,29 @@ export default function SourceSettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8 font-sans">
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">{source?.name}</h1>
-      <p className="text-mb-text-light text-mb-sm mb-8">Data source settings</p>
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">{source?.name}</h1>
+      <p className="text-dl-text-light text-dl-sm mb-8">Data source settings</p>
 
       {/* SECTION 1 — Pipeline Status */}
       <div className="mb-8">
-        <p className="mb-section-header mb-3">Pipeline Status</p>
+        <p className="dl-section-header mb-3">Pipeline Status</p>
 
         {!isPrepared ? (
-          <div className="mb-card p-6 text-center">
-            <Wand2 size={24} className="text-mb-text-light mx-auto mb-3" />
-            <p className="text-mb-text-dark text-mb-sm font-bold mb-1">Data not yet prepared</p>
-            <p className="text-mb-text-medium text-mb-xs mb-4">Run the preparation wizard to clean and validate your data.</p>
-            <button onClick={() => router.push(`${base}/prepare`)} className="mb-btn-primary">
+          <div className="dl-card p-6 text-center">
+            <Wand2 size={24} className="text-dl-text-light mx-auto mb-3" />
+            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">Data not yet prepared</p>
+            <p className="text-dl-text-medium text-dl-xs mb-4">Run the preparation wizard to clean and validate your data.</p>
+            <button onClick={() => router.push(`${base}/prepare`)} className="dl-btn-primary">
               Prepare data <Wand2 size={13} />
             </button>
           </div>
         ) : (
-          <div className="mb-card p-5">
+          <div className="dl-card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <CheckCircle2 size={18} className="text-mb-success" />
-              <span className="text-mb-sm font-black text-mb-text-dark">Pipeline Ready</span>
+              <CheckCircle2 size={18} className="text-dl-success" />
+              <span className="text-dl-sm font-black text-dl-text-dark">Pipeline Ready</span>
               {source?.pipeline_status === 'scheduled' && (
-                <span className="ml-1 px-2 py-0.5 rounded text-[10px] font-bold bg-mb-brand-hover text-mb-brand">Scheduled</span>
+                <span className="ml-1 px-2 py-0.5 rounded text-[10px] font-bold bg-dl-brand-hover text-dl-brand">Scheduled</span>
               )}
             </div>
 
@@ -211,17 +211,17 @@ export default function SourceSettingsPage() {
                 { label: 'Transforms', value: (recipe.steps as unknown[]).length },
               ].map(s => (
                 <div key={s.label}>
-                  <p className="text-[10px] font-bold text-mb-text-light uppercase tracking-wider">{s.label}</p>
-                  <p className="text-mb-sm font-black text-mb-text-dark">{s.value}</p>
+                  <p className="text-[10px] font-bold text-dl-text-light uppercase tracking-wider">{s.label}</p>
+                  <p className="text-dl-sm font-black text-dl-text-dark">{s.value}</p>
                 </div>
               ))}
             </div>
 
             <div className="flex gap-2">
-              <button onClick={handleRunNow} disabled={running} className={`mb-btn-primary text-mb-xs ${running ? 'opacity-40' : ''}`}>
+              <button onClick={handleRunNow} disabled={running} className={`dl-btn-primary text-dl-xs ${running ? 'opacity-40' : ''}`}>
                 {running ? <><Loader2 size={13} className="animate-spin" /> Running...</> : <><Play size={13} /> Run now</>}
               </button>
-              <button onClick={() => setShowHistory(!showHistory)} className="mb-btn-secondary text-mb-xs">
+              <button onClick={() => setShowHistory(!showHistory)} className="dl-btn-secondary text-dl-xs">
                 <History size={13} /> {showHistory ? 'Hide' : 'View'} history
               </button>
             </div>
@@ -233,44 +233,44 @@ export default function SourceSettingsPage() {
       {isPrepared && (
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-3">
-            <p className="mb-section-header">Scheduled Sync</p>
+            <p className="dl-section-header">Scheduled Sync</p>
             <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">Enterprise</span>
           </div>
 
-          <div className="mb-card p-5">
+          <div className="dl-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-mb-sm font-bold text-mb-text-dark">Automatically re-clean this data</p>
-                <p className="text-mb-xs text-mb-text-light">Re-run transforms and validation on a schedule</p>
+                <p className="text-dl-sm font-bold text-dl-text-dark">Automatically re-clean this data</p>
+                <p className="text-dl-xs text-dl-text-light">Re-run transforms and validation on a schedule</p>
               </div>
               <button
                 onClick={() => setScheduleEnabled(!scheduleEnabled)}
-                className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 ${scheduleEnabled ? 'bg-mb-brand' : 'bg-mb-bg-medium'}`}
+                className={`w-10 h-5 rounded-full transition-colors flex-shrink-0 ${scheduleEnabled ? 'bg-dl-brand' : 'bg-dl-bg-medium'}`}
               >
                 <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform mx-0.5 ${scheduleEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
               </button>
             </div>
 
             {scheduleEnabled && (
-              <div className="space-y-3 border-t border-mb-border pt-4">
+              <div className="space-y-3 border-t border-dl-border pt-4">
                 {INTERVALS.map(opt => (
                   <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${interval === opt.value ? 'border-mb-brand' : 'border-mb-border-dark'}`}>
-                      {interval === opt.value && <div className="w-2 h-2 rounded-full bg-mb-brand" />}
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${interval === opt.value ? 'border-dl-brand' : 'border-dl-border-dark'}`}>
+                      {interval === opt.value && <div className="w-2 h-2 rounded-full bg-dl-brand" />}
                     </div>
-                    <span className="text-mb-sm text-mb-text-dark">{opt.label}</span>
+                    <span className="text-dl-sm text-dl-text-dark">{opt.label}</span>
                   </label>
                 ))}
 
                 {recipe?.next_run_at && (
-                  <p className="text-mb-xs text-mb-text-light flex items-center gap-1">
+                  <p className="text-dl-xs text-dl-text-light flex items-center gap-1">
                     <Clock size={11} /> Next run: {formatDistanceToNow(new Date(recipe.next_run_at), { addSuffix: true })}
                   </p>
                 )}
               </div>
             )}
 
-            <button onClick={handleSaveSchedule} disabled={saving} className={`mb-btn-primary text-mb-xs mt-4 ${saving ? 'opacity-40' : ''}`}>
+            <button onClick={handleSaveSchedule} disabled={saving} className={`dl-btn-primary text-dl-xs mt-4 ${saving ? 'opacity-40' : ''}`}>
               {saving ? 'Saving...' : 'Save schedule'}
             </button>
           </div>
@@ -280,9 +280,9 @@ export default function SourceSettingsPage() {
       {/* SECTION 3 — Run History */}
       {showHistory && history.length > 0 && (
         <div className="mb-8">
-          <p className="mb-section-header mb-3">Run History</p>
-          <div className="mb-card overflow-hidden">
-            <table className="mb-table">
+          <p className="dl-section-header mb-3">Run History</p>
+          <div className="dl-card overflow-hidden">
+            <table className="dl-table">
               <thead>
                 <tr>
                   <th>{t("common.started")}</th>
@@ -301,25 +301,25 @@ export default function SourceSettingsPage() {
                     : '—'
                   return (
                     <tr key={run.id}>
-                      <td className="text-mb-text-medium text-mb-xs">
+                      <td className="text-dl-text-medium text-dl-xs">
                         {formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}
                       </td>
-                      <td className="text-mb-xs font-mono">{duration}</td>
+                      <td className="text-dl-xs font-mono">{duration}</td>
                       <td>
-                        <span className={run.status === 'success' ? 'mb-badge-success' : run.status === 'failed' ? 'mb-badge-error' : 'mb-badge-warning'}>
+                        <span className={run.status === 'success' ? 'dl-badge-success' : run.status === 'failed' ? 'dl-badge-error' : 'dl-badge-warning'}>
                           {run.status}
                         </span>
                       </td>
-                      <td className="text-mb-xs font-mono">{run.rows_after?.toLocaleString() ?? '—'}</td>
-                      <td className="text-mb-xs font-mono">{run.quality_score ?? '—'}</td>
-                      <td className="text-mb-xs font-mono">{run.transformations_applied ?? '—'}</td>
+                      <td className="text-dl-xs font-mono">{run.rows_after?.toLocaleString() ?? '—'}</td>
+                      <td className="text-dl-xs font-mono">{run.quality_score ?? '—'}</td>
+                      <td className="text-dl-xs font-mono">{run.transformations_applied ?? '—'}</td>
                       <td>
                         {run.drift_detected ? (
-                          <span className="flex items-center gap-1 text-mb-xs text-orange-500 font-bold">
+                          <span className="flex items-center gap-1 text-dl-xs text-orange-500 font-bold">
                             <AlertTriangle size={11} /> Detected
                           </span>
                         ) : (
-                          <span className="text-mb-text-light text-mb-xs">—</span>
+                          <span className="text-dl-text-light text-dl-xs">—</span>
                         )}
                       </td>
                     </tr>
@@ -333,9 +333,9 @@ export default function SourceSettingsPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 bg-mb-bg border border-mb-border shadow-mb-lg rounded-mb-lg px-4 py-3 flex items-center gap-2 z-50">
-          <CheckCircle2 size={14} className="text-mb-success" />
-          <span className="text-mb-sm text-mb-text-dark font-bold">{toast}</span>
+        <div className="fixed bottom-6 right-6 bg-dl-bg border border-dl-border shadow-dl-lg rounded-dl-lg px-4 py-3 flex items-center gap-2 z-50">
+          <CheckCircle2 size={14} className="text-dl-success" />
+          <span className="text-dl-sm text-dl-text-dark font-bold">{toast}</span>
         </div>
       )}
     </div>

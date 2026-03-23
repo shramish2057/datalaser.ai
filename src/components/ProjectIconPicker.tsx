@@ -20,25 +20,25 @@ export function ProjectIconPicker({
             key={id}
             onClick={() => onChange(id)}
             className={`
-              flex flex-col items-center gap-1 p-2.5 rounded-mb-md
+              flex flex-col items-center gap-1 p-2.5 rounded-dl-md
               border transition-all
               ${active
-                ? 'border-mb-brand bg-mb-brand-hover'
-                : 'border-mb-border hover:border-mb-brand hover:bg-mb-bg-light'}
+                ? 'border-dl-brand bg-dl-brand-hover'
+                : 'border-dl-border hover:border-dl-brand hover:bg-dl-bg-light'}
             `}
             title={label}
           >
             <div
-              className="w-8 h-8 rounded-mb-md flex items-center justify-center"
+              className="w-8 h-8 rounded-dl-md flex items-center justify-center"
               style={{ backgroundColor: active ? color + '20' : undefined }}
             >
               <Icon
                 size={18}
                 style={{ color: active ? color : undefined }}
-                className={active ? '' : 'text-mb-text-light'}
+                className={active ? '' : 'text-dl-text-light'}
               />
             </div>
-            <span className={`text-[10px] font-bold ${active ? 'text-mb-brand' : 'text-mb-text-light'}`}>
+            <span className={`text-[10px] font-bold ${active ? 'text-dl-brand' : 'text-dl-text-light'}`}>
               {label}
             </span>
           </button>

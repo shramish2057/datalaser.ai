@@ -39,21 +39,21 @@ const OP_COLORS: Record<string, string> = {
 const DTYPE_COLORS: Record<string, string> = {
   numeric: 'bg-blue-100 text-blue-700',
   categorical: 'bg-purple-100 text-purple-700',
-  text: 'bg-mb-bg-medium text-mb-text-medium',
+  text: 'bg-dl-bg-medium text-dl-text-medium',
   date: 'bg-green-100 text-green-700',
   id: 'bg-orange-100 text-orange-700',
-  empty: 'bg-mb-bg-medium text-mb-text-light',
+  empty: 'bg-dl-bg-medium text-dl-text-light',
 }
 
 function qualityColor(score: number) {
-  if (score >= 90) return 'bg-mb-success'
+  if (score >= 90) return 'bg-dl-success'
   if (score >= 70) return 'bg-yellow-400'
   if (score >= 50) return 'bg-orange-400'
-  return 'bg-mb-error'
+  return 'bg-dl-error'
 }
 
 function severityClass(s: string) {
-  if (s === 'red') return 'border-mb-error bg-red-50'
+  if (s === 'red') return 'border-dl-error bg-red-50'
   if (s === 'amber') return 'border-orange-400 bg-orange-50'
   return 'border-yellow-400 bg-yellow-50'
 }
@@ -373,7 +373,7 @@ export default function PreparePage() {
   return (
     <div className="flex flex-col h-full font-sans">
       {/* Stepper */}
-      <div className="bg-mb-bg border-b border-mb-border px-6 py-4 flex-shrink-0">
+      <div className="bg-dl-bg border-b border-dl-border px-6 py-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           {STEPS.map((s, i) => {
             const idx = STEP_INDEX[s.key]
@@ -385,17 +385,17 @@ export default function PreparePage() {
               <div key={s.key} className="flex items-center gap-2 flex-1">
                 <div className="flex flex-col items-center gap-1">
                   <div className={`
-                    w-8 h-8 rounded-full flex items-center justify-center text-mb-xs font-black
-                    ${done ? 'bg-mb-success text-white' : active ? 'bg-mb-brand text-white' : 'bg-mb-bg-medium text-mb-text-light'}
+                    w-8 h-8 rounded-full flex items-center justify-center text-dl-xs font-black
+                    ${done ? 'bg-dl-success text-white' : active ? 'bg-dl-brand text-white' : 'bg-dl-bg-medium text-dl-text-light'}
                   `}>
                     {done ? <Check size={14} /> : i + 1}
                   </div>
-                  <span className={`text-[10px] font-bold hidden sm:block ${active ? 'text-mb-brand' : 'text-mb-text-light'}`}>
+                  <span className={`text-[10px] font-bold hidden sm:block ${active ? 'text-dl-brand' : 'text-dl-text-light'}`}>
                     {s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div className={`flex-1 h-px mx-2 ${done ? 'bg-mb-success' : 'bg-mb-border'}`} />
+                  <div className={`flex-1 h-px mx-2 ${done ? 'bg-dl-success' : 'bg-dl-border'}`} />
                 )}
               </div>
             )
@@ -405,12 +405,12 @@ export default function PreparePage() {
 
       {/* Error banner */}
       {error && (
-        <div className="bg-red-50 border-b border-mb-error px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-mb-error text-mb-sm font-bold">
+        <div className="bg-red-50 border-b border-dl-error px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-dl-error text-dl-sm font-bold">
             <XCircle size={16} />
             {error}
           </div>
-          <button onClick={() => setError(null)} className="text-mb-error hover:opacity-70">
+          <button onClick={() => setError(null)} className="text-dl-error hover:opacity-70">
             <X size={14} />
           </button>
         </div>
@@ -423,15 +423,15 @@ export default function PreparePage() {
           {/* DATABASE TABLE SELECTION */}
           {step === 'profile' && !loading && !profile && DB_TYPES.includes(sourceType) && (
             <div className="max-w-md mx-auto py-12">
-              <div className="mb-card p-6">
-                <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Select a table to profile</h2>
-                <p className="text-mb-text-medium text-mb-sm mb-4">
+              <div className="dl-card p-6">
+                <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Select a table to profile</h2>
+                <p className="text-dl-text-medium text-dl-sm mb-4">
                   Enter the table name from your database to start profiling.
                 </p>
                 <div className="mb-4">
-                  <label className="mb-label">Table name</label>
+                  <label className="dl-label">Table name</label>
                   <input
-                    className="mb-input"
+                    className="dl-input"
                     placeholder="e.g. orders or public.orders"
                     value={dbTableName}
                     onChange={e => setDbTableName(e.target.value)}
@@ -441,7 +441,7 @@ export default function PreparePage() {
                 <button
                   onClick={profileDbTable}
                   disabled={!dbTableName.trim()}
-                  className={`mb-btn-primary w-full justify-center ${!dbTableName.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
+                  className={`dl-btn-primary w-full justify-center ${!dbTableName.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
                 >
                   Profile this table
                 </button>
@@ -453,12 +453,12 @@ export default function PreparePage() {
           {step === 'profile' && (DB_TYPES.includes(sourceType) ? !!profile : true) && (
             loading ? (
               <div className="space-y-4 py-12 text-center">
-                <Loader2 className="w-8 h-8 text-mb-brand animate-spin mx-auto" />
-                <p className="text-mb-text-medium text-mb-sm font-bold">Analysing your data...</p>
+                <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto" />
+                <p className="text-dl-text-medium text-dl-sm font-bold">Analysing your data...</p>
                 <div className="max-w-md mx-auto space-y-2">
-                  <div className="h-6 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-                  <div className="h-6 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-                  <div className="h-6 rounded-mb-md bg-mb-bg-medium animate-pulse" />
+                  <div className="h-6 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+                  <div className="h-6 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+                  <div className="h-6 rounded-dl-md bg-dl-bg-medium animate-pulse" />
                 </div>
               </div>
             ) : profile ? (
@@ -471,9 +471,9 @@ export default function PreparePage() {
                     { label: 'Quality Score', value: `${profile.quality_score}/100` },
                     { label: 'Encoding', value: profile.detected_encoding.toUpperCase() },
                   ].map(s => (
-                    <div key={s.label} className="bg-mb-bg border border-mb-border rounded-mb-lg p-4">
-                      <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">{s.label}</p>
-                      <p className="text-mb-xl font-black text-mb-text-dark">{s.value}</p>
+                    <div key={s.label} className="bg-dl-bg border border-dl-border rounded-dl-lg p-4">
+                      <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider mb-1">{s.label}</p>
+                      <p className="text-dl-xl font-black text-dl-text-dark">{s.value}</p>
                     </div>
                   ))}
                 </div>
@@ -481,20 +481,20 @@ export default function PreparePage() {
                 {/* Quality bar */}
                 <div className="mb-6">
                   <div className="flex items-center gap-3 mb-1">
-                    <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider">{t("common.quality")}</p>
+                    <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider">{t("common.quality")}</p>
                     <span className={`mb-badge-${profile.quality_level === 'good' ? 'success' : profile.quality_level === 'red' ? 'error' : 'warning'}`}>
                       {profile.quality_level}
                     </span>
                   </div>
-                  <div className="w-[200px] h-2 bg-mb-bg-medium rounded-full overflow-hidden">
+                  <div className="w-[200px] h-2 bg-dl-bg-medium rounded-full overflow-hidden">
                     <div className={`h-full rounded-full ${qualityColor(profile.quality_score)}`}
                       style={{ width: `${profile.quality_score}%` }} />
                   </div>
                 </div>
 
                 {/* Column profiles table */}
-                <div className="mb-card overflow-hidden mb-6">
-                  <table className="mb-table">
+                <div className="dl-card overflow-hidden mb-6">
+                  <table className="dl-table">
                     <thead>
                       <tr>
                         <th>{t("common.column")}</th>
@@ -517,21 +517,21 @@ export default function PreparePage() {
                           </td>
                           <td>
                             <div className="flex items-center gap-2">
-                              <div className="w-12 h-1.5 bg-mb-bg-medium rounded-full overflow-hidden">
-                                <div className={`h-full rounded-full ${col.null_rate > 0.2 ? 'bg-mb-error' : col.null_rate > 0.05 ? 'bg-orange-400' : 'bg-mb-success'}`}
+                              <div className="w-12 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
+                                <div className={`h-full rounded-full ${col.null_rate > 0.2 ? 'bg-dl-error' : col.null_rate > 0.05 ? 'bg-orange-400' : 'bg-dl-success'}`}
                                   style={{ width: `${Math.min(col.null_rate * 100, 100)}%` }} />
                               </div>
-                              <span className="text-mb-xs text-mb-text-medium">{(col.null_rate * 100).toFixed(1)}%</span>
+                              <span className="text-dl-xs text-dl-text-medium">{(col.null_rate * 100).toFixed(1)}%</span>
                             </div>
                           </td>
-                          <td className="text-mb-text-medium text-mb-xs">{(col.unique_rate * 100).toFixed(0)}%</td>
-                          <td className="text-mb-text-medium text-mb-xs font-mono">{col.min_value ?? '—'}</td>
-                          <td className="text-mb-text-medium text-mb-xs font-mono">{col.max_value ?? '—'}</td>
+                          <td className="text-dl-text-medium text-dl-xs">{(col.unique_rate * 100).toFixed(0)}%</td>
+                          <td className="text-dl-text-medium text-dl-xs font-mono">{col.min_value ?? '—'}</td>
+                          <td className="text-dl-text-medium text-dl-xs font-mono">{col.max_value ?? '—'}</td>
                           <td>
                             {(col.mixed_types || col.format_issues || col.outlier_count > 0) ? (
                               <AlertTriangle size={14} className="text-orange-400" />
                             ) : (
-                              <CheckCircle2 size={14} className="text-mb-success" />
+                              <CheckCircle2 size={14} className="text-dl-success" />
                             )}
                           </td>
                         </tr>
@@ -543,15 +543,15 @@ export default function PreparePage() {
                 {/* Warnings */}
                 {profile.warnings.length > 0 && (
                   <div className="mb-6 space-y-2">
-                    <p className="mb-section-header mb-2">Warnings</p>
+                    <p className="dl-section-header mb-2">Warnings</p>
                     {profile.warnings.map((w, i) => (
-                      <div key={i} className={`border rounded-mb-md p-3 flex items-start gap-2 ${severityClass(w.severity)}`}>
-                        <AlertTriangle size={14} className="flex-shrink-0 mt-0.5 text-mb-text-medium" />
+                      <div key={i} className={`border rounded-dl-md p-3 flex items-start gap-2 ${severityClass(w.severity)}`}>
+                        <AlertTriangle size={14} className="flex-shrink-0 mt-0.5 text-dl-text-medium" />
                         <div>
-                          <span className="text-mb-xs font-black text-mb-text-dark">{w.column}</span>
-                          <span className="text-mb-xs text-mb-text-medium ml-2">{w.detail}</span>
+                          <span className="text-dl-xs font-black text-dl-text-dark">{w.column}</span>
+                          <span className="text-dl-xs text-dl-text-medium ml-2">{w.detail}</span>
                           {w.affected_rows != null && (
-                            <span className="text-mb-xs text-mb-text-light ml-1">({w.affected_rows} rows)</span>
+                            <span className="text-dl-xs text-dl-text-light ml-1">({w.affected_rows} rows)</span>
                           )}
                         </div>
                       </div>
@@ -559,7 +559,7 @@ export default function PreparePage() {
                   </div>
                 )}
 
-                <button onClick={runSuggestions} className="mb-btn-primary px-6 py-2.5 font-black">
+                <button onClick={runSuggestions} className="dl-btn-primary px-6 py-2.5 font-black">
                   View AI Suggestions <ArrowRight size={14} />
                 </button>
               </div>
@@ -570,38 +570,38 @@ export default function PreparePage() {
           {step === 'suggest' && (
             loading ? (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-mb-brand animate-spin mx-auto mb-3" />
-                <p className="text-mb-text-dark text-mb-sm font-bold">Claude is analysing your data quality...</p>
-                <p className="text-mb-text-light text-mb-xs mt-1">Generating transformation suggestions</p>
+                <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto mb-3" />
+                <p className="text-dl-text-dark text-dl-sm font-bold">Claude is analysing your data quality...</p>
+                <p className="text-dl-text-light text-dl-xs mt-1">Generating transformation suggestions</p>
               </div>
             ) : (
               <div>
-                <h2 className="text-mb-xl font-black text-mb-text-dark mb-4">Suggested Transformations</h2>
+                <h2 className="text-dl-xl font-black text-dl-text-dark mb-4">Suggested Transformations</h2>
                 <div className="space-y-3 mb-6">
                   {suggestions.map(s => {
                     const isAccepted = accepted.has(s.id)
                     return (
-                      <div key={s.id} className={`border rounded-mb-lg p-4 transition-all ${isAccepted ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border bg-mb-bg'}`}>
+                      <div key={s.id} className={`border rounded-dl-lg p-4 transition-all ${isAccepted ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border bg-dl-bg'}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-mb-xs font-black text-mb-text-light">#{s.priority}</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${OP_COLORS[s.operation] || 'bg-mb-bg-medium text-mb-text-medium'}`}>
+                              <span className="text-dl-xs font-black text-dl-text-light">#{s.priority}</span>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${OP_COLORS[s.operation] || 'bg-dl-bg-medium text-dl-text-medium'}`}>
                                 {s.operation}
                               </span>
-                              {s.column && <span className="text-mb-xs font-mono text-mb-text-dark">{s.column}</span>}
+                              {s.column && <span className="text-dl-xs font-mono text-dl-text-dark">{s.column}</span>}
                             </div>
-                            <p className="text-mb-sm text-mb-text-dark">{s.reason}</p>
-                            <p className="text-mb-xs text-mb-text-light mt-1">{s.impact}</p>
+                            <p className="text-dl-sm text-dl-text-dark">{s.reason}</p>
+                            <p className="text-dl-xs text-dl-text-light mt-1">{s.impact}</p>
                             {/* Confidence bar */}
                             <div className="flex items-center gap-2 mt-2">
-                              <div className="w-24 h-1.5 bg-mb-bg-medium rounded-full overflow-hidden">
-                                <div className="h-full bg-mb-brand rounded-full" style={{ width: `${s.confidence * 100}%` }} />
+                              <div className="w-24 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
+                                <div className="h-full bg-dl-brand rounded-full" style={{ width: `${s.confidence * 100}%` }} />
                               </div>
-                              <span className="text-[10px] text-mb-text-light">{Math.round(s.confidence * 100)}%</span>
+                              <span className="text-[10px] text-dl-text-light">{Math.round(s.confidence * 100)}%</span>
                             </div>
                             {s.before_sample && s.after_sample && (
-                              <div className="flex items-center gap-2 mt-2 text-[10px] font-mono text-mb-text-light">
+                              <div className="flex items-center gap-2 mt-2 text-[10px] font-mono text-dl-text-light">
                                 <span>{JSON.stringify(s.before_sample?.slice(0, 3))}</span>
                                 <ArrowRight size={10} />
                                 <span>{JSON.stringify(s.after_sample?.slice(0, 3))}</span>
@@ -614,10 +614,10 @@ export default function PreparePage() {
                               isAccepted ? next.delete(s.id) : next.add(s.id)
                               setAccepted(next)
                             }}
-                            className={`px-3 py-1.5 rounded-mb-md text-mb-xs font-bold transition-colors flex items-center gap-1
+                            className={`px-3 py-1.5 rounded-dl-md text-dl-xs font-bold transition-colors flex items-center gap-1
                               ${isAccepted
-                                ? 'bg-mb-success text-white'
-                                : 'border border-mb-border text-mb-text-medium hover:border-mb-brand'}`}
+                                ? 'bg-dl-success text-white'
+                                : 'border border-dl-border text-dl-text-medium hover:border-dl-brand'}`}
                           >
                             {isAccepted ? <><Check size={12} /> Accepted</> : 'Accept'}
                           </button>
@@ -628,20 +628,20 @@ export default function PreparePage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <p className="text-mb-text-medium text-mb-sm">
+                  <p className="text-dl-text-medium text-dl-sm">
                     {accepted.size} of {suggestions.length} accepted
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setAccepted(new Set(suggestions.map(s => s.id)))}
-                      className="mb-btn-secondary text-mb-xs"
+                      className="dl-btn-secondary text-dl-xs"
                     >
                       Accept All
                     </button>
                     <button
                       onClick={runTransform}
                       disabled={accepted.size === 0}
-                      className={`mb-btn-primary px-6 py-2 font-black ${accepted.size === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                      className={`dl-btn-primary px-6 py-2 font-black ${accepted.size === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
                     >
                       Run {accepted.size} transformations <ArrowRight size={14} />
                     </button>
@@ -655,30 +655,30 @@ export default function PreparePage() {
           {step === 'transform' && (
             loading ? (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-mb-brand animate-spin mx-auto mb-3" />
-                <p className="text-mb-text-dark text-mb-sm font-bold">Applying transformations...</p>
+                <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto mb-3" />
+                <p className="text-dl-text-dark text-dl-sm font-bold">Applying transformations...</p>
               </div>
             ) : result ? (
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-mb-2xl font-black text-mb-text-dark font-mono">{result.rows_before.toLocaleString()}</span>
-                  <ArrowRight size={20} className="text-mb-text-light" />
-                  <span className="text-mb-2xl font-black text-mb-text-dark font-mono">{result.rows_after.toLocaleString()}</span>
-                  <span className="text-mb-text-medium text-mb-sm">rows</span>
+                  <span className="text-dl-2xl font-black text-dl-text-dark font-mono">{result.rows_before.toLocaleString()}</span>
+                  <ArrowRight size={20} className="text-dl-text-light" />
+                  <span className="text-dl-2xl font-black text-dl-text-dark font-mono">{result.rows_after.toLocaleString()}</span>
+                  <span className="text-dl-text-medium text-dl-sm">rows</span>
                 </div>
 
                 {/* Lineage log */}
                 <div className="mb-6 space-y-1">
                   {result.lineage.map((l: Record<string, unknown>, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-mb-xs">
-                      <CheckCircle2 size={14} className="text-mb-success" />
-                      <span className="font-bold text-mb-text-dark">{String(l.operation)}</span>
-                      {l.column ? <span className="text-mb-text-light">on {String(l.column)}</span> : null}
-                      <span className="text-mb-text-light">— {String(l.rows_affected ?? 0)} rows affected</span>
+                    <div key={i} className="flex items-center gap-2 text-dl-xs">
+                      <CheckCircle2 size={14} className="text-dl-success" />
+                      <span className="font-bold text-dl-text-dark">{String(l.operation)}</span>
+                      {l.column ? <span className="text-dl-text-light">on {String(l.column)}</span> : null}
+                      <span className="text-dl-text-light">— {String(l.rows_affected ?? 0)} rows affected</span>
                     </div>
                   ))}
                   {result.errors.map((e, i) => (
-                    <div key={`err-${i}`} className="flex items-center gap-2 text-mb-xs text-mb-error">
+                    <div key={`err-${i}`} className="flex items-center gap-2 text-dl-xs text-dl-error">
                       <XCircle size={14} />
                       <span className="font-bold">{e.operation}</span>
                       <span>{e.error}</span>
@@ -688,8 +688,8 @@ export default function PreparePage() {
 
                 {/* Preview table */}
                 {result.preview.length > 0 && (
-                  <div className="mb-card overflow-x-auto mb-6">
-                    <table className="mb-table">
+                  <div className="dl-card overflow-x-auto mb-6">
+                    <table className="dl-table">
                       <thead>
                         <tr>
                           {result.columns.map(c => <th key={c}>{c}</th>)}
@@ -699,7 +699,7 @@ export default function PreparePage() {
                         {result.preview.map((row, i) => (
                           <tr key={i}>
                             {result.columns.map(c => (
-                              <td key={c} className="text-mb-xs font-mono whitespace-nowrap">
+                              <td key={c} className="text-dl-xs font-mono whitespace-nowrap">
                                 {String(row[c] ?? '')}
                               </td>
                             ))}
@@ -710,7 +710,7 @@ export default function PreparePage() {
                   </div>
                 )}
 
-                <button onClick={runValidation} className="mb-btn-primary px-6 py-2.5 font-black">
+                <button onClick={runValidation} className="dl-btn-primary px-6 py-2.5 font-black">
                   Validate Data <ArrowRight size={14} />
                 </button>
               </div>
@@ -721,8 +721,8 @@ export default function PreparePage() {
           {step === 'validate' && (
             loading ? (
               <div className="py-12 text-center">
-                <Loader2 className="w-8 h-8 text-mb-brand animate-spin mx-auto mb-3" />
-                <p className="text-mb-text-dark text-mb-sm font-bold">Running quality checks...</p>
+                <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto mb-3" />
+                <p className="text-dl-text-dark text-dl-sm font-bold">Running quality checks...</p>
               </div>
             ) : validation ? (
               (() => {
@@ -733,32 +733,32 @@ export default function PreparePage() {
                 return (
                 <div>
                   {/* Status banner */}
-                  <div className={`rounded-mb-lg p-4 mb-6 flex items-center gap-3 ${
-                    fixableResolved ? 'bg-green-50 border border-mb-success' :
+                  <div className={`rounded-dl-lg p-4 mb-6 flex items-center gap-3 ${
+                    fixableResolved ? 'bg-green-50 border border-dl-success' :
                     validation.overall_status === 'warning' ? 'bg-orange-50 border border-orange-400' :
-                    validation.overall_status === 'failed' ? 'bg-red-50 border border-mb-error' :
-                    'bg-green-50 border border-mb-success'
+                    validation.overall_status === 'failed' ? 'bg-red-50 border border-dl-error' :
+                    'bg-green-50 border border-dl-success'
                   }`}>
-                    {fixableResolved ? <CheckCircle2 size={20} className="text-mb-success" /> :
+                    {fixableResolved ? <CheckCircle2 size={20} className="text-dl-success" /> :
                      validation.overall_status === 'warning' ? <AlertTriangle size={20} className="text-orange-400" /> :
-                     <XCircle size={20} className="text-mb-error" />}
+                     <XCircle size={20} className="text-dl-error" />}
                     <div>
-                      <p className="text-mb-sm font-black text-mb-text-dark">{validation.summary}</p>
-                      <p className="text-mb-xs text-mb-text-medium">Score: {validation.score}/100</p>
+                      <p className="text-dl-sm font-black text-dl-text-dark">{validation.summary}</p>
+                      <p className="text-dl-xs text-dl-text-medium">Score: {validation.score}/100</p>
                     </div>
                   </div>
 
                   {/* Issues (if any) */}
                   {issues.length > 0 && (
                     <div className="mb-6">
-                      <p className="mb-section-header mb-2">Issues to fix</p>
+                      <p className="dl-section-header mb-2">Issues to fix</p>
                       <div className="space-y-2">
                         {issues.map((t, i) => (
-                          <div key={i} className="flex items-start gap-3 p-3 rounded-mb-md border border-mb-error bg-red-50">
-                            <XCircle size={14} className="text-mb-error flex-shrink-0 mt-0.5" />
+                          <div key={i} className="flex items-start gap-3 p-3 rounded-dl-md border border-dl-error bg-red-50">
+                            <XCircle size={14} className="text-dl-error flex-shrink-0 mt-0.5" />
                             <div>
-                              <span className="text-mb-xs font-black text-mb-text-dark">{t.column || 'Dataset'}</span>
-                              <span className="text-mb-xs text-mb-text-medium ml-2">{t.message}</span>
+                              <span className="text-dl-xs font-black text-dl-text-dark">{t.column || 'Dataset'}</span>
+                              <span className="text-dl-xs text-dl-text-medium ml-2">{t.message}</span>
                             </div>
                           </div>
                         ))}
@@ -769,14 +769,14 @@ export default function PreparePage() {
                   {/* Characteristics */}
                   {characteristics.length > 0 && (
                     <div className="mb-6">
-                      <p className="mb-section-header mb-2">Data characteristics (no action needed)</p>
+                      <p className="dl-section-header mb-2">Data characteristics (no action needed)</p>
                       <div className="space-y-2">
                         {characteristics.map((t, i) => (
-                          <div key={i} className="flex items-start gap-2 p-3 rounded-mb-md border border-mb-border bg-mb-bg-light">
-                            <AlertTriangle size={13} className="text-mb-text-light flex-shrink-0 mt-0.5" />
+                          <div key={i} className="flex items-start gap-2 p-3 rounded-dl-md border border-dl-border bg-dl-bg-light">
+                            <AlertTriangle size={13} className="text-dl-text-light flex-shrink-0 mt-0.5" />
                             <div>
-                              <span className="text-mb-xs font-bold text-mb-text-dark">{t.column || 'Dataset'}</span>
-                              <span className="text-mb-xs text-mb-text-medium ml-2">{t.message}</span>
+                              <span className="text-dl-xs font-bold text-dl-text-dark">{t.column || 'Dataset'}</span>
+                              <span className="text-dl-xs text-dl-text-medium ml-2">{t.message}</span>
                             </div>
                           </div>
                         ))}
@@ -786,26 +786,26 @@ export default function PreparePage() {
 
                   {/* Full test table (collapsed by default) */}
                   <details className="mb-6">
-                    <summary className="text-mb-xs font-bold text-mb-text-light cursor-pointer hover:text-mb-brand">
+                    <summary className="text-dl-xs font-bold text-dl-text-light cursor-pointer hover:text-dl-brand">
                       View all {validation.tests.length} checks
                     </summary>
-                    <div className="mb-card overflow-hidden mt-2">
-                      <table className="mb-table">
+                    <div className="dl-card overflow-hidden mt-2">
+                      <table className="dl-table">
                         <thead>
                           <tr><th>{t("common.test")}</th><th>{t("common.column")}</th><th>{t("common.status")}</th><th>{t("common.message")}</th></tr>
                         </thead>
                         <tbody>
                           {validation.tests.map((t, i) => (
                             <tr key={i}>
-                              <td className="font-bold text-mb-xs">{t.test_name}</td>
-                              <td className="text-mb-text-medium text-mb-xs">{t.column || '—'}</td>
+                              <td className="font-bold text-dl-xs">{t.test_name}</td>
+                              <td className="text-dl-text-medium text-dl-xs">{t.column || '—'}</td>
                               <td>
                                 <span className={
-                                  t.status === 'passed' ? 'mb-badge-success' :
-                                  t.status === 'warning' ? 'mb-badge-warning' : 'mb-badge-error'
+                                  t.status === 'passed' ? 'dl-badge-success' :
+                                  t.status === 'warning' ? 'dl-badge-warning' : 'dl-badge-error'
                                 }>{t.status}</span>
                               </td>
-                              <td className="text-mb-xs text-mb-text-medium">{t.message}</td>
+                              <td className="text-dl-xs text-dl-text-medium">{t.message}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -816,11 +816,11 @@ export default function PreparePage() {
                   <div className="flex gap-2">
                     {!fixableResolved ? (
                       <>
-                        <button onClick={() => setStep('suggest')} className="mb-btn-secondary">Fix issues</button>
-                        <button onClick={finishPipeline} className="mb-btn-subtle">Use anyway</button>
+                        <button onClick={() => setStep('suggest')} className="dl-btn-secondary">Fix issues</button>
+                        <button onClick={finishPipeline} className="dl-btn-subtle">Use anyway</button>
                       </>
                     ) : (
-                      <button onClick={finishPipeline} className="mb-btn-primary px-6 py-2.5 font-black">
+                      <button onClick={finishPipeline} className="dl-btn-primary px-6 py-2.5 font-black">
                         Use this data <ArrowRight size={14} />
                       </button>
                     )}
@@ -835,29 +835,29 @@ export default function PreparePage() {
           {step === 'ready' && (
             <div className="text-center py-12">
               <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-[scale-in_0.3s_ease-out]">
-                <CheckCircle2 size={40} className="text-mb-success" />
+                <CheckCircle2 size={40} className="text-dl-success" />
               </div>
-              <h2 className="text-mb-2xl font-black text-mb-text-dark mb-2">Your data is pipeline-ready</h2>
+              <h2 className="text-dl-2xl font-black text-dl-text-dark mb-2">Your data is pipeline-ready</h2>
               {profile && (
-                <p className="text-mb-text-medium text-mb-sm mb-2">
+                <p className="text-dl-text-medium text-dl-sm mb-2">
                   Quality score: <span className="font-black">{profile.quality_score}/100</span>
                 </p>
               )}
               {result && (
-                <p className="text-mb-text-light text-mb-xs mb-6">
+                <p className="text-dl-text-light text-dl-xs mb-6">
                   {result.rows_after.toLocaleString()} rows &middot; {result.columns.length} columns &middot; {result.lineage.length} transformations applied
                 </p>
               )}
 
               {/* Summary of changes */}
               {result && result.lineage.length > 0 && (
-                <div className="mb-card p-4 text-left max-w-md mx-auto mb-8">
-                  <p className="mb-section-header mb-2">What was cleaned</p>
+                <div className="dl-card p-4 text-left max-w-md mx-auto mb-8">
+                  <p className="dl-section-header mb-2">What was cleaned</p>
                   <ul className="space-y-1">
                     {result.lineage.map((l: Record<string, unknown>, i: number) => (
-                      <li key={i} className="flex items-center gap-2 text-mb-xs text-mb-text-medium">
-                        <Check size={12} className="text-mb-success flex-shrink-0" />
-                        <span><span className="font-bold text-mb-text-dark">{String(l.column || 'Dataset')}</span>: {String(l.operation)} ({String(l.rows_affected ?? 0)} rows)</span>
+                      <li key={i} className="flex items-center gap-2 text-dl-xs text-dl-text-medium">
+                        <Check size={12} className="text-dl-success flex-shrink-0" />
+                        <span><span className="font-bold text-dl-text-dark">{String(l.column || 'Dataset')}</span>: {String(l.operation)} ({String(l.rows_affected ?? 0)} rows)</span>
                       </li>
                     ))}
                   </ul>
@@ -865,10 +865,10 @@ export default function PreparePage() {
               )}
 
               <div className="flex gap-3 justify-center">
-                <button onClick={() => router.push(`${base}/insights`)} className="mb-btn-primary px-6 py-2.5 font-black">
+                <button onClick={() => router.push(`${base}/insights`)} className="dl-btn-primary px-6 py-2.5 font-black">
                   Go to Insights <ArrowRight size={14} />
                 </button>
-                <button onClick={() => router.push(`${base}/ask`)} className="mb-btn-secondary px-6 py-2.5">
+                <button onClick={() => router.push(`${base}/ask`)} className="dl-btn-secondary px-6 py-2.5">
                   Ask questions
                 </button>
               </div>

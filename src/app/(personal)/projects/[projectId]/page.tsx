@@ -119,24 +119,24 @@ export default function ProjectHomePage() {
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
           {project && <ProjectIconBadge icon={project.icon} color={project.color} size="lg" />}
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">{project?.name}</h1>
+          <h1 className="text-dl-2xl font-black text-dl-text-dark">{project?.name}</h1>
         </div>
         {project?.description && (
-          <p className="text-mb-text-medium text-mb-base ml-12">{project.description}</p>
+          <p className="text-dl-text-medium text-dl-base ml-12">{project.description}</p>
         )}
       </div>
 
       {/* Empty state */}
       {!hasSources && (
-        <div className="bg-white border border-mb-border rounded-mb-lg p-8 text-center mb-6">
-          <div className="w-14 h-14 bg-mb-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
-            <Database size={24} className="text-mb-text-light" />
+        <div className="bg-white border border-dl-border rounded-dl-lg p-8 text-center mb-6">
+          <div className="w-14 h-14 bg-dl-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
+            <Database size={24} className="text-dl-text-light" />
           </div>
-          <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t('home.connectFirst')}</h2>
-          <p className="text-mb-text-medium text-mb-base mb-6 max-w-sm mx-auto">
+          <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('home.connectFirst')}</h2>
+          <p className="text-dl-text-medium text-dl-base mb-6 max-w-sm mx-auto">
             {t('home.connectFirstDesc')}
           </p>
-          <button onClick={() => router.push(`${base}/sources/new`)} className="mb-btn-primary px-6 py-2.5 font-black">
+          <button onClick={() => router.push(`${base}/sources/new`)} className="dl-btn-primary px-6 py-2.5 font-black">
             {t('home.addSource')} →
           </button>
         </div>
@@ -146,27 +146,27 @@ export default function ProjectHomePage() {
       {hasInsights && (
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider flex items-center gap-2">
-              <Zap size={14} className="text-mb-brand" /> {t('home.topInsights')}
+            <h2 className="text-[13px] font-black text-dl-text-dark uppercase tracking-wider flex items-center gap-2">
+              <Zap size={14} className="text-dl-brand" /> {t('home.topInsights')}
             </h2>
             <button onClick={() => router.push(`${base}/insights`)}
-              className="text-[11px] text-mb-brand hover:underline flex items-center gap-1">
+              className="text-[11px] text-dl-brand hover:underline flex items-center gap-1">
               {t('common.viewAll')} <ArrowRight size={10} />
             </button>
           </div>
           <div className="space-y-2">
             {topInsights.map((ins, i) => {
               const Icon = INSIGHT_ICONS[ins.type] || Zap
-              const borderColor = INSIGHT_COLORS[ins.type] || 'border-l-mb-border'
+              const borderColor = INSIGHT_COLORS[ins.type] || 'border-l-dl-border'
               return (
-                <div key={i} className={`bg-white border border-mb-border ${borderColor} border-l-4 rounded-mb-md px-4 py-3 flex items-start gap-3`}>
-                  <Icon size={14} className="text-mb-text-light mt-0.5 flex-shrink-0" />
+                <div key={i} className={`bg-white border border-dl-border ${borderColor} border-l-4 rounded-dl-md px-4 py-3 flex items-start gap-3`}>
+                  <Icon size={14} className="text-dl-text-light mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] text-mb-text-dark leading-relaxed">{translateFinding(ins.headline, locale)}</p>
+                    <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(ins.headline, locale)}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-mb-text-light">{ins.source_name}</span>
-                      <span className="text-[10px] text-mb-text-light">•</span>
-                      <span className="text-[10px] text-mb-text-light">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
+                      <span className="text-[10px] text-dl-text-light">{ins.source_name}</span>
+                      <span className="text-[10px] text-dl-text-light">•</span>
+                      <span className="text-[10px] text-dl-text-light">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
                     </div>
                   </div>
                 </div>
@@ -180,11 +180,11 @@ export default function ProjectHomePage() {
       {hasSources && (
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider flex items-center gap-2">
-              <Database size={14} className="text-mb-text-light" /> {t('home.dataSources')}
+            <h2 className="text-[13px] font-black text-dl-text-dark uppercase tracking-wider flex items-center gap-2">
+              <Database size={14} className="text-dl-text-light" /> {t('home.dataSources')}
             </h2>
             <button onClick={() => router.push(`${base}/sources`)}
-              className="text-[11px] text-mb-brand hover:underline flex items-center gap-1">
+              className="text-[11px] text-dl-brand hover:underline flex items-center gap-1">
               {t('common.manage')} <ArrowRight size={10} />
             </button>
           </div>
@@ -192,18 +192,18 @@ export default function ProjectHomePage() {
             {sources.slice(0, 4).map(src => (
               <button key={src.id}
                 onClick={() => router.push(`${base}/sources/${src.id}/analysis`)}
-                className="bg-white border border-mb-border rounded-mb-md p-3 text-left hover:border-mb-brand transition-colors group">
+                className="bg-white border border-dl-border rounded-dl-md p-3 text-left hover:border-dl-brand transition-colors group">
                 <div className="flex items-center gap-2 mb-1">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    src.status === 'ready' ? 'bg-mb-success' : src.insight_count > 0 ? 'bg-mb-brand' : 'bg-mb-border-dark'
+                    src.status === 'ready' ? 'bg-dl-success' : src.insight_count > 0 ? 'bg-dl-brand' : 'bg-dl-border-dark'
                   }`} />
-                  <span className="text-[13px] font-medium text-mb-text-dark truncate">{src.name}</span>
-                  <span className="text-[10px] text-mb-text-light uppercase ml-auto">{src.source_type}</span>
+                  <span className="text-[13px] font-medium text-dl-text-dark truncate">{src.name}</span>
+                  <span className="text-[10px] text-dl-text-light uppercase ml-auto">{src.source_type}</span>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] text-mb-text-light">
+                <div className="flex items-center gap-3 text-[11px] text-dl-text-light">
                   {src.row_count > 0 && <span>{src.row_count.toLocaleString()} rows</span>}
                   {src.insight_count > 0 && (
-                    <span className="text-mb-brand font-medium">{src.insight_count} {t('home.insights')}</span>
+                    <span className="text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
                   )}
                   {src.insight_count === 0 && <span>{t('home.notAnalyzed')}</span>}
                 </div>
@@ -215,7 +215,7 @@ export default function ProjectHomePage() {
 
       {/* Quick Actions */}
       <section>
-        <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider mb-3">{t('home.quickActions')}</h2>
+        <h2 className="text-[13px] font-black text-dl-text-dark uppercase tracking-wider mb-3">{t('home.quickActions')}</h2>
         <div className="grid grid-cols-2 gap-2">
           {[
             { icon: Database, label: t('home.addSource'), desc: t('home.addSourceDesc'), href: `${base}/sources/new` },
@@ -224,13 +224,13 @@ export default function ProjectHomePage() {
             { icon: FlaskConical, label: t('home.openStudio'), desc: t('home.openStudioDesc'), href: `${base}/studio` },
           ].map(action => (
             <button key={action.label} onClick={() => router.push(action.href)}
-              className="text-left p-3 rounded-mb-md border border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover transition-all flex items-start gap-3 group">
-              <div className="w-8 h-8 rounded-mb-md flex items-center justify-center bg-mb-bg-medium group-hover:bg-mb-brand transition-colors flex-shrink-0">
-                <action.icon size={15} className="text-mb-text-light group-hover:text-white" />
+              className="text-left p-3 rounded-dl-md border border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover transition-all flex items-start gap-3 group">
+              <div className="w-8 h-8 rounded-dl-md flex items-center justify-center bg-dl-bg-medium group-hover:bg-dl-brand transition-colors flex-shrink-0">
+                <action.icon size={15} className="text-dl-text-light group-hover:text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-mb-sm font-black text-mb-text-dark mb-0.5">{action.label}</p>
-                <p className="text-[11px] text-mb-text-medium">{action.desc}</p>
+                <p className="text-dl-sm font-black text-dl-text-dark mb-0.5">{action.label}</p>
+                <p className="text-[11px] text-dl-text-medium">{action.desc}</p>
               </div>
             </button>
           ))}

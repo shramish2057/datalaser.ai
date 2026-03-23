@@ -13,17 +13,17 @@ import type { DataProfile } from '@/types/pipeline'
 const DTYPE_COLORS: Record<string, string> = {
   numeric: 'bg-blue-100 text-blue-700',
   categorical: 'bg-purple-100 text-purple-700',
-  text: 'bg-mb-bg-medium text-mb-text-medium',
+  text: 'bg-dl-bg-medium text-dl-text-medium',
   date: 'bg-green-100 text-green-700',
   id: 'bg-orange-100 text-orange-700',
-  empty: 'bg-mb-bg-medium text-mb-text-light',
+  empty: 'bg-dl-bg-medium text-dl-text-light',
 }
 
 function qualityColor(score: number) {
-  if (score >= 90) return 'bg-mb-success'
+  if (score >= 90) return 'bg-dl-success'
   if (score >= 70) return 'bg-yellow-400'
   if (score >= 50) return 'bg-orange-400'
-  return 'bg-mb-error'
+  return 'bg-dl-error'
 }
 
 function qualityLabel(level: string) {
@@ -34,13 +34,13 @@ function qualityLabel(level: string) {
 }
 
 function severityIcon(s: string) {
-  if (s === 'red') return <XCircle size={14} className="text-mb-error flex-shrink-0" />
+  if (s === 'red') return <XCircle size={14} className="text-dl-error flex-shrink-0" />
   if (s === 'amber') return <AlertTriangle size={14} className="text-orange-400 flex-shrink-0" />
   return <AlertTriangle size={14} className="text-yellow-400 flex-shrink-0" />
 }
 
 function severityBg(s: string) {
-  if (s === 'red') return 'border-mb-error bg-red-50'
+  if (s === 'red') return 'border-dl-error bg-red-50'
   if (s === 'amber') return 'border-orange-300 bg-orange-50'
   return 'border-yellow-300 bg-yellow-50'
 }
@@ -139,15 +139,15 @@ export default function DataHealthPage() {
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-16 text-center font-sans">
-        <Loader2 className="w-10 h-10 text-mb-brand animate-spin mx-auto mb-4" />
-        <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Analysing your data</h2>
-        <p className="text-mb-text-medium text-mb-sm">
+        <Loader2 className="w-10 h-10 text-dl-brand animate-spin mx-auto mb-4" />
+        <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Analysing your data</h2>
+        <p className="text-dl-text-medium text-dl-sm">
           Checking for missing values, type issues, outliers, and more...
         </p>
         <div className="max-w-sm mx-auto mt-6 space-y-2">
-          <div className="h-4 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-          <div className="h-4 rounded-mb-md bg-mb-bg-medium animate-pulse w-3/4" />
-          <div className="h-4 rounded-mb-md bg-mb-bg-medium animate-pulse w-1/2" />
+          <div className="h-4 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+          <div className="h-4 rounded-dl-md bg-dl-bg-medium animate-pulse w-3/4" />
+          <div className="h-4 rounded-dl-md bg-dl-bg-medium animate-pulse w-1/2" />
         </div>
       </div>
     )
@@ -157,10 +157,10 @@ export default function DataHealthPage() {
   if (error) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-16 text-center font-sans">
-        <XCircle className="w-10 h-10 text-mb-error mx-auto mb-4" />
-        <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Could not analyse data</h2>
-        <p className="text-mb-text-medium text-mb-sm mb-6">{error}</p>
-        <button onClick={() => window.location.reload()} className="mb-btn-primary">Try again</button>
+        <XCircle className="w-10 h-10 text-dl-error mx-auto mb-4" />
+        <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Could not analyse data</h2>
+        <p className="text-dl-text-medium text-dl-sm mb-6">{error}</p>
+        <button onClick={() => window.location.reload()} className="dl-btn-primary">Try again</button>
       </div>
     )
   }
@@ -178,34 +178,34 @@ export default function DataHealthPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <p className="text-mb-xs text-mb-text-light font-bold uppercase tracking-wider mb-1">
+        <p className="text-dl-xs text-dl-text-light font-bold uppercase tracking-wider mb-1">
           {t('health.title')}
         </p>
-        <h1 className="text-mb-2xl font-black text-mb-text-dark">{sourceName}</h1>
+        <h1 className="text-dl-2xl font-black text-dl-text-dark">{sourceName}</h1>
       </div>
 
       {/* Quality score card */}
-      <div className="mb-card p-6 mb-6">
+      <div className="dl-card p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">{t('health.qualityScore')}</p>
+            <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider mb-1">{t('health.qualityScore')}</p>
             <div className="flex items-center gap-3">
-              <span className="text-4xl font-black text-mb-text-dark">{profile.quality_score}</span>
-              <span className="text-mb-text-light text-mb-lg font-bold">/100</span>
-              <span className={`px-2.5 py-1 rounded-full text-mb-xs font-black ${label.class}`}>
+              <span className="text-4xl font-black text-dl-text-dark">{profile.quality_score}</span>
+              <span className="text-dl-text-light text-dl-lg font-bold">/100</span>
+              <span className={`px-2.5 py-1 rounded-full text-dl-xs font-black ${label.class}`}>
                 {label.text}
               </span>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-mb-xs text-mb-text-light">{profile.total_rows.toLocaleString()} rows</p>
-            <p className="text-mb-xs text-mb-text-light">{profile.total_columns} columns</p>
-            <p className="text-mb-xs text-mb-text-light">{profile.detected_encoding.toUpperCase()}</p>
+            <p className="text-dl-xs text-dl-text-light">{profile.total_rows.toLocaleString()} rows</p>
+            <p className="text-dl-xs text-dl-text-light">{profile.total_columns} columns</p>
+            <p className="text-dl-xs text-dl-text-light">{profile.detected_encoding.toUpperCase()}</p>
           </div>
         </div>
 
         {/* Quality bar */}
-        <div className="w-full h-3 bg-mb-bg-medium rounded-full overflow-hidden">
+        <div className="w-full h-3 bg-dl-bg-medium rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-700 ${qualityColor(profile.quality_score)}`}
             style={{ width: `${profile.quality_score}%` }}
@@ -216,18 +216,18 @@ export default function DataHealthPage() {
       {/* Issues found */}
       {hasIssues && (
         <div className="mb-6">
-          <p className="mb-section-header mb-3">
+          <p className="dl-section-header mb-3">
             {issueCount} issue{issueCount !== 1 ? 's' : ''} found
           </p>
           <div className="space-y-2">
             {profile.warnings.map((w, i) => (
-              <div key={i} className={`flex items-start gap-3 p-3 rounded-mb-md border ${severityBg(w.severity)}`}>
+              <div key={i} className={`flex items-start gap-3 p-3 rounded-dl-md border ${severityBg(w.severity)}`}>
                 {severityIcon(w.severity)}
                 <div className="flex-1">
-                  <span className="text-mb-sm font-black text-mb-text-dark">{w.column}</span>
-                  <span className="text-mb-sm text-mb-text-medium ml-2">{w.detail}</span>
+                  <span className="text-dl-sm font-black text-dl-text-dark">{w.column}</span>
+                  <span className="text-dl-sm text-dl-text-medium ml-2">{w.detail}</span>
                   {w.affected_rows != null && (
-                    <span className="text-mb-xs text-mb-text-light ml-1">
+                    <span className="text-dl-xs text-dl-text-light ml-1">
                       ({w.affected_rows.toLocaleString()} rows)
                     </span>
                   )}
@@ -240,9 +240,9 @@ export default function DataHealthPage() {
 
       {/* Column overview — compact */}
       <div className="mb-8">
-        <p className="mb-section-header mb-3">{t('health.columnOverview')}</p>
-        <div className="mb-card overflow-hidden">
-          <table className="mb-table">
+        <p className="dl-section-header mb-3">{t('health.columnOverview')}</p>
+        <div className="dl-card overflow-hidden">
+          <table className="dl-table">
             <thead>
               <tr>
                 <th>{t("common.column")}</th>
@@ -256,7 +256,7 @@ export default function DataHealthPage() {
                 const hasColIssues = col.mixed_types || col.format_issues || col.outlier_count > 0 || col.null_rate > 0.05
                 return (
                   <tr key={col.name}>
-                    <td className="font-bold text-mb-xs">{col.name}</td>
+                    <td className="font-bold text-dl-xs">{col.name}</td>
                     <td>
                       <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${DTYPE_COLORS[col.dtype] || DTYPE_COLORS.text}`}>
                         {col.dtype}
@@ -264,20 +264,20 @@ export default function DataHealthPage() {
                     </td>
                     <td>
                       <div className="flex items-center gap-2">
-                        <div className="w-10 h-1.5 bg-mb-bg-medium rounded-full overflow-hidden">
+                        <div className="w-10 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full ${col.null_rate > 0.2 ? 'bg-mb-error' : col.null_rate > 0.05 ? 'bg-orange-400' : 'bg-mb-success'}`}
+                            className={`h-full rounded-full ${col.null_rate > 0.2 ? 'bg-dl-error' : col.null_rate > 0.05 ? 'bg-orange-400' : 'bg-dl-success'}`}
                             style={{ width: `${Math.min(col.null_rate * 100, 100)}%` }}
                           />
                         </div>
-                        <span className="text-[10px] text-mb-text-light">{(col.null_rate * 100).toFixed(1)}%</span>
+                        <span className="text-[10px] text-dl-text-light">{(col.null_rate * 100).toFixed(1)}%</span>
                       </div>
                     </td>
                     <td>
                       {hasColIssues ? (
                         <AlertTriangle size={13} className="text-orange-400" />
                       ) : (
-                        <CheckCircle2 size={13} className="text-mb-success" />
+                        <CheckCircle2 size={13} className="text-dl-success" />
                       )}
                     </td>
                   </tr>
@@ -289,9 +289,9 @@ export default function DataHealthPage() {
       </div>
 
       {/* Decision CTAs */}
-      <div className="border-t border-mb-border pt-6">
-        <h2 className="text-mb-lg font-black text-mb-text-dark mb-2">What would you like to do?</h2>
-        <p className="text-mb-text-medium text-mb-sm mb-5">
+      <div className="border-t border-dl-border pt-6">
+        <h2 className="text-dl-lg font-black text-dl-text-dark mb-2">What would you like to do?</h2>
+        <p className="text-dl-text-medium text-dl-sm mb-5">
           {hasIssues
             ? 'We found data quality issues. You can clean them before analysis, or explore the raw data.'
             : 'Your data looks clean. You can explore it right away or run the full preparation pipeline.'}
@@ -301,23 +301,23 @@ export default function DataHealthPage() {
           {/* Option 1: Clean first */}
           <button
             onClick={() => router.push(`/projects/${projectId}/prep/${sourceId}`)}
-            className={`text-left p-5 rounded-mb-lg border transition-all group
-              ${hasIssues ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover'}`}
+            className={`text-left p-5 rounded-dl-lg border transition-all group
+              ${hasIssues ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover'}`}
           >
-            <div className={`w-10 h-10 rounded-mb-md flex items-center justify-center mb-3
-              ${hasIssues ? 'bg-mb-brand' : 'bg-mb-bg-medium group-hover:bg-mb-brand'} transition-colors`}>
-              <Wand2 size={18} className={hasIssues ? 'text-white' : 'text-mb-text-light group-hover:text-white'} />
+            <div className={`w-10 h-10 rounded-dl-md flex items-center justify-center mb-3
+              ${hasIssues ? 'bg-dl-brand' : 'bg-dl-bg-medium group-hover:bg-dl-brand'} transition-colors`}>
+              <Wand2 size={18} className={hasIssues ? 'text-white' : 'text-dl-text-light group-hover:text-white'} />
             </div>
-            <p className={`text-mb-sm font-black mb-1 ${hasIssues ? 'text-mb-brand' : 'text-mb-text-dark'}`}>
+            <p className={`text-dl-sm font-black mb-1 ${hasIssues ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
               {t('health.cleanFirst')}
             </p>
-            <p className="text-mb-xs text-mb-text-medium">
+            <p className="text-dl-xs text-dl-text-medium">
               {hasIssues
                 ? t('studio.fixIssues', { count: String(issueCount) })
                 : t('studio.runPipeline')}
             </p>
             {hasIssues && (redCount > 0 || amberCount > 0) && (
-              <p className="text-mb-xs text-mb-text-light mt-2">
+              <p className="text-dl-xs text-dl-text-light mt-2">
                 {redCount > 0 && `${redCount} critical`}
                 {redCount > 0 && amberCount > 0 && ' · '}
                 {amberCount > 0 && `${amberCount} warning${amberCount !== 1 ? 's' : ''}`}
@@ -328,19 +328,19 @@ export default function DataHealthPage() {
           {/* Option 2: Skip, explore raw */}
           <button
             onClick={() => router.push(`${base}/ask`)}
-            className="text-left p-5 rounded-mb-lg border border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover transition-all group"
+            className="text-left p-5 rounded-dl-lg border border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover transition-all group"
           >
-            <div className="w-10 h-10 rounded-mb-md flex items-center justify-center mb-3 bg-mb-bg-medium group-hover:bg-mb-brand transition-colors">
-              <MessageSquare size={18} className="text-mb-text-light group-hover:text-white" />
+            <div className="w-10 h-10 rounded-dl-md flex items-center justify-center mb-3 bg-dl-bg-medium group-hover:bg-dl-brand transition-colors">
+              <MessageSquare size={18} className="text-dl-text-light group-hover:text-white" />
             </div>
-            <p className="text-mb-sm font-black text-mb-text-dark mb-1">
+            <p className="text-dl-sm font-black text-dl-text-dark mb-1">
               {t('health.skipExplore')}
             </p>
-            <p className="text-mb-xs text-mb-text-medium">
+            <p className="text-dl-xs text-dl-text-medium">
               Go straight to Ask Data with the raw dataset
             </p>
             {hasIssues && (
-              <p className="text-mb-xs text-mb-text-light mt-2">
+              <p className="text-dl-xs text-dl-text-light mt-2">
                 Quality warnings will be shown inline
               </p>
             )}
@@ -351,13 +351,13 @@ export default function DataHealthPage() {
         <div className="mt-4 flex items-center justify-center gap-4">
           <button
             onClick={() => router.push(`/projects/${projectId}/sources/${sourceId}/analysis`)}
-            className="text-mb-xs font-bold text-mb-brand hover:text-mb-brand-dark transition-colors inline-flex items-center gap-1.5 bg-mb-brand-hover px-4 py-2 rounded-mb-md"
+            className="text-dl-xs font-bold text-dl-brand hover:text-dl-brand-dark transition-colors inline-flex items-center gap-1.5 bg-dl-brand-hover px-4 py-2 rounded-dl-md"
           >
             <BarChart2 size={13} /> {t('health.runAutoAnalysis')} <ArrowRight size={11} />
           </button>
           <button
             onClick={() => router.push(`${base}/insights`)}
-            className="text-mb-xs font-bold text-mb-text-light hover:text-mb-brand transition-colors inline-flex items-center gap-1"
+            className="text-dl-xs font-bold text-dl-text-light hover:text-dl-brand transition-colors inline-flex items-center gap-1"
           >
             {t('health.aiInsights')} <ArrowRight size={11} />
           </button>

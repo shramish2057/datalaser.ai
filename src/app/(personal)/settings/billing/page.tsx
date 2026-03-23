@@ -100,9 +100,9 @@ export default function BillingPage() {
     return (
       <SettingsShell>
         <div className="space-y-4">
-          <div className="h-10 rounded-mb-md mb-shimmer" />
-          <div className="h-32 rounded-mb-md mb-shimmer" />
-          <div className="h-48 rounded-mb-md mb-shimmer" />
+          <div className="h-10 rounded-dl-md dl-shimmer" />
+          <div className="h-32 rounded-dl-md dl-shimmer" />
+          <div className="h-48 rounded-dl-md dl-shimmer" />
         </div>
       </SettingsShell>
     )
@@ -110,55 +110,55 @@ export default function BillingPage() {
 
   return (
     <SettingsShell>
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">{t("settings.billing")}</h1>
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">{t("settings.billing")}</h1>
 
       {/* Usage stats */}
       <div className="mb-8">
-        <p className="mb-section-header mb-3">Current usage</p>
+        <p className="dl-section-header mb-3">Current usage</p>
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: 'Projects', value: projectCount },
             { label: 'Data sources', value: sourceCount },
             { label: 'Rows analyzed', value: totalRows.toLocaleString() },
           ].map(stat => (
-            <div key={stat.label} className="mb-card p-4">
-              <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">{stat.label}</p>
-              <p className="text-mb-2xl font-black text-mb-text-dark font-mono">{stat.value}</p>
+            <div key={stat.label} className="dl-card p-4">
+              <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider mb-1">{stat.label}</p>
+              <p className="text-dl-2xl font-black text-dl-text-dark font-mono">{stat.value}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Plan cards */}
-      <p className="mb-section-header mb-3">Plans</p>
+      <p className="dl-section-header mb-3">Plans</p>
       <div className="grid grid-cols-3 gap-4">
         {plans.map(p => (
           <div
             key={p.name}
-            className={`rounded-mb-lg p-5 border ${
+            className={`rounded-dl-lg p-5 border ${
               p.current
-                ? 'border-mb-brand bg-mb-brand-hover'
-                : 'border-mb-border bg-mb-bg'
+                ? 'border-dl-brand bg-dl-brand-hover'
+                : 'border-dl-border bg-dl-bg'
             }`}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-mb-sm font-black text-mb-text-dark">{p.name}</span>
-              {p.current && <span className="mb-badge-info">Current</span>}
+              <span className="text-dl-sm font-black text-dl-text-dark">{p.name}</span>
+              {p.current && <span className="dl-badge-info">Current</span>}
             </div>
             <div className="mb-3">
-              <span className="text-mb-2xl font-black text-mb-text-dark">{p.price}</span>
-              <span className="text-mb-xs text-mb-text-light ml-1">{p.sub}</span>
+              <span className="text-dl-2xl font-black text-dl-text-dark">{p.price}</span>
+              <span className="text-dl-xs text-dl-text-light ml-1">{p.sub}</span>
             </div>
             <ul className="space-y-1.5 mb-4">
               {p.features.map(f => (
-                <li key={f} className="flex items-center gap-2 text-mb-xs text-mb-text-medium">
-                  <Check size={12} className="text-mb-brand flex-shrink-0" />
+                <li key={f} className="flex items-center gap-2 text-dl-xs text-dl-text-medium">
+                  <Check size={12} className="text-dl-brand flex-shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
             {!p.current && (
-              <button onClick={showUpgradeToast} className="mb-btn-primary w-full text-mb-xs py-1.5 justify-center">
+              <button onClick={showUpgradeToast} className="dl-btn-primary w-full text-dl-xs py-1.5 justify-center">
                 <Zap size={12} />
                 {p.name === 'Enterprise' ? 'Contact sales' : 'Upgrade'}
               </button>
@@ -169,9 +169,9 @@ export default function BillingPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 bg-mb-bg border border-mb-border shadow-mb-lg rounded-mb-lg px-4 py-3 flex items-center gap-2 z-50">
-          <Zap size={14} className="text-mb-brand" />
-          <span className="text-mb-sm text-mb-text-dark font-bold">Coming soon — contact us at hello@datalaser.io</span>
+        <div className="fixed bottom-6 right-6 bg-dl-bg border border-dl-border shadow-dl-lg rounded-dl-lg px-4 py-3 flex items-center gap-2 z-50">
+          <Zap size={14} className="text-dl-brand" />
+          <span className="text-dl-sm text-dl-text-dark font-bold">Coming soon — contact us at hello@datalaser.io</span>
         </div>
       )}
     </SettingsShell>

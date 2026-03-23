@@ -130,25 +130,25 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-mb-bg-light items-center justify-center font-sans">
-        <div className="text-mb-text-medium text-mb-base">{t("common.loading")}</div>
+      <div className="flex h-screen bg-dl-bg-light items-center justify-center font-sans">
+        <div className="text-dl-text-medium text-dl-base">{t("common.loading")}</div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-mb-bg-light overflow-hidden font-sans">
+    <div className="flex h-screen bg-dl-bg-light overflow-hidden font-sans">
 
       {/* SIDEBAR */}
       <aside className={`
         ${sidebarExpanded ? 'w-[220px]' : 'w-[52px]'}
-        flex-shrink-0 h-screen bg-mb-bg border-r border-mb-border
+        flex-shrink-0 h-screen bg-dl-bg border-r border-dl-border
         flex flex-col transition-all duration-150
       `}>
 
         {/* Logo / Back to projects */}
         <div className={`
-          h-[65px] flex items-center border-b border-mb-border flex-shrink-0
+          h-[65px] flex items-center border-b border-dl-border flex-shrink-0
           ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
         `}>
           {sidebarExpanded ? (
@@ -156,26 +156,26 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
               onClick={() => router.push('/projects')}
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
             >
-              <span className="text-mb-brand font-black text-xl">▲</span>
-              <span className="font-black text-mb-text-dark text-mb-base">DataLaser</span>
+              <span className="text-dl-brand font-black text-xl">▲</span>
+              <span className="font-black text-dl-text-dark text-dl-base">DataLaser</span>
             </button>
           ) : (
             <button onClick={() => router.push('/projects')}>
-              <span className="text-mb-brand font-black text-xl">▲</span>
+              <span className="text-dl-brand font-black text-xl">▲</span>
             </button>
           )}
         </div>
 
         {/* Project switcher */}
         {sidebarExpanded && (
-          <div className="px-3 py-2 border-b border-mb-border flex-shrink-0">
-            <p className="mb-section-header mb-1.5">Project</p>
+          <div className="px-3 py-2 border-b border-dl-border flex-shrink-0">
+            <p className="dl-section-header mb-1.5">Project</p>
             <select
               value={projectId}
               onChange={e => router.push(`/projects/${e.target.value}`)}
-              className="w-full text-mb-sm font-bold text-mb-text-dark bg-mb-bg-light
-                border border-mb-border rounded-mb-md px-2 py-1.5 cursor-pointer
-                focus:outline-none focus:border-mb-brand"
+              className="w-full text-dl-sm font-bold text-dl-text-dark bg-dl-bg-light
+                border border-dl-border rounded-dl-md px-2 py-1.5 cursor-pointer
+                focus:outline-none focus:border-dl-brand"
             >
               {projects.map(p => (
                 <option key={p.id} value={p.id}>{p.name}</option>
@@ -183,8 +183,8 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
             </select>
             <button
               onClick={() => router.push('/projects/new')}
-              className="flex items-center gap-1.5 text-mb-xs text-mb-text-light
-                hover:text-mb-brand mt-1.5 transition-colors"
+              className="flex items-center gap-1.5 text-dl-xs text-dl-text-light
+                hover:text-dl-brand mt-1.5 transition-colors"
             >
               <Plus size={11} /> {t('common.newProject')}
             </button>
@@ -200,16 +200,16 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
                 key={label}
                 href={base + path}
                 className={`
-                  relative flex items-center h-[36px] font-sans font-bold text-mb-sm
+                  relative flex items-center h-[36px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
                   ${active
-                    ? 'text-mb-brand bg-mb-brand-hover'
-                    : 'text-mb-text-medium hover:text-mb-text-dark hover:bg-mb-bg-light'}
+                    ? 'text-dl-brand bg-dl-brand-hover'
+                    : 'text-dl-text-medium hover:text-dl-text-dark hover:bg-dl-bg-light'}
                 `}
               >
                 {active && (
-                  <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-mb-brand rounded-r-sm" />
+                  <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-dl-brand rounded-r-sm" />
                 )}
                 <Icon size={16} className="flex-shrink-0" />
                 {sidebarExpanded && (
@@ -226,12 +226,12 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* All Projects link */}
-        <div className="border-t border-mb-border flex-shrink-0">
+        <div className="border-t border-dl-border flex-shrink-0">
           <button
             onClick={() => router.push('/projects')}
             className={`
-              flex items-center h-[36px] w-full font-bold text-mb-sm
-              text-mb-text-light hover:text-mb-brand hover:bg-mb-bg-light
+              flex items-center h-[36px] w-full font-bold text-dl-sm
+              text-dl-text-light hover:text-dl-brand hover:bg-dl-bg-light
               transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
             `}
@@ -249,7 +249,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={toggleSidebar}
             className="flex items-center justify-center w-full h-[36px]
-              text-mb-text-light hover:text-mb-text-medium hover:bg-mb-bg-light
+              text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light
               transition-colors"
           >
             {sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
@@ -258,8 +258,8 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={logout}
             className={`
-              flex items-center h-[36px] w-full font-bold text-mb-sm
-              text-mb-text-light hover:text-red-500 hover:bg-red-50
+              flex items-center h-[36px] w-full font-bold text-dl-sm
+              text-dl-text-light hover:text-red-500 hover:bg-red-50
               transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
             `}
@@ -274,28 +274,28 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col flex-1 min-w-0">
         {/* Top bar */}
         <header className="
-          h-[65px] bg-mb-bg border-b border-mb-border
+          h-[65px] bg-dl-bg border-b border-dl-border
           flex items-center justify-between px-6 flex-shrink-0
         ">
           <div className="flex items-center gap-2">
             {project && (
               <>
                 <ProjectIconBadge icon={project.icon} color={project.color} size="md" />
-                <h1 className="text-mb-lg font-black text-mb-text-dark">
+                <h1 className="text-dl-lg font-black text-dl-text-dark">
                   {project.name}
                 </h1>
               </>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-mb-text-medium text-mb-sm">
-              <div className="w-2 h-2 rounded-full bg-mb-success" />
+            <div className="flex items-center gap-1.5 text-dl-text-medium text-dl-sm">
+              <div className="w-2 h-2 rounded-full bg-dl-success" />
               {t("common.connected")}
             </div>
-            <div className="w-px h-4 bg-mb-border mx-1" />
+            <div className="w-px h-4 bg-dl-border mx-1" />
             <button
               onClick={() => router.push(`/projects/${projectId}/sources/new`)}
-              className="mb-btn-secondary flex items-center gap-1.5 text-mb-sm py-1.5"
+              className="dl-btn-secondary flex items-center gap-1.5 text-dl-sm py-1.5"
             >
               <Plus size={13} /> {t('sources.addSource')}
             </button>
@@ -303,7 +303,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-mb-bg-light">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-dl-bg-light">
           {children}
         </main>
       </div>

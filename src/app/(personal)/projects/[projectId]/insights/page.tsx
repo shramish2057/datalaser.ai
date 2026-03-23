@@ -109,7 +109,7 @@ export default function InsightsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="text-mb-brand animate-spin" />
+        <Loader2 size={24} className="text-dl-brand animate-spin" />
       </div>
     )
   }
@@ -122,25 +122,25 @@ export default function InsightsPage() {
     <div className="max-w-4xl mx-auto px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[20px] font-black text-mb-text-dark">{t('insights.title')}</h1>
-          <p className="text-mb-text-light text-mb-xs mt-0.5">
+          <h1 className="text-[20px] font-black text-dl-text-dark">{t('insights.title')}</h1>
+          <p className="text-dl-text-light text-dl-xs mt-0.5">
             {t('insights.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-mb-text-light">
+          <span className="text-[11px] text-dl-text-light">
             {analyzed.length} {t('common.of')} {sources.length} sources
           </span>
         </div>
       </div>
 
       {sources.length === 0 && (
-        <div className="bg-white border border-mb-border rounded-mb-lg p-8 text-center">
-          <Database size={32} className="text-mb-text-light mx-auto mb-3" />
-          <p className="text-mb-text-dark text-mb-sm font-medium mb-2">{t('insights.noSources')}</p>
-          <p className="text-mb-text-light text-mb-xs mb-4">{t('insights.noSourcesDesc')}</p>
+        <div className="bg-white border border-dl-border rounded-dl-lg p-8 text-center">
+          <Database size={32} className="text-dl-text-light mx-auto mb-3" />
+          <p className="text-dl-text-dark text-dl-sm font-medium mb-2">{t('insights.noSources')}</p>
+          <p className="text-dl-text-light text-dl-xs mb-4">{t('insights.noSourcesDesc')}</p>
           <button onClick={() => router.push(`${base}/sources/new`)}
-            className="mb-btn-primary text-mb-sm px-4 py-2">
+            className="dl-btn-primary text-dl-sm px-4 py-2">
             {t('home.addSource')}
           </button>
         </div>
@@ -149,39 +149,39 @@ export default function InsightsPage() {
       {/* Analyzed Sources */}
       {analyzed.length > 0 && (
         <section className="mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-mb-text-light mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-dl-text-light mb-3">
             {t('insights.analyzed')} ({analyzed.length})
           </p>
           <div className="space-y-3">
             {analyzed.map(src => (
               <button key={src.id}
                 onClick={() => router.push(`${base}/sources/${src.id}/analysis`)}
-                className="w-full bg-white border border-mb-border rounded-mb-lg p-4 text-left hover:border-mb-brand transition-colors group">
+                className="w-full bg-white border border-dl-border rounded-dl-lg p-4 text-left hover:border-dl-brand transition-colors group">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2.5">
-                    <CheckCircle2 size={16} className="text-mb-success flex-shrink-0" />
-                    <span className="text-[14px] font-bold text-mb-text-dark">{src.name}</span>
-                    <span className="text-[10px] text-mb-text-light uppercase bg-mb-bg-light px-1.5 py-0.5 rounded">
+                    <CheckCircle2 size={16} className="text-dl-success flex-shrink-0" />
+                    <span className="text-[14px] font-bold text-dl-text-dark">{src.name}</span>
+                    <span className="text-[10px] text-dl-text-light uppercase bg-dl-bg-light px-1.5 py-0.5 rounded">
                       {src.source_type}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-mb-brand font-medium">{src.insight_count} {t('home.insights')}</span>
-                    <ArrowRight size={14} className="text-mb-text-light group-hover:text-mb-brand transition-colors" />
+                    <span className="text-[11px] text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
+                    <ArrowRight size={14} className="text-dl-text-light group-hover:text-dl-brand transition-colors" />
                   </div>
                 </div>
 
                 {/* Preview of top insights */}
                 <div className="ml-7 space-y-1">
                   {src.top_insights.map((ins, i) => (
-                    <p key={i} className="text-[12px] text-mb-text-medium truncate">
-                      <span className="text-[10px] text-mb-text-light mr-1.5">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
+                    <p key={i} className="text-[12px] text-dl-text-medium truncate">
+                      <span className="text-[10px] text-dl-text-light mr-1.5">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
                       {translateFinding(ins.headline, locale)}
                     </p>
                   ))}
                 </div>
 
-                <div className="ml-7 mt-2 flex items-center gap-3 text-[10px] text-mb-text-light">
+                <div className="ml-7 mt-2 flex items-center gap-3 text-[10px] text-dl-text-light">
                   <span>{src.row_count.toLocaleString()} rows</span>
                   {src.analyzed_at && (
                     <span>{t('insights.analyzed')} {new Date(src.analyzed_at).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span>
@@ -196,25 +196,25 @@ export default function InsightsPage() {
       {/* Pending Sources */}
       {pending.length > 0 && (
         <section>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-mb-text-light mb-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-dl-text-light mb-3">
             {t('insights.notAnalyzed')} ({pending.length})
           </p>
           <div className="space-y-2">
             {pending.map(src => (
               <div key={src.id}
-                className="bg-white border border-mb-border rounded-mb-lg p-4 flex items-center justify-between">
+                className="bg-white border border-dl-border rounded-dl-lg p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Clock size={16} className="text-mb-text-light flex-shrink-0" />
+                  <Clock size={16} className="text-dl-text-light flex-shrink-0" />
                   <div>
-                    <span className="text-[13px] font-medium text-mb-text-dark">{src.name}</span>
-                    <span className="text-[10px] text-mb-text-light uppercase ml-2">{src.source_type}</span>
-                    <p className="text-[11px] text-mb-text-light">{src.row_count.toLocaleString()} rows</p>
+                    <span className="text-[13px] font-medium text-dl-text-dark">{src.name}</span>
+                    <span className="text-[10px] text-dl-text-light uppercase ml-2">{src.source_type}</span>
+                    <p className="text-[11px] text-dl-text-light">{src.row_count.toLocaleString()} rows</p>
                   </div>
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleRunAnalysis(src.id) }}
                   disabled={runningId === src.id}
-                  className="flex items-center gap-1.5 text-[12px] font-medium text-mb-brand hover:text-mb-brand-dark disabled:opacity-50 bg-mb-brand-hover px-3 py-1.5 rounded-mb-md">
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-dl-brand hover:text-dl-brand-dark disabled:opacity-50 bg-dl-brand-hover px-3 py-1.5 rounded-dl-md">
                   {runningId === src.id ? (
                     <><Loader2 size={12} className="animate-spin" /> {t('common.analyzing')}</>
                   ) : (

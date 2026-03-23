@@ -125,9 +125,9 @@ export default function AutoAnalysisPage() {
   if (loading) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 py-20">
-        <Loader2 size={32} className="text-mb-brand animate-spin" />
-        <p className="text-mb-text-dark text-mb-sm font-medium">{t('analysis.running')}</p>
-        <p className="text-mb-text-light text-mb-xs">{t('analysis.runningDesc')}</p>
+        <Loader2 size={32} className="text-dl-brand animate-spin" />
+        <p className="text-dl-text-dark text-dl-sm font-medium">{t('analysis.running')}</p>
+        <p className="text-dl-text-light text-dl-xs">{t('analysis.runningDesc')}</p>
       </div>
     )
   }
@@ -135,9 +135,9 @@ export default function AutoAnalysisPage() {
   if (error) {
     return (
       <div className="p-8 text-center">
-        <AlertTriangle size={32} className="text-mb-error mx-auto mb-3" />
-        <p className="text-mb-text-dark text-mb-sm">{error}</p>
-        <button onClick={() => router.back()} className="mt-4 text-mb-brand text-mb-sm hover:underline">Go back</button>
+        <AlertTriangle size={32} className="text-dl-error mx-auto mb-3" />
+        <p className="text-dl-text-dark text-dl-sm">{error}</p>
+        <button onClick={() => router.back()} className="mt-4 text-dl-brand text-dl-sm hover:underline">Go back</button>
       </div>
     )
   }
@@ -155,11 +155,11 @@ export default function AutoAnalysisPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <button onClick={() => router.back()} className="flex items-center gap-1 text-mb-text-light text-mb-xs hover:text-mb-brand mb-1">
+            <button onClick={() => router.back()} className="flex items-center gap-1 text-dl-text-light text-dl-xs hover:text-dl-brand mb-1">
               <ArrowLeft size={12} /> Back
             </button>
-            <h1 className="text-[20px] font-black text-mb-text-dark">{sourceName}</h1>
-            <p className="text-mb-text-light text-mb-xs mt-0.5">
+            <h1 className="text-[20px] font-black text-dl-text-dark">{sourceName}</h1>
+            <p className="text-dl-text-light text-dl-xs mt-0.5">
               Auto-Analysis — {analysis.row_count.toLocaleString()} rows, {analysis.column_count} columns
               ({analysis.measures.length} measures, {analysis.dimensions.length} dimensions, {analysis.binaries.length} binary, {analysis.dates.length} dates)
             </p>
@@ -169,7 +169,7 @@ export default function AutoAnalysisPage() {
               {analysis.top_insights.length} {t('home.insights')}
             </span>
             <button onClick={() => router.push(`/projects/${projectId}/studio`)}
-              className="text-[12px] bg-mb-brand text-white px-3 py-1.5 rounded-mb-md hover:bg-mb-brand-dark font-medium">
+              className="text-[12px] bg-dl-brand text-white px-3 py-1.5 rounded-dl-md hover:bg-dl-brand-dark font-medium">
               {t('analysis.exploreStudio')}
             </button>
           </div>
@@ -187,7 +187,7 @@ export default function AutoAnalysisPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-1 border-b border-mb-border">
+        <div className="flex items-center gap-1 border-b border-dl-border">
           {([
             { id: 'insights' as const, label: t('analysis.topInsights'), icon: Zap, count: analysis.top_insights.length },
             { id: 'correlations' as const, label: t('analysis.correlationMatrix'), icon: GitBranch, count: analysis.correlations.pairs.length },
@@ -198,12 +198,12 @@ export default function AutoAnalysisPage() {
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-medium border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? 'border-mb-brand text-mb-brand'
-                  : 'border-transparent text-mb-text-medium hover:text-mb-text-dark'
+                  ? 'border-dl-brand text-dl-brand'
+                  : 'border-transparent text-dl-text-medium hover:text-dl-text-dark'
               }`}>
               <tab.icon size={13} />
               {tab.label}
-              {tab.count > 0 && <span className="text-[10px] bg-mb-bg-medium px-1.5 py-0.5 rounded-full">{tab.count}</span>}
+              {tab.count > 0 && <span className="text-[10px] bg-dl-bg-medium px-1.5 py-0.5 rounded-full">{tab.count}</span>}
             </button>
           ))}
         </div>
@@ -216,7 +216,7 @@ export default function AutoAnalysisPage() {
               <InsightCard key={i} insight={insight} index={i + 1} onDrill={handleDrill} />
             ))}
             {analysis.top_insights.length === 0 && (
-              <p className="text-mb-text-light text-mb-sm py-8 text-center">No significant insights detected in this dataset.</p>
+              <p className="text-dl-text-light text-dl-sm py-8 text-center">No significant insights detected in this dataset.</p>
             )}
           </div>
         </section>
@@ -227,25 +227,25 @@ export default function AutoAnalysisPage() {
         {/* Correlation Heatmap */}
         {analysis.correlations.columns.length >= 2 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <GitBranch size={16} className="text-blue-500" /> Correlation Matrix
             </h2>
-            <div className="bg-white border border-mb-border rounded-mb-lg p-4">
+            <div className="bg-white border border-dl-border rounded-dl-lg p-4">
               <HeatmapChart
                 matrix={analysis.correlations.matrix}
                 columns={analysis.correlations.columns}
                 title={t("analysis.correlationMatrix")}
               />
               {analysis.correlations.pairs.length > 0 && (
-                <div className="mt-3 border-t border-mb-border pt-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">Top Pairs</p>
+                <div className="mt-3 border-t border-dl-border pt-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light mb-2">Top Pairs</p>
                   <div className="space-y-1">
                     {analysis.correlations.pairs.slice(0, 5).map((p, i) => (
                       <div key={i} className="flex items-center gap-2 text-[12px]">
-                        <span className={`w-2 h-2 rounded-full ${p.significant ? 'bg-mb-brand' : 'bg-mb-border-dark'}`} />
-                        <span className="text-mb-text-dark font-medium">{p.col1} ↔ {p.col2}</span>
-                        <span className="text-mb-text-light">r={p.r}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${p.significant ? 'bg-green-50 text-green-700' : 'bg-mb-bg-light text-mb-text-light'}`}>
+                        <span className={`w-2 h-2 rounded-full ${p.significant ? 'bg-dl-brand' : 'bg-dl-border-dark'}`} />
+                        <span className="text-dl-text-dark font-medium">{p.col1} ↔ {p.col2}</span>
+                        <span className="text-dl-text-light">r={p.r}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${p.significant ? 'bg-green-50 text-green-700' : 'bg-dl-bg-light text-dl-text-light'}`}>
                           {t(`strength.${p.strength}` as Parameters<typeof t>[0])}
                         </span>
                       </div>
@@ -263,12 +263,12 @@ export default function AutoAnalysisPage() {
         {activeTab === 'distributions' && (<>
         {analysis.distributions.length > 0 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <Layers size={16} className="text-purple-500" /> Distributions
             </h2>
             <div className="grid grid-cols-2 gap-3">
               {analysis.distributions.slice(0, 6).map((dist, i) => (
-                <div key={i} className="bg-white border border-mb-border rounded-mb-lg overflow-hidden">
+                <div key={i} className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
                   <InteractiveChart chart={{
                     type: 'histogram',
                     title: `${dist.column} — ${dist.shape}`,
@@ -278,7 +278,7 @@ export default function AutoAnalysisPage() {
                     })),
                     xKey: 'bin', yKey: 'count', yKeys: ['count'],
                   }} />
-                  <div className="px-4 pb-3 flex gap-4 text-[11px] text-mb-text-medium">
+                  <div className="px-4 pb-3 flex gap-4 text-[11px] text-dl-text-medium">
                     <span>Mean: <b>{dist.mean.toLocaleString()}</b></span>
                     <span>Median: <b>{dist.median.toLocaleString()}</b></span>
                     <span>Skew: <b>{dist.skewness}</b></span>
@@ -295,7 +295,7 @@ export default function AutoAnalysisPage() {
         {activeTab === 'segments' && (<>
         {analysis.segments.length > 0 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <BarChart3 size={16} className="text-green-500" /> Segment Comparisons
             </h2>
             <div className="grid grid-cols-2 gap-3">
@@ -318,25 +318,25 @@ export default function AutoAnalysisPage() {
         {/* Key Influencers */}
         {analysis.key_influencers.length > 0 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <Search size={16} className="text-cyan-500" /> Key Influencers
             </h2>
-            <div className="bg-white border border-mb-border rounded-mb-lg overflow-hidden">
+            <div className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
               <table className="w-full text-[12px]">
                 <thead>
-                  <tr className="border-b border-mb-border bg-mb-bg-light">
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Target</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Influencer</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">{t("common.type")}</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Effect</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Detail</th>
+                  <tr className="border-b border-dl-border bg-dl-bg-light">
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Target</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Influencer</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">{t("common.type")}</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Effect</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Detail</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analysis.key_influencers.map((inf, i) => (
-                    <tr key={i} className="border-b border-mb-border hover:bg-mb-bg-light">
-                      <td className="px-4 py-2 font-medium text-mb-text-dark">{inf.target}</td>
-                      <td className="px-4 py-2 text-mb-brand font-medium">{inf.influencer}</td>
+                    <tr key={i} className="border-b border-dl-border hover:bg-dl-bg-light">
+                      <td className="px-4 py-2 font-medium text-dl-text-dark">{inf.target}</td>
+                      <td className="px-4 py-2 text-dl-brand font-medium">{inf.influencer}</td>
                       <td className="px-4 py-2">
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${inf.type === 'categorical' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
                           {inf.type}
@@ -345,7 +345,7 @@ export default function AutoAnalysisPage() {
                       <td className="px-4 py-2 font-mono">
                         {inf.cramers_v ? `V=${inf.cramers_v.toFixed(3)}` : inf.correlation ? `r=${inf.correlation.toFixed(3)}` : '—'}
                       </td>
-                      <td className="px-4 py-2 text-mb-text-medium">
+                      <td className="px-4 py-2 text-dl-text-medium">
                         {inf.best_group ? `${inf.best_group}: ${((inf.best_rate || 0) * 100).toFixed(1)}% vs ${inf.worst_group}: ${((inf.worst_rate || 0) * 100).toFixed(1)}%` :
                          inf.correlation ? `p=${inf.p_value < 0.001 ? '<0.001' : inf.p_value.toFixed(4)}` : '—'}
                       </td>
@@ -364,7 +364,7 @@ export default function AutoAnalysisPage() {
         {/* Contribution Analysis */}
         {analysis.contribution_analysis.length > 0 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <Target size={16} className="text-amber-500" /> Contribution Analysis
             </h2>
             <div className="grid grid-cols-2 gap-3">
@@ -383,25 +383,25 @@ export default function AutoAnalysisPage() {
         {/* Clusters */}
         {analysis.clusters.n_clusters >= 2 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <Layers size={16} className="text-violet-500" /> Auto-Detected Clusters
             </h2>
-            <div className="bg-white border border-mb-border rounded-mb-lg p-4">
-              <p className="text-[13px] text-mb-text-dark mb-3">
+            <div className="bg-white border border-dl-border rounded-dl-lg p-4">
+              <p className="text-[13px] text-dl-text-dark mb-3">
                 Data naturally segments into <b>{analysis.clusters.n_clusters} clusters</b> based on {analysis.clusters.columns_used.join(', ')}.
               </p>
               <div className="grid grid-cols-3 gap-3">
                 {analysis.clusters.clusters.map((cl, i) => (
-                  <div key={i} className="border border-mb-border rounded-mb-md p-3">
+                  <div key={i} className="border border-dl-border rounded-dl-md p-3">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12px] font-bold text-mb-text-dark">Cluster {(cl as Record<string, unknown>).cluster as number}</span>
-                      <span className="text-[11px] text-mb-text-light">{(cl as Record<string, unknown>).size as number} rows ({(cl as Record<string, unknown>).pct as number}%)</span>
+                      <span className="text-[12px] font-bold text-dl-text-dark">Cluster {(cl as Record<string, unknown>).cluster as number}</span>
+                      <span className="text-[11px] text-dl-text-light">{(cl as Record<string, unknown>).size as number} rows ({(cl as Record<string, unknown>).pct as number}%)</span>
                     </div>
                     <div className="space-y-1">
                       {analysis.clusters.columns_used.slice(0, 4).map(col => (
                         <div key={col} className="flex justify-between text-[11px]">
-                          <span className="text-mb-text-medium">{col}</span>
-                          <span className="font-mono text-mb-text-dark">
+                          <span className="text-dl-text-medium">{col}</span>
+                          <span className="font-mono text-dl-text-dark">
                             {typeof (cl as Record<string, unknown>)[`${col}_mean`] === 'number'
                               ? ((cl as Record<string, unknown>)[`${col}_mean`] as number).toLocaleString(undefined, { maximumFractionDigits: 2 })
                               : '—'}
@@ -419,35 +419,35 @@ export default function AutoAnalysisPage() {
         {/* Majority Detections */}
         {analysis.majority.length > 0 && (
           <section>
-            <h2 className="text-[14px] font-black text-mb-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
               <Target size={16} className="text-amber-500" /> Dominant Categories
             </h2>
-            <div className="bg-white border border-mb-border rounded-mb-lg overflow-hidden">
+            <div className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
               <table className="w-full text-[12px]">
                 <thead>
-                  <tr className="border-b border-mb-border bg-mb-bg-light">
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Dimension</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Measure</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Dominant</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Share</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-mb-text-light uppercase">Categories</th>
+                  <tr className="border-b border-dl-border bg-dl-bg-light">
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Dimension</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Measure</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Dominant</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Share</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Categories</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analysis.majority.slice(0, 8).map((m, i) => (
-                    <tr key={i} className="border-b border-mb-border hover:bg-mb-bg-light">
-                      <td className="px-4 py-2 text-mb-text-dark">{m.dimension}</td>
-                      <td className="px-4 py-2 text-mb-text-medium">{m.measure}</td>
-                      <td className="px-4 py-2 font-medium text-mb-brand">{m.dominant_category}</td>
+                    <tr key={i} className="border-b border-dl-border hover:bg-dl-bg-light">
+                      <td className="px-4 py-2 text-dl-text-dark">{m.dimension}</td>
+                      <td className="px-4 py-2 text-dl-text-medium">{m.measure}</td>
+                      <td className="px-4 py-2 font-medium text-dl-brand">{m.dominant_category}</td>
                       <td className="px-4 py-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-mb-bg-medium rounded-full overflow-hidden">
-                            <div className="h-full bg-mb-brand rounded-full" style={{ width: `${m.dominant_share}%` }} />
+                          <div className="w-16 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
+                            <div className="h-full bg-dl-brand rounded-full" style={{ width: `${m.dominant_share}%` }} />
                           </div>
                           <span className="text-[11px] font-mono">{m.dominant_share}%</span>
                         </div>
                       </td>
-                      <td className="px-4 py-2 text-mb-text-light">{m.total_categories}</td>
+                      <td className="px-4 py-2 text-dl-text-light">{m.total_categories}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -459,8 +459,8 @@ export default function AutoAnalysisPage() {
         </>)}
 
         {/* Footer */}
-        <div className="text-center py-4 border-t border-mb-border">
-          <p className="text-[11px] text-mb-text-light">
+        <div className="text-center py-4 border-t border-dl-border">
+          <p className="text-[11px] text-dl-text-light">
             {t('insights.allComputed')}
           </p>
         </div>
@@ -476,23 +476,23 @@ function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight
   const locale = useLocale()
   const t = useTranslations()
   const Icon = INSIGHT_ICONS[insight.type] || Zap
-  const colorClass = INSIGHT_COLORS[insight.type] || 'border-mb-border bg-white'
+  const colorClass = INSIGHT_COLORS[insight.type] || 'border-dl-border bg-white'
 
   return (
-    <div className={`border rounded-mb-lg p-4 ${colorClass}`}>
+    <div className={`border rounded-dl-lg p-4 ${colorClass}`}>
       <div className="flex items-start gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-[11px] font-black text-mb-text-light">#{index}</span>
-          <Icon size={16} className="text-mb-text-medium" />
+          <span className="text-[11px] font-black text-dl-text-light">#{index}</span>
+          <Icon size={16} className="text-dl-text-medium" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] text-mb-text-dark leading-relaxed">{translateFinding(insight.headline, locale)}</p>
+          <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(insight.headline, locale)}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 text-mb-text-medium font-medium">{t(`insightTypes.${insight.type}` as Parameters<typeof t>[0])}</span>
-            <span className="text-[10px] text-mb-text-light">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 text-dl-text-medium font-medium">{t(`insightTypes.${insight.type}` as Parameters<typeof t>[0])}</span>
+            <span className="text-[10px] text-dl-text-light">
               p={insight.p_value < 0.001 ? '<0.001' : insight.p_value.toFixed(4)}
             </span>
-            <span className="text-[10px] text-mb-text-light">
+            <span className="text-[10px] text-dl-text-light">
               effect={insight.effect_size.toFixed(3)}
             </span>
           </div>
@@ -501,7 +501,7 @@ function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight
 
       {/* Inline chart if available — compact height */}
       {insight.chart_data && insight.chart_data.data && insight.chart_data.data.length > 0 && (
-        <div className="mt-3 max-h-[240px] overflow-hidden rounded-mb-md border border-white/50">
+        <div className="mt-3 max-h-[240px] overflow-hidden rounded-dl-md border border-white/50">
           <InteractiveChart chart={{
             type: insight.chart_data.chart_type as ChartData['type'],
             title: '',

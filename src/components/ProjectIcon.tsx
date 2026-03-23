@@ -51,7 +51,7 @@ export function ProjectIconBadge({
 
   return (
     <div
-      className={`${sizeClasses[size]} rounded-mb-md flex items-center justify-center flex-shrink-0`}
+      className={`${sizeClasses[size]} rounded-dl-md flex items-center justify-center flex-shrink-0`}
       style={{ backgroundColor: color + '20' }}
     >
       <Icon size={iconSizes[size]} style={{ color }} />

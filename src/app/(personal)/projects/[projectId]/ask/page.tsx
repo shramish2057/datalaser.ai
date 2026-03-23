@@ -305,11 +305,11 @@ export default function ProjectAskPage() {
     <div className="flex h-full">
 
       {/* Conversation sidebar */}
-      <div className="w-[220px] flex-shrink-0 border-r border-mb-border bg-mb-bg flex flex-col">
-        <div className="p-3 border-b border-mb-border">
+      <div className="w-[220px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
+        <div className="p-3 border-b border-dl-border">
           <button
             onClick={startNewChat}
-            className="mb-btn-primary w-full text-mb-xs py-1.5 justify-center"
+            className="dl-btn-primary w-full text-dl-xs py-1.5 justify-center"
           >
             <Plus size={13} />
             {t("ask.newChat")}
@@ -319,12 +319,12 @@ export default function ProjectAskPage() {
         <div className="flex-1 overflow-y-auto py-1">
           {convoLoading ? (
             <div className="px-3 py-2">
-              <div className="h-6 rounded-mb-md mb-shimmer mb-2" />
-              <div className="h-6 rounded-mb-md mb-shimmer mb-2" />
-              <div className="h-6 rounded-mb-md mb-shimmer" />
+              <div className="h-6 rounded-dl-md dl-shimmer mb-2" />
+              <div className="h-6 rounded-dl-md dl-shimmer mb-2" />
+              <div className="h-6 rounded-dl-md dl-shimmer" />
             </div>
           ) : conversations.length === 0 ? (
-            <p className="text-mb-text-light text-mb-xs px-3 py-4 text-center">
+            <p className="text-dl-text-light text-dl-xs px-3 py-4 text-center">
               {t("ask.noConversations")}
             </p>
           ) : (
@@ -334,22 +334,22 @@ export default function ProjectAskPage() {
                 onClick={() => loadConversation(c.id)}
                 className={`
                   w-full flex items-center gap-2 px-3 py-2 text-left
-                  text-mb-xs transition-colors group
+                  text-dl-xs transition-colors group
                   ${activeConvoId === c.id
-                    ? 'bg-mb-brand-hover text-mb-brand font-bold'
-                    : 'text-mb-text-medium hover:bg-mb-bg-light'}
+                    ? 'bg-dl-brand-hover text-dl-brand font-bold'
+                    : 'text-dl-text-medium hover:bg-dl-bg-light'}
                 `}
               >
                 <MessageSquare size={12} className="flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <span className="block truncate">{c.title}</span>
-                  <span className="block text-[10px] text-mb-text-light mt-0.5">
+                  <span className="block text-[10px] text-dl-text-light mt-0.5">
                     {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
                   </span>
                 </div>
                 <button
                   onClick={(e) => deleteConversation(c.id, e)}
-                  className="opacity-0 group-hover:opacity-100 text-mb-text-light hover:text-mb-error transition-all flex-shrink-0"
+                  className="opacity-0 group-hover:opacity-100 text-dl-text-light hover:text-dl-error transition-all flex-shrink-0"
                 >
                   <Trash2 size={11} />
                 </button>
@@ -370,9 +370,9 @@ export default function ProjectAskPage() {
             {/* Empty state */}
             {messages.length === 0 && !loading && (
               <div className="text-center py-20">
-                <Sparkles className="w-10 h-10 text-mb-text-light mx-auto mb-4" />
-                <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t("ask.askAnything")}</h2>
-                <p className="text-mb-text-medium text-mb-sm max-w-md mx-auto">
+                <Sparkles className="w-10 h-10 text-dl-text-light mx-auto mb-4" />
+                <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t("ask.askAnything")}</h2>
+                <p className="text-dl-text-medium text-dl-sm max-w-md mx-auto">
                   {t("ask.askDesc")}
                 </p>
               </div>
@@ -384,10 +384,10 @@ export default function ProjectAskPage() {
                 <div className={`max-w-[90%] ${msg.role === 'user' ? 'ml-12' : 'mr-12'}`}>
                   {msg.content && (
                     <div className={`
-                      rounded-mb-lg px-4 py-3 text-mb-sm leading-relaxed
+                      rounded-dl-lg px-4 py-3 text-dl-sm leading-relaxed
                       ${msg.role === 'user'
-                        ? 'bg-mb-brand text-white font-bold'
-                        : 'bg-mb-bg border border-mb-border text-mb-text-dark shadow-mb-sm'}
+                        ? 'bg-dl-brand text-white font-bold'
+                        : 'bg-dl-bg border border-dl-border text-dl-text-dark shadow-dl-sm'}
                     `}>
                       {msg.role === 'user' ? (
                         <p>{msg.content}</p>
@@ -413,9 +413,9 @@ export default function ProjectAskPage() {
             {/* Loading indicator */}
             {loading && (messages.length === 0 || messages[messages.length - 1]?.role === 'user') && (
               <div className="flex justify-start">
-                <div className="bg-mb-bg border border-mb-border rounded-mb-lg px-4 py-3 flex items-center gap-2 shadow-mb-sm">
-                  <Loader2 className="w-4 h-4 animate-spin text-mb-brand" />
-                  <span className="text-mb-sm text-mb-text-medium">Analyzing your data...</span>
+                <div className="bg-dl-bg border border-dl-border rounded-dl-lg px-4 py-3 flex items-center gap-2 shadow-dl-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-dl-brand" />
+                  <span className="text-dl-sm text-dl-text-medium">Analyzing your data...</span>
                 </div>
               </div>
             )}
@@ -425,11 +425,11 @@ export default function ProjectAskPage() {
         </div>
 
         {/* Source selector + Input bar */}
-        <div className="border-t border-mb-border bg-mb-bg px-6 pt-3 pb-4">
+        <div className="border-t border-dl-border bg-dl-bg px-6 pt-3 pb-4">
           {/* Source pills */}
           {projectSources.length > 0 && (
             <div className="max-w-[860px] mx-auto flex items-center gap-2 mb-2 flex-wrap">
-              <span className="text-[10px] font-bold text-mb-text-light uppercase tracking-wider flex items-center gap-1">
+              <span className="text-[10px] font-bold text-dl-text-light uppercase tracking-wider flex items-center gap-1">
                 <Database size={10} /> Using:
               </span>
               {projectSources.map(src => {
@@ -447,8 +447,8 @@ export default function ProjectAskPage() {
                       inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold
                       transition-colors cursor-pointer
                       ${isActive
-                        ? 'bg-mb-brand-hover text-mb-brand border border-mb-brand/30'
-                        : 'bg-mb-bg-medium text-mb-text-light border border-transparent hover:border-mb-border'}
+                        ? 'bg-dl-brand-hover text-dl-brand border border-dl-brand/30'
+                        : 'bg-dl-bg-medium text-dl-text-light border border-transparent hover:border-dl-border'}
                     `}
                   >
                     {src.name}
@@ -459,7 +459,7 @@ export default function ProjectAskPage() {
                 )
               })}
               {activeSources.size < projectSources.length && (
-                <span className="text-[10px] text-mb-text-light">
+                <span className="text-[10px] text-dl-text-light">
                   ({activeSources.size}/{projectSources.length} active)
                 </span>
               )}
@@ -467,7 +467,7 @@ export default function ProjectAskPage() {
           )}
           <div className="max-w-[860px] mx-auto flex items-end gap-3">
             <textarea
-              className="mb-input flex-1 min-h-[44px] max-h-32 resize-none"
+              className="dl-input flex-1 min-h-[44px] max-h-32 resize-none"
               placeholder={t("ask.placeholder")}
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -477,7 +477,7 @@ export default function ProjectAskPage() {
             <button
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className={`mb-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
+              className={`dl-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
               <Send size={16} />
             </button>

@@ -33,17 +33,17 @@ export default function SetupPage() {
     <div className="max-w-lg mx-auto pt-16 px-6">
       <StepIndicator current={1} labels={['You', 'Project', 'Data']} />
 
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
         Welcome to DataLaser
       </h1>
-      <p className="text-mb-text-medium text-mb-base mb-10">
+      <p className="text-dl-text-medium text-dl-base mb-10">
         Let&apos;s get you set up in under 2 minutes.
       </p>
 
       <div className="mb-6">
-        <label className="mb-label">Your name</label>
+        <label className="dl-label">Your name</label>
         <input
-          className="mb-input"
+          className="dl-input"
           placeholder={t("onboarding.fullName")}
           value={name}
           onChange={e => setName(e.target.value)}
@@ -52,20 +52,20 @@ export default function SetupPage() {
       </div>
 
       <div className="mb-10">
-        <label className="mb-label">How are you using DataLaser?</label>
+        <label className="dl-label">How are you using DataLaser?</label>
         <div className="grid grid-cols-2 gap-3 mt-2">
           <button
             onClick={() => setMode('personal')}
             className={`
-              p-4 rounded-mb-lg border text-left transition-all
+              p-4 rounded-dl-lg border text-left transition-all
               ${mode === 'personal'
-                ? 'border-mb-brand bg-mb-brand-hover'
-                : 'border-mb-border-dark hover:border-mb-brand'}
+                ? 'border-dl-brand bg-dl-brand-hover'
+                : 'border-dl-border-dark hover:border-dl-brand'}
             `}
           >
-            <User size={20} className={`mb-2 ${mode === 'personal' ? 'text-mb-brand' : 'text-mb-text-light'}`} />
-            <div className="text-mb-sm font-black text-mb-text-dark">Just me</div>
-            <div className="text-mb-xs text-mb-text-light mt-0.5">
+            <User size={20} className={`mb-2 ${mode === 'personal' ? 'text-dl-brand' : 'text-dl-text-light'}`} />
+            <div className="text-dl-sm font-black text-dl-text-dark">Just me</div>
+            <div className="text-dl-xs text-dl-text-light mt-0.5">
               Personal projects and analysis
             </div>
           </button>
@@ -73,15 +73,15 @@ export default function SetupPage() {
           <button
             onClick={() => setMode('team')}
             className={`
-              p-4 rounded-mb-lg border text-left transition-all
+              p-4 rounded-dl-lg border text-left transition-all
               ${mode === 'team'
-                ? 'border-mb-brand bg-mb-brand-hover'
-                : 'border-mb-border-dark hover:border-mb-brand'}
+                ? 'border-dl-brand bg-dl-brand-hover'
+                : 'border-dl-border-dark hover:border-dl-brand'}
             `}
           >
-            <Users size={20} className={`mb-2 ${mode === 'team' ? 'text-mb-brand' : 'text-mb-text-light'}`} />
-            <div className="text-mb-sm font-black text-mb-text-dark">My team</div>
-            <div className="text-mb-xs text-mb-text-light mt-0.5">
+            <Users size={20} className={`mb-2 ${mode === 'team' ? 'text-dl-brand' : 'text-dl-text-light'}`} />
+            <div className="text-dl-sm font-black text-dl-text-dark">My team</div>
+            <div className="text-dl-xs text-dl-text-light mt-0.5">
               Collaborate with your organization
             </div>
           </button>
@@ -91,7 +91,7 @@ export default function SetupPage() {
       <button
         onClick={handleContinue}
         disabled={!name.trim() || !mode || loading}
-        className={`mb-btn-primary w-full py-2.5 text-mb-base font-black justify-center
+        className={`dl-btn-primary w-full py-2.5 text-dl-base font-black justify-center
           ${(!name.trim() || !mode || loading) ? 'opacity-40 cursor-not-allowed' : ''}`}
       >
         {loading ? 'Setting up...' : 'Continue →'}

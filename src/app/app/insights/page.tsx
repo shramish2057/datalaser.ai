@@ -116,15 +116,15 @@ export default function InsightsPage() {
     return (
       <div className="flex items-center justify-center h-full p-8">
         <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-full bg-mb-bg-medium flex items-center justify-center mx-auto mb-4">
-            <BarChart2 size={28} className="text-mb-text-light" />
+          <div className="w-16 h-16 rounded-full bg-dl-bg-medium flex items-center justify-center mx-auto mb-4">
+            <BarChart2 size={28} className="text-dl-text-light" />
           </div>
-          <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Connect your first database</h2>
-          <p className="text-mb-text-medium text-mb-base mb-6">
+          <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Connect your first database</h2>
+          <p className="text-dl-text-medium text-dl-base mb-6">
             DataLaser needs a data source to generate insights.
           </p>
           <button
-            className="mb-btn-primary px-6 py-2"
+            className="dl-btn-primary px-6 py-2"
             onClick={() => router.push('/connect')}
           >
             Add a database
@@ -139,17 +139,17 @@ export default function InsightsPage() {
     return (
       <div className="max-w-[860px] mx-auto px-6 py-8 space-y-4">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-4 h-4 rounded-full border-2 border-mb-brand border-t-transparent animate-spin" />
-          <span className="text-mb-text-medium text-mb-base font-bold">
+          <div className="w-4 h-4 rounded-full border-2 border-dl-brand border-t-transparent animate-spin" />
+          <span className="text-dl-text-medium text-dl-base font-bold">
             {state === 'loading' ? t('common.loading') : CYCLING_MESSAGES[cycleIdx]}
           </span>
         </div>
-        <div className="h-28 rounded-mb-lg mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-56 rounded-mb-lg mb-shimmer" />
+        <div className="h-28 rounded-dl-lg dl-shimmer" />
+        <div className="h-10 rounded-dl-md dl-shimmer" />
+        <div className="h-10 rounded-dl-md dl-shimmer" />
+        <div className="h-10 rounded-dl-md dl-shimmer" />
+        <div className="h-10 rounded-dl-md dl-shimmer" />
+        <div className="h-56 rounded-dl-lg dl-shimmer" />
       </div>
     )
   }
@@ -163,37 +163,37 @@ export default function InsightsPage() {
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">{doc.title}</h1>
-          <p className="text-mb-text-light text-mb-sm mt-0.5">
+          <h1 className="text-dl-2xl font-black text-dl-text-dark">{doc.title}</h1>
+          <p className="text-dl-text-light text-dl-sm mt-0.5">
             Generated {formatDistanceToNow(new Date(doc.generated_at))} ago
           </p>
         </div>
         <div className="flex items-center">
-          <button onClick={regenerate} className="mb-btn-subtle gap-1.5 text-mb-sm">
+          <button onClick={regenerate} className="dl-btn-subtle gap-1.5 text-dl-sm">
             ↻ Regenerate
           </button>
-          <button className="mb-btn-subtle gap-1.5 text-mb-sm ml-1">
+          <button className="dl-btn-subtle gap-1.5 text-dl-sm ml-1">
             ⬇ Export
           </button>
         </div>
       </div>
 
       {/* Section 1 — Summary */}
-      <div className="mb-6 p-5 rounded-mb-lg bg-mb-bg border border-mb-border shadow-mb-sm">
+      <div className="mb-6 p-5 rounded-dl-lg bg-dl-bg border border-dl-border shadow-dl-sm">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 rounded-full bg-mb-success" />
-          <span className="mb-section-header">AI Executive Summary</span>
+          <div className="w-2 h-2 rounded-full bg-dl-success" />
+          <span className="dl-section-header">AI Executive Summary</span>
         </div>
-        <p className="text-mb-text-dark text-mb-base leading-relaxed">{doc.executive_summary}</p>
+        <p className="text-dl-text-dark text-dl-base leading-relaxed">{doc.executive_summary}</p>
         {doc.severity_chips && doc.severity_chips.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {doc.severity_chips.map((chip) => (
               <span
                 key={chip.label}
                 className={
-                  chip.type === 'positive' ? 'mb-badge-success' :
-                  chip.type === 'warning' ? 'mb-badge-warning' :
-                  chip.type === 'critical' ? 'mb-badge-error' : 'mb-badge-neutral'
+                  chip.type === 'positive' ? 'dl-badge-success' :
+                  chip.type === 'warning' ? 'dl-badge-warning' :
+                  chip.type === 'critical' ? 'dl-badge-error' : 'dl-badge-neutral'
                 }
               >
                 {chip.label}
@@ -206,15 +206,15 @@ export default function InsightsPage() {
       {/* Section 2 — KPIs */}
       {doc.kpis && doc.kpis.length > 0 && (
         <div className="mb-6">
-          <p className="mb-section-header mb-3">Key Metrics</p>
+          <p className="dl-section-header mb-3">Key Metrics</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {doc.kpis.map((kpi) => (
-              <div key={kpi.name} className="bg-mb-bg rounded-mb-lg border border-mb-border p-4 shadow-mb-sm">
-                <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">
+              <div key={kpi.name} className="bg-dl-bg rounded-dl-lg border border-dl-border p-4 shadow-dl-sm">
+                <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider mb-1">
                   {kpi.name}
                 </p>
-                <p className="text-mb-2xl font-black text-mb-text-dark font-mono">{kpi.value}</p>
-                <p className={`text-mb-sm font-bold mt-0.5 ${kpi.positive ? 'text-mb-success' : 'text-mb-error'}`}>
+                <p className="text-dl-2xl font-black text-dl-text-dark font-mono">{kpi.value}</p>
+                <p className={`text-dl-sm font-bold mt-0.5 ${kpi.positive ? 'text-dl-success' : 'text-dl-error'}`}>
                   {kpi.positive ? '↑' : '↓'} {kpi.change}
                 </p>
               </div>
@@ -226,20 +226,20 @@ export default function InsightsPage() {
       {/* Section 3 — Key Findings */}
       {doc.key_findings && doc.key_findings.length > 0 && (
         <div className="mb-6">
-          <p className="mb-section-header mb-3">Key Findings</p>
+          <p className="dl-section-header mb-3">Key Findings</p>
           {doc.key_findings.map((finding, i) => (
-            <div key={i} className="flex gap-4 py-4 border-b border-mb-border last:border-0">
-              <span className="text-mb-xl font-black text-mb-text-light w-6 flex-shrink-0">
+            <div key={i} className="flex gap-4 py-4 border-b border-dl-border last:border-0">
+              <span className="text-dl-xl font-black text-dl-text-light w-6 flex-shrink-0">
                 {i + 1}
               </span>
               <div className="flex-1">
-                <p className="font-black text-mb-text-dark text-mb-base mb-1">{finding.headline}</p>
-                <p className="text-mb-text-medium text-mb-sm leading-relaxed">{finding.explanation}</p>
+                <p className="font-black text-dl-text-dark text-dl-base mb-1">{finding.headline}</p>
+                <p className="text-dl-text-medium text-dl-sm leading-relaxed">{finding.explanation}</p>
                 <span
                   className={`inline-block mt-2 ${
-                    finding.severity === 'positive' ? 'mb-badge-success' :
-                    finding.severity === 'warning' ? 'mb-badge-warning' :
-                    finding.severity === 'critical' ? 'mb-badge-error' : 'mb-badge-neutral'
+                    finding.severity === 'positive' ? 'dl-badge-success' :
+                    finding.severity === 'warning' ? 'dl-badge-warning' :
+                    finding.severity === 'critical' ? 'dl-badge-error' : 'dl-badge-neutral'
                   }`}
                 >
                   {finding.severity}
@@ -253,37 +253,37 @@ export default function InsightsPage() {
       {/* Section 4 — Recommendations */}
       {doc.recommendations && doc.recommendations.length > 0 && (
         <div className="mb-6">
-          <p className="mb-section-header mb-3">Recommendations</p>
+          <p className="dl-section-header mb-3">Recommendations</p>
           {doc.recommendations.map((rec, i) => (
-            <div key={i} className="flex items-start gap-3 py-3 border-b border-mb-border last:border-0">
+            <div key={i} className="flex items-start gap-3 py-3 border-b border-dl-border last:border-0">
               <span
-                className={`inline-flex items-center px-2 py-0.5 rounded-full text-mb-xs font-bold mt-0.5 flex-shrink-0 ${
+                className={`inline-flex items-center px-2 py-0.5 rounded-full text-dl-xs font-bold mt-0.5 flex-shrink-0 ${
                   rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                  rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-mb-brand'
+                  rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-dl-brand'
                 }`}
               >
                 {rec.priority}
               </span>
               <div className="flex-1">
-                <p className="text-mb-text-dark text-mb-sm font-bold">{rec.text}</p>
+                <p className="text-dl-text-dark text-dl-sm font-bold">{rec.text}</p>
                 {rec.impact && (
-                  <p className="text-mb-text-light text-mb-xs mt-0.5">{rec.impact}</p>
+                  <p className="text-dl-text-light text-dl-xs mt-0.5">{rec.impact}</p>
                 )}
               </div>
-              <button className="mb-btn-subtle text-mb-xs py-1 px-2 flex-shrink-0">Assign</button>
+              <button className="dl-btn-subtle text-dl-xs py-1 px-2 flex-shrink-0">Assign</button>
             </div>
           ))}
         </div>
       )}
 
       {/* Section 5 — Bottom action bar */}
-      <div className="flex items-center justify-between pt-4 border-t border-mb-border">
-        <p className="text-mb-text-medium text-mb-sm">Want to dig deeper into this data?</p>
+      <div className="flex items-center justify-between pt-4 border-t border-dl-border">
+        <p className="text-dl-text-medium text-dl-sm">Want to dig deeper into this data?</p>
         <div className="flex gap-2">
-          <button className="mb-btn-primary" onClick={() => router.push('/app/ask')}>
+          <button className="dl-btn-primary" onClick={() => router.push('/app/ask')}>
             Ask a question
           </button>
-          <button className="mb-btn-secondary" onClick={() => router.push('/app/dashboard')}>
+          <button className="dl-btn-secondary" onClick={() => router.push('/app/dashboard')}>
             Build a dashboard
           </button>
         </div>

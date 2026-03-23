@@ -15,8 +15,8 @@ export function SettingsShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-1 min-h-0">
       {/* Sub-nav */}
-      <nav className="w-[160px] flex-shrink-0 border-r border-mb-border bg-mb-bg flex flex-col px-4 py-6">
-        <p className="mb-section-header mb-3">Settings</p>
+      <nav className="w-[160px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col px-4 py-6">
+        <p className="dl-section-header mb-3">Settings</p>
         <div className="space-y-0.5">
           {NAV.map(item => {
             const active = pathname === item.href
@@ -25,10 +25,10 @@ export function SettingsShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={`
-                  block px-3 py-1.5 rounded-mb-md text-mb-sm transition-colors
+                  block px-3 py-1.5 rounded-dl-md text-dl-sm transition-colors
                   ${active
-                    ? 'text-mb-brand font-black bg-mb-brand-hover'
-                    : 'text-mb-text-medium font-bold hover:text-mb-text-dark hover:bg-mb-bg-light'}
+                    ? 'text-dl-brand font-black bg-dl-brand-hover'
+                    : 'text-dl-text-medium font-bold hover:text-dl-text-dark hover:bg-dl-bg-light'}
                 `}
               >
                 {item.label}
@@ -39,7 +39,7 @@ export function SettingsShell({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 overflow-y-auto px-8 py-8 bg-mb-bg-light">
+      <div className="flex-1 min-w-0 overflow-y-auto px-8 py-8 bg-dl-bg-light">
         <div className="max-w-2xl">
           {children}
         </div>

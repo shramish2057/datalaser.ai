@@ -96,7 +96,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-white font-sans">
-        <div className="text-mb-text-medium text-mb-sm">Loading Studio...</div>
+        <div className="text-dl-text-medium text-dl-sm">Loading Studio...</div>
       </div>
     )
   }
@@ -104,12 +104,12 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-white font-sans">
       {/* Top bar */}
-      <div className="h-[48px] flex items-center justify-between border-b border-mb-border px-4 flex-shrink-0">
-        <Link href={`/projects/${projectId}`} className="flex items-center gap-1.5 text-mb-sm text-mb-text-medium hover:text-mb-text-dark transition-colors">
+      <div className="h-[48px] flex items-center justify-between border-b border-dl-border px-4 flex-shrink-0">
+        <Link href={`/projects/${projectId}`} className="flex items-center gap-1.5 text-dl-sm text-dl-text-medium hover:text-dl-text-dark transition-colors">
           <ChevronLeft size={16} />
           {projectName}
         </Link>
-        <span className="text-mb-sm font-semibold text-mb-text-dark tracking-wide">Studio</span>
+        <span className="text-dl-sm font-semibold text-dl-text-dark tracking-wide">Studio</span>
         <div className="w-[100px]" /> {/* Spacer for balance */}
       </div>
 

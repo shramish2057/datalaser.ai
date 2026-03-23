@@ -62,7 +62,7 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
 
   // Guard
   if (chart.type !== 'gauge' && chart.type !== 'heatmap' && (!Array.isArray(chart.data) || chart.data.length === 0)) {
-    return <div className="text-mb-text-light text-mb-sm py-4 text-center">No chart data available</div>
+    return <div className="text-dl-text-light text-dl-sm py-4 text-center">No chart data available</div>
   }
 
   // Click handler for drill-down
@@ -352,20 +352,20 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
         const cols = Object.keys(chart.data[0] ?? {})
         return (
           <div className="overflow-auto max-h-64">
-            <table className="w-full text-mb-xs">
+            <table className="w-full text-dl-xs">
               <thead>
-                <tr className="border-b border-mb-border">
+                <tr className="border-b border-dl-border">
                   {cols.map(c => (
-                    <th key={c} className="px-3 py-2 text-left font-bold text-mb-text-light uppercase tracking-wider">{c}</th>
+                    <th key={c} className="px-3 py-2 text-left font-bold text-dl-text-light uppercase tracking-wider">{c}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {chart.data.slice(0, 50).map((row, i) => (
-                  <tr key={i} className={`border-b border-mb-border hover:bg-mb-bg-light ${cursorClass}`}
+                  <tr key={i} className={`border-b border-dl-border hover:bg-dl-bg-light ${cursorClass}`}
                     onClick={() => handleDataClick(row, cols[0])}>
                     {cols.map(c => (
-                      <td key={c} className="px-3 py-1.5 text-mb-text-dark">{String(row[c] ?? '')}</td>
+                      <td key={c} className="px-3 py-1.5 text-dl-text-dark">{String(row[c] ?? '')}</td>
                     ))}
                   </tr>
                 ))}
@@ -376,7 +376,7 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
       }
 
       default:
-        return <div className="text-mb-text-light text-mb-sm py-4 text-center">Unsupported chart type: {chart.type}</div>
+        return <div className="text-dl-text-light text-dl-sm py-4 text-center">Unsupported chart type: {chart.type}</div>
     }
   }
 
@@ -384,27 +384,27 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
   const chartHeight = isFullscreen ? 500 : 280
 
   const chartContent = (
-    <div ref={chartRef} className={`rounded-mb-lg border border-mb-border bg-mb-bg overflow-hidden shadow-mb-sm ${isFullscreen ? 'fixed inset-8 z-50 flex flex-col' : ''}`}>
+    <div ref={chartRef} className={`rounded-dl-lg border border-dl-border bg-dl-bg overflow-hidden shadow-dl-sm ${isFullscreen ? 'fixed inset-8 z-50 flex flex-col' : ''}`}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-mb-border">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-dl-border">
         <div className="flex items-center gap-2">
-          <span className="text-mb-sm font-bold text-mb-text-dark">{chart.title}</span>
+          <span className="text-dl-sm font-bold text-dl-text-dark">{chart.title}</span>
           {onDrillDown && (
-            <span className="text-[10px] text-mb-text-light flex items-center gap-0.5">
+            <span className="text-[10px] text-dl-text-light flex items-center gap-0.5">
               <MousePointer size={9} /> Click to drill
             </span>
           )}
         </div>
         <div className="flex items-center gap-1">
           {onPin && (
-            <button onClick={onPin} className="mb-btn-subtle p-1.5 rounded-mb-sm" title="Pin to Dashboard">
+            <button onClick={onPin} className="dl-btn-subtle p-1.5 rounded-dl-sm" title="Pin to Dashboard">
               <Pin size={13} />
             </button>
           )}
-          <button onClick={handleDownload} className="mb-btn-subtle p-1.5 rounded-mb-sm" title="Download PNG">
+          <button onClick={handleDownload} className="dl-btn-subtle p-1.5 rounded-dl-sm" title="Download PNG">
             <Download size={13} />
           </button>
-          <button onClick={() => setIsFullscreen(!isFullscreen)} className="mb-btn-subtle p-1.5 rounded-mb-sm" title={isFullscreen ? 'Exit fullscreen' : 'Expand'}>
+          <button onClick={() => setIsFullscreen(!isFullscreen)} className="dl-btn-subtle p-1.5 rounded-dl-sm" title={isFullscreen ? 'Exit fullscreen' : 'Expand'}>
             {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
           </button>
         </div>

@@ -61,19 +61,19 @@ export default function OrgMembersPage() {
 
   return (
     <OrgSettingsShell orgSlug={orgSlug}>
-      {loading ? <div className="space-y-3"><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /></div> : <>
+      {loading ? <div className="space-y-3"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div> : <>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">{t("settings.members")}</h1>
-          <button onClick={() => setInviteOpen(true)} className="mb-btn-primary"><UserPlus size={14} /> Invite member</button>
+          <h1 className="text-dl-2xl font-black text-dl-text-dark">{t("settings.members")}</h1>
+          <button onClick={() => setInviteOpen(true)} className="dl-btn-primary"><UserPlus size={14} /> Invite member</button>
         </div>
 
-        <div className="mb-card overflow-hidden mb-8">
-          <table className="mb-table"><thead><tr><th>User</th><th>Role</th><th>Joined</th></tr></thead><tbody>
+        <div className="dl-card overflow-hidden mb-8">
+          <table className="dl-table"><thead><tr><th>User</th><th>Role</th><th>Joined</th></tr></thead><tbody>
             {members.map(m => (
               <tr key={m.id}>
-                <td className="font-bold font-mono text-mb-xs">{m.user_id.slice(0, 8)}...</td>
-                <td><span className={m.role === 'owner' ? 'mb-badge-info' : m.role === 'admin' ? 'mb-badge-warning' : 'mb-badge-neutral'}>{m.role}</span></td>
-                <td className="text-mb-text-medium">{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</td>
+                <td className="font-bold font-mono text-dl-xs">{m.user_id.slice(0, 8)}...</td>
+                <td><span className={m.role === 'owner' ? 'dl-badge-info' : m.role === 'admin' ? 'dl-badge-warning' : 'dl-badge-neutral'}>{m.role}</span></td>
+                <td className="text-dl-text-medium">{formatDistanceToNow(new Date(m.created_at), { addSuffix: true })}</td>
               </tr>
             ))}
           </tbody></table>
@@ -81,15 +81,15 @@ export default function OrgMembersPage() {
 
         {invites.length > 0 && (
           <div>
-            <p className="mb-section-header mb-3">Pending Invitations</p>
-            <div className="mb-card overflow-hidden">
-              <table className="mb-table"><thead><tr><th>Email</th><th>Role</th><th>Sent</th><th>{t("common.status")}</th></tr></thead><tbody>
+            <p className="dl-section-header mb-3">Pending Invitations</p>
+            <div className="dl-card overflow-hidden">
+              <table className="dl-table"><thead><tr><th>Email</th><th>Role</th><th>Sent</th><th>{t("common.status")}</th></tr></thead><tbody>
                 {invites.map(inv => (
                   <tr key={inv.id}>
-                    <td className="font-bold flex items-center gap-2"><Mail size={12} className="text-mb-text-light" />{inv.email}</td>
-                    <td><span className="mb-badge-neutral">{inv.role}</span></td>
-                    <td className="text-mb-text-medium">{formatDistanceToNow(new Date(inv.created_at), { addSuffix: true })}</td>
-                    <td>{inv.accepted_at ? <span className="mb-badge-success">Accepted</span> : <span className="mb-badge-warning flex items-center gap-1"><Clock size={10} /> Pending</span>}</td>
+                    <td className="font-bold flex items-center gap-2"><Mail size={12} className="text-dl-text-light" />{inv.email}</td>
+                    <td><span className="dl-badge-neutral">{inv.role}</span></td>
+                    <td className="text-dl-text-medium">{formatDistanceToNow(new Date(inv.created_at), { addSuffix: true })}</td>
+                    <td>{inv.accepted_at ? <span className="dl-badge-success">Accepted</span> : <span className="dl-badge-warning flex items-center gap-1"><Clock size={10} /> Pending</span>}</td>
                   </tr>
                 ))}
               </tbody></table>
@@ -98,16 +98,16 @@ export default function OrgMembersPage() {
         )}
 
         <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-          <DialogContent className="bg-mb-bg border border-mb-border rounded-mb-lg shadow-mb-lg p-0 max-w-md">
-            <DialogHeader className="p-6 pb-0"><DialogTitle className="text-mb-xl font-black text-mb-text-dark">{t("common.inviteMembers")}</DialogTitle></DialogHeader>
+          <DialogContent className="bg-dl-bg border border-dl-border rounded-dl-lg shadow-dl-lg p-0 max-w-md">
+            <DialogHeader className="p-6 pb-0"><DialogTitle className="text-dl-xl font-black text-dl-text-dark">{t("common.inviteMembers")}</DialogTitle></DialogHeader>
             <div className="p-6 pt-4 space-y-4">
-              <div><label className="mb-label">{t("common.email")}</label><input className="mb-input" type="email" placeholder="colleague@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} /></div>
-              <div><label className="mb-label">{t("common.role")}</label><select className="mb-input" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
+              <div><label className="dl-label">{t("common.email")}</label><input className="dl-input" type="email" placeholder="colleague@company.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} /></div>
+              <div><label className="dl-label">{t("common.role")}</label><select className="dl-input" value={inviteRole} onChange={e => setInviteRole(e.target.value)}>
                 <option value="admin">{t("common.admin")}</option><option value="member">{t("common.member")}</option><option value="viewer">{t("common.viewer")}</option>
               </select></div>
               <div className="flex justify-end gap-3 pt-2">
-                <button onClick={() => setInviteOpen(false)} className="mb-btn-secondary">{t("common.cancel")}</button>
-                <button onClick={handleInvite} disabled={!inviteEmail.trim() || inviting} className={`mb-btn-primary ${!inviteEmail.trim() || inviting ? 'opacity-40' : ''}`}>{inviting ? t('common.saving') : t('common.invite')}</button>
+                <button onClick={() => setInviteOpen(false)} className="dl-btn-secondary">{t("common.cancel")}</button>
+                <button onClick={handleInvite} disabled={!inviteEmail.trim() || inviting} className={`dl-btn-primary ${!inviteEmail.trim() || inviting ? 'opacity-40' : ''}`}>{inviting ? t('common.saving') : t('common.invite')}</button>
               </div>
             </div>
           </DialogContent>

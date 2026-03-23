@@ -85,9 +85,9 @@ export default function AccountSettingsPage() {
     return (
       <SettingsShell>
         <div className="space-y-4">
-          <div className="h-10 rounded-mb-md mb-shimmer" />
-          <div className="h-10 rounded-mb-md mb-shimmer" />
-          <div className="h-10 rounded-mb-md mb-shimmer" />
+          <div className="h-10 rounded-dl-md dl-shimmer" />
+          <div className="h-10 rounded-dl-md dl-shimmer" />
+          <div className="h-10 rounded-dl-md dl-shimmer" />
         </div>
       </SettingsShell>
     )
@@ -95,49 +95,49 @@ export default function AccountSettingsPage() {
 
   return (
     <SettingsShell>
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">
         {locale === 'de' ? 'Konto' : 'Account'}
       </h1>
 
       {/* Display name */}
       <div className="mb-6">
-        <label className="mb-label">{locale === 'de' ? 'Anzeigename' : 'Display name'}</label>
-        <input className="mb-input" value={displayName} onChange={e => setDisplayName(e.target.value)} />
+        <label className="dl-label">{locale === 'de' ? 'Anzeigename' : 'Display name'}</label>
+        <input className="dl-input" value={displayName} onChange={e => setDisplayName(e.target.value)} />
       </div>
 
       {/* Email */}
       <div className="mb-6">
-        <label className="mb-label">{locale === 'de' ? 'E-Mail' : 'Email'}</label>
-        <div className="mb-input bg-mb-bg-light text-mb-text-medium cursor-not-allowed flex items-center gap-2">
-          <Mail size={14} className="text-mb-text-light" />
+        <label className="dl-label">{locale === 'de' ? 'E-Mail' : 'Email'}</label>
+        <div className="dl-input bg-dl-bg-light text-dl-text-medium cursor-not-allowed flex items-center gap-2">
+          <Mail size={14} className="text-dl-text-light" />
           {email}
         </div>
       </div>
 
       {/* Language & Region */}
       <div className="mb-6">
-        <label className="mb-label flex items-center gap-1.5">
+        <label className="dl-label flex items-center gap-1.5">
           <Globe size={12} /> {t('settings.language')}
         </label>
         <div className="flex gap-2 mt-2">
           {LANGUAGES.map(lang => (
             <button key={lang.code} onClick={() => handleLanguageChange(lang.code)}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-mb-md border transition-all ${
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-dl-md border transition-all ${
                 selectedLocale === lang.code
-                  ? 'border-mb-brand bg-mb-brand-hover ring-1 ring-mb-brand'
-                  : 'border-mb-border hover:border-mb-brand'
+                  ? 'border-dl-brand bg-dl-brand-hover ring-1 ring-dl-brand'
+                  : 'border-dl-border hover:border-dl-brand'
               }`}>
               <span className="text-[18px]">{lang.flag}</span>
               <div className="text-left">
-                <p className={`text-[13px] font-bold ${selectedLocale === lang.code ? 'text-mb-brand' : 'text-mb-text-dark'}`}>
+                <p className={`text-[13px] font-bold ${selectedLocale === lang.code ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                   {lang.label}
                 </p>
-                <p className="text-[11px] text-mb-text-light">{lang.region}</p>
+                <p className="text-[11px] text-dl-text-light">{lang.region}</p>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-mb-text-light mt-2">
+        <p className="text-[11px] text-dl-text-light mt-2">
           {selectedLocale === 'de'
             ? 'Ändert Sprache, KI-Antworten, Zahlen- und Datumsformat für alle Projekte.'
             : 'Changes language, AI responses, number and date format for all projects.'}
@@ -146,12 +146,12 @@ export default function AccountSettingsPage() {
 
       {/* Account type */}
       <div className="mb-6">
-        <label className="mb-label">{locale === 'de' ? 'Kontotyp' : 'Account type'}</label>
+        <label className="dl-label">{locale === 'de' ? 'Kontotyp' : 'Account type'}</label>
         <div className="flex items-center gap-2 mt-1">
-          <span className={`px-3 py-1 rounded-full text-mb-xs font-black
+          <span className={`px-3 py-1 rounded-full text-dl-xs font-black
             ${plan === 'enterprise' ? 'bg-purple-100 text-purple-700' :
-              plan === 'pro' ? 'bg-mb-brand-hover text-mb-brand' :
-              'bg-mb-bg-medium text-mb-text-medium'}`}>
+              plan === 'pro' ? 'bg-dl-brand-hover text-dl-brand' :
+              'bg-dl-bg-medium text-dl-text-medium'}`}>
             {planLabel}
           </span>
         </div>
@@ -159,22 +159,22 @@ export default function AccountSettingsPage() {
 
       {/* Save */}
       <button onClick={handleSave} disabled={saving}
-        className={`mb-btn-primary px-6 py-2 ${saving ? 'opacity-40' : ''}`}>
+        className={`dl-btn-primary px-6 py-2 ${saving ? 'opacity-40' : ''}`}>
         <Save size={14} />
         {saving ? t('common.saving') : saved ? t('common.saved') : t('common.save')}
       </button>
 
       {/* Password */}
-      <div className="mt-8 pt-6 border-t border-mb-border">
-        <h2 className="text-mb-base font-black text-mb-text-dark mb-2">
+      <div className="mt-8 pt-6 border-t border-dl-border">
+        <h2 className="text-dl-base font-black text-dl-text-dark mb-2">
           {locale === 'de' ? 'Passwort' : 'Password'}
         </h2>
-        <p className="text-mb-text-medium text-mb-sm mb-4">
+        <p className="text-dl-text-medium text-dl-sm mb-4">
           {locale === 'de'
             ? 'Wir senden einen Link zum Zurücksetzen des Passworts an Ihre E-Mail.'
             : "We'll send a password reset link to your email."}
         </p>
-        <button onClick={handlePasswordReset} disabled={resetSent} className="mb-btn-secondary">
+        <button onClick={handlePasswordReset} disabled={resetSent} className="dl-btn-secondary">
           {resetSent
             ? (locale === 'de' ? 'E-Mail gesendet' : 'Reset email sent')
             : (locale === 'de' ? 'Passwort ändern' : 'Change password')}

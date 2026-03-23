@@ -281,35 +281,35 @@ export default function DataPrepPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-8 space-y-3">
-        <div className="h-10 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-        <div className="h-10 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-        <div className="h-10 rounded-mb-md bg-mb-bg-medium animate-pulse" />
+        <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+        <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+        <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
       </div>
     )
   }
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">Data Preparation</h1>
-      <p className="text-mb-text-light text-mb-sm mb-6">Clean, transform, and validate your data sources</p>
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Data Preparation</h1>
+      <p className="text-dl-text-light text-dl-sm mb-6">Clean, transform, and validate your data sources</p>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-mb-border mb-6">
+      <div className="flex gap-1 border-b border-dl-border mb-6">
         {TABS.map(t => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-mb-sm font-bold transition-colors relative
-              ${tab === t.key ? 'text-mb-brand' : 'text-mb-text-medium hover:text-mb-text-dark'}`}
+            className={`px-4 py-2 text-dl-sm font-bold transition-colors relative
+              ${tab === t.key ? 'text-dl-brand' : 'text-dl-text-medium hover:text-dl-text-dark'}`}
           >
             {t.label}
             {t.count > 0 && (
               <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold
-                ${tab === t.key ? 'bg-mb-brand-hover text-mb-brand' : 'bg-mb-bg-medium text-mb-text-light'}`}>
+                ${tab === t.key ? 'bg-dl-brand-hover text-dl-brand' : 'bg-dl-bg-medium text-dl-text-light'}`}>
                 {t.count}
               </span>
             )}
-            {tab === t.key && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-mb-brand" />}
+            {tab === t.key && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-dl-brand" />}
           </button>
         ))}
       </div>
@@ -318,10 +318,10 @@ export default function DataPrepPage() {
       {tab === 'cleaned' && (
         cleanedSources.length === 0 ? (
           <div className="text-center py-12">
-            <CheckCircle2 size={32} className="text-mb-text-light mx-auto mb-3" />
-            <p className="text-mb-text-dark text-mb-sm font-bold mb-1">No cleaned datasets yet</p>
-            <p className="text-mb-text-light text-mb-xs mb-4">Prepare a data source to see your cleaned data here.</p>
-            <button onClick={() => setTab('prepare')} className="mb-btn-primary text-mb-xs">
+            <CheckCircle2 size={32} className="text-dl-text-light mx-auto mb-3" />
+            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">No cleaned datasets yet</p>
+            <p className="text-dl-text-light text-dl-xs mb-4">Prepare a data source to see your cleaned data here.</p>
+            <button onClick={() => setTab('prepare')} className="dl-btn-primary text-dl-xs">
               Prepare a source <ArrowRight size={12} />
             </button>
           </div>
@@ -331,24 +331,24 @@ export default function DataPrepPage() {
               const recipe = src.pipeline_recipe_id ? recipes[src.pipeline_recipe_id] : null
               const stepsCount = Array.isArray(recipe?.steps) ? recipe.steps.length : 0
               return (
-                <div key={src.id} className="mb-card p-5">
+                <div key={src.id} className="dl-card p-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-mb-md bg-green-100 flex items-center justify-center">
-                        <CheckCircle2 size={18} className="text-mb-success" />
+                      <div className="w-10 h-10 rounded-dl-md bg-green-100 flex items-center justify-center">
+                        <CheckCircle2 size={18} className="text-dl-success" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-mb-sm font-black text-mb-text-dark">{src.name}</h3>
+                          <h3 className="text-dl-sm font-black text-dl-text-dark">{src.name}</h3>
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">Pipeline Ready</span>
                           {src.pipeline_status === 'scheduled' && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-mb-brand-hover text-mb-brand">Auto-sync</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-brand-hover text-dl-brand">Auto-sync</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 mt-1 text-mb-xs text-mb-text-light">
+                        <div className="flex items-center gap-3 mt-1 text-dl-xs text-dl-text-light">
                           {recipe?.last_quality_score != null && (
                             <span className="flex items-center gap-1">
-                              <BarChart2 size={10} /> Quality: <span className="font-bold text-mb-success">{recipe.last_quality_score}/100</span>
+                              <BarChart2 size={10} /> Quality: <span className="font-bold text-dl-success">{recipe.last_quality_score}/100</span>
                             </span>
                           )}
                           <span>{recipe?.last_row_count?.toLocaleString() ?? src.row_count.toLocaleString()} rows</span>
@@ -361,7 +361,7 @@ export default function DataPrepPage() {
                         </div>
                       </div>
                     </div>
-                    <Link href={`${base}/prep/${src.id}`} className="mb-btn-secondary text-mb-xs">
+                    <Link href={`${base}/prep/${src.id}`} className="dl-btn-secondary text-dl-xs">
                       <RefreshCw size={12} /> Re-run
                     </Link>
                   </div>
@@ -380,52 +380,52 @@ export default function DataPrepPage() {
             {!uploadedFile ? (
               <div
                 {...getRootProps()}
-                className={`border-2 border-dashed rounded-mb-lg p-8 text-center cursor-pointer transition-colors
-                  ${isDragActive ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border-dark hover:border-mb-brand'}`}
+                className={`border-2 border-dashed rounded-dl-lg p-8 text-center cursor-pointer transition-colors
+                  ${isDragActive ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border-dark hover:border-dl-brand'}`}
               >
                 <input {...getInputProps()} />
-                <UploadCloud className="w-8 h-8 text-mb-text-light mx-auto mb-2" />
-                <p className="text-mb-text-medium text-mb-sm font-bold">Upload a file to prepare</p>
-                <p className="text-mb-text-light text-mb-xs mt-1">Drop a CSV, Excel, or JSON file here</p>
+                <UploadCloud className="w-8 h-8 text-dl-text-light mx-auto mb-2" />
+                <p className="text-dl-text-medium text-dl-sm font-bold">Upload a file to prepare</p>
+                <p className="text-dl-text-light text-dl-xs mt-1">Drop a CSV, Excel, or JSON file here</p>
               </div>
             ) : (
-              <div className="mb-card p-5">
+              <div className="dl-card p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <UploadCloud size={16} className="text-mb-brand" />
-                    <span className="text-mb-sm font-bold text-mb-text-dark">{uploadedFile.file.name}</span>
-                    <span className="text-mb-xs text-mb-text-light">
+                    <UploadCloud size={16} className="text-dl-brand" />
+                    <span className="text-dl-sm font-bold text-dl-text-dark">{uploadedFile.file.name}</span>
+                    <span className="text-dl-xs text-dl-text-light">
                       ({uploadedFile.rows.toLocaleString()} rows)
                     </span>
                   </div>
-                  <button onClick={() => { setUploadedFile(null); setSourceName('') }} className="text-mb-text-light hover:text-mb-error">
+                  <button onClick={() => { setUploadedFile(null); setSourceName('') }} className="text-dl-text-light hover:text-dl-error">
                     <X size={14} />
                   </button>
                 </div>
 
                 <div className="mb-4">
-                  <label className="mb-label">Source name</label>
+                  <label className="dl-label">Source name</label>
                   <input
-                    className="mb-input"
+                    className="dl-input"
                     value={sourceName}
                     onChange={e => setSourceName(e.target.value)}
                     placeholder={t("sources.displayName")}
                   />
                   {existingNames.has(sourceName) && sourceName !== '' && (
-                    <p className="text-mb-xs text-orange-500 mt-1">
+                    <p className="text-dl-xs text-orange-500 mt-1">
                       A source with this name already exists — it will be saved as a new version.
                     </p>
                   )}
                 </div>
 
                 {uploadError && (
-                  <p className="text-mb-xs text-mb-error font-bold mb-3">{uploadError}</p>
+                  <p className="text-dl-xs text-dl-error font-bold mb-3">{uploadError}</p>
                 )}
 
                 <button
                   onClick={handleStartPrep}
                   disabled={saving || !sourceName.trim()}
-                  className={`mb-btn-primary w-full justify-center py-2.5 font-black
+                  className={`dl-btn-primary w-full justify-center py-2.5 font-black
                     ${saving || !sourceName.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
                 >
                   {saving ? 'Saving...' : 'Start preparation'} <Wand2 size={14} />
@@ -437,27 +437,27 @@ export default function DataPrepPage() {
           {/* Existing unprepared sources */}
           {unpreparedSources.length > 0 && (
             <div>
-              <p className="mb-section-header mb-3">Existing unprepared sources</p>
+              <p className="dl-section-header mb-3">Existing unprepared sources</p>
               <div className="space-y-2">
                 {unpreparedSources.map(src => (
-                  <div key={src.id} className="mb-card p-4">
+                  <div key={src.id} className="dl-card p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Wand2 size={14} className="text-mb-text-light" />
+                        <Wand2 size={14} className="text-dl-text-light" />
                         <div>
-                          <span className="text-mb-sm font-bold text-mb-text-dark">{src.name}</span>
-                          <span className="text-mb-xs text-mb-text-light ml-2">
+                          <span className="text-dl-sm font-bold text-dl-text-dark">{src.name}</span>
+                          <span className="text-dl-xs text-dl-text-light ml-2">
                             {src.row_count.toLocaleString()} rows · {formatDistanceToNow(new Date(src.created_at), { addSuffix: true })}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Link href={`${base}/prep/${src.id}`} className="mb-btn-primary text-mb-xs py-1">
+                        <Link href={`${base}/prep/${src.id}`} className="dl-btn-primary text-dl-xs py-1">
                           Prepare
                         </Link>
                         <button
                           onClick={() => handleDelete(src.id, src.name)}
-                          className="mb-btn-subtle p-1.5 hover:text-mb-error"
+                          className="dl-btn-subtle p-1.5 hover:text-dl-error"
                           title={t("common.delete")}
                         >
                           <Trash2 size={13} />
@@ -476,13 +476,13 @@ export default function DataPrepPage() {
       {tab === 'history' && (
         runs.length === 0 ? (
           <div className="text-center py-12">
-            <History size={32} className="text-mb-text-light mx-auto mb-3" />
-            <p className="text-mb-text-dark text-mb-sm font-bold mb-1">No pipeline runs yet</p>
-            <p className="text-mb-text-light text-mb-xs">Prepare a data source to see run history here.</p>
+            <History size={32} className="text-dl-text-light mx-auto mb-3" />
+            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">No pipeline runs yet</p>
+            <p className="text-dl-text-light text-dl-xs">Prepare a data source to see run history here.</p>
           </div>
         ) : (
-          <div className="mb-card overflow-hidden">
-            <table className="mb-table">
+          <div className="dl-card overflow-hidden">
+            <table className="dl-table">
               <thead>
                 <tr>
                   <th>{t("common.source")}</th>
@@ -501,21 +501,21 @@ export default function DataPrepPage() {
                     : '—'
                   return (
                     <tr key={run.id}>
-                      <td className="font-bold text-mb-xs">{sourceNames[run.source_id] || run.source_id.slice(0, 8)}</td>
-                      <td className="text-mb-text-medium text-mb-xs">{formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}</td>
-                      <td className="text-mb-xs font-mono">{duration}</td>
+                      <td className="font-bold text-dl-xs">{sourceNames[run.source_id] || run.source_id.slice(0, 8)}</td>
+                      <td className="text-dl-text-medium text-dl-xs">{formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}</td>
+                      <td className="text-dl-xs font-mono">{duration}</td>
                       <td>
-                        <span className={run.status === 'success' ? 'mb-badge-success' : run.status === 'failed' ? 'mb-badge-error' : 'mb-badge-warning'}>
+                        <span className={run.status === 'success' ? 'dl-badge-success' : run.status === 'failed' ? 'dl-badge-error' : 'dl-badge-warning'}>
                           {run.status}
                         </span>
                       </td>
-                      <td className="text-mb-xs font-mono">
+                      <td className="text-dl-xs font-mono">
                         {run.rows_before && run.rows_after
                           ? `${run.rows_before.toLocaleString()} → ${run.rows_after.toLocaleString()}`
                           : run.rows_after?.toLocaleString() ?? '—'}
                       </td>
-                      <td className="text-mb-xs font-mono">{run.quality_score ?? '—'}</td>
-                      <td className="text-mb-xs font-mono">{run.transformations_applied ?? '—'}</td>
+                      <td className="text-dl-xs font-mono">{run.quality_score ?? '—'}</td>
+                      <td className="text-dl-xs font-mono">{run.transformations_applied ?? '—'}</td>
                     </tr>
                   )
                 })}

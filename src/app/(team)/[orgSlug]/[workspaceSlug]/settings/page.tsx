@@ -41,12 +41,12 @@ export default function WorkspaceSettingsPage() {
 
   return (
     <WsSettingsShell orgSlug={orgSlug} workspaceSlug={workspaceSlug}>
-      {loading ? <div className="space-y-4"><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /></div> : <>
-        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">Workspace Settings</h1>
-        <div className="mb-6"><label className="mb-label">Workspace name</label><input className="mb-input" value={name} onChange={e => setName(e.target.value)} /></div>
-        <div className="mb-6"><label className="mb-label">Icon</label><input className="mb-input w-20" value={icon} onChange={e => setIcon(e.target.value)} maxLength={2} /></div>
-        <div className="mb-8"><label className="mb-label">Color</label><div className="flex gap-2 mt-1">{COLORS.map(c => (<button key={c} onClick={() => setColor(c)} className={`w-8 h-8 rounded-full border-2 transition-all ${color === c ? 'border-mb-text-dark scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />))}</div></div>
-        <button onClick={handleSave} disabled={saving || !name.trim()} className={`mb-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40' : ''}`}><Save size={14} />{saving ? 'Saving...' : saved ? 'Saved' : 'Save changes'}</button>
+      {loading ? <div className="space-y-4"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div> : <>
+        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">Workspace Settings</h1>
+        <div className="mb-6"><label className="dl-label">Workspace name</label><input className="dl-input" value={name} onChange={e => setName(e.target.value)} /></div>
+        <div className="mb-6"><label className="dl-label">Icon</label><input className="dl-input w-20" value={icon} onChange={e => setIcon(e.target.value)} maxLength={2} /></div>
+        <div className="mb-8"><label className="dl-label">Color</label><div className="flex gap-2 mt-1">{COLORS.map(c => (<button key={c} onClick={() => setColor(c)} className={`w-8 h-8 rounded-full border-2 transition-all ${color === c ? 'border-dl-text-dark scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />))}</div></div>
+        <button onClick={handleSave} disabled={saving || !name.trim()} className={`dl-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40' : ''}`}><Save size={14} />{saving ? 'Saving...' : saved ? 'Saved' : 'Save changes'}</button>
       </>}
     </WsSettingsShell>
   )

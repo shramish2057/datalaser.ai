@@ -23,7 +23,7 @@ export function HeatmapChart({ matrix, columns, title }: Props) {
   const [hover, setHover] = useState<{ row: string; col: string; val: number } | null>(null)
 
   if (!columns || columns.length === 0) {
-    return <div className="text-mb-text-light text-mb-sm py-4 text-center">No data</div>
+    return <div className="text-dl-text-light text-dl-sm py-4 text-center">No data</div>
   }
 
   const cellSize = Math.min(40, Math.max(24, 280 / columns.length))
@@ -89,7 +89,7 @@ export function HeatmapChart({ matrix, columns, title }: Props) {
 
       {/* Tooltip */}
       {hover && (
-        <div className="text-center text-[11px] text-mb-text-medium mt-1">
+        <div className="text-center text-[11px] text-dl-text-medium mt-1">
           <span className="font-bold">{hover.row}</span> × <span className="font-bold">{hover.col}</span>: r = {hover.val.toFixed(4)}
         </div>
       )}

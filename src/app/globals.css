@@ -58,7 +58,7 @@
   --card-foreground: #2E353B;
   --popover: #FFFFFF;
   --popover-foreground: #2E353B;
-  --primary: #4A9EDA;
+  --primary: #7C3AED;
   --primary-foreground: #FFFFFF;
   --secondary: #EBF1F4;
   --secondary-foreground: #2E353B;
@@ -69,8 +69,8 @@
   --destructive: #ED6E6E;
   --border: #E8ECEE;
   --input: #D4D9DD;
-  --ring: #4A9EDA;
-  --chart-1: #4A9EDA;
+  --ring: #7C3AED;
+  --chart-1: #7C3AED;
   --chart-2: #84BB4C;
   --chart-3: #F9CF48;
   --chart-4: #A989C5;
@@ -78,12 +78,12 @@
   --radius: 0.375rem;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #2E353B;
-  --sidebar-primary: #4A9EDA;
+  --sidebar-primary: #7C3AED;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #EBF1F4;
   --sidebar-accent-foreground: #2E353B;
   --sidebar-border: #E8ECEE;
-  --sidebar-ring: #4A9EDA;
+  --sidebar-ring: #7C3AED;
 }
 
 .dark {
@@ -93,7 +93,7 @@
   --card-foreground: #2E353B;
   --popover: #FFFFFF;
   --popover-foreground: #2E353B;
-  --primary: #4A9EDA;
+  --primary: #7C3AED;
   --primary-foreground: #FFFFFF;
   --secondary: #EBF1F4;
   --secondary-foreground: #2E353B;
@@ -104,20 +104,20 @@
   --destructive: #ED6E6E;
   --border: #E8ECEE;
   --input: #D4D9DD;
-  --ring: #4A9EDA;
-  --chart-1: #4A9EDA;
+  --ring: #7C3AED;
+  --chart-1: #7C3AED;
   --chart-2: #84BB4C;
   --chart-3: #F9CF48;
   --chart-4: #A989C5;
   --chart-5: #ED6E6E;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #2E353B;
-  --sidebar-primary: #4A9EDA;
+  --sidebar-primary: #7C3AED;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #EBF1F4;
   --sidebar-accent-foreground: #2E353B;
   --sidebar-border: #E8ECEE;
-  --sidebar-ring: #4A9EDA;
+  --sidebar-ring: #7C3AED;
 }
 
 /* --- Base layer --- */
@@ -148,122 +148,122 @@
 
 @layer components {
   /* Buttons — each variant is fully self-contained, no @apply of sibling classes */
-  .mb-btn-primary {
+  .dl-btn-primary {
     @apply inline-flex items-center justify-center gap-2
-           font-sans font-bold text-mb-sm
-           px-3 py-1.5 rounded-mb-md
+           font-sans font-bold text-dl-sm
+           px-3 py-1.5 rounded-dl-md
            transition-all duration-150 cursor-pointer
            border border-transparent
-           bg-mb-brand text-white
-           hover:bg-mb-brand-dark;
+           bg-dl-brand text-white
+           hover:bg-dl-brand-dark;
   }
-  .mb-btn-secondary {
+  .dl-btn-secondary {
     @apply inline-flex items-center justify-center gap-2
-           font-sans font-bold text-mb-sm
-           px-3 py-1.5 rounded-mb-md
+           font-sans font-bold text-dl-sm
+           px-3 py-1.5 rounded-dl-md
            transition-all duration-150 cursor-pointer
-           border border-mb-border-dark
-           bg-mb-bg text-mb-text-dark
-           hover:bg-mb-bg-medium hover:border-mb-brand hover:text-mb-brand;
+           border border-dl-border-dark
+           bg-dl-bg text-dl-text-dark
+           hover:bg-dl-bg-medium hover:border-dl-brand hover:text-dl-brand;
   }
-  .mb-btn-danger {
+  .dl-btn-danger {
     @apply inline-flex items-center justify-center gap-2
-           font-sans font-bold text-mb-sm
-           px-3 py-1.5 rounded-mb-md
-           transition-all duration-150 cursor-pointer
-           border border-transparent
-           bg-mb-error text-white hover:opacity-90;
-  }
-  .mb-btn-subtle {
-    @apply inline-flex items-center justify-center gap-2
-           font-sans font-bold text-mb-sm
-           px-3 py-1.5 rounded-mb-md
+           font-sans font-bold text-dl-sm
+           px-3 py-1.5 rounded-dl-md
            transition-all duration-150 cursor-pointer
            border border-transparent
-           bg-transparent text-mb-text-medium
-           hover:text-mb-text-dark hover:bg-mb-bg-medium;
+           bg-dl-error text-white hover:opacity-90;
+  }
+  .dl-btn-subtle {
+    @apply inline-flex items-center justify-center gap-2
+           font-sans font-bold text-dl-sm
+           px-3 py-1.5 rounded-dl-md
+           transition-all duration-150 cursor-pointer
+           border border-transparent
+           bg-transparent text-dl-text-medium
+           hover:text-dl-text-dark hover:bg-dl-bg-medium;
   }
 
   /* Input */
-  .mb-input {
-    @apply w-full px-3 py-2 rounded-mb-md
-           border border-mb-border-dark bg-mb-bg
-           text-mb-text-dark text-mb-sm
-           placeholder:text-mb-text-light
-           focus:outline-none focus:border-mb-brand
+  .dl-input {
+    @apply w-full px-3 py-2 rounded-dl-md
+           border border-dl-border-dark bg-dl-bg
+           text-dl-text-dark text-dl-sm
+           placeholder:text-dl-text-light
+           focus:outline-none focus:border-dl-brand
            transition-colors duration-150;
   }
 
   /* Label */
-  .mb-label {
-    @apply block text-mb-xs font-bold text-mb-text-medium
+  .dl-label {
+    @apply block text-dl-xs font-bold text-dl-text-medium
            uppercase tracking-wider mb-1;
   }
 
   /* Card */
-  .mb-card {
-    @apply bg-mb-bg rounded-mb-lg border border-mb-border
-           shadow-mb-sm;
+  .dl-card {
+    @apply bg-dl-bg rounded-dl-lg border border-dl-border
+           shadow-dl-sm;
   }
 
   /* Section header */
-  .mb-section-header {
-    @apply text-mb-xs font-bold text-mb-text-light
+  .dl-section-header {
+    @apply text-dl-xs font-bold text-dl-text-light
            uppercase tracking-widest;
   }
 
   /* Table */
-  .mb-table {
-    @apply w-full text-mb-sm;
+  .dl-table {
+    @apply w-full text-dl-sm;
   }
-  .mb-table thead tr {
-    @apply border-b border-mb-border;
+  .dl-table thead tr {
+    @apply border-b border-dl-border;
   }
-  .mb-table thead th {
-    @apply px-3 py-2 text-left text-mb-xs font-bold
-           text-mb-text-light uppercase tracking-wider;
+  .dl-table thead th {
+    @apply px-3 py-2 text-left text-dl-xs font-bold
+           text-dl-text-light uppercase tracking-wider;
   }
-  .mb-table tbody tr {
-    @apply border-b border-mb-border hover:bg-mb-bg-light
+  .dl-table tbody tr {
+    @apply border-b border-dl-border hover:bg-dl-bg-light
            transition-colors duration-100;
   }
-  .mb-table tbody td {
-    @apply px-3 py-2.5 text-mb-text-dark;
+  .dl-table tbody td {
+    @apply px-3 py-2.5 text-dl-text-dark;
   }
 
   /* Sidebar nav item */
-  .mb-nav-item {
-    @apply flex items-center gap-2.5 px-3 py-2 rounded-mb-md
-           text-mb-sm text-mb-text-medium font-bold
+  .dl-nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-dl-md
+           text-dl-sm text-dl-text-medium font-bold
            cursor-pointer transition-all duration-100
-           hover:text-mb-brand hover:bg-mb-brand-hover;
+           hover:text-dl-brand hover:bg-dl-brand-hover;
   }
 
   /* Badge — each variant fully self-contained */
-  .mb-badge-success {
+  .dl-badge-success {
     @apply inline-flex items-center px-2 py-0.5
-           rounded-full text-mb-xs font-bold
+           rounded-full text-dl-xs font-bold
            bg-green-100 text-green-700;
   }
-  .mb-badge-error {
+  .dl-badge-error {
     @apply inline-flex items-center px-2 py-0.5
-           rounded-full text-mb-xs font-bold
+           rounded-full text-dl-xs font-bold
            bg-red-100 text-red-700;
   }
-  .mb-badge-warning {
+  .dl-badge-warning {
     @apply inline-flex items-center px-2 py-0.5
-           rounded-full text-mb-xs font-bold
+           rounded-full text-dl-xs font-bold
            bg-yellow-100 text-yellow-700;
   }
-  .mb-badge-info {
+  .dl-badge-info {
     @apply inline-flex items-center px-2 py-0.5
-           rounded-full text-mb-xs font-bold
-           bg-blue-100 text-mb-brand;
+           rounded-full text-dl-xs font-bold
+           bg-blue-100 text-dl-brand;
   }
-  .mb-badge-neutral {
+  .dl-badge-neutral {
     @apply inline-flex items-center px-2 py-0.5
-           rounded-full text-mb-xs font-bold
-           bg-mb-bg-medium text-mb-text-medium;
+           rounded-full text-dl-xs font-bold
+           bg-dl-bg-medium text-dl-text-medium;
   }
 }
 
@@ -282,7 +282,7 @@
   border-bottom: 2px solid #E8ECEE;
 }
 .prose-mb h2 {
-  font-size: 14px; font-weight: 900; color: #4A9EDA;
+  font-size: 14px; font-weight: 900; color: #7C3AED;
   margin: 18px 0 6px; padding-top: 4px;
   letter-spacing: 0.01em;
 }
@@ -296,7 +296,7 @@
 .prose-mb ul { margin: 8px 0; padding-left: 20px; list-style-type: disc; }
 .prose-mb ol { margin: 8px 0; padding-left: 20px; list-style-type: decimal; }
 .prose-mb li { margin: 4px 0; color: #2E353B; }
-.prose-mb li::marker { color: #4A9EDA; }
+.prose-mb li::marker { color: #7C3AED; }
 .prose-mb code {
   font-family: Monaco, monospace; font-size: 11px;
   background: #EBF1F4; padding: 2px 6px; border-radius: 4px;
@@ -309,7 +309,7 @@
 }
 .prose-mb pre code { background: none; padding: 0; color: inherit; }
 .prose-mb blockquote {
-  border-left: 3px solid #4A9EDA; padding: 8px 14px;
+  border-left: 3px solid #7C3AED; padding: 8px 14px;
   margin: 10px 0; background: #F8FAFB; border-radius: 0 6px 6px 0;
   color: #74838F; font-style: italic;
 }
@@ -317,13 +317,13 @@
 .prose-mb > *:first-child { margin-top: 0; }
 .prose-mb > *:last-child { margin-bottom: 0; }
 /* Highlight key stats inline — numbers after bold text */
-.prose-mb strong + em { color: #4A9EDA; font-style: normal; font-weight: 700; }
+.prose-mb strong + em { color: #7C3AED; font-style: normal; font-weight: 700; }
 
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-.mb-shimmer {
+.dl-shimmer {
   background: linear-gradient(90deg, #F8FAFB 25%, #EBF1F4 50%, #F8FAFB 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;

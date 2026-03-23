@@ -37,26 +37,26 @@ export default function SaveToLibraryModal({ cell, orgId, projectId, onSave, onC
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={onClose}>
-      <div className="bg-white rounded-mb-lg shadow-xl w-[440px]" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-mb-border">
-          <h3 className="text-mb-base font-black text-mb-text-dark">Save to Query Library</h3>
-          <button onClick={onClose} className="text-mb-text-light hover:text-mb-text-dark"><X size={16} /></button>
+      <div className="bg-white rounded-dl-lg shadow-xl w-[440px]" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b border-dl-border">
+          <h3 className="text-dl-base font-black text-dl-text-dark">Save to Query Library</h3>
+          <button onClick={onClose} className="text-dl-text-light hover:text-dl-text-dark"><X size={16} /></button>
         </div>
         <div className="p-4 space-y-3">
-          <div><label className="mb-label">Title</label><input className="mb-input" value={title} onChange={e => setTitle(e.target.value)} /></div>
-          <div><label className="mb-label">Description</label><textarea className="mb-input" rows={2} value={description} onChange={e => setDescription(e.target.value)} /></div>
-          <div><label className="mb-label">Operation</label>
-            <select className="mb-input" value={operation} onChange={e => setOperation(e.target.value)}>
+          <div><label className="dl-label">Title</label><input className="dl-input" value={title} onChange={e => setTitle(e.target.value)} /></div>
+          <div><label className="dl-label">Description</label><textarea className="dl-input" rows={2} value={description} onChange={e => setDescription(e.target.value)} /></div>
+          <div><label className="dl-label">Operation</label>
+            <select className="dl-input" value={operation} onChange={e => setOperation(e.target.value)}>
               {OPERATIONS.map(op => <option key={op} value={op}>{op}</option>)}
             </select>
           </div>
-          <div><label className="mb-label">Tags (comma-separated)</label><input className="mb-input" value={tagsInput} onChange={e => setTagsInput(e.target.value)} placeholder="analysis, titanic" /></div>
-          <div><label className="mb-label">Code</label>
-            <pre className="bg-[#1e1e1e] text-[#d4d4d4] font-mono text-[12px] p-3 rounded-mb-md max-h-32 overflow-y-auto">{cell.code}</pre>
+          <div><label className="dl-label">Tags (comma-separated)</label><input className="dl-input" value={tagsInput} onChange={e => setTagsInput(e.target.value)} placeholder="analysis, titanic" /></div>
+          <div><label className="dl-label">Code</label>
+            <pre className="bg-[#1e1e1e] text-[#d4d4d4] font-mono text-[12px] p-3 rounded-dl-md max-h-32 overflow-y-auto">{cell.code}</pre>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button onClick={onClose} className="mb-btn-secondary text-mb-sm">Cancel</button>
-            <button onClick={handleSave} disabled={saving || !title.trim()} className={`mb-btn-primary text-mb-sm ${saving ? 'opacity-50' : ''}`}>
+            <button onClick={onClose} className="dl-btn-secondary text-dl-sm">Cancel</button>
+            <button onClick={handleSave} disabled={saving || !title.trim()} className={`dl-btn-primary text-dl-sm ${saving ? 'opacity-50' : ''}`}>
               {saving ? 'Saving...' : 'Save to Library'}
             </button>
           </div>

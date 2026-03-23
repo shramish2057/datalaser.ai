@@ -457,27 +457,27 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
       <div className="max-w-5xl mx-auto pt-12 px-6 pb-24">
         <StepIndicator current={2} labels={['Workspace', 'Connect', 'Calibrate']} />
 
-        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">Connect your data</h1>
-        <p className="text-mb-text-medium text-mb-base mb-8">
+        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Connect your data</h1>
+        <p className="text-dl-text-medium text-dl-base mb-8">
           Connect a database, upload files, or both.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* LEFT — Upload */}
-          <div className="mb-card p-5">
-            <h2 className="text-mb-base font-black text-mb-text-dark mb-4">Upload a file</h2>
+          <div className="dl-card p-5">
+            <h2 className="text-dl-base font-black text-dl-text-dark mb-4">Upload a file</h2>
 
             <div
               {...getRootProps()}
               className={`
-                border-2 border-dashed rounded-mb-lg p-8 text-center cursor-pointer transition-colors
-                ${isDragActive ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border-dark'}
+                border-2 border-dashed rounded-dl-lg p-8 text-center cursor-pointer transition-colors
+                ${isDragActive ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border-dark'}
               `}
             >
               <input {...getInputProps()} />
-              <UploadCloud className="w-8 h-8 text-mb-text-light mx-auto mb-2" />
-              <p className="text-mb-text-medium text-mb-sm">Drag files here, or click to browse</p>
-              <p className="text-mb-text-light text-mb-xs mt-1">Supports CSV, Excel (.xlsx/.xls), JSON, Parquet</p>
+              <UploadCloud className="w-8 h-8 text-dl-text-light mx-auto mb-2" />
+              <p className="text-dl-text-medium text-dl-sm">Drag files here, or click to browse</p>
+              <p className="text-dl-text-light text-dl-xs mt-1">Supports CSV, Excel (.xlsx/.xls), JSON, Parquet</p>
             </div>
 
             {uploadedFiles.length > 0 && (
@@ -485,17 +485,17 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                 {uploadedFiles.map((f, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between px-3 py-2 rounded-mb-md bg-mb-bg-light border border-mb-border"
+                    className="flex items-center justify-between px-3 py-2 rounded-dl-md bg-dl-bg-light border border-dl-border"
                   >
-                    <span className="text-mb-sm font-bold text-mb-text-dark">{f.name}</span>
+                    <span className="text-dl-sm font-bold text-dl-text-dark">{f.name}</span>
                     <div className="flex items-center gap-2">
                       {f.columns?.length > 0 && (
-                        <span className="mb-badge-neutral">{f.columns.length} cols</span>
+                        <span className="dl-badge-neutral">{f.columns.length} cols</span>
                       )}
-                      <span className="mb-badge-success">{f.rows.toLocaleString()} rows</span>
+                      <span className="dl-badge-success">{f.rows.toLocaleString()} rows</span>
                       <button
                         onClick={() => setUploadedFiles(prev => prev.filter((_, j) => j !== i))}
-                        className="text-mb-text-light hover:text-mb-error transition-colors"
+                        className="text-dl-text-light hover:text-dl-error transition-colors"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -507,8 +507,8 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
           </div>
 
           {/* RIGHT — Database */}
-          <div className="mb-card p-5">
-            <h2 className="text-mb-base font-black text-mb-text-dark mb-4">Connect a database or app</h2>
+          <div className="dl-card p-5">
+            <h2 className="text-dl-base font-black text-dl-text-dark mb-4">Connect a database or app</h2>
 
             {/* Category tabs */}
             <div className="flex gap-1 mb-4 flex-wrap">
@@ -517,10 +517,10 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                   key={cat}
                   onClick={() => setCategory(cat)}
                   className={`
-                    pb-1 text-mb-sm font-bold cursor-pointer transition-colors px-2
+                    pb-1 text-dl-sm font-bold cursor-pointer transition-colors px-2
                     ${category === cat
-                      ? 'text-mb-brand border-b-2 border-mb-brand'
-                      : 'text-mb-text-medium hover:text-mb-brand'}
+                      ? 'text-dl-brand border-b-2 border-dl-brand'
+                      : 'text-dl-text-medium hover:text-dl-brand'}
                   `}
                 >
                   {cat}
@@ -536,20 +536,20 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                   <div
                     key={conn.name}
                     onClick={() => !isConnected && openConnectModal(conn)}
-                    className="flex items-center justify-between px-3 py-2 rounded-mb-md hover:bg-mb-bg-light cursor-pointer transition-colors group"
+                    className="flex items-center justify-between px-3 py-2 rounded-dl-md hover:bg-dl-bg-light cursor-pointer transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-mb-md bg-mb-bg-medium flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-dl-md bg-dl-bg-medium flex items-center justify-center">
                         <ConnectorIcon name={conn.name} />
                       </div>
-                      <span className="text-mb-sm font-bold text-mb-text-dark">{conn.name}</span>
-                      <span className="mb-badge-neutral">{conn.type}</span>
+                      <span className="text-dl-sm font-bold text-dl-text-dark">{conn.name}</span>
+                      <span className="dl-badge-neutral">{conn.type}</span>
                     </div>
                     <div>
                       {isConnected ? (
-                        <span className="mb-badge-success">{t("common.connected")}</span>
+                        <span className="dl-badge-success">{t("common.connected")}</span>
                       ) : (
-                        <span className="mb-btn-secondary text-mb-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="dl-btn-secondary text-dl-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           Connect
                         </span>
                       )}
@@ -563,21 +563,21 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
       </div>
 
       {/* Fixed bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-mb-bg border-t border-mb-border px-8 py-3 flex items-center justify-between z-40">
-        <span className="text-mb-text-medium text-mb-sm">
+      <div className="fixed bottom-0 left-0 right-0 bg-dl-bg border-t border-dl-border px-8 py-3 flex items-center justify-between z-40">
+        <span className="text-dl-text-medium text-dl-sm">
           {totalConnected} source{totalConnected !== 1 ? 's' : ''} connected
         </span>
         <div className="flex items-center gap-3">
-          <button onClick={handleSkip} className="mb-btn-subtle">Skip</button>
-          <button onClick={handleContinue} className="mb-btn-primary">Continue</button>
+          <button onClick={handleSkip} className="dl-btn-subtle">Skip</button>
+          <button onClick={handleContinue} className="dl-btn-primary">Continue</button>
         </div>
       </div>
 
       {/* Connect modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="bg-mb-bg border border-mb-border rounded-mb-lg shadow-mb-lg p-0 max-w-md">
+        <DialogContent className="bg-dl-bg border border-dl-border rounded-dl-lg shadow-dl-lg p-0 max-w-md">
           <DialogHeader className="p-6 pb-0">
-            <DialogTitle className="text-mb-xl font-black text-mb-text-dark">
+            <DialogTitle className="text-dl-xl font-black text-dl-text-dark">
               Connect to {selectedConnector?.name}
             </DialogTitle>
           </DialogHeader>
@@ -586,9 +586,9 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
               { label: 'API Key', placeholder: 'sk_live_...', type: 'password' },
             ]).map(field => (
               <div key={field.label}>
-                <label className="mb-label">{field.label}</label>
+                <label className="dl-label">{field.label}</label>
                 <input
-                  className="mb-input"
+                  className="dl-input"
                   type={field.type || 'text'}
                   placeholder={field.placeholder}
                   value={formValues[field.label] || ''}
@@ -598,12 +598,12 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
             ))}
 
             {testResult === 'success' && (
-              <div className="px-3 py-2 rounded-mb-md bg-green-50 border border-mb-success text-mb-success text-mb-sm font-bold">
+              <div className="px-3 py-2 rounded-dl-md bg-green-50 border border-dl-success text-dl-success text-dl-sm font-bold">
                 Connection successful
               </div>
             )}
             {testResult === 'error' && (
-              <div className="px-3 py-2 rounded-mb-md bg-red-50 border border-mb-error text-mb-error text-mb-sm font-bold">
+              <div className="px-3 py-2 rounded-dl-md bg-red-50 border border-dl-error text-dl-error text-dl-sm font-bold">
                 {testError || 'Connection failed'}
               </div>
             )}
@@ -612,14 +612,14 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
               <button
                 onClick={handleTest}
                 disabled={testResult === 'testing'}
-                className={`mb-btn-secondary ${testResult === 'testing' ? 'opacity-60' : ''}`}
+                className={`dl-btn-secondary ${testResult === 'testing' ? 'opacity-60' : ''}`}
               >
                 {testResult === 'testing' ? 'Testing...' : 'Test connection'}
               </button>
               <button
                 onClick={handleSave}
                 disabled={testResult !== 'success' || saving}
-                className={`mb-btn-primary ${testResult !== 'success' || saving ? 'opacity-40 cursor-not-allowed' : ''}`}
+                className={`dl-btn-primary ${testResult !== 'success' || saving ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>

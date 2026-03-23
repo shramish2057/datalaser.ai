@@ -17,7 +17,7 @@ type Props = {
 
 export function ComboChart({ data, xKey, barKeys, lineKeys, colors = MB_COLORS }: Props) {
   if (!Array.isArray(data) || data.length === 0) {
-    return <div className="text-mb-text-light text-mb-sm py-4 text-center">No data</div>
+    return <div className="text-dl-text-light text-dl-sm py-4 text-center">No data</div>
   }
 
   return (

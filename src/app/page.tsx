@@ -13,29 +13,29 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="bg-mb-bg-light text-mb-text-dark font-body">
+    <div className="bg-dl-bg-light text-dl-text-dark font-body">
 
       {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-mb-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-dl-border">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-mb-brand font-bold text-xl">▲</span>
-              <span className="font-display font-bold text-mb-text-dark text-lg">DataLaser</span>
+              <span className="text-dl-brand font-bold text-xl">▲</span>
+              <span className="font-display font-bold text-dl-text-dark text-lg">DataLaser</span>
             </Link>
             <div className="hidden md:flex items-center gap-6">
               {[t('landing.nav.features'), t('landing.nav.connectors'), t('landing.nav.pricing'), t('landing.nav.docs')].map(link => (
-                <Link key={link} href="#" className="text-sm text-mb-text-medium hover:text-mb-text-dark transition-colors">
+                <Link key={link} href="#" className="text-sm text-dl-text-medium hover:text-dl-text-dark transition-colors">
                   {link}
                 </Link>
               ))}
             </div>
           </div>
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/login" className="text-sm text-mb-text-medium hover:text-mb-text-dark px-4 py-2 transition-colors">
+            <Link href="/login" className="text-sm text-dl-text-medium hover:text-dl-text-dark px-4 py-2 transition-colors">
               Sign in
             </Link>
-            <Link href="/signup" className="text-sm bg-mb-brand text-white px-4 py-2 rounded-lg hover:bg-mb-brand-dark transition-colors font-medium">
+            <Link href="/signup" className="text-sm bg-dl-brand text-white px-4 py-2 rounded-lg hover:bg-dl-brand-dark transition-colors font-medium">
               {t('landing.getStarted')} free
             </Link>
           </div>
@@ -44,11 +44,11 @@ export default function LandingPage() {
           </button>
         </div>
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-mb-border bg-white px-6 py-4 flex flex-col gap-4">
+          <div className="md:hidden border-t border-dl-border bg-white px-6 py-4 flex flex-col gap-4">
             {['Features', 'Connectors', 'Pricing', 'Docs'].map(link => (
-              <Link key={link} href="#" className="text-sm text-mb-text-medium">{link}</Link>
+              <Link key={link} href="#" className="text-sm text-dl-text-medium">{link}</Link>
             ))}
-            <Link href="/signup" className="text-sm bg-mb-brand text-white px-4 py-2 rounded-lg text-center font-medium">
+            <Link href="/signup" className="text-sm bg-dl-brand text-white px-4 py-2 rounded-lg text-center font-medium">
               Get started free
             </Link>
           </div>
@@ -57,18 +57,18 @@ export default function LandingPage() {
 
       {/* HERO */}
       <section className="pt-40 pb-24 px-6 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 bg-mb-brand-hover text-mb-brand text-xs font-semibold px-3 py-1.5 rounded-full mb-8 border border-mb-brand/20">
-          <span className="w-1.5 h-1.5 bg-mb-brand rounded-full" />
+        <div className="inline-flex items-center gap-2 bg-dl-brand-hover text-dl-brand text-xs font-semibold px-3 py-1.5 rounded-full mb-8 border border-dl-brand/20">
+          <span className="w-1.5 h-1.5 bg-dl-brand rounded-full" />
           {t('landing.badge')}
         </div>
 
-        <h1 className="font-display font-bold text-5xl md:text-7xl text-mb-text-dark leading-[1.05] tracking-tight mb-6">
+        <h1 className="font-display font-bold text-5xl md:text-7xl text-dl-text-dark leading-[1.05] tracking-tight mb-6">
           {t('landing.tagline')}
           <br />
-          <span className="text-mb-brand"></span>
+          <span className="text-dl-brand"></span>
         </h1>
 
-        <p className="text-mb-text-medium text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
+        <p className="text-dl-text-medium text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
           DataLaser connects every data source in your business and surfaces
           insights, anomalies, and answers — before you even ask.
         </p>
@@ -76,34 +76,34 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
           <Link
             href="/signup"
-            className="flex items-center gap-2 bg-mb-brand text-white px-6 py-3 rounded-lg font-medium hover:bg-mb-brand-dark transition-colors text-sm w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 bg-dl-brand text-white px-6 py-3 rounded-lg font-medium hover:bg-dl-brand-dark transition-colors text-sm w-full sm:w-auto justify-center"
           >
             {t('landing.cta')}
             <ArrowRight size={16} />
           </Link>
           <Link
             href="#"
-            className="flex items-center gap-2 border border-mb-border-dark text-mb-text-medium px-6 py-3 rounded-lg font-medium hover:border-mb-brand hover:text-mb-brand transition-colors text-sm w-full sm:w-auto justify-center"
+            className="flex items-center gap-2 border border-dl-border-dark text-dl-text-medium px-6 py-3 rounded-lg font-medium hover:border-dl-brand hover:text-dl-brand transition-colors text-sm w-full sm:w-auto justify-center"
           >
             {t('landing.ctaDemo')}
           </Link>
         </div>
 
-        <p className="text-mb-text-light text-xs">
+        <p className="text-dl-text-light text-xs">
           {t('landing.ctaFooter')}
         </p>
       </section>
 
       {/* PRODUCT SCREENSHOT PLACEHOLDER */}
       <section className="px-6 max-w-6xl mx-auto mb-24">
-        <div className="rounded-xl border border-mb-border overflow-hidden shadow-2xl shadow-mb-bg-medium">
+        <div className="rounded-xl border border-dl-border overflow-hidden shadow-2xl shadow-dl-bg-medium">
           {/* window chrome */}
-          <div className="bg-mb-bg-medium border-b border-mb-border px-4 py-3 flex items-center gap-2">
+          <div className="bg-dl-bg-medium border-b border-dl-border px-4 py-3 flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-400" />
             <div className="w-3 h-3 rounded-full bg-yellow-400" />
             <div className="w-3 h-3 rounded-full bg-green-400" />
             <div className="flex-1 flex justify-center">
-              <div className="bg-white border border-mb-border rounded-md px-3 py-1 text-xs text-mb-text-light font-mono">
+              <div className="bg-white border border-dl-border rounded-md px-3 py-1 text-xs text-dl-text-light font-mono">
                 app.datalaser.io/insights
               </div>
             </div>
@@ -122,10 +122,10 @@ export default function LandingPage() {
               </div>
             </div>
             {/* executive summary */}
-            <div className="bg-[#0F1623] border border-mb-brand/30 border-l-4 border-l-mb-brand rounded-lg p-4 mb-4">
+            <div className="bg-[#0F1623] border border-dl-brand/30 border-l-4 border-l-dl-brand rounded-lg p-4 mb-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-mb-success animate-pulse" />
-                <span className="text-mb-brand text-xs font-semibold uppercase tracking-widest">AI Executive Summary</span>
+                <div className="w-2 h-2 rounded-full bg-dl-success animate-pulse" />
+                <span className="text-dl-brand text-xs font-semibold uppercase tracking-widest">AI Executive Summary</span>
               </div>
               <p className="text-[#A8B8D0] text-sm leading-relaxed">
                 Revenue grew 18.4% MoM driven by strong Electronics performance. Customer acquisition cost increased 12% — flag for marketing review. Churn held steady at 2.3%. Two anomalies detected in ad spend efficiency.
@@ -147,7 +147,7 @@ export default function LandingPage() {
                 <div key={kpi.label} className="bg-[#0F1623] border border-[#1A2540] rounded-lg p-3">
                   <div className="text-[#5A7294] text-[10px] uppercase tracking-wider mb-1 font-mono">{kpi.label}</div>
                   <div className="text-[#E8EDF5] font-mono font-bold text-lg">{kpi.value}</div>
-                  <div className={`text-xs font-mono ${kpi.up ? 'text-mb-success' : 'text-mb-error'}`}>{kpi.change}</div>
+                  <div className={`text-xs font-mono ${kpi.up ? 'text-dl-success' : 'text-dl-error'}`}>{kpi.change}</div>
                 </div>
               ))}
             </div>
@@ -175,8 +175,8 @@ export default function LandingPage() {
       </section>
 
       {/* INTEGRATION STRIP */}
-      <section className="border-y border-mb-border py-8 overflow-hidden bg-white">
-        <p className="text-center text-mb-text-light text-xs font-medium uppercase tracking-widest mb-6">
+      <section className="border-y border-dl-border py-8 overflow-hidden bg-white">
+        <p className="text-center text-dl-text-light text-xs font-medium uppercase tracking-widest mb-6">
           {t('landing.stack')}
         </p>
         <div className="flex gap-3 animate-marquee whitespace-nowrap">
@@ -188,7 +188,7 @@ export default function LandingPage() {
                 '💚 QuickBooks', '📊 Google Analytics', '🍃 MongoDB', '🔴 Redshift',
                 '🐬 MySQL', '🧱 Databricks', '⬛ Square', '💚 Xero',
               ].map(item => (
-                <span key={item} className="bg-mb-bg-light border border-mb-border rounded-full px-4 py-2 text-mb-text-medium text-xs font-medium flex-shrink-0">
+                <span key={item} className="bg-dl-bg-light border border-dl-border rounded-full px-4 py-2 text-dl-text-medium text-xs font-medium flex-shrink-0">
                   {item}
                 </span>
               ))}
@@ -200,10 +200,10 @@ export default function LandingPage() {
       {/* THREE FEATURES */}
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="font-display font-bold text-3xl md:text-4xl text-mb-text-dark mb-4">
+          <h2 className="font-display font-bold text-3xl md:text-4xl text-dl-text-dark mb-4">
             {t('landing.everythingTitle')}
           </h2>
-          <p className="text-mb-text-medium text-lg max-w-xl mx-auto">
+          <p className="text-dl-text-medium text-lg max-w-xl mx-auto">
             {t('landing.everythingSubtitle')}
           </p>
         </div>
@@ -211,36 +211,36 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              icon: <Database size={22} className="text-mb-brand" />,
-              iconBg: 'bg-mb-brand-hover',
+              icon: <Database size={22} className="text-dl-brand" />,
+              iconBg: 'bg-dl-brand-hover',
               title: t('landing.feat1Title'),
               body: t('landing.feat1Desc'),
               chips: ['PostgreSQL', 'Snowflake', 'Shopify', 'Google Ads'],
             },
             {
-              icon: <Zap size={22} className="text-mb-brand" />,
-              iconBg: 'bg-mb-brand-hover',
+              icon: <Zap size={22} className="text-dl-brand" />,
+              iconBg: 'bg-dl-brand-hover',
               title: t('landing.feat2Title'),
               body: t('landing.feat2Desc'),
               chips: ['Insights', 'Anomalies', 'KPIs', 'Forecasts'],
             },
             {
-              icon: <BarChart3 size={22} className="text-mb-brand" />,
-              iconBg: 'bg-mb-brand-hover',
+              icon: <BarChart3 size={22} className="text-dl-brand" />,
+              iconBg: 'bg-dl-brand-hover',
               title: t('landing.feat3Title'),
               body: t('landing.feat3Desc'),
               chips: ['Live sync', 'Alerts', 'Trends', 'Real-time'],
             },
           ].map(f => (
-            <div key={f.title} className="bg-white border border-mb-border rounded-xl p-6 hover:border-mb-brand/40 hover:shadow-sm transition-all">
+            <div key={f.title} className="bg-white border border-dl-border rounded-xl p-6 hover:border-dl-brand/40 hover:shadow-sm transition-all">
               <div className={`${f.iconBg} w-10 h-10 rounded-lg flex items-center justify-center mb-4`}>
                 {f.icon}
               </div>
-              <h3 className="font-display font-semibold text-mb-text-dark text-lg mb-2">{f.title}</h3>
-              <p className="text-mb-text-medium text-sm leading-relaxed mb-4">{f.body}</p>
+              <h3 className="font-display font-semibold text-dl-text-dark text-lg mb-2">{f.title}</h3>
+              <p className="text-dl-text-medium text-sm leading-relaxed mb-4">{f.body}</p>
               <div className="flex flex-wrap gap-2">
                 {f.chips.map(c => (
-                  <span key={c} className="bg-mb-bg-medium text-mb-text-medium text-xs px-2.5 py-1 rounded-full font-medium">{c}</span>
+                  <span key={c} className="bg-dl-bg-medium text-dl-text-medium text-xs px-2.5 py-1 rounded-full font-medium">{c}</span>
                 ))}
               </div>
             </div>
@@ -249,13 +249,13 @@ export default function LandingPage() {
       </section>
 
       {/* THREE INTERFACES */}
-      <section className="py-24 px-6 bg-mb-bg-medium/50 border-y border-mb-border">
+      <section className="py-24 px-6 bg-dl-bg-medium/50 border-y border-dl-border">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="font-display font-bold text-3xl md:text-4xl text-mb-text-dark mb-4">
+            <h2 className="font-display font-bold text-3xl md:text-4xl text-dl-text-dark mb-4">
               {t('landing.platformTitle')}
             </h2>
-            <p className="text-mb-text-medium text-lg">
+            <p className="text-dl-text-medium text-lg">
               {t('landing.platformSubtitle')}
             </p>
           </div>
@@ -278,13 +278,13 @@ export default function LandingPage() {
                 body: t('landing.prod3Desc'),
               },
             ].map(s => (
-              <div key={s.num} className="bg-white border border-mb-border rounded-xl p-6 relative hover:shadow-sm hover:border-mb-brand/40 transition-all">
-                <div className="bg-mb-brand-hover border border-mb-brand/20 w-8 h-8 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-mb-brand font-mono font-bold text-xs">{s.num}</span>
+              <div key={s.num} className="bg-white border border-dl-border rounded-xl p-6 relative hover:shadow-sm hover:border-dl-brand/40 transition-all">
+                <div className="bg-dl-brand-hover border border-dl-brand/20 w-8 h-8 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-dl-brand font-mono font-bold text-xs">{s.num}</span>
                 </div>
-                <h3 className="font-display font-semibold text-mb-text-dark text-lg mb-2">{s.title}</h3>
-                <p className="text-mb-text-medium text-sm leading-relaxed">{s.body}</p>
-                <div className="flex items-center gap-1 mt-4 text-mb-brand text-xs font-medium">
+                <h3 className="font-display font-semibold text-dl-text-dark text-lg mb-2">{s.title}</h3>
+                <p className="text-dl-text-medium text-sm leading-relaxed">{s.body}</p>
+                <div className="flex items-center gap-1 mt-4 text-dl-brand text-xs font-medium">
                   {t('landing.learnMore')} <ChevronRight size={14} />
                 </div>
               </div>
@@ -297,9 +297,9 @@ export default function LandingPage() {
       <section className="py-24 px-6 max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <div className="flex justify-center gap-1 mb-3">
-            {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-mb-warning text-mb-warning" />)}
+            {[...Array(5)].map((_, i) => <Star key={i} size={16} className="fill-dl-warning text-dl-warning" />)}
           </div>
-          <p className="text-mb-text-light text-sm">{t('landing.testimonialTitle')}</p>
+          <p className="text-dl-text-light text-sm">{t('landing.testimonialTitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -320,15 +320,15 @@ export default function LandingPage() {
               role: 'CEO, Bloom Commerce',
             },
           ].map(t => (
-            <div key={t.name} className="bg-white border border-mb-border rounded-xl p-6">
-              <p className="text-mb-text-medium text-sm leading-relaxed mb-4">"{t.quote}"</p>
+            <div key={t.name} className="bg-white border border-dl-border rounded-xl p-6">
+              <p className="text-dl-text-medium text-sm leading-relaxed mb-4">"{t.quote}"</p>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-mb-brand-hover flex items-center justify-center text-xs font-bold text-mb-brand">
+                <div className="w-8 h-8 rounded-full bg-dl-brand-hover flex items-center justify-center text-xs font-bold text-dl-brand">
                   {t.name[0]}
                 </div>
                 <div>
-                  <div className="text-mb-text-dark text-sm font-semibold">{t.name}</div>
-                  <div className="text-mb-text-light text-xs">{t.role}</div>
+                  <div className="text-dl-text-dark text-sm font-semibold">{t.name}</div>
+                  <div className="text-dl-text-light text-xs">{t.role}</div>
                 </div>
               </div>
             </div>
@@ -337,13 +337,13 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING */}
-      <section className="py-24 px-6 bg-mb-bg-medium/50 border-y border-mb-border">
+      <section className="py-24 px-6 bg-dl-bg-medium/50 border-y border-dl-border">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="font-display font-bold text-3xl md:text-4xl text-mb-text-dark mb-4">
+            <h2 className="font-display font-bold text-3xl md:text-4xl text-dl-text-dark mb-4">
               {t('landing.pricingTitle')}
             </h2>
-            <p className="text-mb-text-medium">{t('landing.pricingSubtitle')}</p>
+            <p className="text-dl-text-medium">{t('landing.pricingSubtitle')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -373,18 +373,18 @@ export default function LandingPage() {
                 highlight: false,
               },
             ].map(p => (
-              <div key={p.name} className={`rounded-xl p-6 border ${p.highlight ? 'bg-mb-brand border-mb-brand text-white' : 'bg-white border-mb-border'}`}>
-                <div className={`text-sm font-semibold mb-4 ${p.highlight ? 'text-white/70' : 'text-mb-text-medium'}`}>{p.name}</div>
+              <div key={p.name} className={`rounded-xl p-6 border ${p.highlight ? 'bg-dl-brand border-dl-brand text-white' : 'bg-white border-dl-border'}`}>
+                <div className={`text-sm font-semibold mb-4 ${p.highlight ? 'text-white/70' : 'text-dl-text-medium'}`}>{p.name}</div>
                 <div className="mb-1">
-                  <span className={`font-display font-bold text-4xl ${p.highlight ? 'text-white' : 'text-mb-text-dark'}`}>{p.price}</span>
-                  <span className={`text-sm ml-1 ${p.highlight ? 'text-white/60' : 'text-mb-text-light'}`}>{p.sub}</span>
+                  <span className={`font-display font-bold text-4xl ${p.highlight ? 'text-white' : 'text-dl-text-dark'}`}>{p.price}</span>
+                  <span className={`text-sm ml-1 ${p.highlight ? 'text-white/60' : 'text-dl-text-light'}`}>{p.sub}</span>
                 </div>
-                <div className={`h-px my-4 ${p.highlight ? 'bg-white/20' : 'bg-mb-border'}`} />
+                <div className={`h-px my-4 ${p.highlight ? 'bg-white/20' : 'bg-dl-border'}`} />
                 <ul className="space-y-2.5 mb-6">
                   {p.features.map(f => (
                     <li key={f} className="flex items-center gap-2 text-sm">
-                      <Check size={14} className={p.highlight ? 'text-white/80' : 'text-mb-brand'} />
-                      <span className={p.highlight ? 'text-white/90' : 'text-mb-text-medium'}>{f}</span>
+                      <Check size={14} className={p.highlight ? 'text-white/80' : 'text-dl-brand'} />
+                      <span className={p.highlight ? 'text-white/90' : 'text-dl-text-medium'}>{f}</span>
                     </li>
                   ))}
                 </ul>
@@ -392,8 +392,8 @@ export default function LandingPage() {
                   href="/signup"
                   className={`block text-center py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     p.highlight
-                      ? 'bg-white text-mb-brand hover:bg-mb-bg-light'
-                      : 'bg-mb-brand text-white hover:bg-mb-brand-dark'
+                      ? 'bg-white text-dl-brand hover:bg-dl-bg-light'
+                      : 'bg-dl-brand text-white hover:bg-dl-brand-dark'
                   }`}
                 >
                   {p.cta}
@@ -406,33 +406,33 @@ export default function LandingPage() {
 
       {/* FINAL CTA */}
       <section className="py-24 px-6 text-center max-w-2xl mx-auto">
-        <h2 className="font-display font-bold text-4xl md:text-5xl text-mb-text-dark mb-4">
+        <h2 className="font-display font-bold text-4xl md:text-5xl text-dl-text-dark mb-4">
           {t('landing.readyTitle')}
         </h2>
-        <p className="text-mb-text-medium text-lg mb-8">
+        <p className="text-dl-text-medium text-lg mb-8">
           {t('landing.readySubtitle')}
         </p>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 bg-mb-brand text-white px-8 py-4 rounded-lg font-medium hover:bg-mb-brand-dark transition-colors text-base"
+          className="inline-flex items-center gap-2 bg-dl-brand text-white px-8 py-4 rounded-lg font-medium hover:bg-dl-brand-dark transition-colors text-base"
         >
           Start for free
           <ArrowRight size={18} />
         </Link>
-        <p className="text-mb-text-light text-xs mt-4">{t('landing.noCreditCard')}</p>
+        <p className="text-dl-text-light text-xs mt-4">{t('landing.noCreditCard')}</p>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-mb-border py-8 px-6 bg-white">
+      <footer className="border-t border-dl-border py-8 px-6 bg-white">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-mb-brand font-bold">▲</span>
-            <span className="font-display font-bold text-mb-text-dark text-sm">DataLaser</span>
-            <span className="text-mb-text-light text-xs ml-2">{t('landing.copyright')}</span>
+            <span className="text-dl-brand font-bold">▲</span>
+            <span className="font-display font-bold text-dl-text-dark text-sm">DataLaser</span>
+            <span className="text-dl-text-light text-xs ml-2">{t('landing.copyright')}</span>
           </div>
           <div className="flex items-center gap-6">
             {['Privacy', 'Terms', 'Docs', 'Status', 'GitHub'].map(link => (
-              <Link key={link} href="#" className="text-mb-text-light text-xs hover:text-mb-text-medium transition-colors">
+              <Link key={link} href="#" className="text-dl-text-light text-xs hover:text-dl-text-medium transition-colors">
                 {link}
               </Link>
             ))}

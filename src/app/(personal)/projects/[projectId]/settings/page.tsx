@@ -98,28 +98,28 @@ export default function ProjectSettingsPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-8 space-y-4">
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-20 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
+        <div className="h-10 rounded-dl-md dl-shimmer" />
+        <div className="h-20 rounded-dl-md dl-shimmer" />
+        <div className="h-10 rounded-dl-md dl-shimmer" />
       </div>
     )
   }
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">{t('settings.title')}</h1>
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">{t('settings.title')}</h1>
 
       {/* Name */}
       <div className="mb-6">
-        <label className="mb-label">{t('settings.projectName')}</label>
-        <input className="mb-input" value={name} onChange={e => setName(e.target.value)} />
+        <label className="dl-label">{t('settings.projectName')}</label>
+        <input className="dl-input" value={name} onChange={e => setName(e.target.value)} />
       </div>
 
       {/* Description */}
       <div className="mb-6">
-        <label className="mb-label">{t('settings.projectDescription')}</label>
+        <label className="dl-label">{t('settings.projectDescription')}</label>
         <textarea
-          className="mb-input min-h-[80px] resize-none"
+          className="dl-input min-h-[80px] resize-none"
           placeholder={t('settings.projectDescription')}
           value={description}
           onChange={e => setDescription(e.target.value)}
@@ -128,17 +128,17 @@ export default function ProjectSettingsPage() {
 
       {/* Icon */}
       <div className="mb-6">
-        <label className="mb-label">{t('settings.icon')}</label>
+        <label className="dl-label">{t('settings.icon')}</label>
         <ProjectIconPicker value={icon} color={color} onChange={setIcon} />
       </div>
 
       {/* Color */}
       <div className="mb-6">
-        <label className="mb-label">{t('settings.color')}</label>
+        <label className="dl-label">{t('settings.color')}</label>
         <div className="flex gap-2 mt-1">
           {COLORS.map(c => (
             <button key={c} onClick={() => setColor(c)}
-              className={`w-8 h-8 rounded-full border-2 transition-all ${color === c ? 'border-mb-text-dark scale-110' : 'border-transparent'}`}
+              className={`w-8 h-8 rounded-full border-2 transition-all ${color === c ? 'border-dl-text-dark scale-110' : 'border-transparent'}`}
               style={{ backgroundColor: c }} />
           ))}
         </div>
@@ -146,28 +146,28 @@ export default function ProjectSettingsPage() {
 
       {/* Language & Region */}
       <div className="mb-8">
-        <label className="mb-label flex items-center gap-1.5">
+        <label className="dl-label flex items-center gap-1.5">
           <Globe size={12} /> {t('settings.language')}
         </label>
         <div className="flex gap-2 mt-2">
           {LANGUAGES.map(lang => (
             <button key={lang.code} onClick={() => handleLanguageChange(lang.code)}
-              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-mb-md border transition-all ${
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-dl-md border transition-all ${
                 selectedLocale === lang.code
-                  ? 'border-mb-brand bg-mb-brand-hover ring-1 ring-mb-brand'
-                  : 'border-mb-border hover:border-mb-brand'
+                  ? 'border-dl-brand bg-dl-brand-hover ring-1 ring-dl-brand'
+                  : 'border-dl-border hover:border-dl-brand'
               }`}>
               <span className="text-[18px]">{lang.flag}</span>
               <div className="text-left">
-                <p className={`text-[13px] font-bold ${selectedLocale === lang.code ? 'text-mb-brand' : 'text-mb-text-dark'}`}>
+                <p className={`text-[13px] font-bold ${selectedLocale === lang.code ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                   {lang.label}
                 </p>
-                <p className="text-[11px] text-mb-text-light">{lang.region}</p>
+                <p className="text-[11px] text-dl-text-light">{lang.region}</p>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-mb-text-light mt-2">
+        <p className="text-[11px] text-dl-text-light mt-2">
           {selectedLocale === 'de'
             ? 'Alle Oberflächen, KI-Antworten und Zahlenformate werden auf Deutsch angezeigt.'
             : 'All UI, AI responses, and number formats will be displayed in English.'}
@@ -176,20 +176,20 @@ export default function ProjectSettingsPage() {
 
       {/* Save */}
       <button onClick={handleSave} disabled={saving || !name.trim()}
-        className={`mb-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}>
+        className={`dl-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}>
         <Save size={14} />
         {saving ? t('common.saving') : saved ? t('common.saved') : t('common.save')}
       </button>
 
       {/* Danger zone */}
-      <div className="mt-12 pt-6 border-t border-mb-border">
-        <h2 className="text-mb-base font-black text-mb-error mb-2">{t('settings.dangerZone')}</h2>
-        <p className="text-mb-text-medium text-mb-sm mb-4">
+      <div className="mt-12 pt-6 border-t border-dl-border">
+        <h2 className="text-dl-base font-black text-dl-error mb-2">{t('settings.dangerZone')}</h2>
+        <p className="text-dl-text-medium text-dl-sm mb-4">
           {selectedLocale === 'de'
             ? 'Das Löschen eines Projekts entfernt alle Datenquellen, Analysen und Gespräche. Dies kann nicht rückgängig gemacht werden.'
             : 'Deleting a project removes all its data sources, insights, and conversations. This cannot be undone.'}
         </p>
-        <button onClick={() => setDeleteOpen(true)} className="mb-btn-danger px-4 py-2">
+        <button onClick={() => setDeleteOpen(true)} className="dl-btn-danger px-4 py-2">
           <Trash2 size={14} />
           {t('settings.deleteProject')}
         </button>
@@ -197,26 +197,26 @@ export default function ProjectSettingsPage() {
 
       {/* Delete confirmation */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent className="bg-mb-bg border border-mb-border rounded-mb-lg shadow-mb-lg p-0 max-w-md">
+        <DialogContent className="bg-dl-bg border border-dl-border rounded-dl-lg shadow-dl-lg p-0 max-w-md">
           <DialogHeader className="p-6 pb-0">
-            <DialogTitle className="text-mb-xl font-black text-mb-text-dark">
+            <DialogTitle className="text-dl-xl font-black text-dl-text-dark">
               {t('settings.deleteProject')}
             </DialogTitle>
           </DialogHeader>
           <div className="p-6 pt-4">
-            <p className="text-mb-text-medium text-mb-sm mb-4">
+            <p className="text-dl-text-medium text-dl-sm mb-4">
               {selectedLocale === 'de'
-                ? <>Geben Sie <span className="font-black text-mb-text-dark">{name}</span> ein, um das Löschen zu bestätigen.</>
-                : <>Type <span className="font-black text-mb-text-dark">{name}</span> to confirm deletion.</>}
+                ? <>Geben Sie <span className="font-black text-dl-text-dark">{name}</span> ein, um das Löschen zu bestätigen.</>
+                : <>Type <span className="font-black text-dl-text-dark">{name}</span> to confirm deletion.</>}
             </p>
-            <input className="mb-input mb-4" placeholder={t('settings.projectName') + '...'} value={deleteConfirm}
+            <input className="dl-input mb-4" placeholder={t('settings.projectName') + '...'} value={deleteConfirm}
               onChange={e => setDeleteConfirm(e.target.value)} />
             <div className="flex justify-end gap-3">
-              <button onClick={() => setDeleteOpen(false)} className="mb-btn-secondary">
+              <button onClick={() => setDeleteOpen(false)} className="dl-btn-secondary">
                 {t('common.cancel')}
               </button>
               <button onClick={handleDelete} disabled={deleteConfirm !== name || deleting}
-                className={`mb-btn-danger px-4 ${deleteConfirm !== name || deleting ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                className={`dl-btn-danger px-4 ${deleteConfirm !== name || deleting ? 'opacity-40 cursor-not-allowed' : ''}`}>
                 {deleting ? t('common.delete') + '...' : t('settings.deleteProject')}
               </button>
             </div>

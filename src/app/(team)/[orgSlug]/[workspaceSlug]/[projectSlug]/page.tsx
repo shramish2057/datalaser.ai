@@ -47,38 +47,38 @@ export default function TeamProjectOverviewPage() {
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           {project && <ProjectIconBadge icon={project.icon} color={project.color} size="lg" />}
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">{project?.name}</h1>
+          <h1 className="text-dl-2xl font-black text-dl-text-dark">{project?.name}</h1>
         </div>
-        {project?.description && <p className="text-mb-text-medium text-mb-base ml-12">{project.description}</p>}
+        {project?.description && <p className="text-dl-text-medium text-dl-base ml-12">{project.description}</p>}
       </div>
 
       {sourceCount === 0 && (
-        <div className="mb-card p-8 text-center mb-8">
-          <div className="w-14 h-14 bg-mb-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
-            <Database size={24} className="text-mb-text-light" />
+        <div className="dl-card p-8 text-center mb-8">
+          <div className="w-14 h-14 bg-dl-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
+            <Database size={24} className="text-dl-text-light" />
           </div>
-          <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Connect your first data source</h2>
-          <p className="text-mb-text-medium text-mb-base mb-6 max-w-sm mx-auto">Upload a CSV, connect a database, or link a SaaS tool to start generating insights.</p>
-          <button onClick={() => router.push(`${base}/sources/new`)} className="mb-btn-primary px-6 py-2.5 font-black">{t("sources.addSource")} →</button>
+          <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Connect your first data source</h2>
+          <p className="text-dl-text-medium text-dl-base mb-6 max-w-sm mx-auto">Upload a CSV, connect a database, or link a SaaS tool to start generating insights.</p>
+          <button onClick={() => router.push(`${base}/sources/new`)} className="dl-btn-primary px-6 py-2.5 font-black">{t("sources.addSource")} →</button>
         </div>
       )}
 
       <div>
-        <p className="mb-section-header mb-4">Quick actions</p>
+        <p className="dl-section-header mb-4">Quick actions</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {quickActions.map(action => (
             <button key={action.label} onClick={() => router.push(action.href)}
-              className={`text-left p-4 rounded-mb-lg border transition-all flex items-start gap-3 group
-                ${action.primary ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover'}`}>
-              <div className={`w-8 h-8 rounded-mb-md flex items-center justify-center flex-shrink-0 transition-colors
-                ${action.primary ? 'bg-mb-brand' : 'bg-mb-bg-medium group-hover:bg-mb-brand'}`}>
-                <action.icon size={16} className={action.primary ? 'text-white' : 'text-mb-text-light group-hover:text-white'} />
+              className={`text-left p-4 rounded-dl-lg border transition-all flex items-start gap-3 group
+                ${action.primary ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover'}`}>
+              <div className={`w-8 h-8 rounded-dl-md flex items-center justify-center flex-shrink-0 transition-colors
+                ${action.primary ? 'bg-dl-brand' : 'bg-dl-bg-medium group-hover:bg-dl-brand'}`}>
+                <action.icon size={16} className={action.primary ? 'text-white' : 'text-dl-text-light group-hover:text-white'} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-mb-sm font-black mb-0.5 ${action.primary ? 'text-mb-brand' : 'text-mb-text-dark'}`}>{action.label}</p>
-                <p className="text-mb-xs text-mb-text-medium">{action.desc}</p>
+                <p className={`text-dl-sm font-black mb-0.5 ${action.primary ? 'text-dl-brand' : 'text-dl-text-dark'}`}>{action.label}</p>
+                <p className="text-dl-xs text-dl-text-medium">{action.desc}</p>
               </div>
-              <ArrowRight size={14} className="text-mb-text-light flex-shrink-0 mt-1 group-hover:text-mb-brand transition-colors" />
+              <ArrowRight size={14} className="text-dl-text-light flex-shrink-0 mt-1 group-hover:text-dl-brand transition-colors" />
             </button>
           ))}
         </div>

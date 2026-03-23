@@ -15,13 +15,13 @@ export function LocaleToggle() {
   }
 
   return (
-    <div className="flex items-center bg-mb-bg-medium rounded-full p-0.5">
+    <div className="flex items-center bg-dl-bg-medium rounded-full p-0.5">
       <button
         onClick={() => switchLocale('de')}
         className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
           locale === 'de'
-            ? 'bg-white text-mb-text-dark shadow-sm'
-            : 'text-mb-text-light hover:text-mb-text-medium'
+            ? 'bg-white text-dl-text-dark shadow-sm'
+            : 'text-dl-text-light hover:text-dl-text-medium'
         }`}
       >
         DE
@@ -30,8 +30,8 @@ export function LocaleToggle() {
         onClick={() => switchLocale('en')}
         className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
           locale === 'en'
-            ? 'bg-white text-mb-text-dark shadow-sm'
-            : 'text-mb-text-light hover:text-mb-text-medium'
+            ? 'bg-white text-dl-text-dark shadow-sm'
+            : 'text-dl-text-light hover:text-dl-text-medium'
         }`}
       >
         EN

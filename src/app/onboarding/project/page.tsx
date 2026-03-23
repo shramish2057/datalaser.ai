@@ -61,24 +61,24 @@ export default function ProjectPage() {
     <div className="max-w-lg mx-auto pt-16 px-6">
       <StepIndicator current={2} labels={['You', 'Project', 'Data']} />
 
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
         Create your first project
       </h1>
-      <p className="text-mb-text-medium text-mb-base mb-10">
+      <p className="text-dl-text-medium text-dl-base mb-10">
         A project holds your data sources, insights, and dashboards.
         You can create more later.
       </p>
 
       {error && (
-        <div className="px-3 py-2 rounded-mb-md bg-red-50 border border-mb-error text-mb-error text-mb-sm font-bold mb-4">
+        <div className="px-3 py-2 rounded-dl-md bg-red-50 border border-dl-error text-dl-error text-dl-sm font-bold mb-4">
           {error}
         </div>
       )}
 
       <div className="mb-6">
-        <label className="mb-label">{t("common.projectName")}</label>
+        <label className="dl-label">{t("common.projectName")}</label>
         <input
-          className="mb-input"
+          className="dl-input"
           placeholder={t("settings.projectName")}
           value={name}
           onChange={e => setName(e.target.value)}
@@ -87,12 +87,12 @@ export default function ProjectPage() {
       </div>
 
       <div className="mb-6">
-        <label className="mb-label">Icon</label>
+        <label className="dl-label">Icon</label>
         <ProjectIconPicker value={icon} color={color} onChange={setIcon} />
       </div>
 
       <div className="mb-10">
-        <label className="mb-label">Color</label>
+        <label className="dl-label">Color</label>
         <div className="flex gap-2 mt-1">
           {COLORS.map(c => (
             <button
@@ -100,7 +100,7 @@ export default function ProjectPage() {
               onClick={() => setColor(c)}
               className={`
                 w-8 h-8 rounded-full border-2 transition-all
-                ${color === c ? 'border-mb-text-dark scale-110' : 'border-transparent'}
+                ${color === c ? 'border-dl-text-dark scale-110' : 'border-transparent'}
               `}
               style={{ backgroundColor: c }}
             />
@@ -109,13 +109,13 @@ export default function ProjectPage() {
       </div>
 
       <div className="flex gap-3">
-        <button onClick={() => router.back()} className="mb-btn-secondary px-6">
+        <button onClick={() => router.back()} className="dl-btn-secondary px-6">
           &larr; Back
         </button>
         <button
           onClick={handleCreate}
           disabled={!name.trim() || loading}
-          className={`mb-btn-primary flex-1 py-2.5 font-black justify-center
+          className={`dl-btn-primary flex-1 py-2.5 font-black justify-center
             ${(!name.trim() || loading) ? 'opacity-40 cursor-not-allowed' : ''}`}
         >
           {loading ? 'Creating...' : 'Create Project →'}

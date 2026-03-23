@@ -347,31 +347,31 @@ export default function NotebookWorkspace() {
   const activeSrc = sources.find(s => s.id === activeSourceId) || null
   const firstNumeric = schemaColumns.find(c => c.dtype === 'numeric')?.name || 'value'
 
-  if (loading) return <div className="h-full flex items-center justify-center"><Loader2 size={24} className="text-mb-brand animate-spin" /></div>
+  if (loading) return <div className="h-full flex items-center justify-center"><Loader2 size={24} className="text-dl-brand animate-spin" /></div>
 
   // ── GENERATION SCREEN (when no cells) ──
   if (cells.length === 0 && !isGenerating) {
     return (
       <div className="h-full flex flex-col items-center justify-center px-8">
-        <FlaskConical size={48} className="text-mb-brand mb-4" />
-        <h2 className="text-[20px] font-bold text-mb-text-dark mb-2">{t('studio.describeAnalysis')}</h2>
-        <p className="text-mb-text-medium text-mb-sm mb-6 text-center max-w-lg">
+        <FlaskConical size={48} className="text-dl-brand mb-4" />
+        <h2 className="text-[20px] font-bold text-dl-text-dark mb-2">{t('studio.describeAnalysis')}</h2>
+        <p className="text-dl-text-medium text-dl-sm mb-6 text-center max-w-lg">
           {t('studio.generateDesc')}
         </p>
         <textarea value={genPrompt} onChange={e => setGenPrompt(e.target.value)}
           onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleGenerateNotebook() }}
           rows={4} placeholder={t('studio.askPlaceholder')}
-          className="w-full max-w-[600px] border border-mb-border rounded-mb-lg p-3 text-[14px] resize-none outline-none focus:border-mb-brand" />
+          className="w-full max-w-[600px] border border-dl-border rounded-dl-lg p-3 text-[14px] resize-none outline-none focus:border-dl-brand" />
         <div className="flex gap-2 mt-3 flex-wrap justify-center">
           {[t('studio.chipCorrelation'), t('studio.chipPredict', { col: firstNumeric }), t('studio.chipTrend')].map(chip => (
             <button key={chip} onClick={() => setGenPrompt(chip)}
-              className="text-[12px] px-3 py-1.5 rounded-full border border-mb-border text-mb-text-medium hover:border-mb-brand hover:text-mb-brand transition-colors">
+              className="text-[12px] px-3 py-1.5 rounded-full border border-dl-border text-dl-text-medium hover:border-dl-brand hover:text-dl-brand transition-colors">
               {chip}
             </button>
           ))}
         </div>
         <button onClick={handleGenerateNotebook} disabled={!genPrompt.trim()}
-          className={`mt-6 bg-mb-brand text-white text-[15px] px-8 py-3 rounded-mb-lg font-bold hover:bg-mb-brand-dark transition-colors ${!genPrompt.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
+          className={`mt-6 bg-dl-brand text-white text-[15px] px-8 py-3 rounded-dl-lg font-bold hover:bg-dl-brand-dark transition-colors ${!genPrompt.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
           {t('studio.generateAnalysis')} →
         </button>
       </div>
@@ -382,9 +382,9 @@ export default function NotebookWorkspace() {
   if (isGenerating) {
     return (
       <div className="h-full flex flex-col items-center justify-center">
-        <FlaskConical size={48} className="text-mb-brand animate-spin mb-4" style={{ animationDuration: '3s' }} />
-        <p className="text-mb-text-dark text-mb-sm font-bold mb-1">{CYCLING_MSGS[cycleIdx]}</p>
-        <p className="text-mb-text-light text-mb-xs">{t('studio.generatingMsg')}</p>
+        <FlaskConical size={48} className="text-dl-brand animate-spin mb-4" style={{ animationDuration: '3s' }} />
+        <p className="text-dl-text-dark text-dl-sm font-bold mb-1">{CYCLING_MSGS[cycleIdx]}</p>
+        <p className="text-dl-text-light text-dl-xs">{t('studio.generatingMsg')}</p>
       </div>
     )
   }
@@ -393,23 +393,23 @@ export default function NotebookWorkspace() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Action bar */}
-      <div className="h-[40px] flex items-center px-4 border-b border-mb-border flex-shrink-0 bg-white gap-3">
+      <div className="h-[40px] flex items-center px-4 border-b border-dl-border flex-shrink-0 bg-white gap-3">
         <input value={notebookTitle} onChange={e => setNotebookTitle(e.target.value)} onBlur={saveTitle}
-          className="bg-transparent border-none outline-none text-mb-sm font-medium text-mb-text-dark w-48" />
-        <span className="text-[11px] text-mb-text-light">{isSaving ? t('common.saving') : lastSavedAt ? t('common.saved') : ''}</span>
-        <div className="w-px h-4 bg-mb-border" />
-        <button onClick={() => addCell('heading')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add heading">
+          className="bg-transparent border-none outline-none text-dl-sm font-medium text-dl-text-dark w-48" />
+        <span className="text-[11px] text-dl-text-light">{isSaving ? t('common.saving') : lastSavedAt ? t('common.saved') : ''}</span>
+        <div className="w-px h-4 bg-dl-border" />
+        <button onClick={() => addCell('heading')} className="text-[11px] text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add heading">
           <Heading1 size={14} />
         </button>
-        <button onClick={() => addCell('text')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add text">
+        <button onClick={() => addCell('text')} className="text-[11px] text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add text">
           <Type size={14} />
         </button>
-        <button onClick={() => addCell('python')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add code cell">
+        <button onClick={() => addCell('python')} className="text-[11px] text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add code cell">
           <Code size={14} />
         </button>
-        <div className="w-px h-4 bg-mb-border" />
+        <div className="w-px h-4 bg-dl-border" />
         <button onClick={async () => { for (const c of cells) if (c.type === 'python' || c.type === 'sql') await runCell(c.id) }}
-          className="text-[11px] bg-mb-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-mb-brand-dark">
+          className="text-[11px] bg-dl-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-dl-brand-dark">
           <Play size={11} /> {t('studio.runAll')}
         </button>
       </div>
@@ -417,54 +417,54 @@ export default function NotebookWorkspace() {
       {/* Two panels */}
       <div className="flex flex-1 overflow-hidden" style={{ minWidth: 1200 }}>
         {/* LEFT — Editor */}
-        <div className="overflow-y-auto border-r border-mb-border bg-mb-bg-light p-3" data-panel="left" style={{ flexBasis: '48%', flexShrink: 0 }}>
+        <div className="overflow-y-auto border-r border-dl-border bg-dl-bg-light p-3" data-panel="left" style={{ flexBasis: '48%', flexShrink: 0 }}>
           {/* Proactive */}
           {proactive.length > 0 && (
             <div className="mb-3">
               <button onClick={() => setProactiveCollapsed(!proactiveCollapsed)} className="flex items-center gap-1.5 w-full text-left mb-2">
-                {proactiveCollapsed ? <ChevronRight size={14} className="text-mb-text-light" /> : <ChevronDown size={14} className="text-mb-text-light" />}
+                {proactiveCollapsed ? <ChevronRight size={14} className="text-dl-text-light" /> : <ChevronDown size={14} className="text-dl-text-light" />}
                 <Lightbulb size={14} className="text-amber-500" />
-                <span className="text-mb-sm font-medium text-mb-text-dark">{proactive.length} {t('studio.suggestedAnalyses')}</span>
+                <span className="text-dl-sm font-medium text-dl-text-dark">{proactive.length} {t('studio.suggestedAnalyses')}</span>
               </button>
               {!proactiveCollapsed && (isLoadingProactive ? (
-                <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-20 rounded-mb-lg bg-mb-bg-medium animate-pulse" />)}</div>
+                <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-20 rounded-dl-lg bg-dl-bg-medium animate-pulse" />)}</div>
               ) : (
                 <div className="space-y-2">
                   {proactive.map(s => (
-                    <div key={s.id} className="bg-white border border-mb-border rounded-mb-lg p-3 hover:border-mb-brand transition-colors">
+                    <div key={s.id} className="bg-white border border-dl-border rounded-dl-lg p-3 hover:border-dl-brand transition-colors">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-mb-bg-medium text-mb-text-medium">{s.operation}</span>
-                        <span className="text-mb-sm font-medium text-mb-text-dark">{s.title}</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-bg-medium text-dl-text-medium">{s.operation}</span>
+                        <span className="text-dl-sm font-medium text-dl-text-dark">{s.title}</span>
                       </div>
-                      <p className="text-[11px] text-mb-text-medium mb-2">{s.description}</p>
-                      <button onClick={() => addCellFromSuggestion(s)} className="text-[11px] text-mb-brand hover:underline">→ Analyse</button>
+                      <p className="text-[11px] text-dl-text-medium mb-2">{s.description}</p>
+                      <button onClick={() => addCellFromSuggestion(s)} className="text-[11px] text-dl-brand hover:underline">→ Analyse</button>
                     </div>
                   ))}
                 </div>
               ))}
-              <div className="h-px bg-mb-border my-3" />
+              <div className="h-px bg-dl-border my-3" />
             </div>
           )}
 
           {/* Ask */}
           <div className="mb-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">{t('studio.askAboutData')}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light mb-2">{t('studio.askAboutData')}</p>
             <textarea value={question} onChange={e => setQuestion(e.target.value)}
               onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleAsk() }}
               placeholder="e.g. Does passenger class affect survival?" rows={2}
-              className="w-full border border-mb-border rounded-mb-md p-2 text-[13px] resize-none outline-none focus:border-mb-brand" />
+              className="w-full border border-dl-border rounded-dl-md p-2 text-[13px] resize-none outline-none focus:border-dl-brand" />
             <button onClick={handleAsk} disabled={isAsking || !question.trim()}
-              className={`mt-2 w-full flex items-center justify-center gap-1.5 bg-mb-brand text-white text-[13px] py-2 rounded-mb-md hover:bg-mb-brand-dark ${isAsking || !question.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              className={`mt-2 w-full flex items-center justify-center gap-1.5 bg-dl-brand text-white text-[13px] py-2 rounded-dl-md hover:bg-dl-brand-dark ${isAsking || !question.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
               {isAsking ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
               {isAsking ? t('common.analyzing') : `${t('studio.analyzeBtn')} →`}
             </button>
           </div>
-          <div className="h-px bg-mb-border my-3" />
+          <div className="h-px bg-dl-border my-3" />
 
           {/* Cells */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light">{t('studio.cells')} ({cells.length})</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light">{t('studio.cells')} ({cells.length})</p>
             </div>
             {cells.map((cell, i) => (
               <CellCard key={cell.id} cell={cell} cellNumber={i + 1} isActive={cell.id === activeCellId}

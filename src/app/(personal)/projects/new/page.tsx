@@ -82,23 +82,23 @@ export default function NewProjectPage() {
 
   return (
     <div className="flex-1 overflow-y-auto"><div className="max-w-lg mx-auto pt-16 px-6">
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
         New Project
       </h1>
-      <p className="text-mb-text-medium text-mb-base mb-10">
+      <p className="text-dl-text-medium text-dl-base mb-10">
         A project holds your data sources, insights, and dashboards.
       </p>
 
       {error && (
-        <div className="px-3 py-2 rounded-mb-md bg-red-50 border border-mb-error text-mb-error text-mb-sm font-bold mb-4">
+        <div className="px-3 py-2 rounded-dl-md bg-red-50 border border-dl-error text-dl-error text-dl-sm font-bold mb-4">
           {error}
         </div>
       )}
 
       <div className="mb-6">
-        <label className="mb-label">{t("common.projectName")}</label>
+        <label className="dl-label">{t("common.projectName")}</label>
         <input
-          className="mb-input"
+          className="dl-input"
           placeholder={t("settings.projectName")}
           value={name}
           onChange={e => setName(e.target.value)}
@@ -108,12 +108,12 @@ export default function NewProjectPage() {
       </div>
 
       <div className="mb-6">
-        <label className="mb-label">Icon</label>
+        <label className="dl-label">Icon</label>
         <ProjectIconPicker value={icon} color={color} onChange={setIcon} />
       </div>
 
       <div className="mb-10">
-        <label className="mb-label">Color</label>
+        <label className="dl-label">Color</label>
         <div className="flex gap-2 mt-1">
           {COLORS.map(c => (
             <button
@@ -121,7 +121,7 @@ export default function NewProjectPage() {
               onClick={() => setColor(c)}
               className={`
                 w-8 h-8 rounded-full border-2 transition-all
-                ${color === c ? 'border-mb-text-dark scale-110' : 'border-transparent'}
+                ${color === c ? 'border-dl-text-dark scale-110' : 'border-transparent'}
               `}
               style={{ backgroundColor: c }}
             />
@@ -130,13 +130,13 @@ export default function NewProjectPage() {
       </div>
 
       <div className="flex gap-3">
-        <Link href="/projects" className="mb-btn-secondary px-6 flex items-center">
+        <Link href="/projects" className="dl-btn-secondary px-6 flex items-center">
           Cancel
         </Link>
         <button
           onClick={handleCreate}
           disabled={!name.trim() || loading}
-          className={`mb-btn-primary flex-1 py-2.5 font-black justify-center
+          className={`dl-btn-primary flex-1 py-2.5 font-black justify-center
             ${(!name.trim() || loading) ? 'opacity-40 cursor-not-allowed' : ''}`}
         >
           {loading ? 'Creating...' : 'Create Project'}

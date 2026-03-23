@@ -174,9 +174,9 @@ export default function AskPage() {
           {/* Empty state */}
           {messages.length === 0 && !loading && (
             <div className="text-center py-20">
-              <Sparkles className="w-10 h-10 text-mb-text-light mx-auto mb-4" />
-              <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t("ask.askAnything")}</h2>
-              <p className="text-mb-text-medium text-mb-sm max-w-md mx-auto">
+              <Sparkles className="w-10 h-10 text-dl-text-light mx-auto mb-4" />
+              <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t("ask.askAnything")}</h2>
+              <p className="text-dl-text-medium text-dl-sm max-w-md mx-auto">
                 {t("ask.askDesc")}
               </p>
             </div>
@@ -189,10 +189,10 @@ export default function AskPage() {
                 {/* Text bubble */}
                 {msg.content && (
                   <div className={`
-                    rounded-mb-lg px-4 py-3 text-mb-sm leading-relaxed
+                    rounded-dl-lg px-4 py-3 text-dl-sm leading-relaxed
                     ${msg.role === 'user'
-                      ? 'bg-mb-brand text-white font-bold'
-                      : 'bg-mb-bg-light border border-mb-border text-mb-text-dark'}
+                      ? 'bg-dl-brand text-white font-bold'
+                      : 'bg-dl-bg-light border border-dl-border text-dl-text-dark'}
                   `}>
                     {msg.content.split('\n').map((line, j) => (
                       <p key={j} className={j > 0 ? 'mt-2' : ''}>{line}</p>
@@ -215,9 +215,9 @@ export default function AskPage() {
           {/* Loading indicator */}
           {loading && (messages.length === 0 || messages[messages.length - 1]?.role === 'user') && (
             <div className="flex justify-start">
-              <div className="bg-mb-bg-light border border-mb-border rounded-mb-lg px-4 py-3 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-mb-brand" />
-                <span className="text-mb-sm text-mb-text-medium">Analyzing your data...</span>
+              <div className="bg-dl-bg-light border border-dl-border rounded-dl-lg px-4 py-3 flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-dl-brand" />
+                <span className="text-dl-sm text-dl-text-medium">Analyzing your data...</span>
               </div>
             </div>
           )}
@@ -227,10 +227,10 @@ export default function AskPage() {
       </div>
 
       {/* Input bar */}
-      <div className="border-t border-mb-border bg-mb-bg px-6 py-4">
+      <div className="border-t border-dl-border bg-dl-bg px-6 py-4">
         <div className="max-w-[860px] mx-auto flex items-end gap-3">
           <textarea
-            className="mb-input flex-1 min-h-[44px] max-h-32 resize-none"
+            className="dl-input flex-1 min-h-[44px] max-h-32 resize-none"
             placeholder={t("ask.placeholder")}
             value={input}
             onChange={e => setInput(e.target.value)}
@@ -240,7 +240,7 @@ export default function AskPage() {
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className={`mb-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
+            className={`dl-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             <Send size={16} />
           </button>

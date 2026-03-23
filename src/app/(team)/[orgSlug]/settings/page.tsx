@@ -34,11 +34,11 @@ export default function OrgSettingsPage() {
 
   return (
     <OrgSettingsShell orgSlug={orgSlug}>
-      {loading ? <div className="space-y-4"><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /></div> : <>
-        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">Organization Settings</h1>
-        <div className="mb-6"><label className="mb-label">Organization name</label><input className="mb-input" value={name} onChange={e => setName(e.target.value)} /></div>
-        <div className="mb-6"><label className="mb-label">{t("common.type")}</label><div className="mt-1"><span className={`px-3 py-1 rounded-full text-mb-xs font-black ${orgType === 'team' ? 'bg-mb-brand-hover text-mb-brand' : 'bg-mb-bg-medium text-mb-text-medium'}`}>{orgType === 'team' ? 'Team' : 'Personal'}</span></div></div>
-        <button onClick={handleSave} disabled={saving || !name.trim()} className={`mb-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40' : ''}`}><Save size={14} />{saving ? 'Saving...' : saved ? 'Saved' : 'Save changes'}</button>
+      {loading ? <div className="space-y-4"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div> : <>
+        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">Organization Settings</h1>
+        <div className="mb-6"><label className="dl-label">Organization name</label><input className="dl-input" value={name} onChange={e => setName(e.target.value)} /></div>
+        <div className="mb-6"><label className="dl-label">{t("common.type")}</label><div className="mt-1"><span className={`px-3 py-1 rounded-full text-dl-xs font-black ${orgType === 'team' ? 'bg-dl-brand-hover text-dl-brand' : 'bg-dl-bg-medium text-dl-text-medium'}`}>{orgType === 'team' ? 'Team' : 'Personal'}</span></div></div>
+        <button onClick={handleSave} disabled={saving || !name.trim()} className={`dl-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40' : ''}`}><Save size={14} />{saving ? 'Saving...' : saved ? 'Saved' : 'Save changes'}</button>
       </>}
     </OrgSettingsShell>
   )

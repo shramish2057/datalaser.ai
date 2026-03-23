@@ -322,8 +322,8 @@ export default function CalibratePage() {
     <div className="max-w-2xl mx-auto pt-12 px-6 pb-24">
       <StepIndicator current={3} labels={['Workspace', 'Connect', 'Calibrate']} />
 
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">Almost there</h1>
-      <p className="text-mb-text-medium text-mb-base mb-8">
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Almost there</h1>
+      <p className="text-dl-text-medium text-dl-base mb-8">
         {aiLoading
           ? 'Analyzing your data with AI...'
           : dataSummary
@@ -337,18 +337,18 @@ export default function CalibratePage() {
       {(hasUploadedFiles || hasConnectedDatabases) && (
         <div className="mb-6 flex flex-wrap gap-3">
           {connectInfo?.files.map(f => (
-            <div key={f.name} className="flex items-center gap-2 px-3 py-1.5 rounded-mb-md bg-mb-bg-light border border-mb-border">
-              <FileText className="w-3.5 h-3.5 text-mb-text-light" />
-              <span className="text-mb-xs font-bold text-mb-text-dark">{f.name}</span>
-              <span className="text-mb-xs text-mb-text-light">
+            <div key={f.name} className="flex items-center gap-2 px-3 py-1.5 rounded-dl-md bg-dl-bg-light border border-dl-border">
+              <FileText className="w-3.5 h-3.5 text-dl-text-light" />
+              <span className="text-dl-xs font-bold text-dl-text-dark">{f.name}</span>
+              <span className="text-dl-xs text-dl-text-light">
                 {f.columns?.length ?? 0} fields &middot; {f.rows.toLocaleString()} rows
               </span>
             </div>
           ))}
           {connectInfo?.connectedSources.map(s => (
-            <div key={s} className="flex items-center gap-2 px-3 py-1.5 rounded-mb-md bg-mb-bg-light border border-mb-border">
-              <Database className="w-3.5 h-3.5 text-mb-text-light" />
-              <span className="text-mb-xs font-bold text-mb-text-dark">{s}</span>
+            <div key={s} className="flex items-center gap-2 px-3 py-1.5 rounded-dl-md bg-dl-bg-light border border-dl-border">
+              <Database className="w-3.5 h-3.5 text-dl-text-light" />
+              <span className="text-dl-xs font-bold text-dl-text-dark">{s}</span>
             </div>
           ))}
         </div>
@@ -356,10 +356,10 @@ export default function CalibratePage() {
 
       {/* ── AI Loading state ── */}
       {aiLoading && (
-        <div className="mb-8 flex flex-col items-center justify-center py-12 mb-card">
-          <Loader2 className="w-8 h-8 text-mb-brand animate-spin mb-3" />
-          <p className="text-mb-sm font-bold text-mb-text-dark">AI is analyzing your data</p>
-          <p className="text-mb-xs text-mb-text-light mt-1">
+        <div className="mb-8 flex flex-col items-center justify-center py-12 dl-card">
+          <Loader2 className="w-8 h-8 text-dl-brand animate-spin mb-3" />
+          <p className="text-dl-sm font-bold text-dl-text-dark">AI is analyzing your data</p>
+          <p className="text-dl-xs text-dl-text-light mt-1">
             Identifying columns, data types, and meaningful metrics...
           </p>
         </div>
@@ -367,12 +367,12 @@ export default function CalibratePage() {
 
       {/* ── AI Error ── */}
       {aiError && (
-        <div className="mb-6 px-4 py-3 rounded-mb-md bg-red-50 border border-mb-error">
-          <p className="text-mb-sm font-bold text-mb-error">Couldn&apos;t analyze data automatically</p>
-          <p className="text-mb-xs text-mb-text-medium mt-1">{aiError}</p>
+        <div className="mb-6 px-4 py-3 rounded-dl-md bg-red-50 border border-dl-error">
+          <p className="text-dl-sm font-bold text-dl-error">Couldn&apos;t analyze data automatically</p>
+          <p className="text-dl-xs text-dl-text-medium mt-1">{aiError}</p>
           <button
             onClick={() => connectInfo && fetchAISuggestions(connectInfo)}
-            className="mb-btn-secondary text-mb-xs mt-2"
+            className="dl-btn-secondary text-dl-xs mt-2"
           >
             Retry
           </button>
@@ -382,8 +382,8 @@ export default function CalibratePage() {
       {/* ── AI-suggested metrics ── */}
       {!aiLoading && aiMetrics.length > 0 && (
         <div className="mb-6">
-          <label className="mb-label flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-mb-brand" />
+          <label className="dl-label flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-dl-brand" />
             AI-suggested metrics from your data
           </label>
           <div className="space-y-1.5 mt-2">
@@ -393,15 +393,15 @@ export default function CalibratePage() {
                 onClick={() => toggleMetric(m.name)}
                 className={`
                   w-full flex items-center justify-between px-4 py-3
-                  border rounded-mb-md cursor-pointer transition-all text-left
+                  border rounded-dl-md cursor-pointer transition-all text-left
                   ${selectedMetrics.includes(m.name)
-                    ? 'border-mb-brand bg-mb-brand-hover'
-                    : 'border-mb-border-dark hover:border-mb-brand hover:bg-mb-brand-hover'}
+                    ? 'border-dl-brand bg-dl-brand-hover'
+                    : 'border-dl-border-dark hover:border-dl-brand hover:bg-dl-brand-hover'}
                 `}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className={`w-4 h-4 rounded-sm border-2 flex-shrink-0 flex items-center justify-center transition-colors
-                    ${selectedMetrics.includes(m.name) ? 'border-mb-brand bg-mb-brand' : 'border-mb-border-dark'}`}
+                    ${selectedMetrics.includes(m.name) ? 'border-dl-brand bg-dl-brand' : 'border-dl-border-dark'}`}
                   >
                     {selectedMetrics.includes(m.name) && (
                       <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
@@ -411,17 +411,17 @@ export default function CalibratePage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`text-mb-sm font-bold ${selectedMetrics.includes(m.name) ? 'text-mb-brand' : 'text-mb-text-dark'}`}>
+                      <span className={`text-dl-sm font-bold ${selectedMetrics.includes(m.name) ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                         {m.name}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-mb-bg-medium text-mb-text-light uppercase flex-shrink-0">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-bg-medium text-dl-text-light uppercase flex-shrink-0">
                         {AGG_LABELS[m.aggregation] || m.aggregation}
                       </span>
                     </div>
-                    <p className="text-mb-xs text-mb-text-light mt-0.5 truncate">{m.reason}</p>
+                    <p className="text-dl-xs text-dl-text-light mt-0.5 truncate">{m.reason}</p>
                   </div>
                 </div>
-                <span className="text-mb-xs text-mb-text-light font-mono flex-shrink-0 ml-3">
+                <span className="text-dl-xs text-dl-text-light font-mono flex-shrink-0 ml-3">
                   {m.column}
                 </span>
               </button>
@@ -433,7 +433,7 @@ export default function CalibratePage() {
       {/* ── Dimensions ── */}
       {!aiLoading && aiDimensions.length > 0 && (
         <div className="mb-6">
-          <label className="mb-label flex items-center gap-1.5">
+          <label className="dl-label flex items-center gap-1.5">
             <Tag className="w-3.5 h-3.5 text-purple-500" />
             Dimensions to group &amp; filter by
           </label>
@@ -441,13 +441,13 @@ export default function CalibratePage() {
             {aiDimensions.map((d, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between px-3 py-2 rounded-mb-md bg-mb-bg-light border border-mb-border"
+                className="flex items-center justify-between px-3 py-2 rounded-dl-md bg-dl-bg-light border border-dl-border"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <Tag className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-                  <span className="text-mb-sm font-bold text-mb-text-dark">{d.name}</span>
+                  <span className="text-dl-sm font-bold text-dl-text-dark">{d.name}</span>
                 </div>
-                <span className="text-mb-xs text-mb-text-light ml-3 truncate max-w-64">{d.reason}</span>
+                <span className="text-dl-xs text-dl-text-light ml-3 truncate max-w-64">{d.reason}</span>
               </div>
             ))}
           </div>
@@ -457,7 +457,7 @@ export default function CalibratePage() {
       {/* ── Fallback when no data or AI hasn't run — generic metric chips ── */}
       {!aiLoading && !hasColumnData && aiMetrics.length === 0 && (
         <div className="mb-6">
-          <label className="mb-label">Key metrics you track</label>
+          <label className="dl-label">Key metrics you track</label>
           <div className="flex flex-wrap gap-2 mt-1">
             {['Revenue', 'MRR', 'Churn Rate', 'CAC', 'LTV', 'Conversion Rate',
               'Ad Spend', 'ROAS', 'Avg Order Value', 'Gross Margin', 'Burn Rate', 'NPS',
@@ -466,11 +466,11 @@ export default function CalibratePage() {
                 key={m}
                 onClick={() => toggleMetric(m)}
                 className={`
-                  border rounded-mb-md px-4 py-2.5
-                  text-mb-sm font-bold cursor-pointer transition-all
+                  border rounded-dl-md px-4 py-2.5
+                  text-dl-sm font-bold cursor-pointer transition-all
                   ${selectedMetrics.includes(m)
-                    ? 'border-mb-brand text-mb-brand bg-mb-brand-hover'
-                    : 'border-mb-border-dark text-mb-text-medium hover:border-mb-brand hover:text-mb-brand hover:bg-mb-brand-hover'}
+                    ? 'border-dl-brand text-dl-brand bg-dl-brand-hover'
+                    : 'border-dl-border-dark text-dl-text-medium hover:border-dl-brand hover:text-dl-brand hover:bg-dl-brand-hover'}
                 `}
               >
                 {m}
@@ -486,10 +486,10 @@ export default function CalibratePage() {
           {customMetrics.map(m => (
             <span
               key={m}
-              className="flex items-center gap-1.5 border border-mb-brand text-mb-brand bg-mb-brand-hover rounded-mb-md px-3 py-1.5 text-mb-sm font-bold"
+              className="flex items-center gap-1.5 border border-dl-brand text-dl-brand bg-dl-brand-hover rounded-dl-md px-3 py-1.5 text-dl-sm font-bold"
             >
               {m}
-              <button onClick={() => removeCustomMetric(m)} className="hover:text-mb-error transition-colors">
+              <button onClick={() => removeCustomMetric(m)} className="hover:text-dl-error transition-colors">
                 <X className="w-3 h-3" />
               </button>
             </span>
@@ -499,10 +499,10 @@ export default function CalibratePage() {
 
       {/* ── Add custom metric ── */}
       <div className="mb-8">
-        <label className="mb-label">Add a custom metric</label>
+        <label className="dl-label">Add a custom metric</label>
         <div className="flex gap-2 mt-1">
           <input
-            className="mb-input flex-1"
+            className="dl-input flex-1"
             placeholder="e.g. Customer Retention Rate"
             value={customMetric}
             onChange={e => setCustomMetric(e.target.value)}
@@ -511,7 +511,7 @@ export default function CalibratePage() {
           <button
             onClick={addCustomMetric}
             disabled={!customMetric.trim()}
-            className={`mb-btn-secondary flex items-center gap-1.5 ${!customMetric.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
+            className={`dl-btn-secondary flex items-center gap-1.5 ${!customMetric.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             <Plus className="w-4 h-4" />
             Add
@@ -522,8 +522,8 @@ export default function CalibratePage() {
       {/* ── Sync frequency — only for connected databases ── */}
       {hasConnectedDatabases && (
         <div className="mb-8">
-          <label className="mb-label">How often should data sync?</label>
-          <p className="text-mb-xs text-mb-text-light mb-2">
+          <label className="dl-label">How often should data sync?</label>
+          <p className="text-dl-xs text-dl-text-light mb-2">
             Applies to your connected databases &amp; apps. Uploaded files are imported once.
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -532,19 +532,19 @@ export default function CalibratePage() {
                 key={f.id}
                 onClick={() => setFrequency(f.id)}
                 className={`
-                  border rounded-mb-md p-4 text-left cursor-pointer transition-all
+                  border rounded-dl-md p-4 text-left cursor-pointer transition-all
                   ${frequency === f.id
-                    ? 'border-mb-brand bg-mb-brand-hover'
-                    : 'border-mb-border-dark hover:border-mb-brand'}
+                    ? 'border-dl-brand bg-dl-brand-hover'
+                    : 'border-dl-border-dark hover:border-dl-brand'}
                 `}
               >
                 <f.icon
-                  className={`w-5 h-5 mb-2 ${frequency === f.id ? 'text-mb-brand' : 'text-mb-text-light'}`}
+                  className={`w-5 h-5 mb-2 ${frequency === f.id ? 'text-dl-brand' : 'text-dl-text-light'}`}
                 />
-                <div className={`text-mb-sm font-black ${frequency === f.id ? 'text-mb-brand' : 'text-mb-text-dark'}`}>
+                <div className={`text-dl-sm font-black ${frequency === f.id ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                   {f.label}
                 </div>
-                <div className="text-mb-xs text-mb-text-light">{f.desc}</div>
+                <div className="text-dl-xs text-dl-text-light">{f.desc}</div>
               </button>
             ))}
           </div>
@@ -555,14 +555,14 @@ export default function CalibratePage() {
       <button
         onClick={handleLaunch}
         disabled={loading || aiLoading || selectedMetrics.length === 0}
-        className={`mb-btn-primary w-full py-2.5 text-mb-base font-black justify-center
+        className={`dl-btn-primary w-full py-2.5 text-dl-base font-black justify-center
           ${loading || aiLoading || selectedMetrics.length === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
       >
         {loading ? 'Saving...' : 'Start analyzing'}
       </button>
 
       {!aiLoading && selectedMetrics.length === 0 && (
-        <p className="text-mb-xs text-mb-text-light text-center mt-2">
+        <p className="text-dl-xs text-dl-text-light text-center mt-2">
           Select at least one metric to continue
         </p>
       )}

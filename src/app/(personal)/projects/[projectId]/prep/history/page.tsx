@@ -84,8 +84,8 @@ export default function PrepHistoryPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-8 space-y-3">
-        <div className="h-10 rounded-mb-md bg-mb-bg-medium animate-pulse" />
-        <div className="h-10 rounded-mb-md bg-mb-bg-medium animate-pulse" />
+        <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
+        <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
       </div>
     )
   }
@@ -93,24 +93,24 @@ export default function PrepHistoryPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
       <div className="flex items-center gap-3 mb-6">
-        <Link href={`${base}/prep`} className="text-mb-text-light hover:text-mb-brand transition-colors">
+        <Link href={`${base}/prep`} className="text-dl-text-light hover:text-dl-brand transition-colors">
           <ArrowLeft size={16} />
         </Link>
         <div>
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">Pipeline Run History</h1>
-          <p className="text-mb-text-light text-mb-sm mt-0.5">All data preparation runs for this project</p>
+          <h1 className="text-dl-2xl font-black text-dl-text-dark">Pipeline Run History</h1>
+          <p className="text-dl-text-light text-dl-sm mt-0.5">All data preparation runs for this project</p>
         </div>
       </div>
 
       {runs.length === 0 ? (
-        <div className="mb-card p-8 text-center">
-          <History size={24} className="text-mb-text-light mx-auto mb-3" />
-          <p className="text-mb-text-dark text-mb-sm font-bold">No pipeline runs yet</p>
-          <p className="text-mb-text-light text-mb-xs mt-1">Prepare a data source to see run history here.</p>
+        <div className="dl-card p-8 text-center">
+          <History size={24} className="text-dl-text-light mx-auto mb-3" />
+          <p className="text-dl-text-dark text-dl-sm font-bold">No pipeline runs yet</p>
+          <p className="text-dl-text-light text-dl-xs mt-1">Prepare a data source to see run history here.</p>
         </div>
       ) : (
-        <div className="mb-card overflow-hidden">
-          <table className="mb-table">
+        <div className="dl-card overflow-hidden">
+          <table className="dl-table">
             <thead>
               <tr>
                 <th>{t("common.source")}</th>
@@ -129,19 +129,19 @@ export default function PrepHistoryPage() {
                   : '—'
                 return (
                   <tr key={run.id}>
-                    <td className="font-bold text-mb-xs">{sourceNames[run.source_id] || run.source_id.slice(0, 8)}</td>
-                    <td className="text-mb-text-medium text-mb-xs">
+                    <td className="font-bold text-dl-xs">{sourceNames[run.source_id] || run.source_id.slice(0, 8)}</td>
+                    <td className="text-dl-text-medium text-dl-xs">
                       {formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}
                     </td>
-                    <td className="text-mb-xs font-mono">{duration}</td>
+                    <td className="text-dl-xs font-mono">{duration}</td>
                     <td>
-                      <span className={run.status === 'success' ? 'mb-badge-success' : run.status === 'failed' ? 'mb-badge-error' : 'mb-badge-warning'}>
+                      <span className={run.status === 'success' ? 'dl-badge-success' : run.status === 'failed' ? 'dl-badge-error' : 'dl-badge-warning'}>
                         {run.status}
                       </span>
                     </td>
-                    <td className="text-mb-xs font-mono">{run.rows_after?.toLocaleString() ?? '—'}</td>
-                    <td className="text-mb-xs font-mono">{run.quality_score ?? '—'}</td>
-                    <td className="text-mb-xs font-mono">{run.transformations_applied ?? '—'}</td>
+                    <td className="text-dl-xs font-mono">{run.rows_after?.toLocaleString() ?? '—'}</td>
+                    <td className="text-dl-xs font-mono">{run.quality_score ?? '—'}</td>
+                    <td className="text-dl-xs font-mono">{run.transformations_applied ?? '—'}</td>
                   </tr>
                 )
               })}
