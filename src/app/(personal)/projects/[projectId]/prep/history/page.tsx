@@ -104,7 +104,7 @@ export default function PrepHistoryPage() {
 
       {runs.length === 0 ? (
         <div className="dl-card p-8 text-center">
-          <History size={24} className="text-dl-text-light mx-auto mb-3" />
+          <History size={24} className="text-dl-brand mx-auto mb-3" />
           <p className="text-dl-text-dark text-dl-sm font-bold">No pipeline runs yet</p>
           <p className="text-dl-text-light text-dl-xs mt-1">Prepare a data source to see run history here.</p>
         </div>

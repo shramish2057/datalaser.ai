@@ -136,7 +136,7 @@ export default function InsightsPage() {
 
       {sources.length === 0 && (
         <div className="bg-white border border-dl-border rounded-dl-lg p-8 text-center">
-          <Database size={32} className="text-dl-text-light mx-auto mb-3" />
+          <Database size={32} className="text-dl-brand mx-auto mb-3" />
           <p className="text-dl-text-dark text-dl-sm font-medium mb-2">{t('insights.noSources')}</p>
           <p className="text-dl-text-light text-dl-xs mb-4">{t('insights.noSourcesDesc')}</p>
           <button onClick={() => router.push(`${base}/sources/new`)}

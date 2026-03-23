@@ -424,7 +424,7 @@ function ConnectSourceUpload({ projectId, onDone }: { projectId: string; onDone:
       <div {...getRootProps()} className={`border-2 border-dashed rounded-dl-lg p-8 text-center cursor-pointer transition-colors
         ${isDragActive ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border-dark hover:border-dl-brand'}`}>
         <input {...getInputProps()} />
-        <UploadCloud className="w-8 h-8 text-dl-text-light mx-auto mb-2" />
+        <UploadCloud className="w-8 h-8 text-dl-brand/60 mx-auto mb-2" />
         <p className="text-dl-text-medium text-dl-sm">{uploading ? t('common.upload') + '...' : t('sources.dropFile')}</p>
         <p className="text-dl-text-light text-dl-xs mt-1">{t('sources.csvExcelJson')}</p>
       </div>

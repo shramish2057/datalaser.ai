@@ -174,7 +174,7 @@ export default function AskPage() {
           {/* Empty state */}
           {messages.length === 0 && !loading && (
             <div className="text-center py-20">
-              <Sparkles className="w-10 h-10 text-dl-text-light mx-auto mb-4" />
+              <Sparkles className="w-10 h-10 text-dl-brand mx-auto mb-4" />
               <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t("ask.askAnything")}</h2>
               <p className="text-dl-text-medium text-dl-sm max-w-md mx-auto">
                 {t("ask.askDesc")}

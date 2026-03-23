@@ -186,7 +186,7 @@ export default function SourceSettingsPage() {
 
         {!isPrepared ? (
           <div className="dl-card p-6 text-center">
-            <Wand2 size={24} className="text-dl-text-light mx-auto mb-3" />
+            <Wand2 size={24} className="text-dl-brand mx-auto mb-3" />
             <p className="text-dl-text-dark text-dl-sm font-bold mb-1">Data not yet prepared</p>
             <p className="text-dl-text-medium text-dl-xs mb-4">Run the preparation wizard to clean and validate your data.</p>
             <button onClick={() => router.push(`${base}/prepare`)} className="dl-btn-primary">

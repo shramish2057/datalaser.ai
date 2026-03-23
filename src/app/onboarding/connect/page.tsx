@@ -475,7 +475,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
               `}
             >
               <input {...getInputProps()} />
-              <UploadCloud className="w-8 h-8 text-dl-text-light mx-auto mb-2" />
+              <UploadCloud className="w-8 h-8 text-dl-brand/60 mx-auto mb-2" />
               <p className="text-dl-text-medium text-dl-sm">Drag files here, or click to browse</p>
               <p className="text-dl-text-light text-dl-xs mt-1">Supports CSV, Excel (.xlsx/.xls), JSON, Parquet</p>
             </div>

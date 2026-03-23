@@ -318,7 +318,7 @@ export default function DataPrepPage() {
       {tab === 'cleaned' && (
         cleanedSources.length === 0 ? (
           <div className="text-center py-12">
-            <CheckCircle2 size={32} className="text-dl-text-light mx-auto mb-3" />
+            <CheckCircle2 size={32} className="text-dl-brand mx-auto mb-3" />
             <p className="text-dl-text-dark text-dl-sm font-bold mb-1">No cleaned datasets yet</p>
             <p className="text-dl-text-light text-dl-xs mb-4">Prepare a data source to see your cleaned data here.</p>
             <button onClick={() => setTab('prepare')} className="dl-btn-primary text-dl-xs">
@@ -384,7 +384,7 @@ export default function DataPrepPage() {
                   ${isDragActive ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border-dark hover:border-dl-brand'}`}
               >
                 <input {...getInputProps()} />
-                <UploadCloud className="w-8 h-8 text-dl-text-light mx-auto mb-2" />
+                <UploadCloud className="w-8 h-8 text-dl-brand/60 mx-auto mb-2" />
                 <p className="text-dl-text-medium text-dl-sm font-bold">Upload a file to prepare</p>
                 <p className="text-dl-text-light text-dl-xs mt-1">Drop a CSV, Excel, or JSON file here</p>
               </div>
@@ -476,7 +476,7 @@ export default function DataPrepPage() {
       {tab === 'history' && (
         runs.length === 0 ? (
           <div className="text-center py-12">
-            <History size={32} className="text-dl-text-light mx-auto mb-3" />
+            <History size={32} className="text-dl-brand mx-auto mb-3" />
             <p className="text-dl-text-dark text-dl-sm font-bold mb-1">No pipeline runs yet</p>
             <p className="text-dl-text-light text-dl-xs">Prepare a data source to see run history here.</p>
           </div>
