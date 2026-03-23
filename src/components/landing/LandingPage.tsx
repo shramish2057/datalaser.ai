@@ -81,7 +81,7 @@ export default function LandingPage() {
       }`}>
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-[72px] flex items-center justify-between">
           <Link href={`/${locale}`} className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center shadow-lg shadow-gray-900/15">
+            <div className="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center shadow-lg shadow-gray-900/15">
               <Zap size={18} className="text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-gray-900">DataLaser</span>
@@ -163,7 +163,7 @@ export default function LandingPage() {
             ].map((p, i) => (
               <Reveal key={p.name} delay={i * 0.08}>
                 <div className={`relative rounded-2xl p-8 border transition-all ${
-                  p.pop ? 'bg-gray-900 text-white border-violet-600 shadow-xl shadow-gray-900/15' : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-lg'
+                  p.pop ? 'bg-gray-900 text-white border-gray-900 shadow-xl shadow-gray-900/15' : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-lg'
                 }`}>
                   {p.pop && (
                     <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-gray-900 text-xs font-bold shadow">
@@ -184,7 +184,7 @@ export default function LandingPage() {
                   <ul className="space-y-3.5">
                     {p.features.map(f => (
                       <li key={f} className={`flex items-start gap-3 text-sm ${p.pop ? 'text-white/80' : 'text-gray-600'}`}>
-                        <Check size={16} className={`mt-0.5 flex-shrink-0 ${p.pop ? 'text-white/60' : 'text-violet-500'}`} />
+                        <Check size={16} className={`mt-0.5 flex-shrink-0 ${p.pop ? 'text-white/60' : 'text-gray-700'}`} />
                         {f.trim()}
                       </li>
                     ))}
@@ -249,7 +249,7 @@ export default function LandingPage() {
       <footer className="border-t border-gray-100 py-14 px-6 bg-gray-50/50">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-violet-700 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
               <Zap size={13} className="text-white" />
             </div>
             <span className="font-bold text-gray-900">DataLaser</span>

@@ -46,7 +46,7 @@ const INSIGHT_COLORS: Record<string, string> = {
   change_point: 'border-orange-200 bg-orange-50',
   majority: 'border-amber-200 bg-amber-50',
   key_influencer: 'border-cyan-200 bg-cyan-50',
-  clustering: 'border-violet-200 bg-violet-50',
+  clustering: 'border-gray-200 bg-gray-50',
   forecast: 'border-emerald-200 bg-emerald-50',
 }
 
@@ -384,7 +384,7 @@ export default function AutoAnalysisPage() {
         {analysis.clusters.n_clusters >= 2 && (
           <section>
             <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Layers size={16} className="text-violet-500" /> Auto-Detected Clusters
+              <Layers size={16} className="text-gray-700" /> Auto-Detected Clusters
             </h2>
             <div className="bg-white border border-dl-border rounded-dl-lg p-4">
               <p className="text-[13px] text-dl-text-dark mb-3">

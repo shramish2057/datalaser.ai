@@ -96,7 +96,7 @@ export function FeaturesHow() {
                                             <div className="bg-gray-50 border rounded-lg p-2 w-full">
                                                 <div className="flex items-end gap-1 h-12">
                                                     {[68, 65, 57, 42, 38].map((h, i) => (
-                                                        <div key={i} className="flex-1 bg-violet-400 rounded-[1px] opacity-70" style={{ height: `${h}%` }} />
+                                                        <div key={i} className="flex-1 bg-gray-600 rounded-[1px] opacity-70" style={{ height: `${h}%` }} />
                                                     ))}
                                                 </div>
                                             </div>

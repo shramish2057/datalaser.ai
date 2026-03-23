@@ -25,7 +25,7 @@ const INSIGHT_COLORS: Record<string, string> = {
   anomaly: 'border-l-red-400', distribution: 'border-l-purple-400',
   association: 'border-l-teal-400', trend: 'border-l-indigo-400',
   majority: 'border-l-amber-400', key_influencer: 'border-l-cyan-400',
-  clustering: 'border-l-violet-400', contribution: 'border-l-emerald-400',
+  clustering: 'border-l-gray-400', contribution: 'border-l-emerald-400',
 }
 
 interface TopInsight {
