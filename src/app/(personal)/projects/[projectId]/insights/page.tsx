@@ -1,40 +1,29 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
-import { BarChart2, Database, X as XIcon } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import {
+  BarChart2, Database, Zap, ArrowRight, Loader2, Play,
+  CheckCircle2, Clock, AlertTriangle
+} from 'lucide-react'
 
-type InsightDoc = {
+interface SourceAnalysis {
   id: string
-  title: string
-  executive_summary: string
-  severity_chips: { label: string; type: string }[]
-  kpis: { name: string; value: string; change: string; positive: boolean }[]
-  key_findings: { headline: string; explanation: string; severity: string }[]
-  recommendations: { text: string; priority: string; impact?: string }[]
-  generated_at: string
+  name: string
+  source_type: string
+  row_count: number
+  pipeline_status: string
+  analyzed_at: string | null
+  analysis_status: string | null
+  insight_count: number
+  top_insights: { type: string; headline: string }[]
 }
 
-const CYCLING_MESSAGES = [
-  'Connecting to your data sources...',
-  'Sampling rows across all tables...',
-  'Building context for AI analysis...',
-  'Claude is reading your business data...',
-  'Identifying patterns and anomalies...',
-  'Writing executive summary...',
-  'Generating recommendations...',
-  'Almost there...',
-]
-
-export default function ProjectInsightsPage() {
-  const [state, setState] = useState<'loading' | 'no-sources' | 'generating' | 'ready'>('loading')
-  const [doc, setDoc] = useState<InsightDoc | null>(null)
-  const [cycleIdx, setCycleIdx] = useState(0)
-  const [projectSources, setProjectSources] = useState<{ id: string; name: string; source_type: string }[]>([])
-  const [activeSources, setActiveSources] = useState<Set<string>>(new Set())
-
+export default function InsightsPage() {
+  const [sources, setSources] = useState<SourceAnalysis[]>([])
+  const [loading, setLoading] = useState(true)
+  const [runningId, setRunningId] = useState<string | null>(null)
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string
@@ -44,310 +33,195 @@ export default function ProjectInsightsPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const loadInsights = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/login'); return }
-
-    // Fetch all sources for the selector
-    const { data: srcList } = await supabase
-      .from('data_sources')
-      .select('id, name, source_type')
-      .eq('project_id', projectId)
-      .eq('status', 'active')
-
-    if (!srcList || srcList.length === 0) {
-      setState('no-sources')
-      return
-    }
-
-    setProjectSources(srcList)
-    if (activeSources.size === 0) {
-      setActiveSources(new Set(srcList.map(s => s.id)))
-    }
-
-    const { data: docs } = await supabase
-      .from('insight_documents')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('generated_at', { ascending: false })
-      .limit(1)
-
-    if (docs && docs.length > 0) {
-      setDoc(docs[0] as unknown as InsightDoc)
-      setState('ready')
-      return
-    }
-
-    setState('generating')
-    try {
-      const res = await fetch('/api/insights/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          project_id: projectId,
-          source_ids: activeSources.size < projectSources.length ? Array.from(activeSources) : undefined,
-        }),
-      })
-      const json = await res.json()
-      if (json.success && json.document) {
-        setDoc(json.document as InsightDoc)
-        setState('ready')
-      } else {
-        setState('no-sources')
-      }
-    } catch {
-      setState('no-sources')
-    }
-  }, [supabase, router, projectId])
-
   useEffect(() => {
-    loadInsights()
-  }, [loadInsights])
+    async function load() {
+      const { data: srcs } = await supabase
+        .from('data_sources')
+        .select('id, name, source_type, row_count, pipeline_status, analyzed_at, analysis_status, auto_analysis')
+        .eq('project_id', projectId)
+        .eq('status', 'active')
+        .order('analyzed_at', { ascending: false, nullsFirst: false })
 
-  useEffect(() => {
-    if (state !== 'generating') return
-    const interval = setInterval(() => {
-      setCycleIdx(prev => (prev + 1) % CYCLING_MESSAGES.length)
-    }, 2500)
-    return () => clearInterval(interval)
-  }, [state])
-
-  const regenerate = async () => {
-    setState('generating')
-    setCycleIdx(0)
-    try {
-      const res = await fetch('/api/insights/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          project_id: projectId,
-          source_ids: activeSources.size < projectSources.length ? Array.from(activeSources) : undefined,
-        }),
+      const mapped: SourceAnalysis[] = (srcs || []).map(src => {
+        const analysis = src.auto_analysis as Record<string, unknown> | null
+        const insights = (analysis?.top_insights as { type: string; headline: string }[]) || []
+        return {
+          id: src.id,
+          name: src.name,
+          source_type: src.source_type,
+          row_count: src.row_count || 0,
+          pipeline_status: src.pipeline_status || 'unprepared',
+          analyzed_at: src.analyzed_at,
+          analysis_status: src.analysis_status,
+          insight_count: insights.length,
+          top_insights: insights.slice(0, 3),
+        }
       })
-      const json = await res.json()
-      if (json.success && json.document) {
-        setDoc(json.document as InsightDoc)
-        setState('ready')
-      }
-    } catch {
-      if (doc) setState('ready')
+
+      setSources(mapped)
+      setLoading(false)
     }
+    load()
+  }, [projectId])
+
+  const handleRunAnalysis = async (sourceId: string) => {
+    setRunningId(sourceId)
+    try {
+      const { data: src } = await supabase
+        .from('data_sources').select('file_path, source_type, name')
+        .eq('id', sourceId).single()
+      if (!src?.file_path) return
+
+      const { data: blob } = await supabase.storage.from('data-sources').download(src.file_path)
+      if (!blob) return
+
+      const fd = new FormData()
+      fd.append('file', new File([blob], src.name), src.name)
+      fd.append('file_type', src.source_type || 'csv')
+      fd.append('source_id', sourceId)
+
+      const res = await fetch('/api/pipeline/auto-analysis', { method: 'POST', body: fd })
+      const data = await res.json()
+
+      if (!data.error) {
+        await supabase.from('data_sources').update({
+          auto_analysis: data,
+          analysis_status: 'complete',
+          analyzed_at: new Date().toISOString(),
+        }).eq('id', sourceId)
+
+        // Refresh
+        const insights = (data.top_insights as { type: string; headline: string }[]) || []
+        setSources(prev => prev.map(s => s.id === sourceId ? {
+          ...s, insight_count: insights.length, top_insights: insights.slice(0, 3),
+          analysis_status: 'complete', analyzed_at: new Date().toISOString(),
+        } : s))
+      }
+    } finally {
+      setRunningId(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 size={24} className="text-mb-brand animate-spin" />
+      </div>
+    )
   }
 
   const base = `/projects/${projectId}`
-
-  // --- STATE 1: No sources ---
-  if (state === 'no-sources') {
-    return (
-      <div className="flex items-center justify-center h-full p-8">
-        <div className="text-center max-w-sm">
-          <div className="w-16 h-16 rounded-full bg-mb-bg-medium flex items-center justify-center mx-auto mb-4">
-            <BarChart2 size={28} className="text-mb-text-light" />
-          </div>
-          <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Connect your first database</h2>
-          <p className="text-mb-text-medium text-mb-base mb-6">
-            DataLaser needs a data source to generate insights.
-          </p>
-          <button
-            className="mb-btn-primary px-6 py-2"
-            onClick={() => router.push(`${base}/sources/new`)}
-          >
-            Add a database
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // --- STATE 2: Generating ---
-  if (state === 'loading' || state === 'generating') {
-    return (
-      <div className="max-w-[860px] mx-auto px-6 py-8 space-y-4">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-4 h-4 rounded-full border-2 border-mb-brand border-t-transparent animate-spin" />
-          <span className="text-mb-text-medium text-mb-base font-bold">
-            {state === 'loading' ? 'Loading...' : CYCLING_MESSAGES[cycleIdx]}
-          </span>
-        </div>
-        <div className="h-28 rounded-mb-lg mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-10 rounded-mb-md mb-shimmer" />
-        <div className="h-56 rounded-mb-lg mb-shimmer" />
-      </div>
-    )
-  }
-
-  // --- STATE 3: Document loaded ---
-  if (!doc) return null
+  const analyzed = sources.filter(s => s.insight_count > 0)
+  const pending = sources.filter(s => s.insight_count === 0)
 
   return (
-    <div className="max-w-[860px] mx-auto px-6 py-8">
-
-      {/* Source indicator */}
-      {projectSources.length > 1 && (
-        <div className="flex items-center gap-2 mb-4 flex-wrap">
-          <span className="text-[10px] font-bold text-mb-text-light uppercase tracking-wider flex items-center gap-1">
-            <Database size={10} /> Sources:
-          </span>
-          {projectSources.map(src => {
-            const isActive = activeSources.has(src.id)
-            return (
-              <button
-                key={src.id}
-                onClick={() => {
-                  const next = new Set(activeSources)
-                  if (isActive && next.size > 1) next.delete(src.id)
-                  else next.add(src.id)
-                  setActiveSources(next)
-                }}
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors
-                  ${isActive
-                    ? 'bg-mb-brand-hover text-mb-brand border border-mb-brand/30'
-                    : 'bg-mb-bg-medium text-mb-text-light border border-transparent hover:border-mb-border'}`}
-              >
-                {src.name}
-                {isActive && activeSources.size > 1 && <XIcon size={9} className="opacity-60" />}
-              </button>
-            )
-          })}
-          {activeSources.size < projectSources.length && (
-            <button onClick={regenerate} className="text-[10px] font-bold text-mb-brand hover:underline ml-1">
-              Regenerate with selection
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Toolbar */}
+    <div className="max-w-4xl mx-auto px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">{doc.title}</h1>
-          <p className="text-mb-text-light text-mb-sm mt-0.5">
-            Generated {formatDistanceToNow(new Date(doc.generated_at))} ago
+          <h1 className="text-[20px] font-black text-mb-text-dark">Insights</h1>
+          <p className="text-mb-text-light text-mb-xs mt-0.5">
+            Auto-computed analysis for each data source — no AI, pure statistical engine
           </p>
         </div>
-        <div className="flex items-center">
-          <button onClick={regenerate} className="mb-btn-subtle gap-1.5 text-mb-sm">
-            ↻ Regenerate
-          </button>
-          <button className="mb-btn-subtle gap-1.5 text-mb-sm ml-1">
-            ⬇ Export
-          </button>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-mb-text-light">
+            {analyzed.length} of {sources.length} sources analyzed
+          </span>
         </div>
       </div>
 
-      {/* Section 1 — Summary */}
-      <div className="mb-6 p-5 rounded-mb-lg bg-mb-bg border border-mb-border shadow-mb-sm">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 rounded-full bg-mb-success" />
-          <span className="mb-section-header">AI Executive Summary</span>
+      {sources.length === 0 && (
+        <div className="bg-white border border-mb-border rounded-mb-lg p-8 text-center">
+          <Database size={32} className="text-mb-text-light mx-auto mb-3" />
+          <p className="text-mb-text-dark text-mb-sm font-medium mb-2">No data sources connected</p>
+          <p className="text-mb-text-light text-mb-xs mb-4">Add a data source to start generating insights.</p>
+          <button onClick={() => router.push(`${base}/sources/new`)}
+            className="mb-btn-primary text-mb-sm px-4 py-2">
+            Add data source
+          </button>
         </div>
-        <p className="text-mb-text-dark text-mb-base leading-relaxed">{doc.executive_summary}</p>
-        {doc.severity_chips && doc.severity_chips.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {doc.severity_chips.map((chip) => (
-              <span
-                key={chip.label}
-                className={
-                  chip.type === 'positive' ? 'mb-badge-success' :
-                  chip.type === 'warning' ? 'mb-badge-warning' :
-                  chip.type === 'critical' ? 'mb-badge-error' : 'mb-badge-neutral'
-                }
-              >
-                {chip.label}
-              </span>
+      )}
+
+      {/* Analyzed Sources */}
+      {analyzed.length > 0 && (
+        <section className="mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-mb-text-light mb-3">
+            Analyzed ({analyzed.length})
+          </p>
+          <div className="space-y-3">
+            {analyzed.map(src => (
+              <button key={src.id}
+                onClick={() => router.push(`${base}/sources/${src.id}/analysis`)}
+                className="w-full bg-white border border-mb-border rounded-mb-lg p-4 text-left hover:border-mb-brand transition-colors group">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 size={16} className="text-mb-success flex-shrink-0" />
+                    <span className="text-[14px] font-bold text-mb-text-dark">{src.name}</span>
+                    <span className="text-[10px] text-mb-text-light uppercase bg-mb-bg-light px-1.5 py-0.5 rounded">
+                      {src.source_type}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] text-mb-brand font-medium">{src.insight_count} insights</span>
+                    <ArrowRight size={14} className="text-mb-text-light group-hover:text-mb-brand transition-colors" />
+                  </div>
+                </div>
+
+                {/* Preview of top insights */}
+                <div className="ml-7 space-y-1">
+                  {src.top_insights.map((ins, i) => (
+                    <p key={i} className="text-[12px] text-mb-text-medium truncate">
+                      <span className="text-[10px] text-mb-text-light mr-1.5">{ins.type.replace(/_/g, ' ')}</span>
+                      {ins.headline}
+                    </p>
+                  ))}
+                </div>
+
+                <div className="ml-7 mt-2 flex items-center gap-3 text-[10px] text-mb-text-light">
+                  <span>{src.row_count.toLocaleString()} rows</span>
+                  {src.analyzed_at && (
+                    <span>Analyzed {new Date(src.analyzed_at).toLocaleDateString('de-DE')}</span>
+                  )}
+                </div>
+              </button>
             ))}
           </div>
-        )}
-      </div>
+        </section>
+      )}
 
-      {/* Section 2 — KPIs */}
-      {doc.kpis && doc.kpis.length > 0 && (
-        <div className="mb-6">
-          <p className="mb-section-header mb-3">Key Metrics</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {doc.kpis.map((kpi) => (
-              <div key={kpi.name} className="bg-mb-bg rounded-mb-lg border border-mb-border p-4 shadow-mb-sm">
-                <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">
-                  {kpi.name}
-                </p>
-                <p className="text-mb-2xl font-black text-mb-text-dark font-mono">{kpi.value}</p>
-                <p className={`text-mb-sm font-bold mt-0.5 ${kpi.positive ? 'text-mb-success' : 'text-mb-error'}`}>
-                  {kpi.positive ? '↑' : '↓'} {kpi.change}
-                </p>
+      {/* Pending Sources */}
+      {pending.length > 0 && (
+        <section>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-mb-text-light mb-3">
+            Not yet analyzed ({pending.length})
+          </p>
+          <div className="space-y-2">
+            {pending.map(src => (
+              <div key={src.id}
+                className="bg-white border border-mb-border rounded-mb-lg p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Clock size={16} className="text-mb-text-light flex-shrink-0" />
+                  <div>
+                    <span className="text-[13px] font-medium text-mb-text-dark">{src.name}</span>
+                    <span className="text-[10px] text-mb-text-light uppercase ml-2">{src.source_type}</span>
+                    <p className="text-[11px] text-mb-text-light">{src.row_count.toLocaleString()} rows</p>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRunAnalysis(src.id) }}
+                  disabled={runningId === src.id}
+                  className="flex items-center gap-1.5 text-[12px] font-medium text-mb-brand hover:text-mb-brand-dark disabled:opacity-50 bg-mb-brand-hover px-3 py-1.5 rounded-mb-md">
+                  {runningId === src.id ? (
+                    <><Loader2 size={12} className="animate-spin" /> Analyzing...</>
+                  ) : (
+                    <><Play size={12} /> Run Analysis</>
+                  )}
+                </button>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
-
-      {/* Section 3 — Key Findings */}
-      {doc.key_findings && doc.key_findings.length > 0 && (
-        <div className="mb-6">
-          <p className="mb-section-header mb-3">Key Findings</p>
-          {doc.key_findings.map((finding, i) => (
-            <div key={i} className="flex gap-4 py-4 border-b border-mb-border last:border-0">
-              <span className="text-mb-xl font-black text-mb-text-light w-6 flex-shrink-0">
-                {i + 1}
-              </span>
-              <div className="flex-1">
-                <p className="font-black text-mb-text-dark text-mb-base mb-1">{finding.headline}</p>
-                <p className="text-mb-text-medium text-mb-sm leading-relaxed">{finding.explanation}</p>
-                <span
-                  className={`inline-block mt-2 ${
-                    finding.severity === 'positive' ? 'mb-badge-success' :
-                    finding.severity === 'warning' ? 'mb-badge-warning' :
-                    finding.severity === 'critical' ? 'mb-badge-error' : 'mb-badge-neutral'
-                  }`}
-                >
-                  {finding.severity}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Section 4 — Recommendations */}
-      {doc.recommendations && doc.recommendations.length > 0 && (
-        <div className="mb-6">
-          <p className="mb-section-header mb-3">Recommendations</p>
-          {doc.recommendations.map((rec, i) => (
-            <div key={i} className="flex items-start gap-3 py-3 border-b border-mb-border last:border-0">
-              <span
-                className={`inline-flex items-center px-2 py-0.5 rounded-full text-mb-xs font-bold mt-0.5 flex-shrink-0 ${
-                  rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                  rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-mb-brand'
-                }`}
-              >
-                {rec.priority}
-              </span>
-              <div className="flex-1">
-                <p className="text-mb-text-dark text-mb-sm font-bold">{rec.text}</p>
-                {rec.impact && (
-                  <p className="text-mb-text-light text-mb-xs mt-0.5">{rec.impact}</p>
-                )}
-              </div>
-              <button className="mb-btn-subtle text-mb-xs py-1 px-2 flex-shrink-0">Assign</button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Section 5 — Bottom action bar */}
-      <div className="flex items-center justify-between pt-4 border-t border-mb-border">
-        <p className="text-mb-text-medium text-mb-sm">Want to dig deeper into this data?</p>
-        <div className="flex gap-2">
-          <button className="mb-btn-primary" onClick={() => router.push(`${base}/ask`)}>
-            Ask a question
-          </button>
-          <button className="mb-btn-secondary" onClick={() => router.push(`${base}/dashboard`)}>
-            Build a dashboard
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

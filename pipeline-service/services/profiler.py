@@ -148,9 +148,12 @@ class DataProfiler:
         if dtype == 'date':
             format_issues = has_format_inconsistency(non_null_strs[:20])
 
+        semantic_role = self._detect_semantic_role(dtype, unique_count, unique_rate, col, non_null_strs, total_rows)
+
         return ColumnProfile(
             name=col,
             dtype=dtype,
+            semantic_role=semantic_role,
             null_rate=round(null_rate, 4),
             unique_rate=round(unique_rate, 4),
             total_values=len(non_null_strs),
@@ -204,6 +207,34 @@ class DataProfiler:
                 return 'text'
 
         return 'categorical'
+
+    def _detect_semantic_role(self, dtype: str, unique_count: int, unique_rate: float,
+                               col_name: str, non_null_strs: list, total_rows: int) -> str:
+        """Classify column into a semantic role for analysis."""
+        if dtype == 'date':
+            return 'date'
+        if dtype == 'id':
+            return 'id'
+        if dtype == 'numeric':
+            # Binary: exactly 2 unique values (e.g. 0/1, Survived)
+            if unique_count == 2:
+                return 'binary'
+            # ID-like numeric: high cardinality sequential integers
+            if unique_rate > 0.9 and unique_count > 20:
+                return 'id'
+            return 'measure'
+        if dtype == 'categorical':
+            # Check for binary text (yes/no, true/false, m/f)
+            if unique_count == 2:
+                return 'binary'
+            # Low cardinality = dimension (good for grouping)
+            if unique_count <= 50:
+                return 'dimension'
+            # High cardinality categorical = text/free-form
+            return 'text'
+        if dtype == 'text':
+            return 'text'
+        return 'unknown'
 
     def _is_numeric(self, value: str) -> bool:
         try:

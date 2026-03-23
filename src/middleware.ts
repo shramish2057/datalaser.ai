@@ -6,6 +6,13 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   const { pathname } = req.nextUrl
 
+  // Locale detection: cookie > Accept-Language > default 'en'
+  if (!req.cookies.get('dl_locale')) {
+    const acceptLang = req.headers.get('accept-language') || ''
+    const locale = acceptLang.includes('de') ? 'de' : 'en'
+    res.cookies.set('dl_locale', locale, { maxAge: 365 * 24 * 3600, path: '/' })
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

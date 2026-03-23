@@ -39,6 +39,7 @@ class TransformOperation(str, Enum):
 class ColumnProfile(BaseModel):
     name: str
     dtype: str
+    semantic_role: str = 'unknown'  # measure | dimension | binary | date | id | text
     null_rate: float
     unique_rate: float
     total_values: int
@@ -158,3 +159,25 @@ class ValidationReport(BaseModel):
     issues_count: int = 0
     characteristics_count: int = 0
     fixable_resolved: bool = False
+
+
+# -- Analysis Templates -------------------------------------------------------
+
+class TemplateMatch(BaseModel):
+    template_id: str
+    name: str
+    category: str
+    description: str
+    confidence: float
+    matched_columns: Dict[str, str]
+
+
+class TemplateResult(BaseModel):
+    template_id: str
+    name: str
+    category: str
+    success: bool
+    metrics: Dict[str, Any] = {}
+    charts: List[Dict[str, Any]] = []
+    findings: List[str] = []
+    warnings: List[str] = []

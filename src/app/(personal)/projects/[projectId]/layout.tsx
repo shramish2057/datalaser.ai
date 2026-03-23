@@ -4,10 +4,11 @@ import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
-  BarChart2, MessageSquare, LayoutGrid,
+  Home, BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
   ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical
 } from 'lucide-react'
+import { LocaleToggle } from '@/components/LocaleToggle'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 
@@ -107,7 +108,8 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
   }
 
   const projectNav = [
-    { icon: BarChart2, label: 'Insights', path: '' },
+    { icon: Home, label: 'Home', path: '' },
+    { icon: BarChart2, label: 'Insights', path: '/insights' },
     { icon: MessageSquare, label: 'Ask Data', path: '/ask' },
     { icon: FlaskConical, label: 'Studio', path: '/studio', badge: 'Pro' },
     { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
@@ -235,6 +237,12 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
             <FolderOpen size={15} className="flex-shrink-0" />
             {sidebarExpanded && <span>All Projects</span>}
           </button>
+
+          {sidebarExpanded && (
+            <div className="flex items-center justify-center py-2">
+              <LocaleToggle />
+            </div>
+          )}
 
           <button
             onClick={toggleSidebar}

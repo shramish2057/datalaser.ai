@@ -109,7 +109,7 @@ export default function NotebookWorkspace() {
             try {
               const pRes = await fetch('/api/studio/proactive', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ source_name: active.name, quality_score: 80, warnings: [], columns: cols }),
+                body: JSON.stringify({ source_name: active.name, quality_score: 80, warnings: [], columns: cols, source_id: readyId }),
               })
               const suggestions = await pRes.json()
               if (Array.isArray(suggestions)) setProactive(suggestions)
@@ -178,8 +178,10 @@ export default function NotebookWorkspace() {
         const fd = new FormData()
         fd.append('file', fileRef.current); fd.append('code', codeToRun)
         fd.append('file_type', src?.source_type || 'csv'); fd.append('cell_id', cellId)
+        console.log('[Studio] Executing cell:', cellId, 'code:', codeToRun.slice(0, 100))
         const res = await fetch('/api/studio/execute', { method: 'POST', body: fd })
         execResult = await res.json()
+        console.log('[Studio] Execute result:', JSON.stringify(execResult).slice(0, 300))
       } else {
         const res = await fetch('/api/studio/execute-db', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -194,7 +196,8 @@ export default function NotebookWorkspace() {
           const iRes = await fetch('/api/studio/interpret', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ operation: detectOperation(cell.code), result: execResult.output,
-              columns_used: extractColumns(cell.code, schemaColumns), source_name: src?.name || '' }),
+              columns_used: extractColumns(cell.code, schemaColumns), source_name: src?.name || '',
+              source_id: activeSourceId }),
           })
           const interp = await iRes.json()
           interpretation = interp.interpretation || null
@@ -232,10 +235,12 @@ export default function NotebookWorkspace() {
       fd.append('generate_full_notebook', 'true')
       fd.append('file_type', sources.find(s => s.id === activeSourceId)?.source_type || 'csv')
 
+      console.log('[Studio] Generating notebook, prompt:', genPrompt.slice(0, 80))
       const res = await fetch('/api/studio/suggest', { method: 'POST', body: fd })
       const data = await res.json()
+      console.log('[Studio] Generate response:', JSON.stringify(data).slice(0, 500))
 
-      if (data.cells && Array.isArray(data.cells)) {
+      if (data.cells && Array.isArray(data.cells) && data.cells.length > 0) {
         const newCells: StudioCell[] = data.cells.map((c: Record<string, unknown>) => ({
           id: crypto.randomUUID(),
           type: c.type || 'text',
@@ -253,13 +258,15 @@ export default function NotebookWorkspace() {
             await runCell(cell.id)
           }
         }
+      } else {
+        console.error('[Studio] Generation returned no cells:', data)
       }
-    } catch {} finally {
+    } catch (e) { console.error('[Studio] Generation error:', e) } finally {
       setIsGenerating(false)
     }
   }
 
-  // ── Ask Claude (single cell) ──
+  // ── Ask Claude (generates full section: heading + intro + code + explanation) ──
   async function handleAsk() {
     if (!question.trim()) return
     setIsAsking(true)
@@ -271,13 +278,32 @@ export default function NotebookWorkspace() {
       fd.append('schema_context', schemaContext)
       const res = await fetch('/api/studio/suggest', { method: 'POST', body: fd })
       const data = await res.json()
-      const newCell: StudioCell = {
-        id: crypto.randomUUID(), type: 'python',
-        code: data.suggestion?.code || `# ${question}\nresult = df.describe().to_dict()`,
-        output: null, status: 'idle', created_at: new Date().toISOString(),
+      const suggestion = data.suggestion || {}
+      const code = suggestion.code || `# ${question}\nresult = df.describe().to_dict()`
+      const explanation = suggestion.explanation || ''
+      const title = suggestion.title || question.slice(0, 60)
+
+      const now = new Date().toISOString()
+      const headingCell: StudioCell = {
+        id: crypto.randomUUID(), type: 'heading', code: '', content: title,
+        level: 2, output: null, status: 'idle', created_at: now,
       }
-      setCells(prev => [...prev, newCell]); setActiveCellId(newCell.id); setQuestion('')
-      setTimeout(() => runCell(newCell.id), 100)
+      const introCell: StudioCell = {
+        id: crypto.randomUUID(), type: 'text', code: '',
+        content: explanation || `Analysing: ${question}`,
+        output: null, status: 'idle', created_at: now,
+      }
+      const codeCell: StudioCell = {
+        id: crypto.randomUUID(), type: 'python', code,
+        output: null, status: 'idle', created_at: now,
+      }
+
+      setCells(prev => [...prev, headingCell, introCell, codeCell])
+      setActiveCellId(codeCell.id); setQuestion('')
+      // Auto-run the code cell, then add explanation after results
+      setTimeout(async () => {
+        await runCell(codeCell.id)
+      }, 100)
     } catch {} finally { setIsAsking(false) }
   }
 
@@ -365,28 +391,25 @@ export default function NotebookWorkspace() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Action bar */}
-      <div className="h-[40px] flex items-center justify-between px-4 border-b border-mb-border flex-shrink-0 bg-white">
-        <div className="flex items-center gap-3">
-          <input value={notebookTitle} onChange={e => setNotebookTitle(e.target.value)} onBlur={saveTitle}
-            className="bg-transparent border-none outline-none text-mb-sm font-medium text-mb-text-dark w-48" />
-          <span className="text-[11px] text-mb-text-light">{isSaving ? 'Saving...' : lastSavedAt ? 'Saved' : ''}</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <button onClick={() => addCell('heading')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add heading">
-            <Heading1 size={14} />
-          </button>
-          <button onClick={() => addCell('text')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add text">
-            <Type size={14} />
-          </button>
-          <button onClick={() => addCell('python')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add code cell">
-            <Code size={14} />
-          </button>
-          <div className="w-px h-4 bg-mb-border mx-1" />
-          <button onClick={async () => { for (const c of cells) if (c.type === 'python' || c.type === 'sql') await runCell(c.id) }}
-            className="text-[11px] bg-mb-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-mb-brand-dark">
-            <Play size={11} /> Run All
-          </button>
-        </div>
+      <div className="h-[40px] flex items-center px-4 border-b border-mb-border flex-shrink-0 bg-white gap-3">
+        <input value={notebookTitle} onChange={e => setNotebookTitle(e.target.value)} onBlur={saveTitle}
+          className="bg-transparent border-none outline-none text-mb-sm font-medium text-mb-text-dark w-48" />
+        <span className="text-[11px] text-mb-text-light">{isSaving ? 'Saving...' : lastSavedAt ? 'Saved' : ''}</span>
+        <div className="w-px h-4 bg-mb-border" />
+        <button onClick={() => addCell('heading')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add heading">
+          <Heading1 size={14} />
+        </button>
+        <button onClick={() => addCell('text')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add text">
+          <Type size={14} />
+        </button>
+        <button onClick={() => addCell('python')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add code cell">
+          <Code size={14} />
+        </button>
+        <div className="w-px h-4 bg-mb-border" />
+        <button onClick={async () => { for (const c of cells) if (c.type === 'python' || c.type === 'sql') await runCell(c.id) }}
+          className="text-[11px] bg-mb-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-mb-brand-dark">
+          <Play size={11} /> Run All
+        </button>
       </div>
 
       {/* Two panels */}
@@ -443,12 +466,15 @@ export default function NotebookWorkspace() {
             </div>
             {cells.map((cell, i) => (
               <CellCard key={cell.id} cell={cell} cellNumber={i + 1} isActive={cell.id === activeCellId}
+                isFirst={i === 0} isLast={i === cells.length - 1}
                 onRun={() => runCell(cell.id)}
                 onCodeChange={code => setCells(prev => prev.map(c => c.id === cell.id ? { ...c, code } : c))}
                 onContentChange={content => setCells(prev => prev.map(c => c.id === cell.id ? { ...c, content } : c))}
                 onTypeChange={type => setCells(prev => prev.map(c => c.id === cell.id ? { ...c, type } : c))}
                 onLevelChange={level => setCells(prev => prev.map(c => c.id === cell.id ? { ...c, level } : c))}
                 onDelete={() => setCells(prev => prev.filter(c => c.id !== cell.id))}
+                onMoveUp={() => setCells(prev => { const idx = prev.findIndex(c => c.id === cell.id); if (idx <= 0) return prev; const arr = [...prev]; [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]; return arr })}
+                onMoveDown={() => setCells(prev => { const idx = prev.findIndex(c => c.id === cell.id); if (idx < 0 || idx >= prev.length - 1) return prev; const arr = [...prev]; [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]; return arr })}
                 onSaveToLibrary={() => setLibraryCell(cell)}
                 onClick={() => setActiveCellId(cell.id)} />
             ))}

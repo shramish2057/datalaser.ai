@@ -125,6 +125,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
           queryLibrary={queryLibrary}
           onNotebookCreated={(nb) => setNotebooks(prev => [nb, ...prev])}
           onSourceConnected={(src) => setSources(prev => [src, ...prev])}
+          onNotebookDeleted={(id) => setNotebooks(prev => prev.filter(nb => nb.id !== id))}
+          onNotebookRenamed={(id, title) => setNotebooks(prev => prev.map(nb => nb.id === id ? { ...nb, title } : nb))}
+          onSourceDeleted={(id) => setSources(prev => prev.filter(s => s.id !== id))}
         />
         <main className="flex-1 overflow-hidden">
           {children}

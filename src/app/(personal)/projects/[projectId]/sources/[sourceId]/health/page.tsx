@@ -345,8 +345,14 @@ export default function DataHealthPage() {
           </button>
         </div>
 
-        {/* Also link to Insights */}
-        <div className="mt-4 text-center">
+        {/* Auto-Analysis CTA */}
+        <div className="mt-4 flex items-center justify-center gap-4">
+          <button
+            onClick={() => router.push(`/projects/${projectId}/sources/${sourceId}/analysis`)}
+            className="text-mb-xs font-bold text-mb-brand hover:text-mb-brand-dark transition-colors inline-flex items-center gap-1.5 bg-mb-brand-hover px-4 py-2 rounded-mb-md"
+          >
+            <BarChart2 size={13} /> Run Auto-Analysis (no AI) <ArrowRight size={11} />
+          </button>
           <button
             onClick={() => router.push(`${base}/insights`)}
             className="text-mb-xs font-bold text-mb-text-light hover:text-mb-brand transition-colors inline-flex items-center gap-1"

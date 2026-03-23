@@ -156,9 +156,20 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
   let chart: ChartData | null = null
   if (output.chart_data) {
     const cd = output.chart_data
-    chart = { type: (cd.chart_type || 'bar') as ChartData['type'], title: cd.title || 'Result',
-      data: cd.data, xKey: cd.x_key, yKey: cd.y_keys?.[0] || 'value',
-      yKeys: cd.y_keys?.length > 1 ? cd.y_keys : undefined }
+    // Ensure data is always an array — pipeline may return dict or other formats
+    let chartDataArr: Record<string, unknown>[] = []
+    if (Array.isArray(cd.data)) {
+      chartDataArr = cd.data
+    } else if (cd.data && typeof cd.data === 'object') {
+      // Convert {key: value} dict to [{name: key, value: value}] array
+      chartDataArr = Object.entries(cd.data).map(([k, v]) => ({ name: k, value: v }))
+    }
+    if (chartDataArr.length > 0) {
+      const yKeys: string[] = cd.y_keys && cd.y_keys.length > 0 ? cd.y_keys : ['value']
+      chart = { type: (cd.chart_type || 'bar') as ChartData['type'], title: cd.title || 'Result',
+        data: chartDataArr, xKey: cd.x_key || 'name', yKey: yKeys[0],
+        yKeys: yKeys.length > 1 ? yKeys : undefined }
+    }
   }
 
   // DataFrame

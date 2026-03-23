@@ -1,3 +1,4 @@
+import builtins as _builtins_mod
 import pandas as pd
 import numpy as np
 import scipy.stats as stats
@@ -9,12 +10,32 @@ from typing import Any
 
 warnings.filterwarnings('ignore')
 
-# ── SAFE EXECUTION SANDBOX ─────────────────────────────────────────────────
+# -- SAFE EXECUTION SANDBOX --------------------------------------------------
+
+# Capture the real __import__ before anything can mess with it
+_real_import = _builtins_mod.__import__
 
 BLOCKED_BUILTINS = {
     '__import__', 'open', 'exec', 'eval', 'compile',
     'globals', 'locals', '__builtins__', 'breakpoint', 'input',
 }
+
+ALLOWED_MODULES = {
+    'pandas', 'numpy', 'scipy', 'scipy.stats', 'statsmodels', 'statsmodels.api',
+    'sklearn', 'sklearn.linear_model', 'sklearn.preprocessing', 'sklearn.cluster',
+    'sklearn.metrics', 'sklearn.model_selection', 'sklearn.ensemble',
+    'math', 'statistics', 'collections', 'itertools', 'functools',
+    'datetime', 'decimal', 'fractions', 're', 'string', 'textwrap',
+    'json', 'csv', 'io', 'copy', 'operator', 'typing',
+    'pandasql',
+}
+
+
+def _safe_import(name, *args, **kwargs):
+    """Allow only whitelisted modules to be imported."""
+    if name in ALLOWED_MODULES or any(name.startswith(m + '.') for m in ALLOWED_MODULES):
+        return _real_import(name, *args, **kwargs)
+    raise ImportError(f"Module '{name}' is not allowed")
 
 
 class SafeExecutor:
@@ -40,6 +61,8 @@ class SafeExecutor:
                 k: getattr(__builtins__, k) for k in dir(__builtins__)
                 if k not in BLOCKED_BUILTINS and not k.startswith('__')
             }
+
+        builtins_dict['__import__'] = _safe_import
 
         namespace: dict[str, Any] = {
             'df': df.copy(), 'pd': pd, 'np': np, 'stats': stats, 'sm': sm,
@@ -74,7 +97,6 @@ class SafeExecutor:
             ('import requests', 'requests not allowed'),
             ('import httpx', 'httpx not allowed'),
             ('import urllib', 'urllib not allowed'),
-            ('__import__', 'dynamic imports not allowed'),
             ('open(', 'file operations not allowed'),
             ('exec(', 'exec not allowed'),
             ('eval(', 'eval not allowed'),
@@ -120,6 +142,24 @@ class SafeExecutor:
 
     def _extract_chart_data(self, result: Any) -> dict | None:
         if isinstance(result, dict) and 'chart_type' in result and 'data' in result:
+            # Ensure data is serialised — it might contain DataFrames
+            raw_data = result['data']
+            if isinstance(raw_data, pd.DataFrame):
+                result['data'] = raw_data.head(50).fillna(0).to_dict(orient='records')
+            elif isinstance(raw_data, list):
+                serialised = []
+                for item in raw_data:
+                    if isinstance(item, dict):
+                        serialised.append({str(k): (float(v) if isinstance(v, (np.integer, np.floating)) else v) for k, v in item.items()})
+                    else:
+                        serialised.append(item)
+                result['data'] = serialised
+            elif isinstance(raw_data, dict):
+                result['data'] = [{'name': str(k), 'value': float(v) if isinstance(v, (int, float, np.integer, np.floating)) else v} for k, v in raw_data.items()]
+                if 'x_key' not in result or not result['x_key']:
+                    result['x_key'] = 'name'
+                if 'y_keys' not in result or not result['y_keys']:
+                    result['y_keys'] = ['value']
             return result
         if isinstance(result, pd.DataFrame) and len(result) > 0:
             cols = list(result.columns)
@@ -132,7 +172,7 @@ class SafeExecutor:
         return None
 
 
-# ── PRE-BUILT STATISTICAL OPERATIONS ──────────────────────────────────────
+# -- PRE-BUILT STATISTICAL OPERATIONS ----------------------------------------
 
 class StatisticalAnalyst:
 

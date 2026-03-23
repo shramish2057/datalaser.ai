@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getEngineContext, formatFactsForPrompt } from '@/lib/ai/engineContext'
 
 const SYSTEM_PROMPT = `You are a data analyst. Suggest exactly 3 high-value analyses.
 Return ONLY a valid JSON array, no markdown, no explanation:
@@ -12,25 +13,28 @@ Return ONLY a valid JSON array, no markdown, no explanation:
   "priority": 1
 }]
 Rules:
-- If a date/time column exists: suggest time trend (forecast operation)
-- If categorical + numeric columns exist: suggest ANOVA
-- If 2+ numeric columns: suggest correlation matrix
-- If binary 0/1 column exists: suggest chi-square
-- Code must be under 10 lines
-- Use EXACT column names from the dataset
-- Always include a descriptive stats suggestion as one of the 3`
+- Base your suggestions on the VERIFIED FACTS provided — suggest analyses that DIG DEEPER into those findings
+- If a verified correlation exists, suggest regression to quantify the relationship
+- If a verified group difference exists, suggest visualizing it or testing specific subgroups
+- If outliers are verified, suggest analysis of what drives those outliers
+- Code must be under 10 lines, use EXACT column names
+- result must be a dict with chart_type/data/x_key/y_keys/title (prefer charts)`
 
 export async function POST(request: NextRequest) {
   try {
-    const { columns, quality_score, warnings, source_name } = await request.json()
+    const { columns, quality_score, warnings, source_name, source_id, file } = await request.json()
 
     const apiKey = process.env.ANTHROPIC_API_KEY
     if (!apiKey) return NextResponse.json({ error: 'API key not configured' }, { status: 500 })
 
+    // Fetch engine-computed context
+    const engineCtx = await getEngineContext(source_id)
+    const verifiedBlock = formatFactsForPrompt(engineCtx.facts)
+
     const userMsg = `Dataset: ${source_name}
 Columns: ${JSON.stringify(columns)}
 Quality score: ${quality_score}
-Warnings: ${JSON.stringify(warnings || [])}`
+Warnings: ${JSON.stringify(warnings || [])}${verifiedBlock}`
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -59,7 +63,7 @@ Warnings: ${JSON.stringify(warnings || [])}`
       const suggestions = JSON.parse(text)
       return NextResponse.json(suggestions)
     } catch {
-      // Fallback suggestions
+      // Fallback suggestions based on engine findings
       const numericCol = columns?.find((c: { dtype: string }) => c.dtype === 'numeric')?.name || 'value'
       const catCol = columns?.find((c: { dtype: string }) => c.dtype === 'categorical')?.name || 'category'
       return NextResponse.json([

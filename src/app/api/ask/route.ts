@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { buildDataContext } from '@/lib/ai/sampler';
+import { getEngineContext, formatFactsForPrompt } from '@/lib/ai/engineContext';
 
 const getClient = (() => {
   let client: Anthropic | null = null;
@@ -72,10 +73,20 @@ When answering, note where results may be affected by these issues.
 If a specific column has a red warning, mention it when that column is used in analysis.\n`;
     }
 
+    // Fetch engine-computed verified facts
+    let verifiedBlock = ''
+    try {
+      const sourceIdList = source_ids as string[] | undefined
+      if (sourceIdList?.length) {
+        const engineCtx = await getEngineContext(sourceIdList[0], project_id)
+        verifiedBlock = formatFactsForPrompt(engineCtx.facts)
+      }
+    } catch { /* continue without engine context */ }
+
     const systemPrompt = `You are DataLaser's data analyst AI.
 You answer questions about the user's data with precision and always include visualisations.
 
-${dataContext ? `DATA CONTEXT:\n${dataContext}\n` : ''}${qualityContext}
+${dataContext ? `DATA CONTEXT:\n${dataContext}\n` : ''}${qualityContext}${verifiedBlock}
 RESPONSE FORMAT:
 - Use **Markdown** formatting in every response
 - Use ## for section headings (e.g. ## Revenue Analysis)

@@ -1,19 +1,23 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { Play, MoreVertical, Loader2, ChevronDown, ChevronRight, Trash2, BookOpen } from 'lucide-react'
+import { Play, MoreVertical, Loader2, ChevronDown, ChevronRight, ChevronUp, Trash2, BookOpen, ArrowUp, ArrowDown } from 'lucide-react'
 import type { StudioCell } from '@/types/studio'
 
 type Props = {
   cell: StudioCell
   cellNumber: number
   isActive: boolean
+  isFirst: boolean
+  isLast: boolean
   onRun: () => void
   onCodeChange: (code: string) => void
   onContentChange: (content: string) => void
   onTypeChange: (type: StudioCell['type']) => void
   onLevelChange: (level: 1 | 2 | 3) => void
   onDelete: () => void
+  onMoveUp: () => void
+  onMoveDown: () => void
   onSaveToLibrary: () => void
   onClick: () => void
 }
@@ -24,7 +28,7 @@ const LANG_COLORS: Record<string, string> = {
   r: 'bg-green-100 text-green-700',
 }
 
-export default function CellCard({ cell, cellNumber, isActive, onRun, onCodeChange, onContentChange, onTypeChange, onLevelChange, onDelete, onSaveToLibrary, onClick }: Props) {
+export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, onRun, onCodeChange, onContentChange, onTypeChange, onLevelChange, onDelete, onMoveUp, onMoveDown, onSaveToLibrary, onClick }: Props) {
   const [showMenu, setShowMenu] = useState(false)
   const [showStdout, setShowStdout] = useState(false)
   const [showLangPicker, setShowLangPicker] = useState(false)
@@ -36,6 +40,9 @@ export default function CellCard({ cell, cellNumber, isActive, onRun, onCodeChan
     return (
       <div onClick={onClick} className={`mb-2 group relative ${isActive ? 'ring-1 ring-mb-brand rounded-mb-md' : ''}`}>
         <div className="opacity-0 group-hover:opacity-100 absolute -top-6 left-0 flex gap-1 bg-white border border-mb-border rounded shadow-sm px-1 py-0.5 z-10 transition-opacity">
+          {!isFirst && <button onClick={e => { e.stopPropagation(); onMoveUp() }} className="text-[10px] px-1 text-mb-text-light hover:bg-mb-bg-medium rounded" title="Move up"><ArrowUp size={10} /></button>}
+          {!isLast && <button onClick={e => { e.stopPropagation(); onMoveDown() }} className="text-[10px] px-1 text-mb-text-light hover:bg-mb-bg-medium rounded" title="Move down"><ArrowDown size={10} /></button>}
+          <div className="w-px h-3 bg-mb-border" />
           {([1, 2, 3] as const).map(l => (
             <button key={l} onClick={e => { e.stopPropagation(); onLevelChange(l) }}
               className={`text-[10px] px-1.5 py-0.5 rounded ${cell.level === l ? 'bg-mb-brand text-white' : 'text-mb-text-light hover:bg-mb-bg-medium'}`}>
@@ -55,6 +62,9 @@ export default function CellCard({ cell, cellNumber, isActive, onRun, onCodeChan
     return (
       <div onClick={onClick} className={`mb-2 group relative ${isActive ? 'ring-1 ring-mb-brand rounded-mb-md' : ''}`}>
         <div className="opacity-0 group-hover:opacity-100 absolute -top-6 right-0 flex gap-1 bg-white border border-mb-border rounded shadow-sm px-1 py-0.5 z-10 transition-opacity">
+          {!isFirst && <button onClick={e => { e.stopPropagation(); onMoveUp() }} className="text-[10px] px-1 text-mb-text-light hover:bg-mb-bg-medium rounded" title="Move up"><ArrowUp size={10} /></button>}
+          {!isLast && <button onClick={e => { e.stopPropagation(); onMoveDown() }} className="text-[10px] px-1 text-mb-text-light hover:bg-mb-bg-medium rounded" title="Move down"><ArrowDown size={10} /></button>}
+          <div className="w-px h-3 bg-mb-border" />
           <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-[10px] px-1 text-mb-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
         </div>
         <textarea value={cell.content || ''} onChange={e => { onContentChange(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
@@ -103,6 +113,12 @@ export default function CellCard({ cell, cellNumber, isActive, onRun, onCodeChan
             </button>
             {showMenu && (
               <div className="absolute right-0 top-full z-10 bg-white border border-mb-border rounded shadow-sm py-1 w-40" onClick={e => e.stopPropagation()}>
+                {!isFirst && <button onClick={() => { onMoveUp(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-text-dark hover:bg-mb-bg-light flex items-center gap-2">
+                  <ArrowUp size={12} /> Move Up
+                </button>}
+                {!isLast && <button onClick={() => { onMoveDown(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-text-dark hover:bg-mb-bg-light flex items-center gap-2">
+                  <ArrowDown size={12} /> Move Down
+                </button>}
                 <button onClick={() => { onSaveToLibrary(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-text-dark hover:bg-mb-bg-light flex items-center gap-2">
                   <BookOpen size={12} /> Save to Library
                 </button>

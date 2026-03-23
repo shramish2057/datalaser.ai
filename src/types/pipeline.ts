@@ -1,6 +1,7 @@
 export interface ColumnProfile {
   name: string
   dtype: 'numeric' | 'categorical' | 'text' | 'date' | 'id' | 'empty'
+  semantic_role?: 'measure' | 'dimension' | 'binary' | 'date' | 'id' | 'text' | 'unknown'
   null_rate: number
   unique_rate: number
   total_values: number
@@ -104,3 +105,67 @@ export interface JoinCandidate {
 }
 
 export type PipelineStep = 'profile' | 'suggest' | 'transform' | 'validate' | 'ready'
+
+// -- Auto-Analysis Types --
+
+export interface AutoAnalysisInsight {
+  type: string
+  headline: string
+  columns: string[]
+  p_value: number
+  effect_size: number
+  chart_data: {
+    chart_type: string
+    data: Record<string, unknown>[]
+    x_key: string
+    y_keys: string[]
+    title: string
+  } | null
+}
+
+export interface AutoAnalysisResult {
+  row_count: number
+  column_count: number
+  measures: string[]
+  dimensions: string[]
+  binaries: string[]
+  dates: string[]
+  correlations: {
+    pairs: { col1: string; col2: string; r: number; p_value: number; strength: string; significant: boolean }[]
+    matrix: Record<string, Record<string, number>>
+    columns: string[]
+  }
+  distributions: {
+    column: string; bins: number[]; counts: number[]; mean: number; median: number
+    std: number; skewness: number; kurtosis: number; shape: string; min: number; max: number
+  }[]
+  anomalies: {
+    column: string; outlier_count: number; outlier_pct: number; severity: string
+    lower_bound: number; upper_bound: number; z_score_outliers: number
+  }[]
+  segments: {
+    dimension: string; measure: string; f_statistic: number; p_value: number
+    eta_squared: number; effect_size: string
+    groups: { group: string; n: number; mean: number; std: number }[]
+    chart_data: Record<string, unknown>
+  }[]
+  clusters: {
+    n_clusters: number; columns_used: string[]
+    clusters: Record<string, unknown>[]
+  }
+  contribution_analysis: {
+    measure: string; dimension: string; total: number
+    top_contributor: string; top_contribution_pct: number
+    chart_data: Record<string, unknown>
+  }[]
+  majority: {
+    dimension: string; measure: string; dominant_category: string
+    dominant_share: number; total_categories: number
+  }[]
+  key_influencers: {
+    target: string; influencer: string; type: string
+    best_group?: string; best_rate?: number; worst_group?: string; worst_rate?: number; lift?: number
+    cramers_v?: number; correlation?: number; p_value: number
+  }[]
+  top_insights: AutoAnalysisInsight[]
+}
