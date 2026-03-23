@@ -21,8 +21,8 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* 3D GLSL Hills background — shifted up */}
-      <div className="absolute z-0 opacity-55 left-0 right-0" style={{ top: '-350px', bottom: '-500px' }}>
-        <GLSLHills width="100%" height="calc(100% + 850px)" cameraZ={110} speed={0.35} />
+      <div className="absolute z-0 opacity-55 left-0 right-0 top-0 bottom-0">
+        <GLSLHills width="100%" height="200vh" cameraZ={100} speed={0.35} />
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/40 via-white/20 to-white pointer-events-none" />
 
@@ -168,8 +168,8 @@ export function HeroSection() {
             <div className="mx-auto grid grid-cols-4 gap-x-10 gap-y-6 sm:gap-x-14 items-center opacity-60 hover:opacity-100 transition-opacity duration-500">
               {[
                 { name: 'PostgreSQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
-                { name: 'Snowflake', src: 'https://www.svgrepo.com/show/354397/snowflake-icon.svg' },
-                { name: 'Shopify', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/shopify/shopify-original.svg' },
+                { name: 'Snowflake', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/snowflake/snowflake-original.svg' },
+                { name: 'Shopify', src: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/shopify.svg' },
                 { name: 'Stripe', src: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg' },
                 { name: 'BigQuery', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg' },
                 { name: 'Google Ads', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg' },
