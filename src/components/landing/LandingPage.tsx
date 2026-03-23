@@ -10,6 +10,7 @@ import {
   Menu, X, Play, Shield,
 } from 'lucide-react'
 import { GLSLHills } from '@/components/ui/glsl-hills'
+import { Features } from '@/components/blocks/features-8'
 
 /* ── scroll-triggered reveal ── */
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -241,35 +242,9 @@ export default function LandingPage() {
       </section>
 
       {/* ━━ FEATURES ━━ */}
-      <section id="features" className="py-28 px-6">
-        <div className="max-w-6xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-20">
-              <p className="text-violet-600 text-sm font-semibold tracking-wide uppercase mb-4">{t('landing.nav.features')}</p>
-              <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 mb-5">{t('landing.everythingTitle')}</h2>
-              <p className="text-gray-500 text-lg max-w-xl mx-auto">{t('landing.everythingSubtitle')}</p>
-            </div>
-          </Reveal>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Database, title: t('landing.feat1Title'), desc: t('landing.feat1Desc'), color: 'bg-violet-50 text-violet-600 border-violet-100' },
-              { icon: Sparkles, title: t('landing.feat2Title'), desc: t('landing.feat2Desc'), color: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
-              { icon: Shield, title: t('landing.feat3Title'), desc: t('landing.feat3Desc'), color: 'bg-emerald-50 text-emerald-600 border-emerald-100' },
-            ].map((f, i) => (
-              <Reveal key={f.title} delay={i * 0.08}>
-                <div className="group bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-xl hover:shadow-gray-100/80 hover:border-gray-200 transition-all duration-400">
-                  <div className={`w-14 h-14 rounded-2xl ${f.color} border flex items-center justify-center mb-7`}>
-                    <f.icon size={24} />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{f.title}</h3>
-                  <p className="text-gray-500 text-[15px] leading-relaxed">{f.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <div id="features">
+        <Features />
+      </div>
 
       {/* ━━ HOW IT WORKS ━━ */}
       <section className="py-28 px-6 bg-gray-50/70">
