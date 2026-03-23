@@ -233,7 +233,7 @@ export default function AutoAnalysisPage() {
               <HeatmapChart
                 matrix={analysis.correlations.matrix}
                 columns={analysis.correlations.columns}
-                title="Pearson Correlation Matrix"
+                title={t("analysis.correlationMatrix")}
               />
               {analysis.correlations.pairs.length > 0 && (
                 <div className="mt-3 border-t border-mb-border pt-3">

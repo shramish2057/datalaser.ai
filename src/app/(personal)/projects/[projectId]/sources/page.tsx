@@ -174,21 +174,21 @@ export default function ProjectSourcesPage() {
                     <Link
                       href={`${base}/sources/${src.id}/health`}
                       className="mb-btn-subtle p-1.5"
-                      title="Data health"
+                      title={t("health.title")}
                     >
                       <HeartPulse size={14} />
                     </Link>
                     <Link
                       href={`${base}/prep/${src.id}`}
                       className="mb-btn-subtle p-1.5 text-mb-brand"
-                      title="Prepare data"
+                      title={t("nav.dataPrep")}
                     >
                       <Wand2 size={14} />
                     </Link>
                     <Link
                       href={`${base}/sources/${src.id}/settings`}
                       className="mb-btn-subtle p-1.5"
-                      title="Source settings"
+                      title={t("nav.settings")}
                     >
                       <Settings size={14} />
                     </Link>
@@ -196,14 +196,14 @@ export default function ProjectSourcesPage() {
                       onClick={() => handleRefresh(src.id)}
                       disabled={refreshingId === src.id}
                       className="mb-btn-subtle p-1.5"
-                      title="Refresh"
+                      title={t("common.run")}
                     >
                       <RefreshCw size={14} className={refreshingId === src.id ? 'animate-spin' : ''} />
                     </button>
                     <button
                       onClick={() => handleDelete(src.id, src.name)}
                       className="mb-btn-subtle p-1.5 hover:text-mb-error"
-                      title="Delete"
+                      title={t("common.delete")}
                     >
                       <Trash2 size={14} />
                     </button>

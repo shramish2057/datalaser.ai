@@ -409,7 +409,7 @@ export default function DataPrepPage() {
                     className="mb-input"
                     value={sourceName}
                     onChange={e => setSourceName(e.target.value)}
-                    placeholder="Name this data source"
+                    placeholder={t("sources.displayName")}
                   />
                   {existingNames.has(sourceName) && sourceName !== '' && (
                     <p className="text-mb-xs text-orange-500 mt-1">
@@ -458,7 +458,7 @@ export default function DataPrepPage() {
                         <button
                           onClick={() => handleDelete(src.id, src.name)}
                           className="mb-btn-subtle p-1.5 hover:text-mb-error"
-                          title="Delete"
+                          title={t("common.delete")}
                         >
                           <Trash2 size={13} />
                         </button>

@@ -36,7 +36,7 @@ export default function OrgPage() {
         <label className="mb-label">Organization name</label>
         <input
           className="mb-input"
-          placeholder="Acme Corp"
+          placeholder={t("onboarding.fullName")}
           value={orgName}
           onChange={e => setOrgName(e.target.value)}
           autoFocus
@@ -50,7 +50,7 @@ export default function OrgPage() {
         <label className="mb-label">First workspace name</label>
         <input
           className="mb-input"
-          placeholder="General"
+          placeholder={t("settings.general")}
           value={workspaceName}
           onChange={e => setWorkspaceName(e.target.value)}
         />

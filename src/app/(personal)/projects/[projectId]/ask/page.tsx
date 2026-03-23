@@ -469,7 +469,7 @@ export default function ProjectAskPage() {
           <div className="max-w-[860px] mx-auto flex items-end gap-3">
             <textarea
               className="mb-input flex-1 min-h-[44px] max-h-32 resize-none"
-              placeholder="Ask a question about your data..."
+              placeholder={t("ask.placeholder")}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

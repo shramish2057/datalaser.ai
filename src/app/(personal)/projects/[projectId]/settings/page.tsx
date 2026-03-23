@@ -103,7 +103,7 @@ export default function ProjectSettingsPage() {
         <label className="mb-label">Description</label>
         <textarea
           className="mb-input min-h-[80px] resize-none"
-          placeholder="What is this project for?"
+          placeholder={t("settings.projectDescription")}
           value={description}
           onChange={e => setDescription(e.target.value)}
         />
@@ -172,7 +172,7 @@ export default function ProjectSettingsPage() {
             </p>
             <input
               className="mb-input mb-4"
-              placeholder="Type project name..."
+              placeholder={t("settings.projectName") + "..."}
               value={deleteConfirm}
               onChange={e => setDeleteConfirm(e.target.value)}
             />

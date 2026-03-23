@@ -70,7 +70,7 @@ export default function SignupPage() {
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="Jane Smith"
+            placeholder={t("onboarding.fullName")}
           />
         </div>
 

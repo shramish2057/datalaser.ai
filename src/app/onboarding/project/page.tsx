@@ -79,7 +79,7 @@ export default function ProjectPage() {
         <label className="mb-label">Project name</label>
         <input
           className="mb-input"
-          placeholder="My Business Analytics"
+          placeholder={t("settings.projectName")}
           value={name}
           onChange={e => setName(e.target.value)}
           autoFocus

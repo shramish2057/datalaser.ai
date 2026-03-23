@@ -51,8 +51,8 @@ export default function TeamSourcesPage() {
           <td className="text-mb-text-medium">{src.last_synced_at ? formatDistanceToNow(new Date(src.last_synced_at), { addSuffix: true }) : '—'}</td>
           <td className="text-right font-mono">{src.row_count.toLocaleString()}</td>
           <td className="text-right"><div className="flex items-center justify-end gap-1">
-            <button onClick={() => handleRefresh(src.id)} disabled={refreshingId === src.id} className="mb-btn-subtle p-1.5" title="Refresh"><RefreshCw size={14} className={refreshingId === src.id ? 'animate-spin' : ''} /></button>
-            <button onClick={() => handleDelete(src.id, src.name)} className="mb-btn-subtle p-1.5 hover:text-mb-error" title="Delete"><Trash2 size={14} /></button>
+            <button onClick={() => handleRefresh(src.id)} disabled={refreshingId === src.id} className="mb-btn-subtle p-1.5" title={t("common.run")}><RefreshCw size={14} className={refreshingId === src.id ? 'animate-spin' : ''} /></button>
+            <button onClick={() => handleDelete(src.id, src.name)} className="mb-btn-subtle p-1.5 hover:text-mb-error" title={t("common.delete")}><Trash2 size={14} /></button>
           </div></td></tr>))}
       </tbody></table></div>
     </div>

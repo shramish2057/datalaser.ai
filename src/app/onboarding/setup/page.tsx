@@ -44,7 +44,7 @@ export default function SetupPage() {
         <label className="mb-label">Your name</label>
         <input
           className="mb-input"
-          placeholder="Sarah Chen"
+          placeholder={t("onboarding.fullName")}
           value={name}
           onChange={e => setName(e.target.value)}
           autoFocus

@@ -51,7 +51,7 @@ export default function TeamProjectSettingsPage() {
     <div className="max-w-2xl mx-auto px-6 py-8">
       <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">Project Settings</h1>
       <div className="mb-6"><label className="mb-label">Project name</label><input className="mb-input" value={name} onChange={e => setName(e.target.value)} /></div>
-      <div className="mb-6"><label className="mb-label">Description</label><textarea className="mb-input min-h-[80px] resize-none" placeholder="What is this project for?" value={description} onChange={e => setDescription(e.target.value)} /></div>
+      <div className="mb-6"><label className="mb-label">Description</label><textarea className="mb-input min-h-[80px] resize-none" placeholder={t("settings.projectDescription")} value={description} onChange={e => setDescription(e.target.value)} /></div>
       <div className="mb-6"><label className="mb-label">Icon</label><ProjectIconPicker value={icon} color={color} onChange={setIcon} /></div>
       <div className="mb-8"><label className="mb-label">Color</label><div className="flex gap-2 mt-1">{COLORS.map(c => (<button key={c} onClick={() => setColor(c)} className={`w-8 h-8 rounded-full border-2 transition-all ${color === c ? 'border-mb-text-dark scale-110' : 'border-transparent'}`} style={{ backgroundColor: c }} />))}</div></div>
       <button onClick={handleSave} disabled={saving || !name.trim()} className={`mb-btn-primary px-6 py-2 ${saving || !name.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}><Save size={14} />{saving ? 'Saving...' : saved ? 'Saved' : 'Save changes'}</button>
@@ -65,7 +65,7 @@ export default function TeamProjectSettingsPage() {
           <DialogHeader className="p-6 pb-0"><DialogTitle className="text-mb-xl font-black text-mb-text-dark">Delete project</DialogTitle></DialogHeader>
           <div className="p-6 pt-4">
             <p className="text-mb-text-medium text-mb-sm mb-4">Type <span className="font-black text-mb-text-dark">{name}</span> to confirm deletion.</p>
-            <input className="mb-input mb-4" placeholder="Type project name..." value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
+            <input className="mb-input mb-4" placeholder={t("settings.projectName") + "..."} value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} />
             <div className="flex justify-end gap-3">
               <button onClick={() => setDeleteOpen(false)} className="mb-btn-secondary">Cancel</button>
               <button onClick={handleDelete} disabled={deleteConfirm !== name || deleting} className={`mb-btn-danger px-4 ${deleteConfirm !== name || deleting ? 'opacity-40 cursor-not-allowed' : ''}`}>{deleting ? 'Deleting...' : 'Delete permanently'}</button>

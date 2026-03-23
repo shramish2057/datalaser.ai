@@ -108,7 +108,11 @@
       "Bash(grep -n \"Dashboard\\\\|coming soon\\\\|will be available\" /Users/shramishkafle/Desktop/datalaser/src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/dashboard/page.tsx)",
       "Bash(while read:*)",
       "Bash(do grep:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(cd:*)",
+      "Bash(grep -v test/ echo '\\(should be empty\\)' __NEW_LINE_8b64a02f4fee2d31__ echo echo '2. Remaining title= without t\\(\\):' grep -rn title=\"\"[A-Z][^\"\"]*\"\" src/app src/components --include=*.tsx)",
+      "Bash(grep -v test/ echo '\\(should be empty\\)' __NEW_LINE_8b64a02f4fee2d31__ echo echo '3. Remaining >English Text< without t\\(\\):' grep -rnP '>\\\\s*[A-Z][a-zA-Z ]{4,}\\\\s*</' src/app src/components --include=*.tsx)",
+      "Bash(head -30 echo \"\\(should be mostly empty — some dynamic content OK\\)\")"
     ]
   }
 }

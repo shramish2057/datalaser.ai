@@ -149,7 +149,7 @@ export default function TeamAskPage() {
         </div>
         <div className="border-t border-mb-border bg-mb-bg px-6 py-4">
           <div className="max-w-[860px] mx-auto flex items-end gap-3">
-            <textarea className="mb-input flex-1 min-h-[44px] max-h-32 resize-none" placeholder="Ask a question about your data..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} rows={1} />
+            <textarea className="mb-input flex-1 min-h-[44px] max-h-32 resize-none" placeholder={t("ask.placeholder")} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} rows={1} />
             <button onClick={handleSend} disabled={loading || !input.trim()} className={`mb-btn-primary p-3 flex-shrink-0 ${loading || !input.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}><Send size={16} /></button>
           </div>
         </div>

@@ -283,7 +283,7 @@ export default function StudioSidebar({
                   key={col.name}
                   onClick={() => copyColumnName(col.name)}
                   className="flex items-center gap-1.5 px-2 py-1 w-full rounded hover:bg-mb-bg-medium group"
-                  title="Click to copy"
+                  title={t("common.copy")}
                 >
                   <span className="font-mono text-[11px] text-mb-text-dark truncate flex-1 text-left">
                     {col.name}
