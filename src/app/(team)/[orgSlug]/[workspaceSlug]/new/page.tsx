@@ -6,13 +6,13 @@ import Link from 'next/link'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { ProjectIconPicker } from '@/components/ProjectIconPicker'
 
-const COLORS = ['#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
+const COLORS = ['#7C3AED','#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 export default function TeamNewProjectPage() {
   const t = useTranslations()
   const [name, setName] = useState('')
   const [icon, setIcon] = useState('bar-chart')
-  const [color, setColor] = useState('#4A9EDA')
+  const [color, setColor] = useState('#7C3AED')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [wsId, setWsId] = useState('')

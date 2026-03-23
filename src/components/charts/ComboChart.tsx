@@ -4,7 +4,7 @@ import {
 } from 'recharts'
 import { chartTheme } from '@/lib/chartTheme'
 
-const MB_COLORS = ['#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556']
+const DL_COLORS = ['#7C3AED', '#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556']
 
 type Props = {
   data: Record<string, unknown>[]
@@ -15,7 +15,7 @@ type Props = {
   colors?: string[]
 }
 
-export function ComboChart({ data, xKey, barKeys, lineKeys, colors = MB_COLORS }: Props) {
+export function ComboChart({ data, xKey, barKeys, lineKeys, colors = DL_COLORS }: Props) {
   if (!Array.isArray(data) || data.length === 0) {
     return <div className="text-dl-text-light text-dl-sm py-4 text-center">No data</div>
   }

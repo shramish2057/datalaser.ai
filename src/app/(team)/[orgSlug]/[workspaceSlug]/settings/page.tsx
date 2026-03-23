@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { Save } from 'lucide-react'
 import { WsSettingsShell } from '@/components/settings/WsSettingsShell'
 
-const COLORS = ['#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
+const COLORS = ['#7C3AED','#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 export default function WorkspaceSettingsPage() {
   const t = useTranslations()
@@ -15,7 +15,7 @@ export default function WorkspaceSettingsPage() {
   const workspaceSlug = params.workspaceSlug as string
   const [name, setName] = useState('')
   const [icon, setIcon] = useState('💼')
-  const [color, setColor] = useState('#4A9EDA')
+  const [color, setColor] = useState('#7C3AED')
   const [wsId, setWsId] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)

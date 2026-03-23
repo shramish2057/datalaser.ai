@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog'
 import { ProjectIconPicker } from '@/components/ProjectIconPicker'
 
-const COLORS = ['#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
+const COLORS = ['#7C3AED','#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 const LANGUAGES = [
   { code: 'de', label: 'Deutsch', flag: '🇩🇪', region: 'Deutschland' },
@@ -26,7 +26,7 @@ export default function ProjectSettingsPage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [icon, setIcon] = useState('bar-chart')
-  const [color, setColor] = useState('#4A9EDA')
+  const [color, setColor] = useState('#7C3AED')
   const [selectedLocale, setSelectedLocale] = useState(currentLocale)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)

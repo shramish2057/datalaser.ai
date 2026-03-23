@@ -45,7 +45,7 @@ export type ChartData = {
   waterfallData?: { name: string; value: number }[]
 }
 
-const MB_COLORS = ['#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556', '#98D9D9', '#7172AD']
+const DL_COLORS = ['#7C3AED', '#4A9EDA', '#84BB4C', '#F9CF48', '#ED6E6E', '#A989C5', '#F1B556', '#98D9D9', '#7172AD']
 
 type Props = {
   chart: ChartData
@@ -58,7 +58,7 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const chartRef = useRef<HTMLDivElement>(null)
-  const colors = chart.colors ?? MB_COLORS
+  const colors = chart.colors ?? DL_COLORS
 
   // Guard
   if (chart.type !== 'gauge' && chart.type !== 'heatmap' && (!Array.isArray(chart.data) || chart.data.length === 0)) {
