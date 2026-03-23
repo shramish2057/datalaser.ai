@@ -9,10 +9,11 @@ import {
   Globe, Sparkles, TrendingUp, Search,
   Menu, X, Play, Shield,
 } from 'lucide-react'
-import { GLSLHills } from '@/components/ui/glsl-hills'
+// GLSLHills used inside HeroSection
 import { Features } from '@/components/blocks/features-8'
 import { Testimonials } from '@/components/blocks/testimonials'
 import { FeaturesHow } from '@/components/blocks/features-10'
+import { HeroSection } from '@/components/blocks/hero-section'
 
 /* ── scroll-triggered reveal ── */
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -118,130 +119,9 @@ export default function LandingPage() {
         )}
       </nav>
 
+
       {/* ━━ HERO ━━ */}
-      <section className="relative pt-36 pb-24 px-6 overflow-hidden">
-        {/* GLSL Hills background */}
-        <div className="absolute inset-0 z-0 opacity-30">
-          <GLSLHills width="100%" height="100%" cameraZ={125} speed={0.3} />
-        </div>
-        {/* Gradient overlay to blend hills into white */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/60 via-white/30 to-white pointer-events-none" />
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <Reveal>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-50 border border-violet-200 text-sm text-violet-700 font-medium mb-8">
-              <Sparkles size={14} />
-              {t('landing.badge')}
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.08}>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] text-gray-900 mb-6">
-              {locale === 'de' ? (
-                <>Ihre Daten.<br /><span className="text-violet-600">Durchleuchtet.</span></>
-              ) : (
-                <>Your data.<br /><span className="text-violet-600">Interrogated.</span></>
-              )}
-            </h1>
-          </Reveal>
-
-          <Reveal delay={0.16}>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-              {t('landing.heroDesc')}
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.24}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-              <Link href={`/${locale}/signup`}
-                className="group flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-xl shadow-violet-600/25 text-base w-full sm:w-auto justify-center">
-                {t('landing.cta')}
-                <ArrowRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-              <a href="#features"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 px-8 py-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-all text-base w-full sm:w-auto justify-center bg-white">
-                <Play size={15} />
-                {t('landing.ctaDemo')}
-              </a>
-            </div>
-            <p className="text-sm text-gray-400">{t('landing.ctaFooter')}</p>
-          </Reveal>
-
-          {/* Dashboard preview */}
-          <Reveal delay={0.4}>
-            <div className="mt-20 relative">
-              <div className="absolute -inset-6 bg-gradient-to-b from-violet-100/50 to-transparent rounded-3xl blur-2xl" />
-              <div className="relative bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-2xl shadow-gray-200/60">
-                <div className="flex items-center gap-2 px-5 py-3.5 bg-gray-50 border-b border-gray-100">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                    <div className="w-3 h-3 rounded-full bg-green-400" />
-                  </div>
-                  <div className="flex-1 mx-8">
-                    <div className="bg-gray-100 rounded-lg px-4 py-1.5 text-xs text-gray-400 text-center max-w-xs mx-auto">
-                      app.datalaser.ai/insights
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6">
-                  {/* KPI row */}
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    {[
-                      { label: 'Revenue', value: '€284,920', delta: '+18.4%', up: true },
-                      { label: 'Orders', value: '2,640', delta: '+12.1%', up: true },
-                      { label: 'CAC', value: '€109', delta: '+12.0%', up: false },
-                      { label: 'Churn', value: '2.3%', delta: '-0.1%', up: true },
-                    ].map((kpi, i) => (
-                      <motion.div key={kpi.label}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.8 + i * 0.08, duration: 0.4 }}
-                        className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                        <p className="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-1">{kpi.label}</p>
-                        <p className="text-xl font-bold text-gray-900">{kpi.value}</p>
-                        <span className={`text-xs font-semibold ${kpi.up ? 'text-emerald-500' : 'text-red-500'}`}>{kpi.delta}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                  {/* Chart */}
-                  <div className="bg-gray-50 rounded-xl border border-gray-100 p-5 h-44 flex items-end gap-[3px]">
-                    {Array.from({ length: 32 }, (_, i) => (
-                      <motion.div key={i}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${25 + Math.sin(i * 0.4) * 18 + Math.random() * 28}%` }}
-                        transition={{ delay: 1 + i * 0.025, duration: 0.45 }}
-                        className="flex-1 bg-gradient-to-t from-violet-500 to-violet-300 rounded-[2px] opacity-80" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ━━ CONNECTORS ━━ */}
-      <section id="connectors" className="py-16 border-y border-gray-100 bg-gray-50/50">
-        <Reveal>
-          <p className="text-center text-xs text-gray-400 uppercase tracking-[0.2em] font-semibold mb-8">
-            {t('landing.stack')}
-          </p>
-        </Reveal>
-        <div className="overflow-hidden">
-          <motion.div className="flex gap-6 whitespace-nowrap"
-            animate={{ x: [0, -580] }}
-            transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}>
-            {[...CONNECTORS, ...CONNECTORS].map((c, i) => (
-              <div key={i} className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-white border border-gray-100 shadow-sm flex-shrink-0">
-                <span className="text-xl">{c.icon}</span>
-                <span className="text-sm font-medium text-gray-600">{c.name}</span>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* ━━ FEATURES ━━ */}
       <div id="features">
