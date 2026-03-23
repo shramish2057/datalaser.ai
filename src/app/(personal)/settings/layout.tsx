@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -10,6 +11,7 @@ import type { Project } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations()
   const [projects, setProjects] = useState<Project[]>([])
   const [userName, setUserName] = useState('')
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
@@ -128,7 +130,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
               className="flex items-center gap-2 px-4 h-[36px] w-full text-mb-xs
                 text-mb-text-light hover:text-mb-brand transition-colors mt-1"
             >
-              <Plus size={13} /> New project
+              <Plus size={13} /> {t('projects.newProject')}
             </button>
           )}
         </div>
@@ -146,7 +148,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
           >
             <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-mb-brand rounded-r-sm" />
             <Settings size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Settings</span>}
+            {sidebarExpanded && <span>{t('nav.settings')}</span>}
           </button>
 
           {sidebarExpanded && userName && (
@@ -177,7 +179,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
             `}
           >
             <LogOut size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Log out</span>}
+            {sidebarExpanded && <span>{t('common.logOut')}</span>}
           </button>
         </div>
       </aside>

@@ -89,7 +89,9 @@
     "inviteMembers": "Invite members",
     "role": "Role",
     "invite": "Invite",
-    "noMembers": "No members yet"
+    "noMembers": "No members yet",
+    "logOut": "Log out",
+    "allProjects": "All Projects"
   },
   "home": {
     "topInsights": "Top Insights",
@@ -333,5 +335,18 @@
     "leading_indicator": "leading indicator",
     "contribution": "contribution",
     "temporal_pattern": "temporal pattern"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Select a project to view insights, ask questions, and build dashboards.",
+    "noProjects": "No projects yet",
+    "noProjectsDesc": "Create your first project to start analysing your data.",
+    "createFirst": "Create your first project",
+    "newProject": "New Project",
+    "addAnother": "Add another analysis project",
+    "created": "Created",
+    "insights": "Insights",
+    "ask": "Ask",
+    "sources": "Sources"
   }
 }

@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -9,6 +10,7 @@ import {
 import type { Organization, Workspace } from '@/types/database'
 
 export default function OrgShellLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations()
   const pathname = usePathname()
   const params = useParams()
   const orgSlug = params.orgSlug as string
@@ -27,6 +29,7 @@ export default function OrgShellLayout({ children }: { children: React.ReactNode
 }
 
 function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.ReactNode }) {
+  const t = useTranslations()
   const [org, setOrg] = useState<Organization | null>(null)
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [userName, setUserName] = useState('')
@@ -164,9 +167,9 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
           )}
 
           {[
-            { icon: Users, label: 'Members', href: `/${orgSlug}/settings/members` },
-            { icon: Settings, label: 'Settings', href: `/${orgSlug}/settings` },
-            { icon: CreditCard, label: 'Billing', href: `/${orgSlug}/settings/billing` },
+            { icon: Users, label: t('settings.members'), href: `/${orgSlug}/settings/members` },
+            { icon: Settings, label: t('nav.settings'), href: `/${orgSlug}/settings` },
+            { icon: CreditCard, label: t('settings.billing'), href: `/${orgSlug}/settings/billing` },
           ].map(item => {
             const active = pathname === item.href
             return (
@@ -214,7 +217,7 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
               text-mb-text-light hover:text-red-500 hover:bg-red-50 transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}`}>
             <LogOut size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Log out</span>}
+            {sidebarExpanded && <span>{t('common.logOut')}</span>}
           </button>
         </div>
       </aside>

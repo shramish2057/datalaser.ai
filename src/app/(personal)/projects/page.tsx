@@ -3,12 +3,15 @@ import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
+import { useLocale } from 'next-intl'
 import { Plus, Database, BarChart2, MessageSquare } from 'lucide-react'
+import { formatDate } from '@/lib/formatNumber'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 import type { Project } from '@/types/database'
 
 export default function ProjectsPage() {
   const t = useTranslations()
+  const locale = useLocale()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
@@ -63,9 +66,9 @@ export default function ProjectsPage() {
   return (
     <div className="font-sans flex-1 overflow-y-auto">
       <div className="max-w-5xl mx-auto px-8 py-10">
-        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">Projects</h1>
+        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-1">{t('projects.title')}</h1>
         <p className="text-mb-text-medium text-mb-base mb-8">
-          Select a project to view insights, ask questions, and build dashboards.
+          {t('projects.subtitle')}
         </p>
 
         {projects.length === 0 ? (
@@ -74,15 +77,15 @@ export default function ProjectsPage() {
             <div className="w-16 h-16 bg-mb-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
               <BarChart2 size={28} className="text-mb-text-light" />
             </div>
-            <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">No projects yet</h2>
+            <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t('projects.noProjects')}</h2>
             <p className="text-mb-text-medium text-mb-base mb-6">
-              Create your first project to start analysing your data.
+              {t('projects.noProjectsDesc')}
             </p>
             <button
               onClick={() => router.push('/projects/new')}
               className="mb-btn-primary px-6 py-2.5 font-black"
             >
-              Create your first project &rarr;
+              {t('projects.createFirst')} →
             </button>
           </div>
         ) : (
@@ -115,23 +118,23 @@ export default function ProjectsPage() {
                   <span className="flex items-center gap-1 text-mb-xs text-mb-text-light
                     hover:text-mb-brand transition-colors"
                     onClick={e => { e.stopPropagation(); router.push(`/projects/${project.id}/insights`) }}>
-                    <BarChart2 size={12} /> Insights
+                    <BarChart2 size={12} /> {t('projects.insights')}
                   </span>
                   <span className="flex items-center gap-1 text-mb-xs text-mb-text-light
                     hover:text-mb-brand transition-colors"
                     onClick={e => { e.stopPropagation(); router.push(`/projects/${project.id}/ask`) }}>
-                    <MessageSquare size={12} /> Ask
+                    <MessageSquare size={12} /> {t('projects.ask')}
                   </span>
                   <span className="flex items-center gap-1 text-mb-xs text-mb-text-light
                     hover:text-mb-brand transition-colors"
                     onClick={e => { e.stopPropagation(); router.push(`/projects/${project.id}/sources`) }}>
-                    <Database size={12} /> Sources
+                    <Database size={12} /> {t('projects.sources')}
                   </span>
                 </div>
 
                 {/* Created date */}
                 <p className="text-mb-xs text-mb-text-light mt-2">
-                  Created {new Date(project.created_at).toLocaleDateString()}
+                  {t('projects.created')} {formatDate(project.created_at, locale)}
                 </p>
               </button>
             ))}
@@ -149,10 +152,10 @@ export default function ProjectsPage() {
                 <Plus size={20} className="text-mb-text-light" />
               </div>
               <p className="text-mb-sm font-black text-mb-text-medium">
-                New Project
+                {t('projects.newProject')}
               </p>
               <p className="text-mb-xs text-mb-text-light mt-1">
-                Add another analysis project
+                {t('projects.addAnother')}
               </p>
             </button>
           </div>

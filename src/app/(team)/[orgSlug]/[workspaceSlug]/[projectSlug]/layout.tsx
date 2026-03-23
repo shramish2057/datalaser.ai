@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -13,6 +14,7 @@ import { ProjectIconBadge } from '@/components/ProjectIcon'
 import { TeamProjectCtx } from '@/lib/teamContext'
 
 export default function TeamProjectLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations()
   const [project, setProject] = useState<Project | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [org, setOrg] = useState<Organization | null>(null)
@@ -92,7 +94,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
     { icon: MessageSquare, label: 'Ask Data', path: '/ask' },
     { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
     { icon: Database, label: 'Data Sources', path: '/sources' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: Settings, label: t('nav.settings'), path: '/settings' },
   ]
 
   const isActive = (path: string) => {
@@ -157,7 +159,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
               className="flex items-center gap-1.5 text-mb-xs text-mb-text-light
                 hover:text-mb-brand mt-1.5 transition-colors"
             >
-              <Plus size={11} /> New project
+              <Plus size={11} /> {t('projects.newProject')}
             </button>
           </div>
         )}
@@ -200,7 +202,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
             `}
           >
             <FolderOpen size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>All Projects</span>}
+            {sidebarExpanded && <span>{t('common.allProjects')}</span>}
           </button>
 
           <button onClick={toggleSidebar}
@@ -218,7 +220,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
             `}
           >
             <LogOut size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Log out</span>}
+            {sidebarExpanded && <span>{t('common.logOut')}</span>}
           </button>
         </div>
       </aside>
@@ -246,7 +248,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-mb-text-medium text-mb-sm">
               <div className="w-2 h-2 rounded-full bg-mb-success" />
-              Connected
+              {t('common.connected')}
             </div>
             <div className="w-px h-4 bg-mb-border mx-1" />
             <button

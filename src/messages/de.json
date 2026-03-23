@@ -89,7 +89,9 @@
     "inviteMembers": "Mitglieder einladen",
     "role": "Rolle",
     "invite": "Einladen",
-    "noMembers": "Noch keine Mitglieder"
+    "noMembers": "Noch keine Mitglieder",
+    "logOut": "Abmelden",
+    "allProjects": "Alle Projekte"
   },
   "home": {
     "topInsights": "Top-Erkenntnisse",
@@ -333,5 +335,18 @@
     "leading_indicator": "Frühindikator",
     "contribution": "Beitrag",
     "temporal_pattern": "Zeitliches Muster"
+  },
+  "projects": {
+    "title": "Projekte",
+    "subtitle": "Wählen Sie ein Projekt, um Analysen anzuzeigen, Fragen zu stellen und Dashboards zu erstellen.",
+    "noProjects": "Noch keine Projekte",
+    "noProjectsDesc": "Erstellen Sie Ihr erstes Projekt, um mit der Datenanalyse zu beginnen.",
+    "createFirst": "Erstes Projekt erstellen",
+    "newProject": "Neues Projekt",
+    "addAnother": "Weiteres Analyseprojekt hinzufügen",
+    "created": "Erstellt",
+    "insights": "Analysen",
+    "ask": "Fragen",
+    "sources": "Quellen"
   }
 }

@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -10,6 +11,7 @@ import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 
 export default function WorkspaceShellLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations()
   const pathname = usePathname()
   const params = useParams()
   const orgSlug = params.orgSlug as string
@@ -31,6 +33,7 @@ export default function WorkspaceShellLayout({ children }: { children: React.Rea
 function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
   orgSlug: string; workspaceSlug: string; children: React.ReactNode
 }) {
+  const t = useTranslations()
   const [org, setOrg] = useState<Organization | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
@@ -154,7 +157,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
             <button onClick={() => router.push(`${wsBase}/new`)}
               className="flex items-center gap-2 px-4 h-[36px] w-full text-mb-xs
                 text-mb-text-light hover:text-mb-brand transition-colors mt-1">
-              <Plus size={13} /> New project
+              <Plus size={13} /> {t('projects.newProject')}
             </button>
           )}
 
@@ -166,8 +169,8 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
           )}
 
           {[
-            { icon: Users, label: 'Members', href: `${wsBase}/settings/members` },
-            { icon: Settings, label: 'Settings', href: `${wsBase}/settings` },
+            { icon: Users, label: t('settings.members'), href: `${wsBase}/settings/members` },
+            { icon: Settings, label: t('nav.settings'), href: `${wsBase}/settings` },
           ].map(item => {
             const active = pathname === item.href
             return (
@@ -206,7 +209,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
               text-mb-text-light hover:text-red-500 hover:bg-red-50 transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}`}>
             <LogOut size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Log out</span>}
+            {sidebarExpanded && <span>{t('common.logOut')}</span>}
           </button>
         </div>
       </aside>

@@ -237,7 +237,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
             `}
           >
             <FolderOpen size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>All Projects</span>}
+            {sidebarExpanded && <span>{t('common.allProjects')}</span>}
           </button>
 
           {sidebarExpanded && (
@@ -265,7 +265,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
             `}
           >
             <LogOut size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Log out</span>}
+            {sidebarExpanded && <span>{t('common.logOut')}</span>}
           </button>
         </div>
       </aside>

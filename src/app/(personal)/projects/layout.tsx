@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   ChevronLeft, ChevronRight, LogOut, Plus, Settings
@@ -25,6 +26,7 @@ export default function ProjectsShellLayout({ children }: { children: React.Reac
 }
 
 function ProjectsShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations()
   const [projects, setProjects] = useState<Project[]>([])
   const [userName, setUserName] = useState('')
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
@@ -155,7 +157,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-2 px-4 h-[36px] w-full text-mb-xs
                 text-mb-text-light hover:text-mb-brand transition-colors mt-1"
             >
-              <Plus size={13} /> New project
+              <Plus size={13} /> {t('projects.newProject')}
             </button>
           )}
         </div>
@@ -171,7 +173,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
             `}
           >
             <Settings size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Settings</span>}
+            {sidebarExpanded && <span>{t('nav.settings')}</span>}
           </Link>
 
           {sidebarExpanded && userName && (
@@ -202,7 +204,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
             `}
           >
             <LogOut size={15} className="flex-shrink-0" />
-            {sidebarExpanded && <span>Log out</span>}
+            {sidebarExpanded && <span>{t('common.logOut')}</span>}
           </button>
         </div>
       </aside>

@@ -122,7 +122,9 @@
       "Bash(1 __NEW_LINE_1e5cd34e515b6f94__ echo \"\" echo \"=== T32 BWA \\(re-test\\) ===\" curl -s -X POST http://localhost:8001/templates/T32/run -F \"file=@/tmp/bwa_test.csv\" -F \"file_type=csv\")",
       "Bash(grep:*)",
       "Bash(head -20 echo __NEW_LINE_fa3b5de2a56fcb5c__ echo '3. Specific strings user flagged:' grep -rn \"Describe your analysis\\\\|DataLaser will generate\\\\|Correlation analysis of all\\\\|Which factors predict\\\\|Trend analysis and forecast\" src/app --include=*.tsx)",
-      "Bash(grep -rn \"export default\\\\|return.*<div\\\\|return.*<>\" src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/studio/layout.tsx)"
+      "Bash(grep -rn \"export default\\\\|return.*<div\\\\|return.*<>\" src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/studio/layout.tsx)",
+      "Bash(grep -n \"function \" src/app/\\\\\\(team\\\\\\)/[orgSlug]/[workspaceSlug]/layout.tsx)",
+      "Bash(head -10 echo \"\\(should be empty\\)\")"
     ]
   }
 }
