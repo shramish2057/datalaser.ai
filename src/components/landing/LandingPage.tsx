@@ -7,8 +7,9 @@ import { motion, useInView } from 'motion/react'
 import {
   ArrowRight, Check, ChevronDown, Database, Zap, BarChart3,
   Globe, Sparkles, TrendingUp, Search,
-  Menu, X, Play, Shield, Clock, LineChart, PieChart, Layers,
+  Menu, X, Play, Shield,
 } from 'lucide-react'
+import { GLSLHills } from '@/components/ui/glsl-hills'
 
 /* ── scroll-triggered reveal ── */
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -116,11 +117,12 @@ export default function LandingPage() {
 
       {/* ━━ HERO ━━ */}
       <section className="relative pt-36 pb-24 px-6 overflow-hidden">
-        {/* Ambient glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[700px] pointer-events-none opacity-40">
-          <div className="absolute top-16 left-[30%] w-[400px] h-[400px] bg-violet-200 rounded-full blur-[140px]" />
-          <div className="absolute top-32 right-[25%] w-[300px] h-[300px] bg-indigo-200 rounded-full blur-[120px]" />
+        {/* GLSL Hills background */}
+        <div className="absolute inset-0 z-0 opacity-30">
+          <GLSLHills width="100%" height="100%" cameraZ={125} speed={0.3} />
         </div>
+        {/* Gradient overlay to blend hills into white */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/60 via-white/30 to-white pointer-events-none" />
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <Reveal>
