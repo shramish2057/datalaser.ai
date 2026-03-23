@@ -348,5 +348,23 @@
     "insights": "Analysen",
     "ask": "Fragen",
     "sources": "Quellen"
+  },
+  "auth": {
+    "signInTitle": "Bei DataLaser anmelden",
+    "signInSubtitle": "Geben Sie Ihre Zugangsdaten ein, um fortzufahren",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "sie@firma.de",
+    "signIn": "Anmelden",
+    "signingIn": "Wird angemeldet...",
+    "signInGoogle": "Mit Google anmelden",
+    "or": "ODER",
+    "noAccount": "Noch kein Konto?",
+    "createOne": "Jetzt erstellen",
+    "signUpTitle": "DataLaser-Konto erstellen",
+    "signUpSubtitle": "Beginnen Sie kostenlos mit der Datenanalyse",
+    "signUp": "Konto erstellen",
+    "signingUp": "Konto wird erstellt...",
+    "signUpGoogle": "Mit Google registrieren",
+    "hasAccount": "Bereits ein Konto?"
   }
 }
