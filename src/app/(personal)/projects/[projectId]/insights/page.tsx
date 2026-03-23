@@ -7,6 +7,7 @@ import {
   BarChart2, Database, Zap, ArrowRight, Loader2, Play,
   CheckCircle2, Clock, AlertTriangle
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface SourceAnalysis {
   id: string
@@ -21,6 +22,7 @@ interface SourceAnalysis {
 }
 
 export default function InsightsPage() {
+  const t = useTranslations()
   const [sources, setSources] = useState<SourceAnalysis[]>([])
   const [loading, setLoading] = useState(true)
   const [runningId, setRunningId] = useState<string | null>(null)
@@ -118,14 +120,14 @@ export default function InsightsPage() {
     <div className="max-w-4xl mx-auto px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-[20px] font-black text-mb-text-dark">Insights</h1>
+          <h1 className="text-[20px] font-black text-mb-text-dark">{t('insights.title')}</h1>
           <p className="text-mb-text-light text-mb-xs mt-0.5">
-            Auto-computed analysis for each data source — no AI, pure statistical engine
+            {t('insights.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-mb-text-light">
-            {analyzed.length} of {sources.length} sources analyzed
+            {analyzed.length} {t('common.of')} {sources.length} sources
           </span>
         </div>
       </div>
@@ -133,11 +135,11 @@ export default function InsightsPage() {
       {sources.length === 0 && (
         <div className="bg-white border border-mb-border rounded-mb-lg p-8 text-center">
           <Database size={32} className="text-mb-text-light mx-auto mb-3" />
-          <p className="text-mb-text-dark text-mb-sm font-medium mb-2">No data sources connected</p>
-          <p className="text-mb-text-light text-mb-xs mb-4">Add a data source to start generating insights.</p>
+          <p className="text-mb-text-dark text-mb-sm font-medium mb-2">{t('insights.noSources')}</p>
+          <p className="text-mb-text-light text-mb-xs mb-4">{t('insights.noSourcesDesc')}</p>
           <button onClick={() => router.push(`${base}/sources/new`)}
             className="mb-btn-primary text-mb-sm px-4 py-2">
-            Add data source
+            {t('home.addSource')}
           </button>
         </div>
       )}
@@ -146,7 +148,7 @@ export default function InsightsPage() {
       {analyzed.length > 0 && (
         <section className="mb-6">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-mb-text-light mb-3">
-            Analyzed ({analyzed.length})
+            {t('insights.analyzed')} ({analyzed.length})
           </p>
           <div className="space-y-3">
             {analyzed.map(src => (
@@ -162,7 +164,7 @@ export default function InsightsPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-mb-brand font-medium">{src.insight_count} insights</span>
+                    <span className="text-[11px] text-mb-brand font-medium">{src.insight_count} {t('home.insights')}</span>
                     <ArrowRight size={14} className="text-mb-text-light group-hover:text-mb-brand transition-colors" />
                   </div>
                 </div>
@@ -193,7 +195,7 @@ export default function InsightsPage() {
       {pending.length > 0 && (
         <section>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-mb-text-light mb-3">
-            Not yet analyzed ({pending.length})
+            {t('insights.notAnalyzed')} ({pending.length})
           </p>
           <div className="space-y-2">
             {pending.map(src => (
@@ -212,9 +214,9 @@ export default function InsightsPage() {
                   disabled={runningId === src.id}
                   className="flex items-center gap-1.5 text-[12px] font-medium text-mb-brand hover:text-mb-brand-dark disabled:opacity-50 bg-mb-brand-hover px-3 py-1.5 rounded-mb-md">
                   {runningId === src.id ? (
-                    <><Loader2 size={12} className="animate-spin" /> Analyzing...</>
+                    <><Loader2 size={12} className="animate-spin" /> {t('common.analyzing')}</>
                   ) : (
-                    <><Play size={12} /> Run Analysis</>
+                    <><Play size={12} /> {t('insights.runAnalysis')}</>
                   )}
                 </button>
               </div>

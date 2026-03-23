@@ -1,10 +1,12 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import StepIndicator from '@/components/onboarding/StepIndicator'
 import { Users, User } from 'lucide-react'
 
 export default function SetupPage() {
+  const t = useTranslations()
   const [name, setName] = useState('')
   const [mode, setMode] = useState<'personal' | 'team' | null>(null)
   const [loading, setLoading] = useState(false)

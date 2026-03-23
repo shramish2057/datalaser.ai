@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -61,6 +62,7 @@ const AGG_LABELS: Record<string, string> = {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function CalibratePage() {
+  const t = useTranslations()
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([])
   const [customMetric, setCustomMetric] = useState('')
   const [customMetrics, setCustomMetrics] = useState<string[]>([])

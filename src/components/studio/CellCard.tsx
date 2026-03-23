@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { Play, MoreVertical, Loader2, ChevronDown, ChevronRight, ChevronUp, Trash2, BookOpen, ArrowUp, ArrowDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { StudioCell } from '@/types/studio'
 
 type Props = {
@@ -29,6 +30,7 @@ const LANG_COLORS: Record<string, string> = {
 }
 
 export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, onRun, onCodeChange, onContentChange, onTypeChange, onLevelChange, onDelete, onMoveUp, onMoveDown, onSaveToLibrary, onClick }: Props) {
+  const t = useTranslations()
   const [showMenu, setShowMenu] = useState(false)
   const [showStdout, setShowStdout] = useState(false)
   const [showLangPicker, setShowLangPicker] = useState(false)
@@ -52,7 +54,7 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
           <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-[10px] px-1 text-mb-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
         </div>
         <input value={cell.content || ''} onChange={e => onContentChange(e.target.value)} onClick={e => e.stopPropagation()}
-          placeholder="Section heading..." className={`w-full bg-transparent border-none outline-none text-mb-text-dark px-4 py-2 ${sizes[cell.level || 1]}`} />
+          placeholder={t('studio.sectionHeading')} className={`w-full bg-transparent border-none outline-none text-mb-text-dark px-4 py-2 ${sizes[cell.level || 1]}`} />
       </div>
     )
   }
@@ -68,7 +70,7 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
           <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-[10px] px-1 text-mb-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
         </div>
         <textarea value={cell.content || ''} onChange={e => { onContentChange(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
-          onClick={e => e.stopPropagation()} placeholder="Write analysis notes..."
+          onClick={e => e.stopPropagation()} placeholder={t('studio.writeNotes')}
           className="w-full bg-transparent border-none outline-none text-mb-text-dark px-4 py-2 text-[14px] leading-[1.8] resize-none min-h-[60px]" />
       </div>
     )
@@ -100,7 +102,7 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
               </div>
             )}
           </div>
-          <span className="text-[11px] text-mb-text-light">Cell {cellNumber}</span>
+          <span className="text-[11px] text-mb-text-light">{t('studio.cell')} {cellNumber}</span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={e => { e.stopPropagation(); onRun() }} disabled={cell.status === 'running' || cell.type === 'r'}
@@ -114,13 +116,13 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
             {showMenu && (
               <div className="absolute right-0 top-full z-10 bg-white border border-mb-border rounded shadow-sm py-1 w-40" onClick={e => e.stopPropagation()}>
                 {!isFirst && <button onClick={() => { onMoveUp(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-text-dark hover:bg-mb-bg-light flex items-center gap-2">
-                  <ArrowUp size={12} /> Move Up
+                  <ArrowUp size={12} /> {t('studio.moveUp')}
                 </button>}
                 {!isLast && <button onClick={() => { onMoveDown(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-text-dark hover:bg-mb-bg-light flex items-center gap-2">
-                  <ArrowDown size={12} /> Move Down
+                  <ArrowDown size={12} /> {t('studio.moveDown')}
                 </button>}
                 <button onClick={() => { onSaveToLibrary(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-text-dark hover:bg-mb-bg-light flex items-center gap-2">
-                  <BookOpen size={12} /> Save to Library
+                  <BookOpen size={12} /> {t('studio.saveToLibrary')}
                 </button>
                 <div className="h-px bg-mb-border my-1" />
                 <button onClick={() => { onDelete(); setShowMenu(false) }} className="w-full text-left px-3 py-1.5 text-[12px] text-mb-error hover:bg-red-50 flex items-center gap-2">
@@ -145,7 +147,7 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
       <div className="flex items-center gap-2 px-2 py-1.5 text-[11px]">
         <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cell.status === 'running' ? 'bg-mb-brand animate-pulse' : cell.status === 'done' ? 'bg-mb-success' : cell.status === 'error' ? 'bg-mb-error' : 'bg-mb-border-dark'}`} />
         <span className={cell.status === 'running' ? 'text-mb-brand' : cell.status === 'error' ? 'text-mb-error' : 'text-mb-text-light'}>
-          {cell.status === 'idle' ? 'Ready' : cell.status === 'running' ? 'Running...' : cell.status === 'error' ? 'Error' : `Done${execTime ? ` · ${execTime}ms` : ''}`}
+          {cell.status === 'idle' ? t('studio.ready') : cell.status === 'running' ? t('common.running') : cell.status === 'error' ? t('studio.error') : `${t('studio.done')}${execTime ? ` · ${execTime}ms` : ''}`}
         </span>
       </div>
       {cell.output?.stdout && (

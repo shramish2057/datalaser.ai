@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -6,6 +7,7 @@ import { Save } from 'lucide-react'
 import { OrgSettingsShell } from '@/components/settings/OrgSettingsShell'
 
 export default function OrgSettingsPage() {
+  const t = useTranslations()
   const params = useParams()
   const orgSlug = params.orgSlug as string
   const [name, setName] = useState('')

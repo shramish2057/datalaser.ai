@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -10,6 +11,7 @@ import { WsSettingsShell } from '@/components/settings/WsSettingsShell'
 type Member = { id: string; user_id: string; role: string; created_at: string }
 
 export default function WorkspaceMembersPage() {
+  const t = useTranslations()
   const params = useParams()
   const orgSlug = params.orgSlug as string
   const workspaceSlug = params.workspaceSlug as string
@@ -55,7 +57,7 @@ export default function WorkspaceMembersPage() {
     <WsSettingsShell orgSlug={orgSlug} workspaceSlug={workspaceSlug}>
       {loading ? <div className="space-y-3"><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /></div> : <>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">Members</h1>
+          <h1 className="text-mb-2xl font-black text-mb-text-dark">{t("settings.members")}</h1>
           {availableOrgMembers.length > 0 && <button onClick={() => setAddOpen(true)} className="mb-btn-primary"><UserPlus size={14} /> Add member</button>}
         </div>
         <div className="mb-card overflow-hidden">

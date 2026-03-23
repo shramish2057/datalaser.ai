@@ -98,6 +98,7 @@
     "segmentsInfluencers": "Segments & Influencers"
   },
   "studio": {
+    "notebooks": "Notebooks",
     "newAnalysis": "New Analysis",
     "connectSource": "Connect source",
     "savedQueries": "Saved Queries",
@@ -114,7 +115,29 @@
     "moveUp": "Move Up",
     "moveDown": "Move Down",
     "saveToLibrary": "Save to Library",
-    "viewCode": "View code"
+    "viewCode": "View code",
+    "cell": "Cell",
+    "ready": "Ready",
+    "done": "Done",
+    "error": "Error",
+    "output": "Output",
+    "python": "Python",
+    "sql": "SQL",
+    "askAboutData": "Ask about your data",
+    "askPlaceholder": "e.g. Does passenger class affect survival?",
+    "analyzeBtn": "Analyse",
+    "suggestedAnalyses": "suggested analyses",
+    "cells": "Cells",
+    "generatingMsg": "This takes about 15-20 seconds",
+    "exportPdf": "Export PDF",
+    "exportJupyter": "Export Jupyter",
+    "exportPython": "Export Python",
+    "copyLink": "Copy link",
+    "report": "Report",
+    "keyFindings": "Key findings",
+    "noFile": "No file loaded.",
+    "sectionHeading": "Section heading...",
+    "writeNotes": "Write analysis notes..."
   },
   "sources": {
     "title": "Data Sources",
@@ -166,6 +189,42 @@
     "language": "Language",
     "dangerZone": "Danger zone",
     "deleteProject": "Delete project"
+  },
+  "prep": {
+    "title": "Data Preparation",
+    "cleanedData": "Cleaned Data",
+    "prepareNew": "Prepare New",
+    "history": "History",
+    "uploadFile": "Upload a file to prepare",
+    "dropzone": "Drop CSV, Excel, or JSON here",
+    "startPrep": "Start Preparation",
+    "quality": "Quality",
+    "transform": "Transform",
+    "validate": "Validate",
+    "review": "Review",
+    "applyTransforms": "Apply Transforms",
+    "acceptSuggestion": "Accept",
+    "rejectSuggestion": "Reject",
+    "noSuggestions": "No suggestions available"
+  },
+  "ask": {
+    "title": "Ask Data",
+    "placeholder": "Ask any question about your data...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "selectSource": "Select a data source to ask questions about",
+    "noHistory": "No conversation history yet",
+    "keyTakeaway": "Key Takeaway"
+  },
+  "health": {
+    "title": "Data Health Report",
+    "qualityScore": "Quality Score",
+    "columnOverview": "Column Overview",
+    "warnings": "Warnings",
+    "cleanFirst": "Clean & prepare first",
+    "skipExplore": "Skip, explore as-is",
+    "runAutoAnalysis": "Run Auto-Analysis (no AI)",
+    "aiInsights": "Or go to AI Insights"
   },
   "errors": {
     "sourceNotFound": "Data source not found",

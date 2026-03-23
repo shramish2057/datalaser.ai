@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { LayoutGrid, Plus } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { formatDistanceToNow } from 'date-fns'
 
 type DashboardRow = {
@@ -16,6 +17,7 @@ type DashboardRow = {
 }
 
 export default function ProjectDashboardPage() {
+  const t = useTranslations()
   const [dashboards, setDashboards] = useState<DashboardRow[]>([])
   const [loading, setLoading] = useState(true)
   const [showToast, setShowToast] = useState(false)
@@ -57,7 +59,7 @@ export default function ProjectDashboardPage() {
   const toast = showToast && (
     <div className="fixed bottom-6 right-6 bg-mb-bg border border-mb-border shadow-mb-lg rounded-mb-lg px-4 py-3 flex items-center gap-2 z-50">
       <LayoutGrid size={14} className="text-mb-brand" />
-      <span className="text-mb-sm text-mb-text-dark font-bold">Dashboard builder will be available shortly.</span>
+      <span className="text-mb-sm text-mb-text-dark font-bold">{t('dashboard.comingSoon')}</span>
     </div>
   )
 

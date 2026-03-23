@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -8,6 +9,7 @@ import { useTeamProjectContext } from '@/lib/teamContext'
 import type { Project } from '@/types/database'
 
 export default function TeamProjectOverviewPage() {
+  const t = useTranslations()
   const { projectId, base } = useTeamProjectContext()
   const [project, setProject] = useState<Project | null>(null)
   const [sourceCount, setSourceCount] = useState(0)

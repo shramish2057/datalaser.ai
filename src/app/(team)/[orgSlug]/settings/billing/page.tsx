@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -6,6 +7,7 @@ import { Check, Zap } from 'lucide-react'
 import { OrgSettingsShell } from '@/components/settings/OrgSettingsShell'
 
 export default function OrgBillingPage() {
+  const t = useTranslations()
   const params = useParams()
   const orgSlug = params.orgSlug as string
   const [plan, setPlan] = useState('free')
@@ -33,7 +35,7 @@ export default function OrgBillingPage() {
   return (
     <OrgSettingsShell orgSlug={orgSlug}>
       {loading ? <div className="h-48 rounded-mb-md mb-shimmer" /> : <>
-        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">Billing</h1>
+        <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">{t("settings.billing")}</h1>
         <div className="grid grid-cols-3 gap-4">
           {plans.map(p => (
             <div key={p.name} className={`rounded-mb-lg p-5 border ${p.current ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border bg-mb-bg'}`}>

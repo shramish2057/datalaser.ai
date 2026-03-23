@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -9,6 +10,7 @@ import { useTeamProjectContext } from '@/lib/teamContext'
 type DashboardRow = { id: string; name: string; widgets: unknown[]; is_public: boolean; created_at: string; updated_at: string }
 
 export default function TeamDashboardPage() {
+  const t = useTranslations()
   const { projectId, base } = useTeamProjectContext()
   const [dashboards, setDashboards] = useState<DashboardRow[]>([])
   const [loading, setLoading] = useState(true)

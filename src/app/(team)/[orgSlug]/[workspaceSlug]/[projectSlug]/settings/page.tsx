@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -10,6 +11,7 @@ import { useTeamProjectContext } from '@/lib/teamContext'
 const COLORS = ['#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 export default function TeamProjectSettingsPage() {
+  const t = useTranslations()
   const { projectId, wsBase } = useTeamProjectContext()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')

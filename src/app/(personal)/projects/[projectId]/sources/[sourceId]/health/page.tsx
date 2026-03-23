@@ -7,6 +7,7 @@ import {
   CheckCircle2, AlertTriangle, XCircle, Loader2,
   ArrowRight, Wand2, BarChart2, MessageSquare
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { DataProfile } from '@/types/pipeline'
 
 const DTYPE_COLORS: Record<string, string> = {
@@ -45,6 +46,7 @@ function severityBg(s: string) {
 }
 
 export default function DataHealthPage() {
+  const t = useTranslations()
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string
@@ -177,7 +179,7 @@ export default function DataHealthPage() {
       {/* Header */}
       <div className="mb-8">
         <p className="text-mb-xs text-mb-text-light font-bold uppercase tracking-wider mb-1">
-          Data Health Report
+          {t('health.title')}
         </p>
         <h1 className="text-mb-2xl font-black text-mb-text-dark">{sourceName}</h1>
       </div>
@@ -186,7 +188,7 @@ export default function DataHealthPage() {
       <div className="mb-card p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">Quality Score</p>
+            <p className="text-mb-xs font-bold text-mb-text-light uppercase tracking-wider mb-1">{t('health.qualityScore')}</p>
             <div className="flex items-center gap-3">
               <span className="text-4xl font-black text-mb-text-dark">{profile.quality_score}</span>
               <span className="text-mb-text-light text-mb-lg font-bold">/100</span>
@@ -238,7 +240,7 @@ export default function DataHealthPage() {
 
       {/* Column overview — compact */}
       <div className="mb-8">
-        <p className="mb-section-header mb-3">Column Overview</p>
+        <p className="mb-section-header mb-3">{t('health.columnOverview')}</p>
         <div className="mb-card overflow-hidden">
           <table className="mb-table">
             <thead>
@@ -307,7 +309,7 @@ export default function DataHealthPage() {
               <Wand2 size={18} className={hasIssues ? 'text-white' : 'text-mb-text-light group-hover:text-white'} />
             </div>
             <p className={`text-mb-sm font-black mb-1 ${hasIssues ? 'text-mb-brand' : 'text-mb-text-dark'}`}>
-              Clean &amp; prepare first
+              {t('health.cleanFirst')}
             </p>
             <p className="text-mb-xs text-mb-text-medium">
               {hasIssues
@@ -332,7 +334,7 @@ export default function DataHealthPage() {
               <MessageSquare size={18} className="text-mb-text-light group-hover:text-white" />
             </div>
             <p className="text-mb-sm font-black text-mb-text-dark mb-1">
-              Skip, explore as-is
+              {t('health.skipExplore')}
             </p>
             <p className="text-mb-xs text-mb-text-medium">
               Go straight to Ask Data with the raw dataset
@@ -351,13 +353,13 @@ export default function DataHealthPage() {
             onClick={() => router.push(`/projects/${projectId}/sources/${sourceId}/analysis`)}
             className="text-mb-xs font-bold text-mb-brand hover:text-mb-brand-dark transition-colors inline-flex items-center gap-1.5 bg-mb-brand-hover px-4 py-2 rounded-mb-md"
           >
-            <BarChart2 size={13} /> Run Auto-Analysis (no AI) <ArrowRight size={11} />
+            <BarChart2 size={13} /> {t('health.runAutoAnalysis')} <ArrowRight size={11} />
           </button>
           <button
             onClick={() => router.push(`${base}/insights`)}
             className="text-mb-xs font-bold text-mb-text-light hover:text-mb-brand transition-colors inline-flex items-center gap-1"
           >
-            Or go to AI Insights <ArrowRight size={11} />
+            {t('health.aiInsights')} <ArrowRight size={11} />
           </button>
         </div>
       </div>

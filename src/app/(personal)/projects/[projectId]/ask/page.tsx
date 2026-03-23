@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
@@ -71,6 +72,7 @@ function deriveTitle(msg: string): string {
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function ProjectAskPage() {
+  const t = useTranslations()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)

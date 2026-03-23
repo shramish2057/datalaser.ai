@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useRef } from 'react'
 import { Send, Loader2, Sparkles } from 'lucide-react'
@@ -55,6 +56,7 @@ function parseChartBlocks(text: string): { charts: ChartData[]; cleanText: strin
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function AskPage() {
+  const t = useTranslations()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)

@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -18,6 +19,7 @@ type Source = {
 }
 
 export default function ProjectSourcesPage() {
+  const t = useTranslations()
   const [sources, setSources] = useState<Source[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshingId, setRefreshingId] = useState<string | null>(null)

@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -246,6 +247,7 @@ const DB_FIELDS: Record<string, { label: string; placeholder: string; type?: str
 }
 
 export default function ConnectPage({ projectId }: { projectId?: string } = {}) {
+  const t = useTranslations()
   const [category, setCategory] = useState('All')
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [connectedSources, setConnectedSources] = useState<string[]>([])

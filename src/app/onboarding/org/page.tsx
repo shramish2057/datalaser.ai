@@ -1,9 +1,11 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import StepIndicator from '@/components/onboarding/StepIndicator'
 
 export default function OrgPage() {
+  const t = useTranslations()
   const [orgName, setOrgName] = useState('')
   const [workspaceName, setWorkspaceName] = useState('General')
   const router = useRouter()

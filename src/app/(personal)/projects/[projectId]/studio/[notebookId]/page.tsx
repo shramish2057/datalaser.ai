@@ -7,6 +7,7 @@ import {
   Plus, Play, Loader2, Lightbulb, ChevronDown, ChevronRight, Send, FlaskConical,
   Heading1, Type, Code
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { StudioCell, StudioNotebook, StudioSource, ProactiveSuggestion, SchemaColumn } from '@/types/studio'
 import { buildSchemaContext } from '@/lib/studio/buildSchemaContext'
 import CellCard from '@/components/studio/CellCard'
@@ -34,6 +35,7 @@ const CYCLING_MSGS = [
 ]
 
 export default function NotebookWorkspace() {
+  const t = useTranslations()
   const params = useParams()
   const projectId = params.projectId as string
   const notebookId = params.notebookId as string
@@ -370,7 +372,7 @@ export default function NotebookWorkspace() {
         </div>
         <button onClick={handleGenerateNotebook} disabled={!genPrompt.trim()}
           className={`mt-6 bg-mb-brand text-white text-[15px] px-8 py-3 rounded-mb-lg font-bold hover:bg-mb-brand-dark transition-colors ${!genPrompt.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
-          Generate Full Analysis →
+          {t('studio.generateAnalysis')} →
         </button>
       </div>
     )
@@ -382,7 +384,7 @@ export default function NotebookWorkspace() {
       <div className="h-full flex flex-col items-center justify-center">
         <FlaskConical size={48} className="text-mb-brand animate-spin mb-4" style={{ animationDuration: '3s' }} />
         <p className="text-mb-text-dark text-mb-sm font-bold mb-1">{CYCLING_MSGS[cycleIdx]}</p>
-        <p className="text-mb-text-light text-mb-xs">This takes about 15-20 seconds</p>
+        <p className="text-mb-text-light text-mb-xs">{t('studio.generatingMsg')}</p>
       </div>
     )
   }
@@ -394,7 +396,7 @@ export default function NotebookWorkspace() {
       <div className="h-[40px] flex items-center px-4 border-b border-mb-border flex-shrink-0 bg-white gap-3">
         <input value={notebookTitle} onChange={e => setNotebookTitle(e.target.value)} onBlur={saveTitle}
           className="bg-transparent border-none outline-none text-mb-sm font-medium text-mb-text-dark w-48" />
-        <span className="text-[11px] text-mb-text-light">{isSaving ? 'Saving...' : lastSavedAt ? 'Saved' : ''}</span>
+        <span className="text-[11px] text-mb-text-light">{isSaving ? t('common.saving') : lastSavedAt ? t('common.saved') : ''}</span>
         <div className="w-px h-4 bg-mb-border" />
         <button onClick={() => addCell('heading')} className="text-[11px] text-mb-text-light hover:text-mb-text-dark p-1 rounded hover:bg-mb-bg-light" title="Add heading">
           <Heading1 size={14} />
@@ -408,7 +410,7 @@ export default function NotebookWorkspace() {
         <div className="w-px h-4 bg-mb-border" />
         <button onClick={async () => { for (const c of cells) if (c.type === 'python' || c.type === 'sql') await runCell(c.id) }}
           className="text-[11px] bg-mb-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-mb-brand-dark">
-          <Play size={11} /> Run All
+          <Play size={11} /> {t('studio.runAll')}
         </button>
       </div>
 
@@ -422,7 +424,7 @@ export default function NotebookWorkspace() {
               <button onClick={() => setProactiveCollapsed(!proactiveCollapsed)} className="flex items-center gap-1.5 w-full text-left mb-2">
                 {proactiveCollapsed ? <ChevronRight size={14} className="text-mb-text-light" /> : <ChevronDown size={14} className="text-mb-text-light" />}
                 <Lightbulb size={14} className="text-amber-500" />
-                <span className="text-mb-sm font-medium text-mb-text-dark">{proactive.length} suggested analyses</span>
+                <span className="text-mb-sm font-medium text-mb-text-dark">{proactive.length} {t('studio.suggestedAnalyses')}</span>
               </button>
               {!proactiveCollapsed && (isLoadingProactive ? (
                 <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-20 rounded-mb-lg bg-mb-bg-medium animate-pulse" />)}</div>
@@ -446,7 +448,7 @@ export default function NotebookWorkspace() {
 
           {/* Ask */}
           <div className="mb-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">Ask about your data</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">{t('studio.askAboutData')}</p>
             <textarea value={question} onChange={e => setQuestion(e.target.value)}
               onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleAsk() }}
               placeholder="e.g. Does passenger class affect survival?" rows={2}
@@ -454,7 +456,7 @@ export default function NotebookWorkspace() {
             <button onClick={handleAsk} disabled={isAsking || !question.trim()}
               className={`mt-2 w-full flex items-center justify-center gap-1.5 bg-mb-brand text-white text-[13px] py-2 rounded-mb-md hover:bg-mb-brand-dark ${isAsking || !question.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
               {isAsking ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-              {isAsking ? 'Analysing...' : 'Analyse →'}
+              {isAsking ? t('common.analyzing') : `${t('studio.analyzeBtn')} →`}
             </button>
           </div>
           <div className="h-px bg-mb-border my-3" />
@@ -462,7 +464,7 @@ export default function NotebookWorkspace() {
           {/* Cells */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light">Cells ({cells.length})</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light">{t('studio.cells')} ({cells.length})</p>
             </div>
             {cells.map((cell, i) => (
               <CellCard key={cell.id} cell={cell} cellNumber={i + 1} isActive={cell.id === activeCellId}

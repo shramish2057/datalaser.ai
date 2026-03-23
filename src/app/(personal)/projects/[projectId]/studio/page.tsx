@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -6,6 +7,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { FlaskConical } from 'lucide-react'
 
 export default function StudioRedirectPage() {
+  const t = useTranslations()
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string

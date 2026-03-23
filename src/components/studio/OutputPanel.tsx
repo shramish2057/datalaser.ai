@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { FlaskConical, ChevronDown, ChevronRight, Download, Link2, Check } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { InteractiveChart, type ChartData } from '@/components/charts/InteractiveChart'
 import type { StudioCell, StudioNotebook, StudioSource } from '@/types/studio'
 
@@ -13,6 +14,7 @@ type Props = {
 }
 
 export default function OutputPanel({ cells, notebook, activeSource, onPublishInsight }: Props) {
+  const t = useTranslations()
   const [expandedCode, setExpandedCode] = useState<Set<string>>(new Set())
   const [copiedLink, setCopiedLink] = useState(false)
 
@@ -112,7 +114,7 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
               {(cell.type === 'python' || cell.type === 'sql') && cell.code && (
                 <div className="no-print">
                   <button onClick={() => toggleCode(cell.id)} className="text-[11px] text-mb-text-light hover:text-mb-brand mt-1 flex items-center gap-1">
-                    {expandedCode.has(cell.id) ? <ChevronDown size={11} /> : <ChevronRight size={11} />} View code
+                    {expandedCode.has(cell.id) ? <ChevronDown size={11} /> : <ChevronRight size={11} />} {t('studio.viewCode')}
                   </button>
                   {expandedCode.has(cell.id) && (
                     <pre className="mt-1 bg-[#1e1e1e] rounded-mb-lg p-3 font-mono text-[12px] text-[#d4d4d4] max-h-60 overflow-y-auto">{cell.code}</pre>
@@ -129,17 +131,17 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
         <p className="text-mb-sm text-mb-text-medium font-bold mb-4">Export this report</p>
         <div className="flex gap-2 justify-center flex-wrap">
           <button onClick={() => window.print()} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
-            <Download size={13} /> PDF Report
+            <Download size={13} /> {t('studio.exportPdf')}
           </button>
           <button onClick={downloadIpynb} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
-            <Download size={13} /> Jupyter .ipynb
+            <Download size={13} /> {t('studio.exportJupyter')}
           </button>
           <button onClick={downloadPy} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
-            <Download size={13} /> Python .py
+            <Download size={13} /> {t('studio.exportPython')}
           </button>
           <button onClick={copyLink} className="text-mb-xs px-3 py-2 rounded border border-mb-border hover:bg-mb-bg-light flex items-center gap-1.5">
             {copiedLink ? <Check size={13} className="text-mb-success" /> : <Link2 size={13} />}
-            {copiedLink ? 'Copied!' : 'Copy link'}
+            {copiedLink ? t('common.copied') : t('studio.copyLink')}
           </button>
         </div>
       </div>
@@ -148,6 +150,7 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
 }
 
 function CellOutputRender({ cell }: { cell: StudioCell }) {
+  const t = useTranslations()
   const output = cell.output
   if (!output) return null
   const result = output.result as Record<string, unknown> | null
@@ -200,7 +203,7 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
           <p className="text-[15px] leading-[1.7] text-mb-text-dark">{output.interpretation}</p>
           {output.key_findings?.length > 0 && (
             <div className="mt-3 border-t border-mb-border pt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">Key findings</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light mb-2">{t('studio.keyFindings')}</p>
               <ul className="space-y-1.5">
                 {output.key_findings.map((f, i) => (
                   <li key={i} className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-mb-brand mt-2 flex-shrink-0" /><span className="text-mb-sm text-mb-text-dark">{f}</span></li>

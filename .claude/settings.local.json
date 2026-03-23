@@ -85,7 +85,30 @@
       "Bash(ls -la /Users/shramishkafle/Desktop/datalaser/src/app/api/pipeline/run-now/route.ts /Users/shramishkafle/Desktop/datalaser/src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/sources/[sourceId]/settings/page.tsx /Users/shramishkafle/Desktop/datalaser/supabase/migrations/18_pipeline_recipes.sql)",
       "Bash(git rm:*)",
       "Bash(git checkout:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(echo \"=== FIX 1: Panel widths ===\" grep -n \"flexBasis\" src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/studio/[notebookId]/page.tsx grep -n \"minWidth: 1200\" src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/studio/[notebookId]/page.tsx __NEW_LINE_4606c99724150f5b__ echo \"=== FIX 2: Cell types ===\" grep \"''''heading''''\" src/types/studio.ts)",
+      "Bash(head -1 grep \"CYCLING_MSGS\" src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/studio/[notebookId]/page.tsx)",
+      "Bash(kill:*)",
+      "Bash(python -c \"import services.analyst\")",
+      "Bash(python -c \":*)",
+      "Bash(python3:*)",
+      "Bash(python -c \"import services.analyst; print\\(''OK''\\)\")",
+      "Bash(echo \"a,b,c:*)",
+      "Bash(grep -E \"\\\\.\\(py|txt\\)$|^d\")",
+      "Bash(xargs basename:*)",
+      "Bash(python -c \"from services.auto_analyzer import auto_analyzer; print\\(''''AutoAnalyzer imported OK''''\\)\")",
+      "Bash(python -c \"from services.templates import template_engine; print\\(f''''TemplateEngine loaded: {len\\(template_engine.get_applicable\\([]\\)\\)} templates for empty data''''\\)\")",
+      "Bash(1 __NEW_LINE_2c460404e5f3f723__ echo \"\")",
+      "WebSearch",
+      "Bash(1 __NEW_LINE_da78231afccea4d7__ echo \"\")",
+      "Bash(python -c \"from services.auto_analyzer import auto_analyzer; print\\(''''AutoAnalyzer OK''''\\)\")",
+      "Bash(python -c \"from services.auto_analyzer import auto_analyzer; print\\(''AutoAnalyzer OK''\\)\")",
+      "Bash(python -c \"from services.auto_analyzer import auto_analyzer; print\\(''''OK''''\\)\")",
+      "Bash(git status:*)",
+      "Bash(grep -n \"Dashboard\\\\|coming soon\\\\|will be available\" /Users/shramishkafle/Desktop/datalaser/src/app/\\\\\\(personal\\\\\\)/projects/[projectId]/dashboard/page.tsx)",
+      "Bash(while read:*)",
+      "Bash(do grep:*)",
+      "Bash(done)"
     ]
   }
 }

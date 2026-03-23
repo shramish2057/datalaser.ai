@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -46,6 +47,7 @@ type RunRecord = {
 type Tab = 'cleaned' | 'prepare' | 'history'
 
 export default function DataPrepPage() {
+  const t = useTranslations()
   const [tab, setTab] = useState<Tab>('cleaned')
   const [sources, setSources] = useState<SourceRow[]>([])
   const [recipes, setRecipes] = useState<Record<string, RecipeInfo>>({})

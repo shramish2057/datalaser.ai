@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import Link from 'next/link'
 import { useState } from 'react'
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react'
 
 export default function LandingPage() {
+  const t = useTranslations()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (

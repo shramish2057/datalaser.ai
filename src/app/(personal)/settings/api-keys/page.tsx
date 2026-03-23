@@ -1,9 +1,11 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { Key } from 'lucide-react'
 import { SettingsShell } from '@/components/settings/SettingsShell'
 
 export default function ApiKeysPage() {
+  const t = useTranslations()
   return (
     <SettingsShell>
       <h1 className="text-mb-2xl font-black text-mb-text-dark mb-2">API Keys</h1>

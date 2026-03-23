@@ -1,9 +1,11 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import { Key } from 'lucide-react'
 import { OrgSettingsShell } from '@/components/settings/OrgSettingsShell'
 
 export default function OrgApiKeysPage() {
+  const t = useTranslations()
   const params = useParams()
   const orgSlug = params.orgSlug as string
 

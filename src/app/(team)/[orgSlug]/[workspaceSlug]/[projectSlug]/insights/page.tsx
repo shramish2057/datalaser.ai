@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -23,6 +24,7 @@ const CYCLING_MESSAGES = [
 ]
 
 export default function TeamInsightsPage() {
+  const t = useTranslations()
   const { projectId, base } = useTeamProjectContext()
   const [state, setState] = useState<'loading' | 'no-sources' | 'generating' | 'ready'>('loading')
   const [doc, setDoc] = useState<InsightDoc | null>(null)
@@ -77,7 +79,7 @@ export default function TeamInsightsPage() {
     <div className="max-w-[860px] mx-auto px-6 py-8 space-y-4">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-4 h-4 rounded-full border-2 border-mb-brand border-t-transparent animate-spin" />
-        <span className="text-mb-text-medium text-mb-base font-bold">{state === 'loading' ? 'Loading...' : CYCLING_MESSAGES[cycleIdx]}</span>
+        <span className="text-mb-text-medium text-mb-base font-bold">{state === 'loading' ? t('common.loading') : CYCLING_MESSAGES[cycleIdx]}</span>
       </div>
       <div className="h-28 rounded-mb-lg mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" />
       <div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-56 rounded-mb-lg mb-shimmer" />

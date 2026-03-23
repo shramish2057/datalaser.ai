@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -8,6 +9,7 @@ import { WsSettingsShell } from '@/components/settings/WsSettingsShell'
 const COLORS = ['#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
 export default function WorkspaceSettingsPage() {
+  const t = useTranslations()
   const params = useParams()
   const orgSlug = params.orgSlug as string
   const workspaceSlug = params.workspaceSlug as string

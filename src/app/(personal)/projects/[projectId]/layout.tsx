@@ -9,6 +9,7 @@ import {
   ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical
 } from 'lucide-react'
 import { LocaleToggle } from '@/components/LocaleToggle'
+import { useTranslations } from 'next-intl'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 
@@ -22,6 +23,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
 }
 
 function ProjectShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations()
   const [project, setProject] = useState<Project | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [org, setOrg] = useState<Organization | null>(null)
@@ -108,14 +110,14 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
   }
 
   const projectNav = [
-    { icon: Home, label: 'Home', path: '' },
-    { icon: BarChart2, label: 'Insights', path: '/insights' },
-    { icon: MessageSquare, label: 'Ask Data', path: '/ask' },
-    { icon: FlaskConical, label: 'Studio', path: '/studio', badge: 'Pro' },
-    { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
-    { icon: Database, label: 'Data Sources', path: '/sources' },
-    { icon: Wand2, label: 'Data Prep', path: '/prep' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: Home, label: t('nav.home'), path: '' },
+    { icon: BarChart2, label: t('nav.insights'), path: '/insights' },
+    { icon: MessageSquare, label: t('nav.askData'), path: '/ask' },
+    { icon: FlaskConical, label: t('nav.studio'), path: '/studio', badge: t('common.pro') },
+    { icon: LayoutGrid, label: t('nav.dashboard'), path: '/dashboard' },
+    { icon: Database, label: t('nav.dataSources'), path: '/sources' },
+    { icon: Wand2, label: t('nav.dataPrep'), path: '/prep' },
+    { icon: Settings, label: t('nav.settings'), path: '/settings' },
   ]
 
   const base = `/projects/${projectId}`
@@ -129,7 +131,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex h-screen bg-mb-bg-light items-center justify-center font-sans">
-        <div className="text-mb-text-medium text-mb-base">Loading...</div>
+        <div className="text-mb-text-medium text-mb-base">{t("common.loading")}</div>
       </div>
     )
   }
@@ -184,7 +186,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-1.5 text-mb-xs text-mb-text-light
                 hover:text-mb-brand mt-1.5 transition-colors"
             >
-              <Plus size={11} /> New project
+              <Plus size={11} /> {t('common.new')} project
             </button>
           </div>
         )}
@@ -295,7 +297,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
               onClick={() => router.push(`/projects/${projectId}/sources/new`)}
               className="mb-btn-secondary flex items-center gap-1.5 text-mb-sm py-1.5"
             >
-              <Plus size={13} /> Add data
+              <Plus size={13} /> {t('common.add')} data
             </button>
           </div>
         </header>

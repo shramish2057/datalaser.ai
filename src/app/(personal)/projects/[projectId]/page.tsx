@@ -7,6 +7,7 @@ import {
   Zap, TrendingUp, GitBranch, AlertTriangle, Target, Layers, Search
 } from 'lucide-react'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
+import { useTranslations } from 'next-intl'
 import type { Project } from '@/types/database'
 
 const INSIGHT_ICONS: Record<string, typeof Zap> = {
@@ -46,6 +47,7 @@ interface SourceSummary {
 }
 
 export default function ProjectHomePage() {
+  const t = useTranslations()
   const [project, setProject] = useState<Project | null>(null)
   const [sources, setSources] = useState<SourceSummary[]>([])
   const [topInsights, setTopInsights] = useState<TopInsight[]>([])
@@ -128,12 +130,12 @@ export default function ProjectHomePage() {
           <div className="w-14 h-14 bg-mb-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
             <Database size={24} className="text-mb-text-light" />
           </div>
-          <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">Connect your first data source</h2>
+          <h2 className="text-mb-xl font-black text-mb-text-dark mb-2">{t('home.connectFirst')}</h2>
           <p className="text-mb-text-medium text-mb-base mb-6 max-w-sm mx-auto">
-            Upload a CSV, connect a database, or link a SaaS tool to start generating insights.
+            {t('home.connectFirstDesc')}
           </p>
           <button onClick={() => router.push(`${base}/sources/new`)} className="mb-btn-primary px-6 py-2.5 font-black">
-            Add data source →
+            {t('home.addSource')} →
           </button>
         </div>
       )}
@@ -143,11 +145,11 @@ export default function ProjectHomePage() {
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider flex items-center gap-2">
-              <Zap size={14} className="text-mb-brand" /> Top Insights
+              <Zap size={14} className="text-mb-brand" /> {t('home.topInsights')}
             </h2>
             <button onClick={() => router.push(`${base}/insights`)}
               className="text-[11px] text-mb-brand hover:underline flex items-center gap-1">
-              View all <ArrowRight size={10} />
+              {t('common.viewAll')} <ArrowRight size={10} />
             </button>
           </div>
           <div className="space-y-2">
@@ -177,11 +179,11 @@ export default function ProjectHomePage() {
         <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider flex items-center gap-2">
-              <Database size={14} className="text-mb-text-light" /> Data Sources
+              <Database size={14} className="text-mb-text-light" /> {t('home.dataSources')}
             </h2>
             <button onClick={() => router.push(`${base}/sources`)}
               className="text-[11px] text-mb-brand hover:underline flex items-center gap-1">
-              Manage <ArrowRight size={10} />
+              {t('common.manage')} <ArrowRight size={10} />
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -199,9 +201,9 @@ export default function ProjectHomePage() {
                 <div className="flex items-center gap-3 text-[11px] text-mb-text-light">
                   {src.row_count > 0 && <span>{src.row_count.toLocaleString()} rows</span>}
                   {src.insight_count > 0 && (
-                    <span className="text-mb-brand font-medium">{src.insight_count} insights</span>
+                    <span className="text-mb-brand font-medium">{src.insight_count} {t('home.insights')}</span>
                   )}
-                  {src.insight_count === 0 && <span>Not yet analyzed</span>}
+                  {src.insight_count === 0 && <span>{t('home.notAnalyzed')}</span>}
                 </div>
               </button>
             ))}
@@ -211,13 +213,13 @@ export default function ProjectHomePage() {
 
       {/* Quick Actions */}
       <section>
-        <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider mb-3">Quick Actions</h2>
+        <h2 className="text-[13px] font-black text-mb-text-dark uppercase tracking-wider mb-3">{t('home.quickActions')}</h2>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { icon: Database, label: 'Add a data source', desc: 'Connect a database, upload a CSV, or link a SaaS tool', href: `${base}/sources/new` },
-            { icon: BarChart2, label: 'View all insights', desc: 'Auto-computed analysis across all your data sources', href: `${base}/insights` },
-            { icon: MessageSquare, label: 'Ask Data', desc: 'Ask any question about your data in plain English', href: `${base}/ask` },
-            { icon: FlaskConical, label: 'Open Studio', desc: 'Notebook-style analysis with code execution', href: `${base}/studio` },
+            { icon: Database, label: t('home.addSource'), desc: t('home.addSourceDesc'), href: `${base}/sources/new` },
+            { icon: BarChart2, label: t('home.viewInsights'), desc: t('home.viewInsightsDesc'), href: `${base}/insights` },
+            { icon: MessageSquare, label: t('home.askData'), desc: t('home.askDataDesc'), href: `${base}/ask` },
+            { icon: FlaskConical, label: t('home.openStudio'), desc: t('home.openStudioDesc'), href: `${base}/studio` },
           ].map(action => (
             <button key={action.label} onClick={() => router.push(action.href)}
               className="text-left p-3 rounded-mb-md border border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover transition-all flex items-start gap-3 group">

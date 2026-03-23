@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -9,6 +10,7 @@ import { useTeamProjectContext } from '@/lib/teamContext'
 type Source = { id: string; name: string; source_type: string; status: string; last_synced_at: string | null; row_count: number }
 
 export default function TeamSourcesPage() {
+  const t = useTranslations()
   const { projectId, base } = useTeamProjectContext()
   const [sources, setSources] = useState<Source[]>([])
   const [loading, setLoading] = useState(true)

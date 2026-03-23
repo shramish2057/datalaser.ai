@@ -12,6 +12,7 @@ import { HeatmapChart } from '@/components/charts/HeatmapChart'
 import { KPICard } from '@/components/charts/KPICard'
 import { DrillProvider } from '@/components/charts/DrillContext'
 import { DrillDownPanel } from '@/components/charts/DrillDownPanel'
+import { useTranslations } from 'next-intl'
 import type { AutoAnalysisResult, AutoAnalysisInsight } from '@/types/pipeline'
 import type { DrillFilter } from '@/types/drill'
 
@@ -49,6 +50,7 @@ const INSIGHT_COLORS: Record<string, string> = {
 }
 
 export default function AutoAnalysisPage() {
+  const t = useTranslations()
   const params = useParams()
   const router = useRouter()
   const projectId = params.projectId as string
@@ -123,8 +125,8 @@ export default function AutoAnalysisPage() {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-3 py-20">
         <Loader2 size={32} className="text-mb-brand animate-spin" />
-        <p className="text-mb-text-dark text-mb-sm font-medium">Running auto-analysis...</p>
-        <p className="text-mb-text-light text-mb-xs">Computing 17 analyses — correlations, clusters, trends, and more</p>
+        <p className="text-mb-text-dark text-mb-sm font-medium">{t('analysis.running')}</p>
+        <p className="text-mb-text-light text-mb-xs">{t('analysis.runningDesc')}</p>
       </div>
     )
   }
@@ -163,34 +165,34 @@ export default function AutoAnalysisPage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-bold">
-              {analysis.top_insights.length} Insights Found
+              {analysis.top_insights.length} {t('home.insights')}
             </span>
             <button onClick={() => router.push(`/projects/${projectId}/studio`)}
               className="text-[12px] bg-mb-brand text-white px-3 py-1.5 rounded-mb-md hover:bg-mb-brand-dark font-medium">
-              Explore in Studio
+              {t('analysis.exploreStudio')}
             </button>
           </div>
         </div>
 
         {/* KPI Row */}
         <div className="grid grid-cols-5 gap-3">
-          <KPICard label="Rows" value={analysis.row_count} size="sm" />
-          <KPICard label="Measures" value={analysis.measures.length} unit={`of ${analysis.column_count} cols`} size="sm" />
-          <KPICard label="Sig. Correlations" value={analysis.correlations.pairs.filter(p => p.significant).length}
-            unit={`of ${analysis.correlations.pairs.length} pairs`} size="sm" />
-          <KPICard label="Outlier Columns" value={analysis.anomalies.length}
-            unit={`of ${analysis.measures.length} numeric`} size="sm" />
-          <KPICard label="Clusters Found" value={analysis.clusters.n_clusters} size="sm" />
+          <KPICard label={t('common.rows')} value={analysis.row_count} size="sm" />
+          <KPICard label={t('analysis.measures')} value={analysis.measures.length} unit={`${t('common.of')} ${analysis.column_count} ${t('common.columns').toLowerCase()}`} size="sm" />
+          <KPICard label={t('analysis.sigCorrelations')} value={analysis.correlations.pairs.filter(p => p.significant).length}
+            unit={`${t('common.of')} ${analysis.correlations.pairs.length}`} size="sm" />
+          <KPICard label={t('analysis.outlierColumns')} value={analysis.anomalies.length}
+            unit={`${t('common.of')} ${analysis.measures.length}`} size="sm" />
+          <KPICard label={t('analysis.clustersFound')} value={analysis.clusters.n_clusters} size="sm" />
         </div>
 
         {/* Tab Navigation */}
         <div className="flex items-center gap-1 border-b border-mb-border">
           {([
-            { id: 'insights' as const, label: 'Top Insights', icon: Zap, count: analysis.top_insights.length },
-            { id: 'correlations' as const, label: 'Correlations', icon: GitBranch, count: analysis.correlations.pairs.length },
-            { id: 'distributions' as const, label: 'Distributions', icon: Layers, count: analysis.distributions.length },
-            { id: 'segments' as const, label: 'Segments & Influencers', icon: BarChart3, count: analysis.segments.length + analysis.key_influencers.length },
-            { id: 'advanced' as const, label: 'Advanced', icon: Sparkles, count: analysis.clusters.n_clusters + analysis.contribution_analysis.length + analysis.majority.length },
+            { id: 'insights' as const, label: t('analysis.topInsights'), icon: Zap, count: analysis.top_insights.length },
+            { id: 'correlations' as const, label: t('analysis.correlationMatrix'), icon: GitBranch, count: analysis.correlations.pairs.length },
+            { id: 'distributions' as const, label: t('analysis.distributions'), icon: Layers, count: analysis.distributions.length },
+            { id: 'segments' as const, label: t('analysis.segmentsInfluencers'), icon: BarChart3, count: analysis.segments.length + analysis.key_influencers.length },
+            { id: 'advanced' as const, label: t('analysis.advanced'), icon: Sparkles, count: analysis.clusters.n_clusters + analysis.contribution_analysis.length + analysis.majority.length },
           ]).map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-medium border-b-2 transition-colors ${
@@ -458,7 +460,7 @@ export default function AutoAnalysisPage() {
         {/* Footer */}
         <div className="text-center py-4 border-t border-mb-border">
           <p className="text-[11px] text-mb-text-light">
-            All insights computed by DataLaser engine — no AI used. Pure statistical analysis.
+            {t('insights.allComputed')}
           </p>
         </div>
       </div>

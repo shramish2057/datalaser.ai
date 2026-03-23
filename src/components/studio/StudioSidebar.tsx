@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import type { StudioNotebook, StudioSource, QueryLibraryItem, SchemaColumn } from '@/types/studio'
 import { useDropzone } from 'react-dropzone'
+import { useTranslations } from 'next-intl'
 
 const OP_COLORS: Record<string, string> = {
   regression: 'bg-indigo-100 text-indigo-700',
@@ -42,6 +43,7 @@ export default function StudioSidebar({
   onNotebookDeleted, onNotebookRenamed, onSourceDeleted,
 }: Props) {
   const router = useRouter()
+  const t = useTranslations()
   const [creatingNotebook, setCreatingNotebook] = useState(false)
   const [copiedCol, setCopiedCol] = useState<string | null>(null)
   const [showConnectModal, setShowConnectModal] = useState(false)
@@ -132,7 +134,7 @@ export default function StudioSidebar({
         {/* SECTION: DATA SOURCES */}
         <div className="px-3 pt-3 pb-1">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light px-1 mb-1.5">
-            Data Sources
+            {t('nav.dataSources')}
           </p>
           {sources.map(src => (
             <div key={src.id} className="flex items-center gap-2 px-2 h-[32px] rounded-mb-md hover:bg-mb-bg-medium cursor-pointer group relative">
@@ -158,7 +160,7 @@ export default function StudioSidebar({
                 <div className="absolute right-0 top-full z-20 bg-white border border-mb-border rounded shadow-lg py-1 w-36">
                   <button onClick={() => handleDeleteSource(src.id)}
                     className="w-full text-left px-3 py-1.5 text-[12px] text-mb-error hover:bg-red-50 flex items-center gap-2">
-                    <Trash2 size={11} /> Remove source
+                    <Trash2 size={11} /> {t('sources.removeSource')}
                   </button>
                 </div>
               )}
@@ -168,7 +170,7 @@ export default function StudioSidebar({
             onClick={() => setShowConnectModal(true)}
             className="flex items-center gap-1.5 px-2 py-1.5 text-[12px] text-mb-brand hover:bg-mb-brand-hover rounded-mb-md w-full mt-1"
           >
-            <Plus size={12} /> Connect source
+            <Plus size={12} /> {t('studio.connectSource')}
           </button>
         </div>
 
@@ -177,7 +179,7 @@ export default function StudioSidebar({
         {/* SECTION: NOTEBOOKS */}
         <div className="px-3 py-1">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light px-1 mb-1.5">
-            Notebooks
+            {t('studio.notebooks')}
           </p>
           {notebooks.map(nb => {
             const active = nb.id === activeNotebookId
@@ -232,7 +234,7 @@ export default function StudioSidebar({
             disabled={creatingNotebook}
             className="flex items-center gap-1.5 px-2 py-1.5 text-[12px] text-mb-brand hover:bg-mb-brand-hover rounded-mb-md w-full mt-1"
           >
-            <Plus size={12} /> {creatingNotebook ? 'Creating...' : 'New Analysis'}
+            <Plus size={12} /> {creatingNotebook ? t('common.creating') : t('studio.newAnalysis')}
           </button>
         </div>
 
@@ -241,10 +243,10 @@ export default function StudioSidebar({
         {/* SECTION: QUERY LIBRARY */}
         <div className="px-3 py-1">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light px-1 mb-1.5">
-            Saved Queries
+            {t('studio.savedQueries')}
           </p>
           {queryLibrary.length === 0 ? (
-            <p className="text-[11px] text-mb-text-light px-1 py-2">No saved queries yet</p>
+            <p className="text-[11px] text-mb-text-light px-1 py-2">{t('studio.noSavedQueries')}</p>
           ) : (
             queryLibrary.slice(0, 5).map(q => (
               <button
@@ -269,10 +271,10 @@ export default function StudioSidebar({
         {/* SECTION: SCHEMA */}
         <div className="px-3 py-1 flex-1">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-mb-text-light px-1 mb-1.5">
-            Schema
+            {t('studio.schema')}
           </p>
           {!activeSourceName ? (
-            <p className="text-[11px] text-mb-text-light px-1">Select a source above</p>
+            <p className="text-[11px] text-mb-text-light px-1">{t('studio.selectSource')}</p>
           ) : (
             <>
               <p className="text-[11px] font-medium text-mb-text-medium px-1 mb-2">{activeSourceName}</p>
@@ -346,6 +348,7 @@ const DB_CONNECTORS = [
 ]
 
 function ConnectSourceModal({ projectId, onDone }: { projectId: string; onDone: (src: StudioSource) => void }) {
+  const t = useTranslations()
   const [tab, setTab] = useState<'file' | 'database'>('file')
 
   return (
@@ -355,13 +358,13 @@ function ConnectSourceModal({ projectId, onDone }: { projectId: string; onDone: 
           className={`flex-1 py-2.5 text-[13px] font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
             tab === 'file' ? 'border-mb-brand text-mb-brand' : 'border-transparent text-mb-text-medium hover:text-mb-text-dark'
           }`}>
-          <UploadCloud size={14} /> File Upload
+          <UploadCloud size={14} /> {t('sources.fileUpload')}
         </button>
         <button onClick={() => setTab('database')}
           className={`flex-1 py-2.5 text-[13px] font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
             tab === 'database' ? 'border-mb-brand text-mb-brand' : 'border-transparent text-mb-text-medium hover:text-mb-text-dark'
           }`}>
-          <Server size={14} /> Database
+          <Server size={14} /> {t('sources.database')}
         </button>
       </div>
       <div className="p-4">
@@ -377,6 +380,7 @@ function ConnectSourceModal({ projectId, onDone }: { projectId: string; onDone: 
 
 
 function ConnectSourceUpload({ projectId, onDone }: { projectId: string; onDone: (src: StudioSource) => void }) {
+  const t = useTranslations()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
 
@@ -421,8 +425,8 @@ function ConnectSourceUpload({ projectId, onDone }: { projectId: string; onDone:
         ${isDragActive ? 'border-mb-brand bg-mb-brand-hover' : 'border-mb-border-dark hover:border-mb-brand'}`}>
         <input {...getInputProps()} />
         <UploadCloud className="w-8 h-8 text-mb-text-light mx-auto mb-2" />
-        <p className="text-mb-text-medium text-mb-sm">{uploading ? 'Uploading...' : 'Drop a file here'}</p>
-        <p className="text-mb-text-light text-mb-xs mt-1">CSV, Excel, or JSON</p>
+        <p className="text-mb-text-medium text-mb-sm">{uploading ? t('common.upload') + '...' : t('sources.dropFile')}</p>
+        <p className="text-mb-text-light text-mb-xs mt-1">{t('sources.csvExcelJson')}</p>
       </div>
       {error && <p className="text-mb-error text-mb-xs mt-2">{error}</p>}
     </div>
@@ -431,6 +435,7 @@ function ConnectSourceUpload({ projectId, onDone }: { projectId: string; onDone:
 
 
 function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone: (src: StudioSource) => void }) {
+  const t = useTranslations()
   const [selectedDb, setSelectedDb] = useState<string | null>(null)
   const [fields, setFields] = useState<Record<string, string>>({})
   const [sourceName, setSourceName] = useState('')
@@ -495,7 +500,7 @@ function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone:
   if (!selectedDb) {
     return (
       <div className="space-y-2">
-        <p className="text-mb-text-medium text-[13px] mb-3">Select a database type</p>
+        <p className="text-mb-text-medium text-[13px] mb-3">{t('sources.selectDatabase')}</p>
         {DB_CONNECTORS.map(db => (
           <button key={db.id} onClick={() => { setSelectedDb(db.id); setFields({}); setTestResult(null) }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-mb-md border border-mb-border hover:border-mb-brand hover:bg-mb-brand-hover transition-colors text-left">
@@ -555,11 +560,11 @@ function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone:
       <div className="flex gap-2 mt-4">
         <button onClick={handleTest} disabled={testing}
           className="flex-1 py-2 text-[13px] font-medium border border-mb-border rounded-mb-md hover:border-mb-brand hover:text-mb-brand transition-colors disabled:opacity-50">
-          {testing ? 'Testing...' : 'Test Connection'}
+          {testing ? t('sources.testing') : t('sources.testConnection')}
         </button>
         <button onClick={handleConnect} disabled={!testResult?.ok || connecting}
           className="flex-1 py-2 text-[13px] font-bold text-white bg-mb-brand rounded-mb-md hover:bg-mb-brand-dark transition-colors disabled:opacity-50">
-          {connecting ? 'Connecting...' : 'Connect'}
+          {connecting ? t('sources.connecting') : t('sources.connect')}
         </button>
       </div>
     </div>

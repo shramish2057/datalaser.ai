@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -43,6 +44,7 @@ const CHART_TYPES = [
 type PageStep = 'configure' | 'saving' | 'profiling' | 'health'
 
 export default function IntentPage() {
+  const t = useTranslations()
   const router = useRouter()
   const [connectInfo, setConnectInfo] = useState<ConnectInfo | null>(null)
   const [question, setQuestion] = useState('')

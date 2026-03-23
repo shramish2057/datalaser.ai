@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
@@ -23,6 +24,7 @@ type RunRecord = {
 }
 
 export default function PrepHistoryPage() {
+  const t = useTranslations()
   const [runs, setRuns] = useState<RunRecord[]>([])
   const [sourceNames, setSourceNames] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)

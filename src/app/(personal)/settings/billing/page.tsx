@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -6,6 +7,7 @@ import { Check, Zap } from 'lucide-react'
 import { SettingsShell } from '@/components/settings/SettingsShell'
 
 export default function BillingPage() {
+  const t = useTranslations()
   const [plan, setPlan] = useState('free')
   const [projectCount, setProjectCount] = useState(0)
   const [sourceCount, setSourceCount] = useState(0)
@@ -108,7 +110,7 @@ export default function BillingPage() {
 
   return (
     <SettingsShell>
-      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">Billing</h1>
+      <h1 className="text-mb-2xl font-black text-mb-text-dark mb-6">{t("settings.billing")}</h1>
 
       {/* Usage stats */}
       <div className="mb-8">

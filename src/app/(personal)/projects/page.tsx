@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -7,6 +8,7 @@ import { ProjectIconBadge } from '@/components/ProjectIcon'
 import type { Project } from '@/types/database'
 
 export default function ProjectsPage() {
+  const t = useTranslations()
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export default function ProjectsPage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center py-20 font-sans overflow-y-auto">
-        <div className="text-mb-text-medium text-mb-base">Loading...</div>
+        <div className="text-mb-text-medium text-mb-base">{t("common.loading")}</div>
       </div>
     )
   }

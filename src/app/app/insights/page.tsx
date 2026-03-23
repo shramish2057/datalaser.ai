@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -29,6 +30,7 @@ const CYCLING_MESSAGES = [
 ]
 
 export default function InsightsPage() {
+  const t = useTranslations()
   const [state, setState] = useState<'loading' | 'no-sources' | 'generating' | 'ready'>('loading')
   const [doc, setDoc] = useState<InsightDoc | null>(null)
   const [cycleIdx, setCycleIdx] = useState(0)
@@ -139,7 +141,7 @@ export default function InsightsPage() {
         <div className="flex items-center gap-3 mb-6">
           <div className="w-4 h-4 rounded-full border-2 border-mb-brand border-t-transparent animate-spin" />
           <span className="text-mb-text-medium text-mb-base font-bold">
-            {state === 'loading' ? 'Loading...' : CYCLING_MESSAGES[cycleIdx]}
+            {state === 'loading' ? t('common.loading') : CYCLING_MESSAGES[cycleIdx]}
           </span>
         </div>
         <div className="h-28 rounded-mb-lg mb-shimmer" />

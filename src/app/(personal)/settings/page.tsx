@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -6,6 +7,7 @@ import { Save, Mail } from 'lucide-react'
 import { SettingsShell } from '@/components/settings/SettingsShell'
 
 export default function AccountSettingsPage() {
+  const t = useTranslations()
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [plan, setPlan] = useState('free')

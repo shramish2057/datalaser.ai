@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -11,6 +12,7 @@ type Member = { id: string; user_id: string; role: string; created_at: string; e
 type Invite = { id: string; email: string; role: string; created_at: string; accepted_at: string | null }
 
 export default function OrgMembersPage() {
+  const t = useTranslations()
   const params = useParams()
   const orgSlug = params.orgSlug as string
   const [orgId, setOrgId] = useState('')
@@ -61,7 +63,7 @@ export default function OrgMembersPage() {
     <OrgSettingsShell orgSlug={orgSlug}>
       {loading ? <div className="space-y-3"><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /><div className="h-10 rounded-mb-md mb-shimmer" /></div> : <>
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-mb-2xl font-black text-mb-text-dark">Members</h1>
+          <h1 className="text-mb-2xl font-black text-mb-text-dark">{t("settings.members")}</h1>
           <button onClick={() => setInviteOpen(true)} className="mb-btn-primary"><UserPlus size={14} /> Invite member</button>
         </div>
 

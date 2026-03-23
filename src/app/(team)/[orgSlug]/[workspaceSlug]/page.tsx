@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -7,6 +8,7 @@ import { ProjectIconBadge } from '@/components/ProjectIcon'
 import type { Project, Workspace, Organization } from '@/types/database'
 
 export default function WorkspaceHomePage() {
+  const t = useTranslations()
   const [org, setOrg] = useState<Organization | null>(null)
   const [workspace, setWorkspace] = useState<Workspace | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
@@ -48,7 +50,7 @@ export default function WorkspaceHomePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20 font-sans">
-        <div className="text-mb-text-medium text-mb-base">Loading...</div>
+        <div className="text-mb-text-medium text-mb-base">{t("common.loading")}</div>
       </div>
     )
   }

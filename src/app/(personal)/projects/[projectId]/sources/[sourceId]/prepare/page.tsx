@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -60,6 +61,7 @@ function severityClass(s: string) {
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function PreparePage() {
+  const t = useTranslations()
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string

@@ -98,6 +98,7 @@
     "segmentsInfluencers": "Segmente & Einflussfaktoren"
   },
   "studio": {
+    "notebooks": "Notizbücher",
     "newAnalysis": "Neue Analyse",
     "connectSource": "Quelle verbinden",
     "savedQueries": "Gespeicherte Abfragen",
@@ -114,7 +115,29 @@
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
     "saveToLibrary": "In Bibliothek speichern",
-    "viewCode": "Code anzeigen"
+    "viewCode": "Code anzeigen",
+    "cell": "Zelle",
+    "ready": "Bereit",
+    "done": "Fertig",
+    "error": "Fehler",
+    "output": "Ausgabe",
+    "python": "Python",
+    "sql": "SQL",
+    "askAboutData": "Fragen zu Ihren Daten",
+    "askPlaceholder": "z.B. Beeinflusst die Passagierklasse das Überleben?",
+    "analyzeBtn": "Analysieren",
+    "suggestedAnalyses": "vorgeschlagene Analysen",
+    "cells": "Zellen",
+    "generatingMsg": "Dies dauert etwa 15-20 Sekunden",
+    "exportPdf": "PDF exportieren",
+    "exportJupyter": "Jupyter exportieren",
+    "exportPython": "Python exportieren",
+    "copyLink": "Link kopieren",
+    "report": "Bericht",
+    "keyFindings": "Kernerkenntnisse",
+    "noFile": "Keine Datei geladen.",
+    "sectionHeading": "Abschnittsüberschrift...",
+    "writeNotes": "Analysenotizen schreiben..."
   },
   "sources": {
     "title": "Datenquellen",
@@ -166,6 +189,42 @@
     "language": "Sprache",
     "dangerZone": "Gefahrenzone",
     "deleteProject": "Projekt löschen"
+  },
+  "prep": {
+    "title": "Datenaufbereitung",
+    "cleanedData": "Bereinigte Daten",
+    "prepareNew": "Neu aufbereiten",
+    "history": "Verlauf",
+    "uploadFile": "Datei zum Aufbereiten hochladen",
+    "dropzone": "CSV, Excel oder JSON hier ablegen",
+    "startPrep": "Aufbereitung starten",
+    "quality": "Qualität",
+    "transform": "Transformieren",
+    "validate": "Validieren",
+    "review": "Überprüfen",
+    "applyTransforms": "Transformationen anwenden",
+    "acceptSuggestion": "Akzeptieren",
+    "rejectSuggestion": "Ablehnen",
+    "noSuggestions": "Keine Vorschläge verfügbar"
+  },
+  "ask": {
+    "title": "Daten fragen",
+    "placeholder": "Stellen Sie eine Frage zu Ihren Daten...",
+    "send": "Senden",
+    "thinking": "Denkt nach...",
+    "selectSource": "Wählen Sie eine Datenquelle für Ihre Fragen",
+    "noHistory": "Noch kein Gesprächsverlauf",
+    "keyTakeaway": "Kernaussage"
+  },
+  "health": {
+    "title": "Datenqualitätsbericht",
+    "qualityScore": "Qualitätsbewertung",
+    "columnOverview": "Spaltenübersicht",
+    "warnings": "Warnungen",
+    "cleanFirst": "Zuerst bereinigen & aufbereiten",
+    "skipExplore": "Überspringen, direkt erkunden",
+    "runAutoAnalysis": "Auto-Analyse starten (ohne KI)",
+    "aiInsights": "Oder zu KI-Analysen"
   },
   "errors": {
     "sourceNotFound": "Datenquelle nicht gefunden",

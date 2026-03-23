@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Send, Loader2, Sparkles, Plus, MessageSquare, Trash2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
@@ -35,6 +36,7 @@ function parseChartBlocks(text: string): { charts: ChartData[]; cleanText: strin
 function deriveTitle(msg: string): string { const c = msg.replace(/\s+/g, ' ').trim(); return c.length > 60 ? c.slice(0, 57) + '...' : c }
 
 export default function TeamAskPage() {
+  const t = useTranslations()
   const { projectId } = useTeamProjectContext()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')

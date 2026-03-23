@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
@@ -49,6 +50,7 @@ function intervalMs(interval: string): number {
 }
 
 export default function SourceSettingsPage() {
+  const t = useTranslations()
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string
