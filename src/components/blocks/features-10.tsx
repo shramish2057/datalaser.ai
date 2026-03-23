@@ -11,7 +11,7 @@ export function FeaturesHow() {
     const locale = useLocale()
 
     return (
-        <section className="bg-zinc-50 py-16 md:py-32 dark:bg-transparent">
+        <section className="bg-zinc-50 pt-12 pb-16 md:pt-20 md:pb-28 dark:bg-transparent">
             <div className="mx-auto max-w-2xl px-6 lg:max-w-5xl">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 mb-5">{t('landing.platformTitle')}</h2>

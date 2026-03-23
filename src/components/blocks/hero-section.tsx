@@ -21,7 +21,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* 3D GLSL Hills background — shifted up */}
-      <div className="absolute inset-0 z-0 opacity-40" style={{ top: '-350px' }}>
+      <div className="absolute inset-0 z-0 opacity-55" style={{ top: '-350px' }}>
         <GLSLHills width="100%" height="calc(100% + 350px)" cameraZ={110} speed={0.35} />
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/40 via-white/20 to-white pointer-events-none" />
@@ -160,15 +160,25 @@ export function HeroSection() {
         </div>
 
         {/* Logo bar */}
-        <div className="bg-white pb-4 pt-16 md:pb-8">
-          <div className="group relative m-auto max-w-5xl px-6">
-            <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
-              <span className="text-sm text-gray-500">{locale === 'de' ? 'Verbinden Sie Ihren gesamten Stack' : 'Works with your entire stack'}</span>
-            </div>
-            <div className="group-hover:blur-xs mx-auto grid max-w-2xl grid-cols-4 gap-x-12 gap-y-6 transition-all duration-500 group-hover:opacity-50 sm:gap-x-16 sm:gap-y-10 items-center">
-              {['🐘 PostgreSQL', '❄️ Snowflake', '🛍️ Shopify', '💳 Stripe', '☁️ BigQuery', '📢 Google Ads', '🧡 HubSpot', '💚 QuickBooks'].map(name => (
-                <div key={name} className="flex justify-center">
-                  <span className="text-sm text-gray-400 font-medium">{name}</span>
+        <div className="bg-white pb-2 pt-12">
+          <p className="text-center text-xs text-gray-400 uppercase tracking-[0.2em] font-semibold mb-6">
+            {locale === 'de' ? 'Funktioniert mit Ihrem gesamten Stack' : 'Works with your entire stack'}
+          </p>
+          <div className="m-auto max-w-3xl px-6">
+            <div className="mx-auto grid grid-cols-4 gap-x-10 gap-y-6 sm:gap-x-14 items-center opacity-60 hover:opacity-100 transition-opacity duration-500">
+              {[
+                { name: 'PostgreSQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
+                { name: 'Snowflake', src: 'https://www.svgrepo.com/show/354397/snowflake-icon.svg' },
+                { name: 'Shopify', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/shopify/shopify-original.svg' },
+                { name: 'Stripe', src: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg' },
+                { name: 'BigQuery', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg' },
+                { name: 'Google Ads', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg' },
+                { name: 'MongoDB', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
+                { name: 'MySQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg' },
+              ].map(logo => (
+                <div key={logo.name} className="flex flex-col items-center gap-1.5">
+                  <img src={logo.src} alt={logo.name} className="h-8 w-8 object-contain" />
+                  <span className="text-[10px] text-gray-400 font-medium">{logo.name}</span>
                 </div>
               ))}
             </div>
