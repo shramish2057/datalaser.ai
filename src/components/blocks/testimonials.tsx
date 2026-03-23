@@ -128,7 +128,7 @@ export function Testimonials() {
   const thirdColumn = testimonials.slice(6, 9);
 
   return (
-    <section className="bg-background my-20 relative">
+    <section className="bg-gray-50/70 pt-16 pb-20 relative">
       <div className="container z-10 mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

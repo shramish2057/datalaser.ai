@@ -21,8 +21,8 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden">
       {/* 3D GLSL Hills background — shifted up */}
-      <div className="absolute inset-0 z-0 opacity-40" style={{ top: '-200px' }}>
-        <GLSLHills width="100%" height="calc(100% + 200px)" cameraZ={110} speed={0.35} />
+      <div className="absolute inset-0 z-0 opacity-40" style={{ top: '-350px' }}>
+        <GLSLHills width="100%" height="calc(100% + 350px)" cameraZ={110} speed={0.35} />
       </div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/40 via-white/20 to-white pointer-events-none" />
 
@@ -88,7 +88,7 @@ export function HeroSection() {
                 </Link>
               </AnimatedGroup>
 
-              <p className="text-sm text-gray-400 mt-4 lg:text-left text-center">{t('landing.ctaFooter')}</p>
+              <p className="text-sm text-gray-400 mt-4 mb-8 lg:text-left text-center">{t('landing.ctaFooter')}</p>
             </div>
 
             {/* RIGHT — Dashboard preview (compact, tilted) */}
@@ -160,7 +160,7 @@ export function HeroSection() {
         </div>
 
         {/* Logo bar */}
-        <div className="bg-white pb-8 pt-20 md:pb-16">
+        <div className="bg-white pb-4 pt-16 md:pb-8">
           <div className="group relative m-auto max-w-5xl px-6">
             <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
               <span className="text-sm text-gray-500">{locale === 'de' ? 'Verbinden Sie Ihren gesamten Stack' : 'Works with your entire stack'}</span>
