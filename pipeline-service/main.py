@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import profile, transform, join, validate, analyst, auto_analysis, templates
+from routers import profile, transform, join, validate, analyst, auto_analysis, templates, vil
 import os
 from dotenv import load_dotenv
 
@@ -27,6 +27,7 @@ app.include_router(validate.router, prefix="/validate", tags=["Validate"])
 app.include_router(analyst.router, prefix="/analyst", tags=["Analyst Studio"])
 app.include_router(auto_analysis.router, prefix="/auto-analysis", tags=["Auto Analysis"])
 app.include_router(templates.router, prefix="/templates", tags=["Analysis Templates"])
+app.include_router(vil.router, prefix="/vil", tags=["VIL Intelligence Layer"])
 
 
 @app.get("/health")
