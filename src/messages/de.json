@@ -443,7 +443,32 @@
     "askQuestions": "Fragen stellen",
     "rows": "Zeilen",
     "rowsAffected": "{count} Zeilen betroffen",
-    "on": "auf"
+    "on": "auf",
+    "score": "Bewertung",
+    "allFixable": "Alle behebbaren Probleme behoben.",
+    "characteristicsNoted": "{count} Dateneigenschaft(en) festgestellt (keine Aktion erforderlich).",
+    "issuesNeedAttention": "{count} Problem(e) erfordern Aufmerksamkeit.",
+    "rowsXColumns": "{rows} Zeilen x {cols} Spalten.",
+    "mixedTypes": "Gemischte Typen: {num}% numerisch, {text}% Text",
+    "extremeOutliers": "{count} extreme Ausreisser ({pct}%). Bereich: {min} bis {max}",
+    "noOutliers": "Keine extremen Ausreisser. Bereich: {min} bis {max}",
+    "extremeOutliersErrors": "{count} extreme Ausreisser ({pct}%), wahrscheinlich Datenfehler",
+    "allUnique": "Alle {count} Werte sind eindeutig, gute ID-Spalte",
+    "duplicateValues": "{count} doppelte Werte ({pct}%) in ID-Spalte",
+    "consistentTypes": "Werte sind konsistent typisiert",
+    "datasetEmpty": "Datensatz ist leer, keine Zeilen zu analysieren",
+    "datasetRows": "Datensatz hat {count} Zeilen",
+    "datasetFewRows": "Datensatz hat nur {count} Zeilen, Ergebnisse sind moeglicherweise nicht statistisch zuverlaessig",
+    "datasetSufficientRows": "Datensatz hat ausreichend Zeilen ({count}) fuer die Analyse",
+    "caseVariants": "Gross-/Kleinschreibungsvarianten in kategorialer Spalte erkannt",
+    "categoricalConsistent": "Kategoriale Werte sind konsistent ({count} Kategorien)",
+    "dateParseLow": "Nur {pct}% der Werte konnten als Datum analysiert werden",
+    "datesFuture": "Mehr als die Haelfte der Daten liegt in der Zukunft, Datenaktualitaet pruefen",
+    "dateParseOk": "Datumsspalte wird korrekt analysiert ({pct}% gueltig)",
+    "formatValid": "Alle Werte entsprechen dem erwarteten {pattern}-Format",
+    "formatInvalid": "{count} ungueltige {pattern}s ({pct}%)",
+    "formatInvalidErrors": "{count} ungueltige {pattern}s ({pct}%), Spalte enthaelt moeglicherweise falsche Daten",
+    "nullValues": "{pct}% der Werte fehlen ({count} Zeilen)"
   },
   "ask": {
     "title": "Daten fragen",
@@ -601,5 +626,19 @@
     "signingUp": "Konto wird erstellt...",
     "signUpGoogle": "Mit Google registrieren",
     "hasAccount": "Bereits ein Konto?"
+  },
+  "overview": {
+    "title": "Datenbank-Übersicht",
+    "overallQuality": "Gesamtqualität",
+    "tables": "Tabellen",
+    "totalRows": "Gesamtzeilen",
+    "profilingTables": "{count} Tabellen werden profiliert...",
+    "profilingComplete": "Profilierung abgeschlossen",
+    "cleanTable": "Tabelle bereinigen",
+    "allHealthy": "Alle Tabellen sind gesund",
+    "connected": "Verbunden",
+    "tableQuality": "Qualität",
+    "columns": "Spalten",
+    "rows": "Zeilen"
   }
 }

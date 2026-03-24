@@ -1,5 +1,5 @@
 'use client'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -15,9 +15,17 @@ type ColumnMeta = {
   sample: string[]
 }
 
+type ConnectedDbSource = {
+  id: string
+  name: string
+  source_type: string
+  schema_snapshot: Record<string, unknown> | null
+  row_count: number
+}
+
 type ConnectInfo = {
   files: { name: string; rows: number; columns: ColumnMeta[]; sampleRows?: string[][] }[]
-  connectedSources: string[]
+  connectedSources: (string | ConnectedDbSource)[]
 }
 
 type AIMetric = {
@@ -59,10 +67,43 @@ const AGG_LABELS: Record<string, string> = {
   distribution: 'Breakdown',
 }
 
+// ─── DB source helpers ───────────────────────────────────────────────────────
+
+function mapDbTypeToColumnDtype(dbType: string): 'numeric' | 'categorical' | 'date' | 'id' | 'text' {
+  const t = dbType.toLowerCase()
+  if (/int|float|double|decimal|numeric|real|money|serial/.test(t)) return 'numeric'
+  if (/date|time|timestamp/.test(t)) return 'date'
+  if (/uuid/.test(t)) return 'id'
+  if (/bool/.test(t)) return 'categorical'
+  return 'categorical'
+}
+
+function dbSourceToColumns(source: { name: string; schema_snapshot: any; row_count: number }) {
+  const schema = source.schema_snapshot as { tables?: { name: string; row_count: number; columns: { name: string; type: string }[] }[] } | null
+  if (!schema?.tables) return []
+  const columns: { name: string; dtype: 'numeric' | 'categorical' | 'date' | 'id' | 'text'; sample: string[]; nullRate: number; uniqueRate: number; mixedTypes: boolean; formatIssues: boolean; totalValues: number }[] = []
+  for (const table of schema.tables) {
+    for (const col of table.columns) {
+      columns.push({
+        name: col.name,
+        dtype: mapDbTypeToColumnDtype(col.type),
+        sample: [],
+        nullRate: 0,
+        uniqueRate: 0,
+        mixedTypes: false,
+        formatIssues: false,
+        totalValues: table.row_count,
+      })
+    }
+  }
+  return columns
+}
+
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function CalibratePage() {
   const t = useTranslations()
+  const locale = useLocale()
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([])
   const [customMetric, setCustomMetric] = useState('')
   const [customMetrics, setCustomMetrics] = useState<string[]>([])
@@ -103,10 +144,32 @@ export default function CalibratePage() {
       setConnectInfo(info)
 
       const filesWithColumns = info.files.filter(f => f.columns.length > 0)
-      if (filesWithColumns.length > 0) {
-        fetchAISuggestions({ ...info, files: filesWithColumns })
+      console.log('[Calibrate] Files with columns:', filesWithColumns.length)
+
+      // Convert DB sources with schema_snapshot into column format for AI analysis
+      const rawDbSources = info.connectedSources || []
+      console.log('[Calibrate] Raw DB sources:', rawDbSources.length, rawDbSources.map((s: any) => ({ name: s.name || s, hasSchema: !!(s?.schema_snapshot), tables: (s?.schema_snapshot as any)?.tables?.length })))
+
+      const dbSources = rawDbSources
+        .filter((s): s is ConnectedDbSource => typeof s === 'object' && s !== null && !!(s as ConnectedDbSource).schema_snapshot)
+        .map(s => ({
+          name: s.name,
+          rows: s.row_count,
+          columns: dbSourceToColumns(s),
+        }))
+        .filter(s => s.columns.length > 0)
+      console.log('[Calibrate] DB sources with columns:', dbSources.length, dbSources.map(s => ({ name: s.name, cols: s.columns.length })))
+
+      const allSources = [...filesWithColumns, ...dbSources]
+      console.log('[Calibrate] Total sources for AI:', allSources.length)
+      if (allSources.length > 0) {
+        fetchAISuggestions({ ...info, files: allSources })
+      } else {
+        console.warn('[Calibrate] No sources with columns found, AI suggestions will not run')
       }
-    } catch { /* ignore */ }
+    } catch (e) {
+      console.error('[Calibrate] Failed to load connect info:', e)
+    }
   }, [])
 
   async function fetchAISuggestions(info: ConnectInfo) {
@@ -116,7 +179,7 @@ export default function CalibratePage() {
       const res = await fetch('/api/onboarding/suggest-metrics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ files: info.files }),
+        body: JSON.stringify({ files: info.files, locale }),
       })
 
       if (!res.ok) {
@@ -277,21 +340,26 @@ export default function CalibratePage() {
 
       console.log(`Saved ${savedCount}/${files.length} file sources to database`)
 
-      // 3. Verify sources exist before redirecting
-      const { count } = await supabase
-        .from('data_sources')
-        .select('*', { count: 'exact', head: true })
-        .eq('workspace_id', user.id)
-        .eq('status', 'active')
+      const storedProjectId = localStorage.getItem('datalaser_project_id')
 
-      console.log(`Active data sources in DB: ${count}`)
+      // 3. Assign project_id to DB sources saved during connect (they may not have it)
+      const dbSources = connectInfo?.connectedSources || []
+      for (const dbSrc of dbSources) {
+        const srcId = typeof dbSrc === 'object' ? (dbSrc as ConnectedDbSource).id : null
+        if (srcId && storedProjectId) {
+          const updateData: Record<string, string> = { project_id: storedProjectId }
+          // Also resolve org_id
+          const { data: projData } = await supabase
+            .from('projects').select('org_id').eq('id', storedProjectId).single()
+          if (projData?.org_id) updateData.org_id = projData.org_id
+          await supabase.from('data_sources').update(updateData).eq('id', srcId)
+          if (!firstSourceId) firstSourceId = srcId
+        }
+      }
 
       localStorage.removeItem('datalaser_connect_info')
 
-      const storedProjectId = localStorage.getItem('datalaser_project_id')
-
-      // If no file source was saved, find the latest source for this project
-      // (could be a DB source saved by the connect modal)
+      // 4. Fallback: find latest source for project
       if (!firstSourceId && storedProjectId) {
         const { data: latestSrc } = await supabase
           .from('data_sources')
@@ -303,14 +371,20 @@ export default function CalibratePage() {
         if (latestSrc) firstSourceId = latestSrc.id
       }
 
-      if (storedProjectId && firstSourceId) {
+      // 5. Redirect — DB sources go to overview, file sources go to health
+      const dbSource = dbSources.find(s => typeof s === 'object' && (s as ConnectedDbSource).id)
+      if (storedProjectId && dbSource && typeof dbSource === 'object') {
+        localStorage.removeItem('datalaser_project_id')
+        router.push(`/projects/${storedProjectId}/sources/${(dbSource as ConnectedDbSource).id}/overview`)
+      } else if (storedProjectId && firstSourceId) {
+        // File source - go to health
         localStorage.removeItem('datalaser_project_id')
         router.push(`/projects/${storedProjectId}/sources/${firstSourceId}/health`)
       } else if (storedProjectId) {
         localStorage.removeItem('datalaser_project_id')
-        router.push(`/projects/${storedProjectId}/insights`)
+        router.push(`/projects/${storedProjectId}`)
       } else {
-        router.push('/app/insights')
+        router.push('/projects')
       }
     } catch (err) {
       console.error('Launch error:', err)
@@ -345,10 +419,15 @@ export default function CalibratePage() {
               </span>
             </div>
           ))}
-          {connectInfo?.connectedSources.map(s => (
-            <div key={s} className="flex items-center gap-2 px-3 py-1.5 rounded-dl-md bg-dl-bg-light border border-dl-border">
+          {connectInfo?.connectedSources?.map((s: any) => (
+            <div key={s.id || s.name || s} className="flex items-center gap-2 px-3 py-1.5 rounded-dl-md bg-dl-bg-light border border-dl-border">
               <Database className="w-3.5 h-3.5 text-dl-text-light" />
-              <span className="text-dl-xs font-bold text-dl-text-dark">{s}</span>
+              <span className="text-dl-xs font-bold text-dl-text-dark">{s.name || s}</span>
+              {s.schema_snapshot?.tables && (
+                <span className="text-dl-xs text-dl-text-light">
+                  {s.schema_snapshot.tables.length} {t('common.tables') || 'tables'}
+                </span>
+              )}
             </div>
           ))}
         </div>

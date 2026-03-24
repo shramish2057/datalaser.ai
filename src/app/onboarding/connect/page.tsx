@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDropzone } from 'react-dropzone'
-import { UploadCloud, X } from 'lucide-react'
+import { UploadCloud, X, CheckCircle2 } from 'lucide-react'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import Papa from 'papaparse'
 import StepIndicator from '@/components/onboarding/StepIndicator'
@@ -186,7 +186,7 @@ async function parseParquet(_buffer: ArrayBuffer): Promise<{ columns: ColumnMeta
 }
 
 /** Persist source info so calibrate page can derive smart metrics + save to DB */
-function persistSourceInfo(files: UploadedFile[], connectedSources: string[]) {
+function persistSourceInfo(files: UploadedFile[], connectedSources: { id: string; name: string; source_type: string; schema_snapshot: Record<string, unknown> | null; row_count: number }[]) {
   const info = {
     files: files.map(f => ({
       name: f.name,
@@ -251,7 +251,14 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
   const t = useTranslations()
   const [category, setCategory] = useState('All')
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
-  const [connectedSources, setConnectedSources] = useState<string[]>([])
+  type ConnectedDbSource = {
+    id: string
+    name: string
+    source_type: string
+    schema_snapshot: Record<string, unknown> | null
+    row_count: number
+  }
+  const [connectedSources, setConnectedSources] = useState<ConnectedDbSource[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null)
   const [formValues, setFormValues] = useState<Record<string, string>>({})
@@ -413,12 +420,29 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
       const data = await res.json()
 
       if (res.ok && data.success) {
+        const newSource = {
+          id: data.source?.id || '',
+          name: selectedConnector.name,
+          source_type: sourceType,
+          schema_snapshot: data.source?.schema_snapshot || null,
+          row_count: data.source?.row_count || 0,
+        }
+        console.log('[Connect] DB source saved:', newSource.id, 'tables:', (newSource.schema_snapshot as any)?.tables?.length, 'rows:', newSource.row_count)
         setConnectedSources(prev => {
-          const updated = [...prev, selectedConnector.name]
+          const updated = [...prev, newSource]
           persistSourceInfo(uploadedFiles, updated)
           return updated
         })
         setModalOpen(false)
+
+        // Trigger background profiling
+        if (newSource.id) {
+          fetch('/api/sources/profile-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ source_id: newSource.id }),
+          }).catch(() => {}) // Fire and forget
+        }
       } else {
         setTestError(data.error || data.message || 'Failed to save connection')
       }
@@ -481,8 +505,25 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
               <p className="text-dl-text-light text-dl-xs mt-1">{t('onboarding.supportedFormats')}</p>
             </div>
 
-            {uploadedFiles.length > 0 && (
+            {(uploadedFiles.length > 0 || connectedSources.length > 0) && (
               <div className="mt-3 space-y-2">
+                {/* Connected DB sources */}
+                {connectedSources.map((s, i) => (
+                  <div
+                    key={`db-${i}`}
+                    className="flex items-center justify-between px-3 py-2 rounded-dl-md bg-green-50 border border-dl-success"
+                  >
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-dl-success" />
+                      <span className="text-dl-sm font-bold text-dl-text-dark">{s.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="dl-badge-neutral">{(s.schema_snapshot as any)?.tables?.length || 0} tables</span>
+                      <span className="dl-badge-success">{s.row_count.toLocaleString()} rows</span>
+                    </div>
+                  </div>
+                ))}
+                {/* Uploaded files */}
                 {uploadedFiles.map((f, i) => (
                   <div
                     key={i}
@@ -532,7 +573,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
             {/* Connector list */}
             <div className="space-y-1 max-h-72 overflow-y-auto">
               {filtered.map(conn => {
-                const isConnected = connectedSources.includes(conn.name)
+                const isConnected = connectedSources.some(s => s.name === conn.name)
                 return (
                   <div
                     key={conn.name}
@@ -610,20 +651,23 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
             )}
 
             <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                onClick={handleTest}
-                disabled={testResult === 'testing'}
-                className={`dl-btn-secondary ${testResult === 'testing' ? 'opacity-60' : ''}`}
-              >
-                {testResult === 'testing' ? t('onboarding.testing') : t('onboarding.testConnection')}
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={testResult !== 'success' || saving}
-                className={`dl-btn-primary ${testResult !== 'success' || saving ? 'opacity-40 cursor-not-allowed' : ''}`}
-              >
-                {saving ? t('common.saving') : t('common.save')}
-              </button>
+              {testResult !== 'success' ? (
+                <button
+                  onClick={handleTest}
+                  disabled={testResult === 'testing'}
+                  className={`dl-btn-primary w-full ${testResult === 'testing' ? 'opacity-60' : ''}`}
+                >
+                  {testResult === 'testing' ? t('onboarding.testing') : t('onboarding.testConnection')}
+                </button>
+              ) : (
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={`dl-btn-primary w-full ${saving ? 'opacity-60' : ''}`}
+                >
+                  {saving ? t('common.saving') : `${t('common.save')} & ${t('onboarding.connect')}`}
+                </button>
+              )}
             </div>
           </div>
         </DialogContent>

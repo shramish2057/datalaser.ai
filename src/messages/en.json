@@ -443,7 +443,32 @@
     "askQuestions": "Ask questions",
     "rows": "rows",
     "rowsAffected": "{count} rows affected",
-    "on": "on"
+    "on": "on",
+    "score": "Score",
+    "allFixable": "All fixable issues resolved.",
+    "characteristicsNoted": "{count} data characteristic(s) noted (no action needed).",
+    "issuesNeedAttention": "{count} issue(s) need attention.",
+    "rowsXColumns": "{rows} rows x {cols} columns.",
+    "mixedTypes": "Mixed types: {num}% numeric, {text}% text",
+    "extremeOutliers": "{count} extreme outliers ({pct}%). Range: {min} to {max}",
+    "noOutliers": "No extreme outliers. Range: {min} to {max}",
+    "extremeOutliersErrors": "{count} extreme outliers ({pct}%), likely data errors",
+    "allUnique": "All {count} values are unique, good ID column",
+    "duplicateValues": "{count} duplicate values ({pct}%) in ID column",
+    "consistentTypes": "Values are consistently typed",
+    "datasetEmpty": "Dataset is empty, no rows to analyse",
+    "datasetRows": "Dataset has {count} rows",
+    "datasetFewRows": "Dataset has only {count} rows, results may not be statistically reliable",
+    "datasetSufficientRows": "Dataset has sufficient rows ({count}) for analysis",
+    "caseVariants": "Case variants detected in categorical column",
+    "categoricalConsistent": "Categorical values are consistent ({count} categories)",
+    "dateParseLow": "Only {pct}% of values could be parsed as dates",
+    "datesFuture": "More than half of dates are in the future, check data freshness",
+    "dateParseOk": "Date column parses correctly ({pct}% valid)",
+    "formatValid": "All values match expected {pattern} format",
+    "formatInvalid": "{count} invalid {pattern}s ({pct}%)",
+    "formatInvalidErrors": "{count} invalid {pattern}s ({pct}%), column may contain wrong data",
+    "nullValues": "{pct}% of values are missing ({count} rows)"
   },
   "ask": {
     "title": "Ask Data",
@@ -601,5 +626,19 @@
     "signingUp": "Creating account...",
     "signUpGoogle": "Sign up with Google",
     "hasAccount": "Already have an account?"
+  },
+  "overview": {
+    "title": "Database Overview",
+    "overallQuality": "Overall Quality",
+    "tables": "Tables",
+    "totalRows": "Total Rows",
+    "profilingTables": "Profiling {count} tables...",
+    "profilingComplete": "Profiling complete",
+    "cleanTable": "Clean this table",
+    "allHealthy": "All tables healthy",
+    "connected": "Connected",
+    "tableQuality": "Quality",
+    "columns": "Columns",
+    "rows": "Rows"
   }
 }

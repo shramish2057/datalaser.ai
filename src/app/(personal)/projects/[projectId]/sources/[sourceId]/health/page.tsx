@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { DataProfile } from '@/types/pipeline'
+import { isDbSource } from '@/lib/source-types'
 
 const DTYPE_COLORS: Record<string, string> = {
   numeric: 'bg-blue-100 text-blue-700',
@@ -57,6 +58,29 @@ export default function DataHealthPage() {
   const [error, setError] = useState<string | null>(null)
   const [sourceName, setSourceName] = useState('')
   const fileRef = useRef<File | null>(null)
+  const [dbTables, setDbTables] = useState<{ name: string; row_count: number }[]>([])
+  const [selectedDbTable, setSelectedDbTable] = useState<string>('')
+  const [profilingTable, setProfilingTable] = useState(false)
+
+  async function profileDbTable(tableName: string) {
+    setProfilingTable(true)
+    setError(null)
+    setSelectedDbTable(tableName)
+    try {
+      const res = await fetch('/api/pipeline/profile-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source_id: sourceId, table_name: tableName }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Database profiling failed')
+      setProfile(data)
+    } catch (e: any) {
+      setError(e.message || 'Database profiling failed')
+    } finally {
+      setProfilingTable(false)
+    }
+  }
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,52 +106,60 @@ export default function DataHealthPage() {
       if (!src) { setError('Data source not found'); setLoading(false); return }
       setSourceName(src.name)
 
-      // Get the file
-      let file: File | null = null
-      const filePath = src.file_path as string | null
-
-      // Try Storage first
-      if (filePath) {
-        const { data: blob, error: dlErr } = await supabase.storage
-          .from('data-sources')
-          .download(filePath)
-        if (!dlErr && blob) {
-          file = new File([blob], src.name, { type: blob.type || 'text/csv' })
-        }
-      }
-
-      // Fallback: reconstruct from sample_data
-      if (!file) {
-        const sample = src.sample_data as { tables?: { columns: string[]; rows: string[][] }[] } | null
-        if (sample?.tables?.[0]) {
-          const cols = sample.tables[0].columns
-          const rows = sample.tables[0].rows
-          const csv = [cols.join(','), ...rows.map(r => r.join(','))].join('\n')
-          file = new File([csv], src.name, { type: 'text/csv' })
-        }
-      }
-
-      if (!file) {
-        setError('Could not load data file. Please re-upload.')
-        setLoading(false)
+      // DB sources now use the dedicated overview page
+      if (isDbSource(src.source_type)) {
+        router.replace(`/projects/${projectId}/sources/${sourceId}/overview`)
         return
       }
 
-      fileRef.current = file
+      {
+        // File path: download file and profile
+        let file: File | null = null
+        const filePath = src.file_path as string | null
 
-      // Profile via pipeline service
-      try {
-        const fd = new FormData()
-        fd.append('file', file)
-        fd.append('source_id', sourceId)
-        const res = await fetch('/api/pipeline/profile', { method: 'POST', body: fd })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.error || 'Profiling failed')
-        setProfile(data)
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Profiling failed. Is the pipeline service running?')
-      } finally {
-        setLoading(false)
+        // Try Storage first
+        if (filePath) {
+          const { data: blob, error: dlErr } = await supabase.storage
+            .from('data-sources')
+            .download(filePath)
+          if (!dlErr && blob) {
+            file = new File([blob], src.name, { type: blob.type || 'text/csv' })
+          }
+        }
+
+        // Fallback: reconstruct from sample_data
+        if (!file) {
+          const sample = src.sample_data as { tables?: { columns: string[]; rows: string[][] }[] } | null
+          if (sample?.tables?.[0]) {
+            const cols = sample.tables[0].columns
+            const rows = sample.tables[0].rows
+            const csv = [cols.join(','), ...rows.map(r => r.join(','))].join('\n')
+            file = new File([csv], src.name, { type: 'text/csv' })
+          }
+        }
+
+        if (!file) {
+          setError('Could not load data file. Please re-upload.')
+          setLoading(false)
+          return
+        }
+
+        fileRef.current = file
+
+        // Profile via pipeline service
+        try {
+          const fd = new FormData()
+          fd.append('file', file)
+          fd.append('source_id', sourceId)
+          const res = await fetch('/api/pipeline/profile', { method: 'POST', body: fd })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.error || 'Profiling failed')
+          setProfile(data)
+        } catch (e) {
+          setError(e instanceof Error ? e.message : 'Profiling failed. Is the pipeline service running?')
+        } finally {
+          setLoading(false)
+        }
       }
     }
     init()
@@ -182,6 +214,25 @@ export default function DataHealthPage() {
           {t('health.title')}
         </p>
         <h1 className="text-dl-2xl font-black text-dl-text-dark">{sourceName}</h1>
+
+        {/* DB table selector */}
+        {dbTables.length > 1 && (
+          <div className="flex items-center gap-3 mt-3">
+            <select
+              className="dl-input max-w-xs"
+              value={selectedDbTable}
+              onChange={e => profileDbTable(e.target.value)}
+              disabled={profilingTable}
+            >
+              {dbTables.map(tbl => (
+                <option key={tbl.name} value={tbl.name}>
+                  {tbl.name} ({tbl.row_count?.toLocaleString()} {t('common.rows')})
+                </option>
+              ))}
+            </select>
+            {profilingTable && <Loader2 size={16} className="animate-spin text-dl-brand" />}
+          </div>
+        )}
       </div>
 
       {/* Quality score card */}
@@ -198,9 +249,11 @@ export default function DataHealthPage() {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-dl-xs text-dl-text-light">{profile.total_rows.toLocaleString()} rows</p>
-            <p className="text-dl-xs text-dl-text-light">{profile.total_columns} columns</p>
-            <p className="text-dl-xs text-dl-text-light">{profile.detected_encoding.toUpperCase()}</p>
+            <p className="text-dl-xs text-dl-text-light">{profile.total_rows.toLocaleString()} {t('common.rows')}</p>
+            <p className="text-dl-xs text-dl-text-light">{profile.total_columns} {t('common.columns')}</p>
+            {profile.detected_encoding && profile.detected_encoding !== 'N/A' && (
+              <p className="text-dl-xs text-dl-text-light">{profile.detected_encoding.toUpperCase()}</p>
+            )}
           </div>
         </div>
 

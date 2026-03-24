@@ -7,6 +7,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { Database, Plus, RefreshCw, Trash2, Wand2, CheckCircle2, Settings, HeartPulse } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import { isDbSource } from '@/lib/source-types'
 
 type Source = {
   id: string
@@ -136,6 +137,13 @@ export default function ProjectSourcesPage() {
               <tr key={src.id}>
                 <td className="font-bold">
                   <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${
+                        src.pipeline_status === 'ready' ? 'bg-green-500' :
+                        src.pipeline_status === 'error' ? 'bg-red-500' : 'bg-gray-400'
+                      }`}
+                      title={src.pipeline_status ?? 'pending'}
+                    />
                     {src.name}
                     {src.pipeline_status === 'ready' && (
                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-dl-xs font-bold bg-green-100 text-green-700">
@@ -172,7 +180,9 @@ export default function ProjectSourcesPage() {
                 <td className="text-right">
                   <div className="flex items-center justify-end gap-1">
                     <Link
-                      href={`${base}/sources/${src.id}/health`}
+                      href={isDbSource(src.source_type)
+                        ? `${base}/sources/${src.id}/overview`
+                        : `${base}/sources/${src.id}/health`}
                       className="dl-btn-subtle p-1.5"
                       title={t("health.title")}
                     >
