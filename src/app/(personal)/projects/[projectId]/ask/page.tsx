@@ -3,13 +3,14 @@ import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
-import { Send, Loader2, Sparkles, Plus, MessageSquare, Trash2, Database, X as XIcon } from 'lucide-react'
+import { Send, Loader2, Sparkles, Plus, MessageSquare, Trash2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { formatDistanceToNow } from 'date-fns'
 import { InteractiveChart, type ChartData } from '@/components/charts/InteractiveChart'
 import { DataQualityBanner } from '@/components/DataQualityBanner'
 import type { DataQualityReport } from '@/lib/dataQuality'
+import { useActiveSource } from '@/lib/context/ActiveSourceContext'
 
 type IntentData = {
   question: string
@@ -80,15 +81,13 @@ export default function ProjectAskPage() {
   const [conversations, setConversations] = useState<ConversationSummary[]>([])
   const [activeConvoId, setActiveConvoId] = useState<string | null>(null)
   const [convoLoading, setConvoLoading] = useState(true)
-  const [latestSourceId, setLatestSourceId] = useState<string | null>(null)
-  const [projectSources, setProjectSources] = useState<{ id: string; name: string; source_type: string }[]>([])
-  const [activeSources, setActiveSources] = useState<Set<string>>(new Set())
   const bottomRef = useRef<HTMLDivElement>(null)
   const intentRef = useRef<IntentData | null>(null)
   const hasFiredIntent = useRef(false)
 
   const params = useParams()
   const projectId = params.projectId as string
+  const { activeSourceId, activeSource } = useActiveSource()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -170,19 +169,6 @@ export default function ProjectAskPage() {
   // Initial load
   useEffect(() => {
     loadConversations()
-    // Fetch all sources for this project
-    supabase.from('data_sources')
-      .select('id, name, source_type')
-      .eq('project_id', projectId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setProjectSources(data)
-          setActiveSources(new Set(data.map(s => s.id)))
-          setLatestSourceId(data[0].id)
-        }
-      })
   }, [loadConversations])
 
   // Load intent from localStorage on mount, then auto-fire
@@ -228,7 +214,7 @@ export default function ProjectAskPage() {
           intent: intent ?? undefined,
           qualityReport: intent?.qualityReport ?? undefined,
           project_id: projectId,
-          source_ids: activeSources.size < projectSources.length ? Array.from(activeSources) : undefined,
+          source_ids: activeSourceId ? [activeSourceId] : undefined,
         }),
       })
 
@@ -367,7 +353,7 @@ export default function ProjectAskPage() {
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="max-w-[860px] mx-auto space-y-6">
             {qualityReport && <DataQualityBanner report={qualityReport}
-              prepareUrl={latestSourceId ? `/projects/${projectId}/prep/${latestSourceId}` : undefined} />}
+              prepareUrl={activeSourceId ? `/projects/${projectId}/prep/${activeSourceId}` : undefined} />}
 
             {/* Empty state */}
             {messages.length === 0 && !loading && (
@@ -376,6 +362,9 @@ export default function ProjectAskPage() {
                 <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t("ask.askAnything")}</h2>
                 <p className="text-dl-text-medium text-dl-sm max-w-md mx-auto">
                   {t("ask.askDesc")}
+                </p>
+                <p className="text-dl-xs text-dl-text-light mt-1">
+                  {activeSource ? `${activeSource.name} (${activeSource.source_type})` : ''}
                 </p>
               </div>
             )}
@@ -428,45 +417,6 @@ export default function ProjectAskPage() {
 
         {/* Source selector + Input bar */}
         <div className="border-t border-dl-border bg-dl-bg px-6 pt-3 pb-4">
-          {/* Source pills */}
-          {projectSources.length > 0 && (
-            <div className="max-w-[860px] mx-auto flex items-center gap-2 mb-2 flex-wrap">
-              <span className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider flex items-center gap-1">
-                <Database size={10} /> Using:
-              </span>
-              {projectSources.map(src => {
-                const isActive = activeSources.has(src.id)
-                return (
-                  <button
-                    key={src.id}
-                    onClick={() => {
-                      const next = new Set(activeSources)
-                      if (isActive && next.size > 1) { next.delete(src.id) }
-                      else { next.add(src.id) }
-                      setActiveSources(next)
-                    }}
-                    className={`
-                      inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-dl-xs font-bold
-                      transition-colors cursor-pointer
-                      ${isActive
-                        ? 'bg-dl-brand-hover text-dl-brand border border-dl-brand/30'
-                        : 'bg-dl-bg-medium text-dl-text-light border border-transparent hover:border-dl-border'}
-                    `}
-                  >
-                    {src.name}
-                    {isActive && activeSources.size > 1 && (
-                      <XIcon size={9} className="opacity-60" />
-                    )}
-                  </button>
-                )
-              })}
-              {activeSources.size < projectSources.length && (
-                <span className="text-dl-xs text-dl-text-light">
-                  ({activeSources.size}/{projectSources.length} active)
-                </span>
-              )}
-            </div>
-          )}
           <div className="max-w-[860px] mx-auto flex items-end gap-3">
             <textarea
               className="dl-input flex-1 min-h-[44px] max-h-32 resize-none"

@@ -265,6 +265,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
   const [testResult, setTestResult] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
   const [testError, setTestError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [sourceName, setSourceName] = useState('')
 
   const router = useRouter()
   const supabase = createBrowserClient(
@@ -352,6 +353,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
 
   const openConnectModal = (conn: Connector) => {
     setSelectedConnector(conn)
+    setSourceName(conn.name)
     setFormValues({})
     setTestResult('idle')
     setTestError('')
@@ -410,7 +412,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: selectedConnector.name,
+          name: sourceName || selectedConnector.name,
           source_type: sourceType,
           category,
           credentials: formValues,
@@ -422,7 +424,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
       if (res.ok && data.success) {
         const newSource = {
           id: data.source?.id || '',
-          name: selectedConnector.name,
+          name: sourceName || selectedConnector.name,
           source_type: sourceType,
           schema_snapshot: data.source?.schema_snapshot || null,
           row_count: data.source?.row_count || 0,
@@ -624,6 +626,15 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
             </DialogTitle>
           </DialogHeader>
           <div className="p-6 pt-4 space-y-4">
+            <div className="mb-4">
+              <label className="dl-label">{t('prep.sourceName')}</label>
+              <input
+                className="dl-input"
+                value={sourceName}
+                onChange={e => setSourceName(e.target.value)}
+                placeholder={t('prep.sourceName')}
+              />
+            </div>
             {(DB_FIELDS[selectedConnector?.name || ''] || [
               { label: 'API Key', placeholder: 'sk_live_...', type: 'password' },
             ]).map(field => (

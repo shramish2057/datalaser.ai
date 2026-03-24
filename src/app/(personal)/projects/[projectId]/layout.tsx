@@ -13,6 +13,8 @@ import { LocaleToggle } from '@/components/LocaleToggle'
 import { useTranslations } from 'next-intl'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
+import { ActiveSourceProvider } from '@/lib/context/ActiveSourceContext'
+import { DataSourceSelector } from '@/components/DataSourceSelector'
 
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -301,6 +303,9 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
                 </h1>
               </>
             )}
+            <div className="mx-4">
+              <DataSourceSelector />
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-dl-text-medium text-dl-sm">
@@ -319,7 +324,9 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden bg-dl-bg-light">
-          {children}
+          <ActiveSourceProvider projectId={projectId as string}>
+            {children}
+          </ActiveSourceProvider>
         </main>
       </div>
     </div>
