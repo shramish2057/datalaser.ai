@@ -14,6 +14,7 @@ import { DrillProvider } from '@/components/charts/DrillContext'
 import { DrillDownPanel } from '@/components/charts/DrillDownPanel'
 import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
+import { isDbSource } from '@/lib/source-types'
 import type { AutoAnalysisResult, AutoAnalysisInsight } from '@/types/pipeline'
 import type { DrillFilter } from '@/types/drill'
 
@@ -80,6 +81,12 @@ export default function AutoAnalysisPage() {
           .eq('id', sourceId).single()
         if (!src) { setError('Source not found'); setLoading(false); return }
         setSourceName(src.name)
+
+        // DB sources use the overview page, not this file-analysis page
+        if (isDbSource(src.source_type)) {
+          router.replace(`/projects/${projectId}/sources/${sourceId}/overview`)
+          return
+        }
 
         // If auto_analysis already cached, use it
         if (src.auto_analysis) {
@@ -160,8 +167,8 @@ export default function AutoAnalysisPage() {
             </button>
             <h1 className="text-[20px] font-black text-dl-text-dark">{sourceName}</h1>
             <p className="text-dl-text-light text-dl-xs mt-0.5">
-              Auto-Analysis — {analysis.row_count.toLocaleString()} rows, {analysis.column_count} columns
-              ({analysis.measures.length} measures, {analysis.dimensions.length} dimensions, {analysis.binaries.length} binary, {analysis.dates.length} dates)
+              Auto-Analysis{analysis.row_count ? ` — ${analysis.row_count.toLocaleString()} rows, ${analysis.column_count} columns` : ''}
+              {analysis.measures?.length ? ` (${analysis.measures.length} measures, ${analysis.dimensions?.length || 0} dimensions, ${analysis.binaries?.length || 0} binary, ${analysis.dates?.length || 0} dates)` : ''}
             </p>
           </div>
           <div className="flex items-center gap-2">
