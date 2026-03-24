@@ -43,20 +43,16 @@ export default function InsightsPage() {
       let data: Record<string, unknown> | null = null
 
       if (isDbSource(src.source_type)) {
-        const res = await fetch('/api/insights/generate', {
+        // Full 17 auto-analyses on live DB (same as file analysis)
+        const res = await fetch('/api/pipeline/auto-analysis-db', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ project_id: projectId, source_ids: [activeSourceId] }),
+          body: JSON.stringify({ source_id: activeSourceId }),
         })
-        const result = await res.json()
-        if (result.success && result.document) {
-          data = {
-            top_insights: (result.document.key_findings || []).map((f: string) => ({
-              type: 'insight', headline: f,
-            })),
-            kpis: result.document.kpis || [],
-            summary: result.document.executive_summary || '',
-          }
+        data = await res.json()
+        if (data?.error) {
+          console.error('DB auto-analysis failed:', data.error)
+          data = null
         }
       } else {
         if (!src.file_path) return
@@ -126,6 +122,18 @@ export default function InsightsPage() {
           <p className="text-dl-text-dark text-dl-sm font-medium mb-2">Select a data source</p>
           <p className="text-dl-text-light text-dl-xs">Choose a data source from the top bar to view insights.</p>
         </div>
+      </div>
+    )
+  }
+
+  // If full auto-analysis is available (has correlations, distributions etc.),
+  // redirect to the dedicated analysis page which renders all tabs and charts
+  const hasFullAnalysis = analysis?.correlations && analysis?.distributions
+  if (hasFullAnalysis && activeSourceId) {
+    router.replace(`/projects/${projectId}/sources/${activeSourceId}/analysis`)
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 size={24} className="text-dl-brand animate-spin" />
       </div>
     )
   }
