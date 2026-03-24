@@ -548,13 +548,17 @@ function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight
         <div className="flex-1 min-w-0">
           <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(insight.headline, locale)}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-dl-xs px-1.5 py-0.5 rounded bg-white/70 text-dl-text-medium font-medium">{t(`insightTypes.${insight.type}` as Parameters<typeof t>[0])}</span>
-            <span className="text-dl-xs text-dl-text-light">
-              p={insight.p_value < 0.001 ? '<0.001' : insight.p_value.toFixed(4)}
-            </span>
-            <span className="text-dl-xs text-dl-text-light">
-              effect={insight.effect_size.toFixed(3)}
-            </span>
+            <span className="text-dl-xs px-1.5 py-0.5 rounded bg-white/70 text-dl-text-medium font-medium">{insight.type}</span>
+            {insight.p_value != null && (
+              <span className="text-dl-xs text-dl-text-light">
+                p={insight.p_value < 0.001 ? '<0.001' : insight.p_value.toFixed(4)}
+              </span>
+            )}
+            {insight.effect_size != null && (
+              <span className="text-dl-xs text-dl-text-light">
+                effect={insight.effect_size.toFixed(3)}
+              </span>
+            )}
           </div>
         </div>
       </div>
