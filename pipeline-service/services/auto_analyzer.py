@@ -1000,6 +1000,7 @@ class AutoAnalyzer:
 
         # From trends (significant direction changes)
         for trend in results.get('trends', []):
+            if not trend: continue
             if trend.get('significant') and abs(trend.get('total_change_pct', 0)) > 10:
                 candidates.append({
                     'type': 'trend',
@@ -1020,7 +1021,7 @@ class AutoAnalyzer:
                     'chart_data': None,
                 })
             # Seasonality
-            if trend.get('seasonality', {}).get('detected'):
+            if trend and isinstance(trend.get('seasonality'), dict) and trend['seasonality'].get('detected'):
                 s = trend['seasonality']
                 candidates.append({
                     'type': 'seasonality',

@@ -60,10 +60,12 @@ def _quick_profile(df: pd.DataFrame) -> list[dict]:
         elif name_lower in ('id',) or name_lower.endswith('_id') or name_lower.endswith('id'):
             role = 'id'
         elif pd.api.types.is_numeric_dtype(dtype):
+            is_integer = pd.api.types.is_integer_dtype(dtype)
             if nunique == 2:
                 role = 'binary'
-            elif nunique > 20 or (total > 0 and nunique / total > 0.9):
-                role = 'id' if nunique > 100 else 'measure'
+            elif is_integer and total > 0 and nunique / total > 0.9 and nunique > 100:
+                # High-cardinality sequential integers are likely IDs
+                role = 'id'
             else:
                 role = 'measure'
         elif pd.api.types.is_object_dtype(dtype) or pd.api.types.is_categorical_dtype(dtype):
