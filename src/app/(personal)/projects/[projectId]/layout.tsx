@@ -7,7 +7,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Home, BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
-  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical, Bell
+  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical, Bell, Network
 } from 'lucide-react'
 import { LocaleToggle } from '@/components/LocaleToggle'
 import { useTranslations } from 'next-intl'
@@ -123,13 +123,14 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
 
   const projectNav = [
     { icon: Home, label: t('nav.home'), path: '' },
-    { icon: Bell, label: t('nav.alerts'), path: '/alerts', alertCount },
     { icon: BarChart2, label: t('nav.insights'), path: '/insights' },
+    { icon: Network, label: t('nav.graph'), path: '/graph' },
     { icon: MessageSquare, label: t('nav.askData'), path: '/ask' },
     { icon: FlaskConical, label: t('nav.studio'), path: '/studio', badge: t('common.pro') },
-    { icon: LayoutGrid, label: t('nav.dashboard'), path: '/dashboard' },
+    { icon: Bell, label: t('nav.alerts'), path: '/alerts', alertCount },
     { icon: Database, label: t('nav.dataSources'), path: '/sources' },
     { icon: Wand2, label: t('nav.dataPrep'), path: '/prep' },
+    { icon: LayoutGrid, label: t('nav.dashboard'), path: '/dashboard' },
     { icon: Settings, label: t('nav.settings'), path: '/settings' },
   ]
 

@@ -8,7 +8,8 @@
     "dataSources": "Datenquellen",
     "dataPrep": "Datenaufbereitung",
     "settings": "Einstellungen",
-    "alerts": "Warnungen"
+    "alerts": "Warnungen",
+    "graph": "Visual Graph"
   },
   "common": {
     "loading": "Wird geladen...",
