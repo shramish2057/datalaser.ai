@@ -183,6 +183,14 @@ export default function ProjectSourcesPage() {
                 <td className="text-right font-mono">{src.row_count.toLocaleString()}</td>
                 <td className="text-right">
                   <div className="flex items-center justify-end gap-1">
+                    {isDbSource(src.source_type) && (
+                      <Link
+                        href={`${base}/sources/${src.id}/overview`}
+                        className="dl-btn-secondary text-dl-xs px-2.5 py-1 mr-1"
+                      >
+                        Overview
+                      </Link>
+                    )}
                     <Link
                       href={isDbSource(src.source_type)
                         ? `${base}/sources/${src.id}/overview`
