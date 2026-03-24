@@ -17,6 +17,7 @@ import { translateFinding } from '@/lib/i18n/findingsMap'
 import { isDbSource } from '@/lib/source-types'
 import type { AutoAnalysisResult, AutoAnalysisInsight } from '@/types/pipeline'
 import type { DrillFilter } from '@/types/drill'
+import { DataSourceSelector } from '@/components/DataSourceSelector'
 
 const INSIGHT_ICONS: Record<string, typeof Zap> = {
   correlation: GitBranch,
@@ -203,23 +204,17 @@ export default function AutoAnalysisPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <button onClick={() => router.back()} className="flex items-center gap-1 text-dl-text-light text-dl-xs hover:text-dl-brand mb-1">
-              <ArrowLeft size={12} /> Back
-            </button>
-            <h1 className="text-[20px] font-black text-dl-text-dark">{sourceName}</h1>
+            <h1 className="text-[20px] font-black text-dl-text-dark">{t('insights.title')}</h1>
             <p className="text-dl-text-light text-dl-xs mt-0.5">
               Auto-Analysis{analysis.row_count ? ` — ${analysis.row_count.toLocaleString()} rows, ${analysis.column_count} columns` : ''}
               {analysis.measures?.length ? ` (${analysis.measures.length} measures, ${analysis.dimensions?.length || 0} dimensions, ${analysis.binaries?.length || 0} binary, ${analysis.dates?.length || 0} dates)` : ''}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <DataSourceSelector />
             <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-dl-xs font-bold">
               {analysis.top_insights.length} {t('home.insights')}
             </span>
-            <button onClick={() => router.push(`/projects/${projectId}/studio`)}
-              className="text-[12px] bg-dl-brand text-white px-3 py-1.5 rounded-dl-md hover:bg-dl-brand-dark font-medium">
-              {t('analysis.exploreStudio')}
-            </button>
           </div>
         </div>
 

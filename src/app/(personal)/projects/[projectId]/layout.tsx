@@ -138,6 +138,8 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
   const isActive = (path: string) => {
     const full = base + path
     if (path === '') return pathname === base
+    // Analysis pages are part of Insights
+    if (path === '/insights' && pathname.includes('/analysis')) return true
     return pathname.startsWith(full)
   }
 
