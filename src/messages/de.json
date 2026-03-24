@@ -580,6 +580,10 @@
     "negligible": "vernachlässigbar"
   },
   "insightTypes": {
+    "insight": "Erkenntnis",
+    "finding": "Befund",
+    "kpi": "Kennzahl",
+    "recommendation": "Empfehlung",
     "correlation": "Korrelation",
     "group_difference": "Gruppenunterschied",
     "anomaly": "Anomalie",

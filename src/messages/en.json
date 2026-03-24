@@ -580,6 +580,10 @@
     "negligible": "negligible"
   },
   "insightTypes": {
+    "insight": "insight",
+    "finding": "finding",
+    "kpi": "KPI",
+    "recommendation": "recommendation",
     "correlation": "correlation",
     "group_difference": "group difference",
     "anomaly": "anomaly",
