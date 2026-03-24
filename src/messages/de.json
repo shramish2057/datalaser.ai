@@ -684,5 +684,33 @@
     "tableQuality": "Qualität",
     "columns": "Spalten",
     "rows": "Zeilen"
+  },
+  "graph": {
+    "title": "Visueller Graph",
+    "confidence": "Konfidenz",
+    "loading": "Graph wird geladen...",
+    "loadingDesc": "Ihre visuelle Intelligenzschicht wird abgerufen",
+    "building": "Graph wird erstellt...",
+    "buildingDesc": "Ihre Daten werden analysiert, um Metriken, Dimensionen und KPIs abzubilden",
+    "noGraph": "Noch kein Graph",
+    "noGraphDesc": "Erstellen Sie einen visuellen Intelligenzgraphen aus Ihrer verbundenen Datenquelle.",
+    "buildNow": "Graph jetzt erstellen",
+    "buildFailed": "Graph-Erstellung fehlgeschlagen",
+    "selectSourceFirst": "Wählen Sie zuerst eine Datenquelle aus",
+    "refresh": "Aktualisieren",
+    "edit": "Bearbeiten",
+    "addKpi": "KPI hinzufügen",
+    "fullscreen": "Vollbild",
+    "verified": "Verifiziert",
+    "sparklinePlaceholder": "Trend-Sparkline (demnächst)",
+    "trendPlaceholder": "Historischer Trend (demnächst)",
+    "entities": "Entitäten",
+    "topValues": "Top-Werte",
+    "formula": "Formel",
+    "connections": "Verbindungen",
+    "askAbout": "Hierzu fragen",
+    "runAnalysis": "Analyse starten",
+    "addToStudio": "Zu Studio hinzufügen",
+    "setAlert": "Alert setzen"
   }
 }

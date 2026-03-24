@@ -684,5 +684,33 @@
     "tableQuality": "Quality",
     "columns": "Columns",
     "rows": "Rows"
+  },
+  "graph": {
+    "title": "Visual Graph",
+    "confidence": "confidence",
+    "loading": "Loading graph...",
+    "loadingDesc": "Fetching your visual intelligence layer",
+    "building": "Building graph...",
+    "buildingDesc": "Analyzing your data to map metrics, dimensions, and KPIs",
+    "noGraph": "No graph yet",
+    "noGraphDesc": "Build a visual intelligence graph from your connected data source.",
+    "buildNow": "Build graph now",
+    "buildFailed": "Graph build failed",
+    "selectSourceFirst": "Select a data source first",
+    "refresh": "Refresh",
+    "edit": "Edit",
+    "addKpi": "Add KPI",
+    "fullscreen": "Fullscreen",
+    "verified": "Verified",
+    "sparklinePlaceholder": "Trend sparkline (coming soon)",
+    "trendPlaceholder": "Historical trend (coming soon)",
+    "entities": "entities",
+    "topValues": "Top Values",
+    "formula": "Formula",
+    "connections": "Connections",
+    "askAbout": "Ask about this",
+    "runAnalysis": "Run analysis",
+    "addToStudio": "Add to Studio",
+    "setAlert": "Set alert"
   }
 }
