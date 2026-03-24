@@ -165,7 +165,7 @@ export default function AutoAnalysisPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-[11px] font-bold">
+            <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-dl-xs font-bold">
               {analysis.top_insights.length} {t('home.insights')}
             </span>
             <button onClick={() => router.push(`/projects/${projectId}/studio`)}
@@ -203,7 +203,7 @@ export default function AutoAnalysisPage() {
               }`}>
               <tab.icon size={13} />
               {tab.label}
-              {tab.count > 0 && <span className="text-[10px] bg-dl-bg-medium px-1.5 py-0.5 rounded-full">{tab.count}</span>}
+              {tab.count > 0 && <span className="text-dl-xs bg-dl-bg-medium px-1.5 py-0.5 rounded-full">{tab.count}</span>}
             </button>
           ))}
         </div>
@@ -238,14 +238,14 @@ export default function AutoAnalysisPage() {
               />
               {analysis.correlations.pairs.length > 0 && (
                 <div className="mt-3 border-t border-dl-border pt-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light mb-2">Top Pairs</p>
+                  <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light mb-2">Top Pairs</p>
                   <div className="space-y-1">
                     {analysis.correlations.pairs.slice(0, 5).map((p, i) => (
                       <div key={i} className="flex items-center gap-2 text-[12px]">
                         <span className={`w-2 h-2 rounded-full ${p.significant ? 'bg-dl-brand' : 'bg-dl-border-dark'}`} />
                         <span className="text-dl-text-dark font-medium">{p.col1} ↔ {p.col2}</span>
                         <span className="text-dl-text-light">r={p.r}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${p.significant ? 'bg-green-50 text-green-700' : 'bg-dl-bg-light text-dl-text-light'}`}>
+                        <span className={`text-dl-xs px-1.5 py-0.5 rounded ${p.significant ? 'bg-green-50 text-green-700' : 'bg-dl-bg-light text-dl-text-light'}`}>
                           {t(`strength.${p.strength}` as Parameters<typeof t>[0])}
                         </span>
                       </div>
@@ -278,7 +278,7 @@ export default function AutoAnalysisPage() {
                     })),
                     xKey: 'bin', yKey: 'count', yKeys: ['count'],
                   }} />
-                  <div className="px-4 pb-3 flex gap-4 text-[11px] text-dl-text-medium">
+                  <div className="px-4 pb-3 flex gap-4 text-dl-xs text-dl-text-medium">
                     <span>Mean: <b>{dist.mean.toLocaleString()}</b></span>
                     <span>Median: <b>{dist.median.toLocaleString()}</b></span>
                     <span>Skew: <b>{dist.skewness}</b></span>
@@ -325,11 +325,11 @@ export default function AutoAnalysisPage() {
               <table className="w-full text-[12px]">
                 <thead>
                   <tr className="border-b border-dl-border bg-dl-bg-light">
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Target</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Influencer</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">{t("common.type")}</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Effect</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Detail</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Target</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Influencer</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">{t("common.type")}</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Effect</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Detail</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -338,7 +338,7 @@ export default function AutoAnalysisPage() {
                       <td className="px-4 py-2 font-medium text-dl-text-dark">{inf.target}</td>
                       <td className="px-4 py-2 text-dl-brand font-medium">{inf.influencer}</td>
                       <td className="px-4 py-2">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${inf.type === 'categorical' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
+                        <span className={`px-1.5 py-0.5 rounded text-dl-xs font-bold ${inf.type === 'categorical' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
                           {inf.type}
                         </span>
                       </td>
@@ -395,11 +395,11 @@ export default function AutoAnalysisPage() {
                   <div key={i} className="border border-dl-border rounded-dl-md p-3">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[12px] font-bold text-dl-text-dark">Cluster {(cl as Record<string, unknown>).cluster as number}</span>
-                      <span className="text-[11px] text-dl-text-light">{(cl as Record<string, unknown>).size as number} rows ({(cl as Record<string, unknown>).pct as number}%)</span>
+                      <span className="text-dl-xs text-dl-text-light">{(cl as Record<string, unknown>).size as number} rows ({(cl as Record<string, unknown>).pct as number}%)</span>
                     </div>
                     <div className="space-y-1">
                       {analysis.clusters.columns_used.slice(0, 4).map(col => (
-                        <div key={col} className="flex justify-between text-[11px]">
+                        <div key={col} className="flex justify-between text-dl-xs">
                           <span className="text-dl-text-medium">{col}</span>
                           <span className="font-mono text-dl-text-dark">
                             {typeof (cl as Record<string, unknown>)[`${col}_mean`] === 'number'
@@ -426,11 +426,11 @@ export default function AutoAnalysisPage() {
               <table className="w-full text-[12px]">
                 <thead>
                   <tr className="border-b border-dl-border bg-dl-bg-light">
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Dimension</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Measure</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Dominant</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Share</th>
-                    <th className="px-4 py-2 text-left text-[10px] font-bold text-dl-text-light uppercase">Categories</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Dimension</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Measure</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Dominant</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Share</th>
+                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Categories</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -444,7 +444,7 @@ export default function AutoAnalysisPage() {
                           <div className="w-16 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
                             <div className="h-full bg-dl-brand rounded-full" style={{ width: `${m.dominant_share}%` }} />
                           </div>
-                          <span className="text-[11px] font-mono">{m.dominant_share}%</span>
+                          <span className="text-dl-xs font-mono">{m.dominant_share}%</span>
                         </div>
                       </td>
                       <td className="px-4 py-2 text-dl-text-light">{m.total_categories}</td>
@@ -460,7 +460,7 @@ export default function AutoAnalysisPage() {
 
         {/* Footer */}
         <div className="text-center py-4 border-t border-dl-border">
-          <p className="text-[11px] text-dl-text-light">
+          <p className="text-dl-xs text-dl-text-light">
             {t('insights.allComputed')}
           </p>
         </div>
@@ -482,17 +482,17 @@ function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight
     <div className={`border rounded-dl-lg p-4 ${colorClass}`}>
       <div className="flex items-start gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-[11px] font-black text-dl-text-light">#{index}</span>
+          <span className="text-dl-xs font-black text-dl-text-light">#{index}</span>
           <Icon size={16} className="text-dl-text-medium" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(insight.headline, locale)}</p>
           <div className="flex items-center gap-3 mt-2">
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/70 text-dl-text-medium font-medium">{t(`insightTypes.${insight.type}` as Parameters<typeof t>[0])}</span>
-            <span className="text-[10px] text-dl-text-light">
+            <span className="text-dl-xs px-1.5 py-0.5 rounded bg-white/70 text-dl-text-medium font-medium">{t(`insightTypes.${insight.type}` as Parameters<typeof t>[0])}</span>
+            <span className="text-dl-xs text-dl-text-light">
               p={insight.p_value < 0.001 ? '<0.001' : insight.p_value.toFixed(4)}
             </span>
-            <span className="text-[10px] text-dl-text-light">
+            <span className="text-dl-xs text-dl-text-light">
               effect={insight.effect_size.toFixed(3)}
             </span>
           </div>

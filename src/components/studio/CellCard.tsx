@@ -42,16 +42,16 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
     return (
       <div onClick={onClick} className={`mb-2 group relative ${isActive ? 'ring-1 ring-dl-brand rounded-dl-md' : ''}`}>
         <div className="opacity-0 group-hover:opacity-100 absolute -top-6 left-0 flex gap-1 bg-white border border-dl-border rounded shadow-sm px-1 py-0.5 z-10 transition-opacity">
-          {!isFirst && <button onClick={e => { e.stopPropagation(); onMoveUp() }} className="text-[10px] px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move up"><ArrowUp size={10} /></button>}
-          {!isLast && <button onClick={e => { e.stopPropagation(); onMoveDown() }} className="text-[10px] px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move down"><ArrowDown size={10} /></button>}
+          {!isFirst && <button onClick={e => { e.stopPropagation(); onMoveUp() }} className="text-dl-xs px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move up"><ArrowUp size={10} /></button>}
+          {!isLast && <button onClick={e => { e.stopPropagation(); onMoveDown() }} className="text-dl-xs px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move down"><ArrowDown size={10} /></button>}
           <div className="w-px h-3 bg-dl-border" />
           {([1, 2, 3] as const).map(l => (
             <button key={l} onClick={e => { e.stopPropagation(); onLevelChange(l) }}
-              className={`text-[10px] px-1.5 py-0.5 rounded ${cell.level === l ? 'bg-dl-brand text-white' : 'text-dl-text-light hover:bg-dl-bg-medium'}`}>
+              className={`text-dl-xs px-1.5 py-0.5 rounded ${cell.level === l ? 'bg-dl-brand text-white' : 'text-dl-text-light hover:bg-dl-bg-medium'}`}>
               H{l}
             </button>
           ))}
-          <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-[10px] px-1 text-dl-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
+          <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-dl-xs px-1 text-dl-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
         </div>
         <input value={cell.content || ''} onChange={e => onContentChange(e.target.value)} onClick={e => e.stopPropagation()}
           placeholder={t('studio.sectionHeading')} className={`w-full bg-transparent border-none outline-none text-dl-text-dark px-4 py-2 ${sizes[cell.level || 1]}`} />
@@ -64,10 +64,10 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
     return (
       <div onClick={onClick} className={`mb-2 group relative ${isActive ? 'ring-1 ring-dl-brand rounded-dl-md' : ''}`}>
         <div className="opacity-0 group-hover:opacity-100 absolute -top-6 right-0 flex gap-1 bg-white border border-dl-border rounded shadow-sm px-1 py-0.5 z-10 transition-opacity">
-          {!isFirst && <button onClick={e => { e.stopPropagation(); onMoveUp() }} className="text-[10px] px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move up"><ArrowUp size={10} /></button>}
-          {!isLast && <button onClick={e => { e.stopPropagation(); onMoveDown() }} className="text-[10px] px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move down"><ArrowDown size={10} /></button>}
+          {!isFirst && <button onClick={e => { e.stopPropagation(); onMoveUp() }} className="text-dl-xs px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move up"><ArrowUp size={10} /></button>}
+          {!isLast && <button onClick={e => { e.stopPropagation(); onMoveDown() }} className="text-dl-xs px-1 text-dl-text-light hover:bg-dl-bg-medium rounded" title="Move down"><ArrowDown size={10} /></button>}
           <div className="w-px h-3 bg-dl-border" />
-          <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-[10px] px-1 text-dl-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
+          <button onClick={e => { e.stopPropagation(); onDelete() }} className="text-dl-xs px-1 text-dl-error hover:bg-red-50 rounded"><Trash2 size={10} /></button>
         </div>
         <textarea value={cell.content || ''} onChange={e => { onContentChange(e.target.value); e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
           onClick={e => e.stopPropagation()} placeholder={t('studio.writeNotes')}
@@ -88,25 +88,25 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
         <div className="flex items-center gap-2">
           <div className="relative">
             <button onClick={e => { e.stopPropagation(); setShowLangPicker(!showLangPicker) }}
-              className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${LANG_COLORS[cell.type] || LANG_COLORS.python} cursor-pointer`}>
+              className={`text-dl-xs font-bold px-1.5 py-0.5 rounded ${LANG_COLORS[cell.type] || LANG_COLORS.python} cursor-pointer`}>
               {cell.type === 'python' ? 'Python' : cell.type === 'sql' ? 'SQL' : 'R'} ▾
             </button>
             {showLangPicker && (
               <div className="absolute top-full left-0 z-10 bg-white border border-dl-border rounded shadow-sm py-1 w-24" onClick={e => e.stopPropagation()}>
                 {(['python', 'sql', 'r'] as const).map(lang => (
                   <button key={lang} onClick={() => { onTypeChange(lang); setShowLangPicker(false) }}
-                    className={`w-full text-left px-2 py-1 text-[11px] hover:bg-dl-bg-light ${cell.type === lang ? 'font-bold text-dl-brand' : ''}`}>
+                    className={`w-full text-left px-2 py-1 text-dl-xs hover:bg-dl-bg-light ${cell.type === lang ? 'font-bold text-dl-brand' : ''}`}>
                     {lang === 'python' ? 'Python' : lang === 'sql' ? 'SQL' : 'R'}
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <span className="text-[11px] text-dl-text-light">{t('studio.cell')} {cellNumber}</span>
+          <span className="text-dl-xs text-dl-text-light">{t('studio.cell')} {cellNumber}</span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={e => { e.stopPropagation(); onRun() }} disabled={cell.status === 'running' || cell.type === 'r'}
-            className="flex items-center gap-1 text-[11px] bg-dl-brand text-white px-2 py-0.5 rounded hover:bg-dl-brand-dark disabled:opacity-50">
+            className="flex items-center gap-1 text-dl-xs bg-dl-brand text-white px-2 py-0.5 rounded hover:bg-dl-brand-dark disabled:opacity-50">
             {cell.status === 'running' ? <Loader2 size={11} className="animate-spin" /> : <Play size={11} />} Run
           </button>
           <div className="relative">
@@ -144,7 +144,7 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
           }}
           style={{ width: '100%', minHeight: `${lineCount * 19.5 + 20}px`, maxHeight: '400px', padding: '10px 10px 10px 40px', fontFamily: "'Courier New', Courier, monospace", fontSize: '13px', lineHeight: '1.5', backgroundColor: '#1e1e1e', color: '#d4d4d4', border: 'none', borderRadius: '0', resize: 'vertical', outline: 'none', overflowY: 'auto' }} />
       </div>
-      <div className="flex items-center gap-2 px-2 py-1.5 text-[11px]">
+      <div className="flex items-center gap-2 px-2 py-1.5 text-dl-xs">
         <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cell.status === 'running' ? 'bg-dl-brand animate-pulse' : cell.status === 'done' ? 'bg-dl-success' : cell.status === 'error' ? 'bg-dl-error' : 'bg-dl-border-dark'}`} />
         <span className={cell.status === 'running' ? 'text-dl-brand' : cell.status === 'error' ? 'text-dl-error' : 'text-dl-text-light'}>
           {cell.status === 'idle' ? t('studio.ready') : cell.status === 'running' ? t('common.running') : cell.status === 'error' ? t('studio.error') : `${t('studio.done')}${execTime ? ` · ${execTime}ms` : ''}`}
@@ -152,10 +152,10 @@ export default function CellCard({ cell, cellNumber, isActive, isFirst, isLast, 
       </div>
       {cell.output?.stdout && (
         <div className="border-t border-dl-border" onClick={e => e.stopPropagation()}>
-          <button onClick={() => setShowStdout(!showStdout)} className="flex items-center gap-1 px-2 py-1 text-[11px] text-dl-text-light w-full">
+          <button onClick={() => setShowStdout(!showStdout)} className="flex items-center gap-1 px-2 py-1 text-dl-xs text-dl-text-light w-full">
             {showStdout ? <ChevronDown size={11} /> : <ChevronRight size={11} />} Output
           </button>
-          {showStdout && <pre className="bg-gray-900 text-gray-300 font-mono text-[11px] p-2 max-h-20 overflow-y-auto">{cell.output.stdout}</pre>}
+          {showStdout && <pre className="bg-gray-900 text-gray-300 font-mono text-dl-xs p-2 max-h-20 overflow-y-auto">{cell.output.stdout}</pre>}
         </div>
       )}
     </div>

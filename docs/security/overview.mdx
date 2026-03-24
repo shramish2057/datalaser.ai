@@ -1,0 +1,145 @@
+---
+title: "Security Overview"
+description: "Privacy-first architecture designed for European enterprises. Your data stays in the EU, credentials are encrypted at rest, and AI never sees your raw data."
+icon: "shield-halved"
+---
+
+# Security at DataLaser
+
+DataLaser was built from day one with a privacy-first architecture. We understand that data analytics platforms handle your most sensitive business information: revenue figures, customer records, operational metrics. Every architectural decision reflects that responsibility.
+
+<CardGroup cols={2}>
+  <Card title="EU Infrastructure" icon="flag" color="#0055A4">
+    All data storage and processing happens exclusively in the European Union. Frankfurt (eu-central-1) primary region.
+  </Card>
+  <Card title="AI Sees No Raw Data" icon="eye-slash" color="#16A34A">
+    Claude (Anthropic) receives only column names, data types, row counts, and verified aggregated findings, never raw rows.
+  </Card>
+  <Card title="AES-256-GCM Encryption" icon="lock" color="#DC2626">
+    Database credentials encrypted with AES-256-GCM before storage. Decrypted only at runtime inside the isolated pipeline service.
+  </Card>
+  <Card title="Sandboxed Execution" icon="box" color="#9333EA">
+    All code execution runs in a restricted sandbox with blocked system modules, 30-second timeouts, and strict memory limits.
+  </Card>
+</CardGroup>
+
+---
+
+## Privacy-First Architecture
+
+### What Data Goes Where
+
+| Data Category | Storage Location | Who Can Access |
+|---|---|---|
+| Uploaded files (CSV, Excel) | Supabase Storage, Frankfurt | Your organization only (RLS-enforced) |
+| Database credentials | Supabase DB, Frankfurt, AES-256-GCM encrypted | Pipeline service at runtime only |
+| Analysis results & findings | Supabase DB, Frankfurt | Your organization only (RLS-enforced) |
+| Conversation history | Supabase DB, Frankfurt | Your organization only (RLS-enforced) |
+| Data sent to AI | Anthropic API (EU DPA in place) | Column names, types, row counts, aggregated findings only |
+
+<Warning>
+  **Raw data rows, PII, and transaction-level details are never transmitted to any external AI provider.** This is enforced architecturally, not by policy alone. The pipeline produces verified aggregated findings from templates before any AI interaction occurs.
+</Warning>
+
+---
+
+## Credential Handling
+
+Database credentials follow a strict lifecycle:
+
+1. **Submission.** Credentials are transmitted over TLS 1.3 from the client to the API.
+2. **Encryption.** The API immediately encrypts credentials using AES-256-GCM with a server-side key before any database write.
+3. **Storage.** Only the encrypted ciphertext is stored in Supabase (Frankfurt).
+4. **Decryption.** Credentials are decrypted exclusively inside the pipeline service at the moment a connection is needed.
+5. **Disposal.** Decrypted credentials exist only in memory for the duration of the pipeline run. They are never logged, cached, or written to disk.
+
+<Tip>
+  AES-256-GCM provides both confidentiality and authenticity. Any tampering with the stored ciphertext is detected and rejected at decryption time.
+</Tip>
+
+---
+
+## Code Execution Sandbox
+
+All data analysis code runs in a restricted execution environment:
+
+| Control | Detail |
+|---|---|
+| **Blocked modules** | `os`, `subprocess`, `sys`, `importlib`: no filesystem access, no shell commands, no dynamic imports |
+| **Timeout** | 30 seconds hard limit per execution |
+| **Memory** | Strict memory ceiling to prevent resource exhaustion |
+| **Network** | No outbound network access from the sandbox |
+| **Scope** | Each execution runs in an isolated context, with no state leakage between runs |
+
+---
+
+## Access Control: Row-Level Security
+
+Every table in Supabase enforces Row-Level Security (RLS). This means:
+
+- **Organization isolation.** Users can only query rows belonging to their own organization. This is enforced at the database level, not the application level.
+- **No shared tenancy leaks.** Even if application code contained a bug, the database itself would reject cross-organization queries.
+- **Consistent enforcement.** RLS policies apply to all access paths: API, direct client, admin tooling.
+
+<Info>
+  RLS is Supabase's implementation of PostgreSQL row-level security policies. It provides defense-in-depth beyond application-layer authorization.
+</Info>
+
+---
+
+## Encryption
+
+### At Rest
+
+- All data stored in Supabase uses PostgreSQL's built-in encryption at rest (AES-256).
+- Database credentials receive an additional layer of AES-256-GCM application-level encryption before storage.
+- File storage (Supabase Storage) uses server-side encryption in the Frankfurt region.
+
+### In Transit
+
+- All client-to-server communication uses TLS 1.3.
+- All server-to-database communication uses TLS.
+- All server-to-Anthropic API communication uses TLS 1.3.
+- Signed URLs for file access expire after 1 hour and cannot be reused.
+
+---
+
+## File Storage Security
+
+Uploaded files are stored in Supabase Storage (Frankfurt) with the following protections:
+
+- **No public URLs.** Files are never publicly accessible.
+- **Signed URLs only.** Access requires a cryptographically signed URL.
+- **1-hour expiry.** Signed URLs expire after 60 minutes. After expiry, a new signed URL must be generated (which requires authentication and RLS authorization).
+- **Organization-scoped.** RLS policies ensure users can only generate signed URLs for files belonging to their organization.
+
+---
+
+## Enterprise Privacy Mode
+
+For organizations with the strictest data governance requirements, DataLaser offers **Enterprise Privacy Mode**:
+
+- AI features are completely disabled, so no data of any kind is sent to Anthropic or any external AI provider.
+- All 42 templates and 17 analyses run purely as local computation.
+- You retain full analytical capability powered by deterministic, auditable statistical methods.
+
+<Note>
+  Enterprise Privacy Mode is ideal for regulated industries, classified data environments, or organizations whose internal policies prohibit any external AI processing.
+</Note>
+
+---
+
+## Compliance Roadmap
+
+| Certification | Status | Target |
+|---|---|---|
+| DSGVO / GDPR | Compliant | Current |
+| Auftragsverarbeitungsvertrag (AVV/DPA) | Available on request | Current |
+| EU Data Residency Addendum | Available on request | Current |
+| SOC 2 Type I | In progress | 2026 |
+| SOC 2 Type II | Planned | 2027 |
+| ISO 27001 | Planned | 2027 |
+
+<Tip>
+  Need a security questionnaire completed or a DPA signed? Contact us at **security@datalaser.app**. We typically respond within one business day.
+</Tip>

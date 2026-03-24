@@ -89,7 +89,7 @@ export function HeatmapChart({ matrix, columns, title }: Props) {
 
       {/* Tooltip */}
       {hover && (
-        <div className="text-center text-[11px] text-dl-text-medium mt-1">
+        <div className="text-center text-dl-xs text-dl-text-medium mt-1">
           <span className="font-bold">{hover.row}</span> × <span className="font-bold">{hover.col}</span>: r = {hover.val.toFixed(4)}
         </div>
       )}

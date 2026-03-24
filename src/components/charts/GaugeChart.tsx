@@ -83,7 +83,7 @@ export function GaugeChart({ value, min = 0, max = 100, label, unit = '', zones 
         <text x={cx - r + 5} y={cy + 14} fontSize={9} fill="#949AAB" fontFamily="Lato">{min}</text>
         <text x={cx + r - 5} y={cy + 14} fontSize={9} fill="#949AAB" fontFamily="Lato" textAnchor="end">{max}</text>
       </svg>
-      <span className="text-[11px] font-medium text-dl-text-medium -mt-1">{label}</span>
+      <span className="text-dl-xs font-medium text-dl-text-medium -mt-1">{label}</span>
     </div>
   )
 }

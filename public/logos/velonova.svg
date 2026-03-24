@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="128" fill="#6C3FC5"/>
+  <g transform="translate(512, 360)">
+    <circle cx="0" cy="0" r="140" fill="none" stroke="white" stroke-width="16" opacity="0.9"/>
+    <circle cx="0" cy="0" r="60" fill="none" stroke="white" stroke-width="14" opacity="0.5"/>
+    <circle cx="0" cy="-140" r="20" fill="white" opacity="0.9"/>
+    <line x1="0" y1="-60" x2="0" y2="-140" stroke="white" stroke-width="10" opacity="0.4"/>
+  </g>
+  <text x="512" y="810" text-anchor="middle" font-family="Didot, 'Bodoni 72', Georgia, serif" font-weight="700" font-size="220" letter-spacing="8" fill="white">VN</text>
+</svg>

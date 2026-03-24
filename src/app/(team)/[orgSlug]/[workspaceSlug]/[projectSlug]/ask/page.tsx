@@ -112,7 +112,7 @@ export default function TeamAskPage() {
 
   return (
     <div className="flex h-full">
-      <div className="w-[220px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
+      <div className="w-[260px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
         <div className="p-3 border-b border-dl-border"><button onClick={startNewChat} className="dl-btn-primary w-full text-dl-xs py-1.5 justify-center"><Plus size={13} /> {t("ask.newChat")}</button></div>
         <div className="flex-1 overflow-y-auto py-1">
           {convoLoading ? <div className="px-3 py-2"><div className="h-6 rounded-dl-md dl-shimmer mb-2" /><div className="h-6 rounded-dl-md dl-shimmer mb-2" /><div className="h-6 rounded-dl-md dl-shimmer" /></div>

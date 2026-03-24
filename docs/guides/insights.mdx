@@ -1,0 +1,104 @@
+---
+title: "Insights"
+description: "Proactive, auto-computed analyses that surface what matters in your data every 24 hours."
+icon: "lightbulb"
+---
+
+The Insights page is your daily briefing. DataLaser's template engine continuously scans your connected sources and surfaces findings without you asking a single question.
+
+## How It Works
+
+<Steps>
+  <Step title="Template matching">
+    When a source is connected, DataLaser matches its columns against **42 industry templates** using bilingual (DE/EN) pattern detection. A retail dataset with `revenue`, `date`, and `product_category` columns might match templates for Revenue Trend, Category Breakdown, and Seasonality.
+  </Step>
+  <Step title="Analysis execution">
+    Matched templates trigger **17 auto-analyses** that run against your data:
+
+    | Analysis | What It Finds |
+    |----------|--------------|
+    | Correlation matrix | Strong positive/negative relationships between numeric columns |
+    | Distribution profiling | Shape, skew, and kurtosis of each numeric column |
+    | Anomaly detection | Statistical outliers and sudden shifts in time series |
+    | Segment discovery | Natural groupings in your data via clustering |
+    | Trend analysis | Upward, downward, or flat trends over time |
+    | Cluster analysis | K-means and hierarchical groupings with silhouette scoring |
+    | Key influencers | Columns that most strongly predict a target variable |
+    | Seasonality detection | Recurring patterns at daily, weekly, monthly, or yearly intervals |
+    | Pareto analysis | 80/20 concentration in categorical breakdowns |
+    | Cohort analysis | Retention and behavior over time by group |
+    | Funnel analysis | Drop-off rates between sequential stages |
+    | Moving averages | Smoothed trends with configurable windows |
+    | Year-over-year comparison | Period comparisons with growth rates |
+    | Percentile ranking | Where each entity falls in the distribution |
+    | Variance analysis | Budget-vs-actual or period-vs-period deviations |
+    | Contribution analysis | How sub-groups contribute to a total |
+    | Frequency analysis | Event counts and interval patterns |
+  </Step>
+  <Step title="Insight generation">
+    Each analysis that produces a statistically significant finding becomes an **insight card** on your dashboard.
+  </Step>
+</Steps>
+
+## Understanding Insight Cards
+
+Every card includes:
+
+- **Headline**: A plain-language summary (e.g., "Revenue dropped 18% week-over-week").
+- **Confidence**: Statistical significance level (high, medium, low).
+- **Sparkline or chart**: A compact visualization of the finding.
+- **Template badge**: Which template generated this insight.
+- **Source tag**: Which data source it came from.
+- **Timestamp**: When the analysis last ran.
+
+Click a card to expand it into a full interactive chart with filters and drill-down options.
+
+<Tip>
+Insights refresh automatically every **24 hours** after a sync completes. You can also trigger a manual refresh from the source's action menu.
+</Tip>
+
+## Running Analysis Per Source
+
+Each connected source has its own Insights tab. From there you can:
+
+- **View all insights** generated for that source.
+- **Filter by analysis type** (e.g., show only anomalies or trends).
+- **Pin important insights** to the top of your dashboard.
+- **Dismiss** insights that are not relevant. Dismissed patterns are deprioritized in future runs.
+
+<CardGroup cols={2}>
+  <Card title="Multi-source view" icon="layer-group">
+    The main Insights page aggregates findings from all sources. Use the source filter to narrow down.
+  </Card>
+  <Card title="Single-source view" icon="database">
+    Navigate to a specific source and open its **Insights** tab to see only that source's findings.
+  </Card>
+</CardGroup>
+
+## The Template Engine
+
+Insights are powered by DataLaser's **42 industry templates**. Each template defines:
+
+1. **Required columns**: which column patterns must be present (bilingual DE/EN matching).
+2. **Computation**: the statistical method to run.
+3. **Output format**: what the insight card displays.
+
+Templates are matched automatically. You do not need to configure them. If your data matches multiple templates, all matching analyses run in parallel.
+
+<Tip>
+See the full [Templates guide](/guides/templates) for a catalog of all 42 templates, their required columns, and example outputs.
+</Tip>
+
+## Exploring Deeper in Studio
+
+When an insight card reveals something interesting, click **Open in Studio** to launch a pre-populated notebook with:
+
+- The query that generated the insight.
+- An expanded visualization with full interactivity.
+- Suggested follow-up analyses.
+
+This bridges the gap between passive monitoring and active exploration.
+
+<Warning>
+Insights are computed from column statistics and aggregated results. Claude never sees raw data rows, only schema metadata and `[VERIFIED]` statistical findings. See the [privacy architecture](/security/privacy) for details.
+</Warning>

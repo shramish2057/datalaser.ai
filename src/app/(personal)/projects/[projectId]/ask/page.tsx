@@ -305,7 +305,7 @@ export default function ProjectAskPage() {
     <div className="flex h-full">
 
       {/* Conversation sidebar */}
-      <div className="w-[220px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
+      <div className="w-[260px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
         <div className="p-3 border-b border-dl-border">
           <button
             onClick={startNewChat}
@@ -343,7 +343,7 @@ export default function ProjectAskPage() {
                 <MessageSquare size={12} className="flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
                   <span className="block truncate">{c.title}</span>
-                  <span className="block text-[10px] text-dl-text-light mt-0.5">
+                  <span className="block text-dl-xs text-dl-text-light mt-0.5">
                     {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
                   </span>
                 </div>
@@ -429,7 +429,7 @@ export default function ProjectAskPage() {
           {/* Source pills */}
           {projectSources.length > 0 && (
             <div className="max-w-[860px] mx-auto flex items-center gap-2 mb-2 flex-wrap">
-              <span className="text-[10px] font-bold text-dl-text-light uppercase tracking-wider flex items-center gap-1">
+              <span className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider flex items-center gap-1">
                 <Database size={10} /> Using:
               </span>
               {projectSources.map(src => {
@@ -444,7 +444,7 @@ export default function ProjectAskPage() {
                       setActiveSources(next)
                     }}
                     className={`
-                      inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold
+                      inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-dl-xs font-bold
                       transition-colors cursor-pointer
                       ${isActive
                         ? 'bg-dl-brand-hover text-dl-brand border border-dl-brand/30'
@@ -459,7 +459,7 @@ export default function ProjectAskPage() {
                 )
               })}
               {activeSources.size < projectSources.length && (
-                <span className="text-[10px] text-dl-text-light">
+                <span className="text-dl-xs text-dl-text-light">
                   ({activeSources.size}/{projectSources.length} active)
                 </span>
               )}

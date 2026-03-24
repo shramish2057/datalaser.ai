@@ -1,5 +1,6 @@
 'use client'
 import { useTranslations } from 'next-intl'
+import { Logo } from '@/components/Logo'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -115,13 +116,13 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
     <div className="flex h-screen bg-dl-bg-light overflow-hidden font-sans">
       {/* SIDEBAR */}
       <aside className={`
-        ${sidebarExpanded ? 'w-[220px]' : 'w-[52px]'}
+        ${sidebarExpanded ? 'w-[260px]' : 'w-[52px]'}
         flex-shrink-0 h-screen bg-dl-bg border-r border-dl-border
         flex flex-col transition-all duration-150
       `}>
         {/* Logo */}
         <div className={`
-          h-[65px] flex items-center border-b border-dl-border flex-shrink-0
+          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
           ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
         `}>
           {sidebarExpanded ? (
@@ -129,12 +130,11 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
               onClick={() => router.push(`/${orgSlug}`)}
               className="flex items-center gap-2 hover:opacity-70 transition-opacity"
             >
-              <span className="text-dl-brand font-black text-xl">▲</span>
-              <span className="font-black text-dl-text-dark text-dl-base">DataLaser</span>
+              <Logo size="sm" />
             </button>
           ) : (
             <button onClick={() => router.push(`/${orgSlug}`)}>
-              <span className="text-dl-brand font-black text-xl">▲</span>
+              <span className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
             </button>
           )}
         </div>
@@ -173,7 +173,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
                 key={label}
                 href={base + path}
                 className={`
-                  relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                  relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
                   ${active
@@ -196,7 +196,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
           <button
             onClick={() => router.push(wsBase)}
             className={`
-              flex items-center h-[36px] w-full font-bold text-dl-sm
+              flex items-center h-[40px] w-full font-bold text-dl-sm
               text-dl-text-light hover:text-dl-brand hover:bg-dl-bg-light transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
             `}
@@ -206,7 +206,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
           </button>
 
           <button onClick={toggleSidebar}
-            className="flex items-center justify-center w-full h-[36px]
+            className="flex items-center justify-center w-full h-[40px]
               text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light transition-colors"
           >
             {sidebarExpanded ? <ChevronLeft size={15} /> : <Chevron size={15} />}
@@ -214,7 +214,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
 
           <button onClick={logout}
             className={`
-              flex items-center h-[36px] w-full font-bold text-dl-sm
+              flex items-center h-[40px] w-full font-bold text-dl-sm
               text-dl-text-light hover:text-red-500 hover:bg-red-50 transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
             `}
@@ -228,7 +228,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
       {/* MAIN */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Top bar with breadcrumb */}
-        <header className="h-[65px] bg-dl-bg border-b border-dl-border flex items-center justify-between px-6 flex-shrink-0">
+        <header className="h-[72px] bg-dl-bg border-b border-dl-border flex items-center justify-between px-6 flex-shrink-0">
           <div className="flex items-center gap-1.5 text-dl-sm">
             <Link href={`/${orgSlug}`} className="text-dl-text-light hover:text-dl-brand transition-colors font-bold">
               {org?.name}

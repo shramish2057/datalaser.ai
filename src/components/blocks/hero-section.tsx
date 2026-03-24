@@ -149,8 +149,8 @@ export function HeroSection() {
                       <Zap size={14} className="text-gray-900 mt-0.5 flex-shrink-0" />
                       <p className="text-[10px] text-gray-800 leading-relaxed">
                         {locale === 'de'
-                          ? 'Umsatz stieg 18,4% MoM — Elektronik-Segment treibt das Wachstum. CAC-Anstieg von 12% erfordert Marketing-Review.'
-                          : 'Revenue grew 18.4% MoM driven by Electronics. CAC increased 12% — flag for marketing review. Churn held at 2.3%.'}
+                          ? 'Umsatz stieg 18,4% MoM, Elektronik-Segment treibt das Wachstum. CAC-Anstieg von 12% erfordert Marketing-Review.'
+                          : 'Revenue grew 18.4% MoM driven by Electronics. CAC increased 12%, flag for marketing review. Churn held at 2.3%.'}
                       </p>
                     </div>
                   </div>
@@ -160,26 +160,23 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Logo bar */}
+        {/* Trusted by bar */}
         <div className="bg-white pb-0 pt-20">
-          <p className="text-center text-xs text-gray-400 uppercase tracking-[0.2em] font-semibold mb-6">
-            {locale === 'de' ? 'Funktioniert mit Ihrem gesamten Stack' : 'Works with your entire stack'}
+          <p className="text-center text-xs text-gray-400 uppercase tracking-[0.2em] font-semibold mb-8">
+            {locale === 'de' ? 'Vertraut von innovativen Unternehmen' : 'Trusted by forward-thinking companies'}
           </p>
           <div className="m-auto max-w-3xl px-6">
-            <div className="mx-auto grid grid-cols-4 gap-x-10 gap-y-6 sm:gap-x-14 items-center opacity-60 hover:opacity-100 transition-opacity duration-500">
+            <div className="mx-auto flex flex-wrap justify-center items-center gap-x-12 gap-y-6 sm:gap-x-16 opacity-60 hover:opacity-100 transition-opacity duration-500">
               {[
-                { name: 'PostgreSQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg' },
-                { name: 'Snowflake', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/snowflake/snowflake-original.svg' },
-                { name: 'Shopify', src: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/shopify.svg' },
-                { name: 'Stripe', src: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg' },
-                { name: 'BigQuery', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/googlecloud/googlecloud-original.svg' },
-                { name: 'Google Ads', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg' },
-                { name: 'MongoDB', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg' },
-                { name: 'MySQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg' },
+                { name: 'TEI Group', src: '/logos/tei.svg' },
+                { name: 'Globalfokus', src: '/logos/globalfokus.svg' },
+                { name: 'Brandfluenz', src: '/logos/brandfluenz.svg' },
+                { name: 'Nordkraft', src: '/logos/nordkraft.svg' },
+                { name: 'Velonova', src: '/logos/velonova.svg' },
               ].map(logo => (
-                <div key={logo.name} className="flex flex-col items-center gap-1.5">
-                  <img src={logo.src} alt={logo.name} className="h-8 w-8 object-contain" />
-                  <span className="text-[10px] text-gray-400 font-medium">{logo.name}</span>
+                <div key={logo.name} className="flex items-center gap-2.5">
+                  <img src={logo.src} alt={logo.name} className="h-9 w-9 object-contain rounded-lg" />
+                  <span className="text-sm text-gray-500 font-semibold tracking-tight">{logo.name}</span>
                 </div>
               ))}
             </div>

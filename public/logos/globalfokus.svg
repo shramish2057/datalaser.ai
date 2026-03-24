@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Background — GF Red -->
+  <rect width="1024" height="1024" rx="128" fill="#D41216"/>
+
+  <!-- Globe — professional wireframe style -->
+  <g transform="translate(512, 370)" fill="none" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round">
+    <!-- Outer circle -->
+    <circle cx="0" cy="0" r="160" opacity="0.9"/>
+
+    <!-- Center vertical meridian (ellipse) -->
+    <ellipse cx="0" cy="0" rx="56" ry="160" opacity="0.55"/>
+
+    <!-- Horizontal latitude lines -->
+    <!-- Equator -->
+    <line x1="-160" y1="0" x2="160" y2="0" opacity="0.45"/>
+    <!-- Upper latitude (curved to show sphere) -->
+    <path d="M -148 -60 Q 0 -95 148 -60" opacity="0.35"/>
+    <!-- Lower latitude (curved to show sphere) -->
+    <path d="M -148 60 Q 0 95 148 60" opacity="0.35"/>
+  </g>
+
+  <!-- GF text -->
+  <text
+    x="512"
+    y="815"
+    text-anchor="middle"
+    font-family="Didot, 'Bodoni 72', 'Playfair Display', 'Times New Roman', serif"
+    font-weight="700"
+    font-size="310"
+    letter-spacing="20"
+    fill="white"
+  >GF</text>
+
+  <!-- White underline accent -->
+  <rect x="350" y="842" width="324" height="5" rx="2.5" fill="white" opacity="0.6"/>
+</svg>

@@ -1,0 +1,184 @@
+---
+title: "Your First Insight"
+description: "Understand how DataLaser automatically analyzes your data, detects patterns, and delivers verified insights."
+icon: "lightbulb"
+---
+
+## What happens after you connect data
+
+The moment your data source is connected and profiled, DataLaser's analysis engine starts working. Here's the sequence:
+
+<Steps>
+  <Step title="Schema analysis">
+    DataLaser examines your column names, data types, and value distributions to understand what kind of data you have: sales transactions, customer records, financial bookings, inventory logs, or something else entirely.
+  </Step>
+  <Step title="Template matching">
+    Your schema is matched against **42 industry templates**. Each template encodes domain knowledge about what analyses are meaningful for specific data shapes. A table with `order_date`, `revenue`, and `product_category` triggers e-commerce templates. A table with `Buchungsdatum`, `Betrag`, and `Kostenstelle` triggers German financial templates.
+  </Step>
+  <Step title="Auto-analysis execution">
+    Every matched template runs its applicable analyses. DataLaser executes up to **17 distinct analysis types** depending on your data.
+  </Step>
+  <Step title="Insight generation">
+    Computed statistical results are passed to Claude, which generates plain-language explanations. Remember: Claude sees only aggregated facts, never raw data rows.
+  </Step>
+</Steps>
+
+<Info>
+  **Typical timing:** For a dataset with 100,000 rows and 20 columns, the full pipeline (profiling, template matching, analysis, and insight generation) completes in under 60 seconds.
+</Info>
+
+## The 17 auto-analyses
+
+DataLaser runs the following analyses automatically when your data supports them:
+
+<Tabs>
+  <Tab title="Statistical">
+    | Analysis | What it finds |
+    |----------|---------------|
+    | **Distributions** | How values are spread: normal, skewed, bimodal, long-tail |
+    | **Correlations** | Relationships between numeric columns (Pearson, Spearman) |
+    | **Descriptive statistics** | Central tendency, spread, quartiles for every numeric column |
+    | **Outlier detection** | Values that fall outside expected ranges (IQR and z-score methods) |
+  </Tab>
+  <Tab title="Patterns">
+    | Analysis | What it finds |
+    |----------|---------------|
+    | **Trends** | Directional movement over time, including growth, decline, and seasonality |
+    | **Anomalies** | Unexpected spikes, drops, or structural breaks in time series |
+    | **Seasonality** | Recurring patterns at weekly, monthly, quarterly, and annual cycles |
+    | **Changepoints** | Moments where the underlying pattern shifts significantly |
+  </Tab>
+  <Tab title="Segments">
+    | Analysis | What it finds |
+    |----------|---------------|
+    | **Clusters** | Natural groupings in your data (k-means, DBSCAN) |
+    | **Segments** | High-value vs. low-value groups, behavioral cohorts |
+    | **Category comparison** | Performance differences across categories |
+    | **Pareto analysis** | Which 20% of items drive 80% of results |
+  </Tab>
+  <Tab title="Advanced">
+    | Analysis | What it finds |
+    |----------|---------------|
+    | **Regression** | Key drivers and their relative importance |
+    | **Frequency analysis** | Event occurrence patterns and intervals |
+    | **Gap analysis** | Missing expected values or time periods |
+    | **Cross-tabulation** | Interactions between categorical variables |
+    | **Cohort analysis** | How groups behave over time from a shared starting point |
+  </Tab>
+</Tabs>
+
+<Note>
+  Not every analysis runs on every dataset. DataLaser only executes analyses that are statistically valid for your specific data shape. A dataset without a time column won't trigger trend or seasonality analyses.
+</Note>
+
+## Understanding the Insights page
+
+After auto-analysis completes, open the **Insights** tab in your project. Here's what you'll see:
+
+### Insight cards
+
+Each finding is presented as a card containing:
+
+- **Headline**: A one-sentence summary of the finding (e.g., *"Revenue correlates strongly with marketing spend (r=0.87)"* or *"3 distinct customer segments identified"*)
+- **Visualization**: A chart, distribution plot, or table that supports the finding
+- **Confidence indicator**: Statistical significance and sample size context
+- **Methodology note**: Which analysis produced this insight and the parameters used
+- **Actions**: Explore in Studio, ask a follow-up, or dismiss
+
+### Insight categories
+
+Insights are grouped by type so you can focus on what matters:
+
+<CardGroup cols={3}>
+  <Card title="Opportunities" icon="arrow-trend-up">
+    Growth patterns, underexploited segments, and positive correlations worth investigating.
+  </Card>
+  <Card title="Risks" icon="triangle-exclamation">
+    Anomalies, declining trends, and outliers that may need attention.
+  </Card>
+  <Card title="Facts" icon="chart-bar">
+    Descriptive findings: distributions, key metrics, and baseline statistics about your data.
+  </Card>
+</CardGroup>
+
+### Prioritization
+
+DataLaser ranks insights by a combination of:
+
+1. **Statistical strength**: Effect size and significance
+2. **Business relevance**: Template knowledge about what matters in your industry
+3. **Actionability**: Whether the finding suggests a concrete next step
+
+The most important findings appear first. Scroll down for supporting details and secondary patterns.
+
+## Exploring further in Studio
+
+Any insight can be opened in **Studio** for deeper analysis. Click **"Explore in Studio"** on an insight card to open a notebook pre-loaded with:
+
+- The underlying analysis and its parameters
+- The source data query
+- Interactive controls to adjust thresholds, time ranges, or groupings
+
+```python
+# Example: a Studio cell generated from an anomaly insight
+from datalaser import analysis
+
+results = analysis.anomaly_detection(
+    source="sales_2026",
+    column="daily_revenue",
+    method="isolation_forest",
+    sensitivity=0.05
+)
+
+results.plot(highlight_anomalies=True)
+```
+
+In Studio, you can:
+
+- **Adjust parameters**: Change sensitivity thresholds, time windows, or segmentation criteria
+- **Chain analyses**: Feed the output of one analysis into another
+- **Add visualizations**: Create custom charts beyond the auto-generated ones
+- **Export results**: Download as PDF, PNG, or CSV for reports and presentations
+
+<Tip>
+  **Studio is optional.** Many users get everything they need from the Insights page alone. Studio is there when you want to go deeper or customize.
+</Tip>
+
+## Asking follow-up questions with Ask Data
+
+See an interesting insight and want to drill down? Switch to the **Ask Data** tab and ask a follow-up question in natural language.
+
+<AccordionGroup>
+  <Accordion title="Example follow-ups for a correlation insight">
+    - *"Is the correlation between marketing spend and revenue consistent across regions?"*
+    - *"What's the lag between spend increase and revenue impact?"*
+    - *"Gibt es saisonale Unterschiede in der Korrelation?"*
+  </Accordion>
+  <Accordion title="Example follow-ups for an anomaly insight">
+    - *"What else happened on the days with revenue anomalies?"*
+    - *"Are the anomalies concentrated in a specific product category?"*
+    - *"Show me the 10 transactions from the anomaly on March 15"*
+  </Accordion>
+  <Accordion title="Example follow-ups for a segmentation insight">
+    - *"What distinguishes segment A from segment B?"*
+    - *"How has the size of each segment changed over time?"*
+    - *"Welches Segment hat die h&ouml;chste Abwanderungsrate?"*
+  </Accordion>
+</AccordionGroup>
+
+Ask Data uses the same verified architecture. Your question is translated into an analysis, computed deterministically, and the results are explained by AI. No raw data is sent to Claude.
+
+## What to do next
+
+<CardGroup cols={2}>
+  <Card title="Connect more sources" icon="circle-plus" href="/first-datasource">
+    Cross-source analyses unlock the most powerful insights. Connect your marketing data alongside sales to find what's actually driving revenue.
+  </Card>
+  <Card title="Invite your team" icon="users">
+    Share your project with colleagues so they can view insights, ask their own questions, and collaborate in Studio.
+  </Card>
+</CardGroup>
+
+<Tip>
+  **Pro tip:** DataLaser re-runs analyses automatically when your data updates. Connect a live database instead of uploading files to get continuous, up-to-date insights without manual refreshes.
+</Tip>

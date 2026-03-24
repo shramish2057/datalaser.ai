@@ -219,7 +219,8 @@ const CONNECTORS: Connector[] = [
   { name: 'Plaid', icon: '🏦', type: 'Banking', category: 'Finance' },
 ]
 
-const CATEGORIES = ['All', 'Databases', 'Warehouses', 'Commerce', 'Marketing', 'Finance']
+const CATEGORY_KEYS = ['catAll', 'catDatabases', 'catWarehouses', 'catCommerce', 'catMarketing', 'catFinance'] as const
+const CATEGORY_VALUES = ['All', 'Databases', 'Warehouses', 'Commerce', 'Marketing', 'Finance']
 
 const DB_FIELDS: Record<string, { label: string; placeholder: string; type?: string }[]> = {
   PostgreSQL: [
@@ -455,17 +456,17 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
   return (
     <>
       <div className="max-w-5xl mx-auto pt-12 px-6 pb-24">
-        <StepIndicator current={2} labels={['Workspace', 'Connect', 'Calibrate']} />
+        <StepIndicator current={2} labels={[t('onboarding.stepWorkspace'), t('onboarding.stepConnect'), t('onboarding.stepCalibrate')]} />
 
-        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Connect your data</h1>
+        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">{t('onboarding.connectYourData')}</h1>
         <p className="text-dl-text-medium text-dl-base mb-8">
-          Connect a database, upload files, or both.
+          {t('onboarding.connectYourDataDesc')}
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* LEFT — Upload */}
           <div className="dl-card p-5">
-            <h2 className="text-dl-base font-black text-dl-text-dark mb-4">Upload a file</h2>
+            <h2 className="text-dl-base font-black text-dl-text-dark mb-4">{t('onboarding.uploadFile')}</h2>
 
             <div
               {...getRootProps()}
@@ -476,8 +477,8 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
             >
               <input {...getInputProps()} />
               <UploadCloud className="w-8 h-8 text-dl-brand/60 mx-auto mb-2" />
-              <p className="text-dl-text-medium text-dl-sm">Drag files here, or click to browse</p>
-              <p className="text-dl-text-light text-dl-xs mt-1">Supports CSV, Excel (.xlsx/.xls), JSON, Parquet</p>
+              <p className="text-dl-text-medium text-dl-sm">{t('onboarding.dragFiles')}</p>
+              <p className="text-dl-text-light text-dl-xs mt-1">{t('onboarding.supportedFormats')}</p>
             </div>
 
             {uploadedFiles.length > 0 && (
@@ -490,7 +491,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                     <span className="text-dl-sm font-bold text-dl-text-dark">{f.name}</span>
                     <div className="flex items-center gap-2">
                       {f.columns?.length > 0 && (
-                        <span className="dl-badge-neutral">{f.columns.length} cols</span>
+                        <span className="dl-badge-neutral">{f.columns.length} {t('onboarding.cols')}</span>
                       )}
                       <span className="dl-badge-success">{f.rows.toLocaleString()} rows</span>
                       <button
@@ -508,11 +509,11 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
 
           {/* RIGHT — Database */}
           <div className="dl-card p-5">
-            <h2 className="text-dl-base font-black text-dl-text-dark mb-4">Connect a database or app</h2>
+            <h2 className="text-dl-base font-black text-dl-text-dark mb-4">{t('onboarding.connectDatabase')}</h2>
 
             {/* Category tabs */}
             <div className="flex gap-1 mb-4 flex-wrap">
-              {CATEGORIES.map(cat => (
+              {CATEGORY_VALUES.map((cat, i) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
@@ -523,7 +524,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                       : 'text-dl-text-medium hover:text-dl-brand'}
                   `}
                 >
-                  {cat}
+                  {t(`onboarding.${CATEGORY_KEYS[i]}`)}
                 </button>
               ))}
             </div>
@@ -550,7 +551,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                         <span className="dl-badge-success">{t("common.connected")}</span>
                       ) : (
                         <span className="dl-btn-secondary text-dl-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Connect
+                          {t('onboarding.connect')}
                         </span>
                       )}
                     </div>
@@ -565,11 +566,11 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
       {/* Fixed bottom bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-dl-bg border-t border-dl-border px-8 py-3 flex items-center justify-between z-40">
         <span className="text-dl-text-medium text-dl-sm">
-          {totalConnected} source{totalConnected !== 1 ? 's' : ''} connected
+          {t('onboarding.sourcesConnected', { count: totalConnected })}
         </span>
         <div className="flex items-center gap-3">
-          <button onClick={handleSkip} className="dl-btn-subtle">Skip</button>
-          <button onClick={handleContinue} className="dl-btn-primary">Continue</button>
+          <button onClick={handleSkip} className="dl-btn-subtle">{t('onboarding.skip')}</button>
+          <button onClick={handleContinue} className="dl-btn-primary">{t('onboarding.continue')}</button>
         </div>
       </div>
 
@@ -578,7 +579,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
         <DialogContent className="bg-dl-bg border border-dl-border rounded-dl-lg shadow-dl-lg p-0 max-w-md">
           <DialogHeader className="p-6 pb-0">
             <DialogTitle className="text-dl-xl font-black text-dl-text-dark">
-              Connect to {selectedConnector?.name}
+              {t('onboarding.connectTo', { name: selectedConnector?.name ?? '' })}
             </DialogTitle>
           </DialogHeader>
           <div className="p-6 pt-4 space-y-4">
@@ -599,12 +600,12 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
 
             {testResult === 'success' && (
               <div className="px-3 py-2 rounded-dl-md bg-green-50 border border-dl-success text-dl-success text-dl-sm font-bold">
-                Connection successful
+                {t('onboarding.connectionSuccessful')}
               </div>
             )}
             {testResult === 'error' && (
               <div className="px-3 py-2 rounded-dl-md bg-red-50 border border-dl-error text-dl-error text-dl-sm font-bold">
-                {testError || 'Connection failed'}
+                {testError || t('onboarding.connectionFailed')}
               </div>
             )}
 
@@ -614,14 +615,14 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
                 disabled={testResult === 'testing'}
                 className={`dl-btn-secondary ${testResult === 'testing' ? 'opacity-60' : ''}`}
               >
-                {testResult === 'testing' ? 'Testing...' : 'Test connection'}
+                {testResult === 'testing' ? t('onboarding.testing') : t('onboarding.testConnection')}
               </button>
               <button
                 onClick={handleSave}
                 disabled={testResult !== 'success' || saving}
                 className={`dl-btn-primary ${testResult !== 'success' || saving ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
-                {saving ? 'Saving...' : 'Save'}
+                {saving ? t('common.saving') : t('common.save')}
               </button>
             </div>
           </div>

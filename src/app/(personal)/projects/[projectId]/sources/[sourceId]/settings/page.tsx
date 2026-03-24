@@ -165,7 +165,7 @@ export default function SourceSettingsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-6 py-8 space-y-4">
+      <div className="max-w-2xl mx-auto px-8 py-10 space-y-4">
         <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
         <div className="h-32 rounded-dl-md bg-dl-bg-medium animate-pulse" />
         <div className="h-20 rounded-dl-md bg-dl-bg-medium animate-pulse" />
@@ -176,7 +176,7 @@ export default function SourceSettingsPage() {
   const isPrepared = source?.pipeline_status !== 'unprepared' && recipe
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8 font-sans">
+    <div className="max-w-2xl mx-auto px-8 py-10 font-sans">
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">{source?.name}</h1>
       <p className="text-dl-text-light text-dl-sm mb-8">Data source settings</p>
 
@@ -199,7 +199,7 @@ export default function SourceSettingsPage() {
               <CheckCircle2 size={18} className="text-dl-success" />
               <span className="text-dl-sm font-black text-dl-text-dark">Pipeline Ready</span>
               {source?.pipeline_status === 'scheduled' && (
-                <span className="ml-1 px-2 py-0.5 rounded text-[10px] font-bold bg-dl-brand-hover text-dl-brand">Scheduled</span>
+                <span className="ml-1 px-2 py-0.5 rounded text-dl-xs font-bold bg-dl-brand-hover text-dl-brand">Scheduled</span>
               )}
             </div>
 
@@ -211,7 +211,7 @@ export default function SourceSettingsPage() {
                 { label: 'Transforms', value: (recipe.steps as unknown[]).length },
               ].map(s => (
                 <div key={s.label}>
-                  <p className="text-[10px] font-bold text-dl-text-light uppercase tracking-wider">{s.label}</p>
+                  <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider">{s.label}</p>
                   <p className="text-dl-sm font-black text-dl-text-dark">{s.value}</p>
                 </div>
               ))}
@@ -234,7 +234,7 @@ export default function SourceSettingsPage() {
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-3">
             <p className="dl-section-header">Scheduled Sync</p>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">Enterprise</span>
+            <span className="px-2 py-0.5 rounded text-dl-xs font-bold bg-purple-100 text-purple-700">Enterprise</span>
           </div>
 
           <div className="dl-card p-5">

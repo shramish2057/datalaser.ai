@@ -74,7 +74,7 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
         <h1 className="text-[28px] font-bold text-dl-text-dark">{notebook?.title || 'Analysis'}</h1>
         {activeSource && <p className="text-dl-sm text-dl-text-medium mt-1">{activeSource.name}</p>}
         <p className="text-dl-sm text-dl-text-light mt-0.5">{new Date().toLocaleDateString()}</p>
-        <p className="text-[10px] text-dl-text-light mt-1">DataLaser Studio</p>
+        <p className="text-dl-xs text-dl-text-light mt-1">DataLaser Studio</p>
         <div className="h-px bg-dl-border my-6" />
       </div>
 
@@ -113,7 +113,7 @@ export default function OutputPanel({ cells, notebook, activeSource, onPublishIn
               {/* View code toggle */}
               {(cell.type === 'python' || cell.type === 'sql') && cell.code && (
                 <div className="no-print">
-                  <button onClick={() => toggleCode(cell.id)} className="text-[11px] text-dl-text-light hover:text-dl-brand mt-1 flex items-center gap-1">
+                  <button onClick={() => toggleCode(cell.id)} className="text-dl-xs text-dl-text-light hover:text-dl-brand mt-1 flex items-center gap-1">
                     {expandedCode.has(cell.id) ? <ChevronDown size={11} /> : <ChevronRight size={11} />} {t('studio.viewCode')}
                   </button>
                   {expandedCode.has(cell.id) && (
@@ -203,7 +203,7 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
           <p className="text-[15px] leading-[1.7] text-dl-text-dark">{output.interpretation}</p>
           {output.key_findings?.length > 0 && (
             <div className="mt-3 border-t border-dl-border pt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light mb-2">{t('studio.keyFindings')}</p>
+              <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light mb-2">{t('studio.keyFindings')}</p>
               <ul className="space-y-1.5">
                 {output.key_findings.map((f, i) => (
                   <li key={i} className="flex gap-2"><div className="w-1.5 h-1.5 rounded-full bg-dl-brand mt-2 flex-shrink-0" /><span className="text-dl-sm text-dl-text-dark">{f}</span></li>
@@ -224,19 +224,19 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
       {dfResult && (
         <div className="mb-4 overflow-x-auto">
           <table className="w-full border-collapse text-dl-sm">
-            <thead><tr>{dfResult.columns.map(c => <th key={c} className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">{c}</th>)}</tr></thead>
+            <thead><tr>{dfResult.columns.map(c => <th key={c} className="bg-slate-50 text-dl-xs uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">{c}</th>)}</tr></thead>
             <tbody>{dfResult.data.slice(0, 10).map((row, i) => (
               <tr key={i} className={i % 2 === 0 ? '' : 'bg-slate-50/30'}>{dfResult.columns.map(c => <td key={c} className="py-2 px-3 text-[12px] border-b border-slate-100 whitespace-nowrap">{String(row[c] ?? '')}</td>)}</tr>
             ))}</tbody>
           </table>
-          {dfResult.shape[0] > 10 && <p className="text-[11px] text-dl-text-light mt-1">Showing 10 of {dfResult.shape[0]} rows</p>}
+          {dfResult.shape[0] > 10 && <p className="text-dl-xs text-dl-text-light mt-1">Showing 10 of {dfResult.shape[0]} rows</p>}
         </div>
       )}
 
       {statsRows.length > 0 && (
         <div className="mb-4">
           <table className="w-full border-collapse text-dl-sm">
-            <thead><tr><th className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">Metric</th><th className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">Value</th></tr></thead>
+            <thead><tr><th className="bg-slate-50 text-dl-xs uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">Metric</th><th className="bg-slate-50 text-dl-xs uppercase tracking-wider text-slate-500 py-2 px-3 text-left border-b border-slate-200">Value</th></tr></thead>
             <tbody>{statsRows.map((r, i) => (
               <tr key={i} className="border-b border-slate-100">
                 <td className="py-2 px-3 text-dl-text-medium">{r.label}</td>
@@ -248,7 +248,7 @@ function CellOutputRender({ cell }: { cell: StudioCell }) {
       )}
 
       {output.stdout && (
-        <pre className="bg-slate-900 text-slate-300 font-mono text-[11px] p-4 rounded-dl-lg mb-4 max-h-32 overflow-y-auto">{output.stdout}</pre>
+        <pre className="bg-slate-900 text-slate-300 font-mono text-dl-xs p-4 rounded-dl-lg mb-4 max-h-32 overflow-y-auto">{output.stdout}</pre>
       )}
     </>
   )

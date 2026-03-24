@@ -140,9 +140,9 @@ export default function DataHealthPage() {
     return (
       <div className="max-w-3xl mx-auto px-6 py-16 text-center font-sans">
         <Loader2 className="w-10 h-10 text-dl-brand animate-spin mx-auto mb-4" />
-        <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Analysing your data</h2>
+        <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('health.analyzing')}</h2>
         <p className="text-dl-text-medium text-dl-sm">
-          Checking for missing values, type issues, outliers, and more...
+          {t('health.analyzingDesc')}
         </p>
         <div className="max-w-sm mx-auto mt-6 space-y-2">
           <div className="h-4 rounded-dl-md bg-dl-bg-medium animate-pulse" />
@@ -158,9 +158,9 @@ export default function DataHealthPage() {
     return (
       <div className="max-w-3xl mx-auto px-6 py-16 text-center font-sans">
         <XCircle className="w-10 h-10 text-dl-error mx-auto mb-4" />
-        <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Could not analyse data</h2>
+        <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('health.couldNotAnalyze')}</h2>
         <p className="text-dl-text-medium text-dl-sm mb-6">{error}</p>
-        <button onClick={() => window.location.reload()} className="dl-btn-primary">Try again</button>
+        <button onClick={() => window.location.reload()} className="dl-btn-primary">{t('health.tryAgain')}</button>
       </div>
     )
   }
@@ -217,7 +217,7 @@ export default function DataHealthPage() {
       {hasIssues && (
         <div className="mb-6">
           <p className="dl-section-header mb-3">
-            {issueCount} issue{issueCount !== 1 ? 's' : ''} found
+            {t('health.issuesFound', { count: issueCount })}
           </p>
           <div className="space-y-2">
             {profile.warnings.map((w, i) => (
@@ -258,7 +258,7 @@ export default function DataHealthPage() {
                   <tr key={col.name}>
                     <td className="font-bold text-dl-xs">{col.name}</td>
                     <td>
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${DTYPE_COLORS[col.dtype] || DTYPE_COLORS.text}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-dl-xs font-bold ${DTYPE_COLORS[col.dtype] || DTYPE_COLORS.text}`}>
                         {col.dtype}
                       </span>
                     </td>
@@ -270,7 +270,7 @@ export default function DataHealthPage() {
                             style={{ width: `${Math.min(col.null_rate * 100, 100)}%` }}
                           />
                         </div>
-                        <span className="text-[10px] text-dl-text-light">{(col.null_rate * 100).toFixed(1)}%</span>
+                        <span className="text-dl-xs text-dl-text-light">{(col.null_rate * 100).toFixed(1)}%</span>
                       </div>
                     </td>
                     <td>
@@ -290,11 +290,11 @@ export default function DataHealthPage() {
 
       {/* Decision CTAs */}
       <div className="border-t border-dl-border pt-6">
-        <h2 className="text-dl-lg font-black text-dl-text-dark mb-2">What would you like to do?</h2>
+        <h2 className="text-dl-lg font-black text-dl-text-dark mb-2">{t('health.whatToDo')}</h2>
         <p className="text-dl-text-medium text-dl-sm mb-5">
           {hasIssues
-            ? 'We found data quality issues. You can clean them before analysis, or explore the raw data.'
-            : 'Your data looks clean. You can explore it right away or run the full preparation pipeline.'}
+            ? t('health.issuesCTA')
+            : t('health.dataCleanCTA')}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -313,7 +313,7 @@ export default function DataHealthPage() {
             </p>
             <p className="text-dl-xs text-dl-text-medium">
               {hasIssues
-                ? t('studio.fixIssues', { count: String(issueCount) })
+                ? t('health.cleanFirstDesc')
                 : t('studio.runPipeline')}
             </p>
             {hasIssues && (redCount > 0 || amberCount > 0) && (
@@ -337,11 +337,11 @@ export default function DataHealthPage() {
               {t('health.skipExplore')}
             </p>
             <p className="text-dl-xs text-dl-text-medium">
-              Go straight to Ask Data with the raw dataset
+              {t('health.skipExploreDesc')}
             </p>
             {hasIssues && (
               <p className="text-dl-xs text-dl-text-light mt-2">
-                Quality warnings will be shown inline
+                {t('health.qualityWarnings')}
               </p>
             )}
           </button>

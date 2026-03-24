@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView } from 'motion/react'
 import {
-  ArrowRight, Check, ChevronDown, Database, Zap, BarChart3,
+  ArrowRight, Check, Database, Zap, BarChart3,
   Globe, Sparkles, TrendingUp, Search,
   Menu, X, Play, Shield,
 } from 'lucide-react'
@@ -14,6 +14,7 @@ import { Features } from '@/components/blocks/features-8'
 import { Testimonials } from '@/components/blocks/testimonials'
 import { FeaturesHow } from '@/components/blocks/features-10'
 import { HeroSection } from '@/components/blocks/hero-section'
+import { Faq5 } from '@/components/ui/faq-5'
 
 /* ── scroll-triggered reveal ── */
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -43,7 +44,6 @@ export default function LandingPage() {
   const locale = useLocale()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [annual, setAnnual] = useState(true)
-  const [faqOpen, setFaqOpen] = useState<number | null>(null)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -59,16 +59,16 @@ export default function LandingPage() {
   ]
 
   const faqs = locale === 'de' ? [
-    { q: 'Wie schnell kann ich starten?', a: 'In unter 2 Minuten. CSV hochladen oder Datenbank verbinden — erste Erkenntnisse in 10 Sekunden.' },
+    { q: 'Wie schnell kann ich starten?', a: 'In unter 2 Minuten. CSV hochladen oder Datenbank verbinden, erste Erkenntnisse in 10 Sekunden.' },
     { q: 'Brauche ich technische Kenntnisse?', a: 'Nein. Kein SQL, kein Code, kein Data Engineering. DataLaser analysiert Ihre Daten automatisch.' },
     { q: 'Wo werden meine Daten gespeichert?', a: 'Auf deutschen Servern. Vollständig DSGVO-konform.' },
-    { q: 'Kann ich DataLaser kostenlos testen?', a: 'Ja. Der Starter-Plan ist dauerhaft kostenlos — keine Kreditkarte erforderlich.' },
+    { q: 'Kann ich DataLaser kostenlos testen?', a: 'Ja. Der Starter-Plan ist dauerhaft kostenlos, keine Kreditkarte erforderlich.' },
     { q: 'Welche Datenquellen werden unterstützt?', a: 'CSV, Excel, JSON, PostgreSQL, MySQL, MongoDB, Snowflake, BigQuery, Redshift, Shopify, Stripe, Google Ads, Meta Ads, HubSpot, QuickBooks und mehr.' },
   ] : [
-    { q: 'How fast can I get started?', a: 'Under 2 minutes. Upload a CSV or connect a database — first insights in 10 seconds.' },
+    { q: 'How fast can I get started?', a: 'Under 2 minutes. Upload a CSV or connect a database. First insights in 10 seconds.' },
     { q: 'Do I need technical skills?', a: 'No. No SQL, no code, no data engineering. DataLaser analyzes your data automatically.' },
     { q: 'Where is my data stored?', a: 'On secure, SOC2-compliant infrastructure. Fully GDPR compliant.' },
-    { q: 'Can I try DataLaser for free?', a: 'Yes. The Starter plan is free forever — no credit card required.' },
+    { q: 'Can I try DataLaser for free?', a: 'Yes. The Starter plan is free forever. No credit card required.' },
     { q: 'What data sources are supported?', a: 'CSV, Excel, JSON, PostgreSQL, MySQL, MongoDB, Snowflake, BigQuery, Redshift, Shopify, Stripe, Google Ads, Meta Ads, HubSpot, QuickBooks and more.' },
   ]
 
@@ -127,6 +127,54 @@ export default function LandingPage() {
       <div id="features">
         <Features />
       </div>
+
+      {/* ━━ CONNECTORS ━━ */}
+      <section id="connectors" className="py-28 px-6">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <div className="text-center mb-14">
+              <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 mb-5">
+                {locale === 'de' ? 'Alle Ihre Datenquellen, ein Klick entfernt' : 'All your data sources, one click away'}
+              </h2>
+              <p className="text-gray-500 text-lg max-w-xl mx-auto">
+                {locale === 'de'
+                  ? 'Verbinden Sie Datenbanken, Data Warehouses, E-Commerce-Plattformen, Marketing-Tools und Finanzsysteme in Sekunden.'
+                  : 'Connect databases, data warehouses, e-commerce platforms, marketing tools, and finance systems in seconds.'}
+              </p>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[
+              { name: 'PostgreSQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg', cat: locale === 'de' ? 'Datenbank' : 'Database' },
+              { name: 'MySQL', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg', cat: locale === 'de' ? 'Datenbank' : 'Database' },
+              { name: 'MongoDB', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg', cat: 'NoSQL' },
+              { name: 'SQL Server', src: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoftsqlserver/microsoftsqlserver-original.svg', cat: locale === 'de' ? 'Datenbank' : 'Database' },
+              { name: 'Snowflake', src: 'https://cdn.simpleicons.org/snowflake/29B5E8', cat: 'Warehouse' },
+              { name: 'BigQuery', src: 'https://cdn.simpleicons.org/googlebigquery/669DF6', cat: 'Warehouse' },
+              { name: 'Redshift', src: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/amazonredshift.svg', cat: 'Warehouse' },
+              { name: 'Databricks', src: 'https://cdn.simpleicons.org/databricks/FF3621', cat: 'Lakehouse' },
+              { name: 'Shopify', src: 'https://cdn.simpleicons.org/shopify/7AB55C', cat: 'E-Commerce' },
+              { name: 'Stripe', src: 'https://cdn.simpleicons.org/stripe/635BFF', cat: locale === 'de' ? 'Zahlungen' : 'Payments' },
+              { name: 'Square', src: 'https://cdn.simpleicons.org/square/006AFF', cat: locale === 'de' ? 'Zahlungen' : 'Payments' },
+              { name: 'Google Ads', src: 'https://cdn.simpleicons.org/googleads/4285F4', cat: locale === 'de' ? 'Werbung' : 'Ads' },
+              { name: 'Meta Ads', src: 'https://cdn.simpleicons.org/meta/0081FB', cat: locale === 'de' ? 'Werbung' : 'Ads' },
+              { name: 'Google Analytics', src: 'https://cdn.simpleicons.org/googleanalytics/E37400', cat: 'Analytics' },
+              { name: 'QuickBooks', src: 'https://cdn.simpleicons.org/quickbooks/2CA01C', cat: locale === 'de' ? 'Buchhaltung' : 'Accounting' },
+              { name: 'Xero', src: 'https://cdn.simpleicons.org/xero/13B5EA', cat: locale === 'de' ? 'Buchhaltung' : 'Accounting' },
+              { name: 'Plaid', src: 'https://cdn.simpleicons.org/plaid/000000', cat: locale === 'de' ? 'Bankwesen' : 'Banking' },
+            ].map(c => (
+              <Reveal key={c.name} delay={0.02}>
+                <Link href={`/${locale}/signup`}
+                  className="flex flex-col items-center gap-2.5 p-5 rounded-2xl border border-gray-100 bg-white hover:border-gray-300 hover:shadow-md transition-all group cursor-pointer">
+                  <img src={c.src} alt={c.name} className="h-10 w-10 object-contain group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-gray-900">{c.name}</span>
+                  <span className="text-[11px] text-gray-400">{c.cat}</span>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ━━ HOW IT WORKS ━━ */}
       <FeaturesHow />
@@ -197,34 +245,14 @@ export default function LandingPage() {
       </section>
 
       {/* ━━ FAQ ━━ */}
-      <section className="py-28 px-6 bg-gray-50/70">
-        <div className="max-w-2xl mx-auto">
-          <Reveal>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-center text-gray-900 mb-14">
-              {locale === 'de' ? 'Häufige Fragen' : 'Frequently Asked Questions'}
-            </h2>
-          </Reveal>
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <Reveal key={i} delay={i * 0.04}>
-                <button onClick={() => setFaqOpen(faqOpen === i ? null : i)}
-                  className="w-full text-left bg-white border border-gray-100 rounded-2xl p-6 hover:border-gray-200 hover:shadow-sm transition-all">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="font-semibold text-gray-900">{faq.q}</span>
-                    <ChevronDown size={18} className={`text-gray-300 transition-transform flex-shrink-0 ${faqOpen === i ? 'rotate-180' : ''}`} />
-                  </div>
-                  {faqOpen === i && (
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className="text-gray-500 text-sm mt-4 leading-relaxed">
-                      {faq.a}
-                    </motion.p>
-                  )}
-                </button>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Faq5
+        badge={locale === 'de' ? 'FAQ' : 'FAQ'}
+        heading={locale === 'de' ? 'Häufige Fragen' : 'Frequently Asked Questions'}
+        description={locale === 'de'
+          ? 'Erfahren Sie alles Wichtige über DataLaser und wie es Ihrem Unternehmen helfen kann.'
+          : 'Find out all the essential details about DataLaser and how it can serve your business.'}
+        faqs={faqs.map(f => ({ question: f.q, answer: f.a }))}
+      />
 
       {/* ━━ CTA ━━ */}
       <section className="py-28 px-6 relative overflow-hidden">
@@ -265,7 +293,7 @@ export default function LandingPage() {
               <Globe size={14} />
               {locale === 'de' ? 'English' : 'Deutsch'}
             </Link>
-            <span className="text-xs text-gray-300">{t('landing.copyright')}</span>
+            <span className="text-xs text-gray-300">© 2025{new Date().getFullYear() > 2025 ? `–${new Date().getFullYear()}` : ''} DataLaser. {locale === 'de' ? 'Alle Rechte vorbehalten.' : 'All rights reserved.'}</span>
           </div>
         </div>
       </footer>

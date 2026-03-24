@@ -34,14 +34,14 @@ export default function SetupPage() {
       <StepIndicator current={1} labels={['You', 'Project', 'Data']} />
 
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
-        Welcome to DataLaser
+        {t('onboarding.welcome')}
       </h1>
       <p className="text-dl-text-medium text-dl-base mb-10">
-        Let&apos;s get you set up in under 2 minutes.
+        {t('onboarding.setupSubtitle')}
       </p>
 
       <div className="mb-6">
-        <label className="dl-label">Your name</label>
+        <label className="dl-label">{t('onboarding.yourName')}</label>
         <input
           className="dl-input"
           placeholder={t("onboarding.fullName")}
@@ -52,7 +52,7 @@ export default function SetupPage() {
       </div>
 
       <div className="mb-10">
-        <label className="dl-label">How are you using DataLaser?</label>
+        <label className="dl-label">{t('onboarding.howUsing')}</label>
         <div className="grid grid-cols-2 gap-3 mt-2">
           <button
             onClick={() => setMode('personal')}
@@ -64,9 +64,9 @@ export default function SetupPage() {
             `}
           >
             <User size={20} className={`mb-2 ${mode === 'personal' ? 'text-dl-brand' : 'text-dl-text-light'}`} />
-            <div className="text-dl-sm font-black text-dl-text-dark">Just me</div>
+            <div className="text-dl-sm font-black text-dl-text-dark">{t('onboarding.justMe')}</div>
             <div className="text-dl-xs text-dl-text-light mt-0.5">
-              Personal projects and analysis
+              {t('onboarding.justMeDesc')}
             </div>
           </button>
 
@@ -80,9 +80,9 @@ export default function SetupPage() {
             `}
           >
             <Users size={20} className={`mb-2 ${mode === 'team' ? 'text-dl-brand' : 'text-dl-text-light'}`} />
-            <div className="text-dl-sm font-black text-dl-text-dark">My team</div>
+            <div className="text-dl-sm font-black text-dl-text-dark">{t('onboarding.myTeam')}</div>
             <div className="text-dl-xs text-dl-text-light mt-0.5">
-              Collaborate with your organization
+              {t('onboarding.myTeamDesc')}
             </div>
           </button>
         </div>
@@ -94,7 +94,7 @@ export default function SetupPage() {
         className={`dl-btn-primary w-full py-2.5 text-dl-base font-black justify-center
           ${(!name.trim() || !mode || loading) ? 'opacity-40 cursor-not-allowed' : ''}`}
       >
-        {loading ? 'Setting up...' : 'Continue →'}
+        {loading ? t('onboarding.settingUp') : t('onboarding.continueArrow')}
       </button>
     </div>
   )

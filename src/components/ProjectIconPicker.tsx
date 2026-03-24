@@ -38,7 +38,7 @@ export function ProjectIconPicker({
                 className={active ? '' : 'text-dl-text-light'}
               />
             </div>
-            <span className={`text-[10px] font-bold ${active ? 'text-dl-brand' : 'text-dl-text-light'}`}>
+            <span className={`text-dl-xs font-bold ${active ? 'text-dl-brand' : 'text-dl-text-light'}`}>
               {label}
             </span>
           </button>

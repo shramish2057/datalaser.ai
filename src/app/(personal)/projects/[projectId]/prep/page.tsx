@@ -280,7 +280,7 @@ export default function DataPrepPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-3">
+      <div className="max-w-4xl mx-auto px-8 py-10 space-y-3">
         <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
         <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
         <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
@@ -289,9 +289,9 @@ export default function DataPrepPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
-      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Data Preparation</h1>
-      <p className="text-dl-text-light text-dl-sm mb-6">Clean, transform, and validate your data sources</p>
+    <div className="max-w-4xl mx-auto px-8 py-10">
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">{t('prep.title')}</h1>
+      <p className="text-dl-text-light text-dl-sm mb-6">{t('prep.subtitle')}</p>
 
       {/* Tabs */}
       <div className="flex gap-1 border-b border-dl-border mb-6">
@@ -304,7 +304,7 @@ export default function DataPrepPage() {
           >
             {t.label}
             {t.count > 0 && (
-              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold
+              <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-dl-xs font-bold
                 ${tab === t.key ? 'bg-dl-brand-hover text-dl-brand' : 'bg-dl-bg-medium text-dl-text-light'}`}>
                 {t.count}
               </span>
@@ -319,10 +319,10 @@ export default function DataPrepPage() {
         cleanedSources.length === 0 ? (
           <div className="text-center py-12">
             <CheckCircle2 size={32} className="text-dl-brand mx-auto mb-3" />
-            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">No cleaned datasets yet</p>
-            <p className="text-dl-text-light text-dl-xs mb-4">Prepare a data source to see your cleaned data here.</p>
+            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">{t('prep.noCleanedYet')}</p>
+            <p className="text-dl-text-light text-dl-xs mb-4">{t('prep.noCleanedDesc')}</p>
             <button onClick={() => setTab('prepare')} className="dl-btn-primary text-dl-xs">
-              Prepare a source <ArrowRight size={12} />
+              {t('prep.prepareSource')} <ArrowRight size={12} />
             </button>
           </div>
         ) : (
@@ -340,19 +340,19 @@ export default function DataPrepPage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-dl-sm font-black text-dl-text-dark">{src.name}</h3>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">Pipeline Ready</span>
+                          <span className="px-1.5 py-0.5 rounded text-dl-xs font-bold bg-green-100 text-green-700">{t('prep.pipelineReady')}</span>
                           {src.pipeline_status === 'scheduled' && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-brand-hover text-dl-brand">Auto-sync</span>
+                            <span className="px-1.5 py-0.5 rounded text-dl-xs font-bold bg-dl-brand-hover text-dl-brand">{t('prep.autoSync')}</span>
                           )}
                         </div>
                         <div className="flex items-center gap-3 mt-1 text-dl-xs text-dl-text-light">
                           {recipe?.last_quality_score != null && (
                             <span className="flex items-center gap-1">
-                              <BarChart2 size={10} /> Quality: <span className="font-bold text-dl-success">{recipe.last_quality_score}/100</span>
+                              <BarChart2 size={10} /> {t('prep.quality')} <span className="font-bold text-dl-success">{recipe.last_quality_score}/100</span>
                             </span>
                           )}
                           <span>{recipe?.last_row_count?.toLocaleString() ?? src.row_count.toLocaleString()} rows</span>
-                          {stepsCount > 0 && <span>{stepsCount} transform{stepsCount !== 1 ? 's' : ''}</span>}
+                          {stepsCount > 0 && <span>{t('prep.transforms', { count: stepsCount })}</span>}
                           {recipe?.last_run_at && (
                             <span className="flex items-center gap-1">
                               <Clock size={10} /> {formatDistanceToNow(new Date(recipe.last_run_at), { addSuffix: true })}
@@ -362,7 +362,7 @@ export default function DataPrepPage() {
                       </div>
                     </div>
                     <Link href={`${base}/prep/${src.id}`} className="dl-btn-secondary text-dl-xs">
-                      <RefreshCw size={12} /> Re-run
+                      <RefreshCw size={12} /> {t('prep.rerun')}
                     </Link>
                   </div>
                 </div>
@@ -385,8 +385,8 @@ export default function DataPrepPage() {
               >
                 <input {...getInputProps()} />
                 <UploadCloud className="w-8 h-8 text-dl-brand/60 mx-auto mb-2" />
-                <p className="text-dl-text-medium text-dl-sm font-bold">Upload a file to prepare</p>
-                <p className="text-dl-text-light text-dl-xs mt-1">Drop a CSV, Excel, or JSON file here</p>
+                <p className="text-dl-text-medium text-dl-sm font-bold">{t('prep.uploadFile')}</p>
+                <p className="text-dl-text-light text-dl-xs mt-1">{t('prep.dropzone')}</p>
               </div>
             ) : (
               <div className="dl-card p-5">
@@ -404,7 +404,7 @@ export default function DataPrepPage() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="dl-label">Source name</label>
+                  <label className="dl-label">{t('prep.sourceName')}</label>
                   <input
                     className="dl-input"
                     value={sourceName}
@@ -437,7 +437,7 @@ export default function DataPrepPage() {
           {/* Existing unprepared sources */}
           {unpreparedSources.length > 0 && (
             <div>
-              <p className="dl-section-header mb-3">Existing unprepared sources</p>
+              <p className="dl-section-header mb-3">{t('prep.existingSources')}</p>
               <div className="space-y-2">
                 {unpreparedSources.map(src => (
                   <div key={src.id} className="dl-card p-4">
@@ -453,7 +453,7 @@ export default function DataPrepPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Link href={`${base}/prep/${src.id}`} className="dl-btn-primary text-dl-xs py-1">
-                          Prepare
+                          {t('prep.prepare')}
                         </Link>
                         <button
                           onClick={() => handleDelete(src.id, src.name)}
@@ -477,8 +477,8 @@ export default function DataPrepPage() {
         runs.length === 0 ? (
           <div className="text-center py-12">
             <History size={32} className="text-dl-brand mx-auto mb-3" />
-            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">No pipeline runs yet</p>
-            <p className="text-dl-text-light text-dl-xs">Prepare a data source to see run history here.</p>
+            <p className="text-dl-text-dark text-dl-sm font-bold mb-1">{t('prep.noRuns')}</p>
+            <p className="text-dl-text-light text-dl-xs">{t('prep.noRunsDesc')}</p>
           </div>
         ) : (
           <div className="dl-card overflow-hidden">

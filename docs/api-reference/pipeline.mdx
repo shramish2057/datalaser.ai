@@ -1,0 +1,607 @@
+---
+title: "Pipeline"
+description: "Profile, transform, validate, and join data sources through the DataLaser pipeline."
+---
+
+## Overview
+
+The pipeline service handles all data processing operations: profiling, transformations, validation, and multi-source joins. Requests are proxied through `https://datalaser.de/api` to the underlying FastAPI service.
+
+---
+
+## Profile File
+
+Generate a statistical profile for an uploaded file source. Returns column-level statistics, type inference, and data quality metrics.
+
+```
+POST /api/pipeline/profile
+```
+
+### Request
+
+Content type: `multipart/form-data`
+
+<ParamField body="file" type="file" required>
+  The file to profile. Supported: CSV, TSV, Excel, Parquet, JSON.
+</ParamField>
+
+<ParamField body="sample_rows" type="integer">
+  Number of rows to sample for profiling. Defaults to `10000`. Set to `0` for full scan.
+</ParamField>
+
+<ParamField body="detect_pii" type="boolean">
+  Enable PII detection (email, phone, SSN patterns). Defaults to `false`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "row_count": 12450,
+  "column_count": 18,
+  "file_size_bytes": 2457600,
+  "columns": [
+    {
+      "name": "revenue",
+      "inferred_type": "float64",
+      "null_count": 23,
+      "null_pct": 0.18,
+      "unique_count": 11200,
+      "mean": 4521.37,
+      "median": 3800.00,
+      "std": 2105.44,
+      "min": 12.50,
+      "max": 98500.00,
+      "p25": 2100.00,
+      "p75": 5900.00,
+      "histogram": { "bins": [0, 10000, 20000, 30000], "counts": [8200, 3100, 950, 200] }
+    },
+    {
+      "name": "region",
+      "inferred_type": "string",
+      "null_count": 0,
+      "null_pct": 0.0,
+      "unique_count": 5,
+      "top_values": [
+        { "value": "DACH", "count": 4500 },
+        { "value": "Nordics", "count": 3200 },
+        { "value": "Benelux", "count": 2800 }
+      ]
+    }
+  ],
+  "quality_score": 87.4,
+  "warnings": [
+    { "column": "revenue", "issue": "MISSING_VALUES", "severity": "low" }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/profile \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -F "file=@sales_2024.csv" \
+  -F "sample_rows=5000" \
+  -F "detect_pii=true"
+```
+
+### Errors
+
+| Status | Code               | Description                        |
+|--------|--------------------|------------------------------------|
+| `400`  | `INVALID_FORMAT`   | Unsupported file format.           |
+| `413`  | `FILE_TOO_LARGE`   | File exceeds the size limit.       |
+| `422`  | `PROFILE_ERROR`    | File could not be profiled.        |
+
+---
+
+## Profile Database
+
+Generate a statistical profile for a connected database table.
+
+```
+POST /api/pipeline/profile-db
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The database source UUID.
+</ParamField>
+
+<ParamField body="table" type="string" required>
+  Table name to profile.
+</ParamField>
+
+<ParamField body="schema" type="string">
+  Database schema. Defaults to `public`.
+</ParamField>
+
+<ParamField body="sample_rows" type="integer">
+  Number of rows to sample. Defaults to `10000`.
+</ParamField>
+
+### Response
+
+The response shape is identical to [Profile File](#profile-file), with an additional `table` field:
+
+```json
+{
+  "table": "orders",
+  "schema": "public",
+  "row_count": 284000,
+  "column_count": 12,
+  "columns": [ "..." ],
+  "quality_score": 92.1,
+  "warnings": []
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/profile-db \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_d4e5f6a7",
+    "table": "orders",
+    "sample_rows": 20000
+  }'
+```
+
+### Errors
+
+| Status | Code                | Description                           |
+|--------|---------------------|---------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`  | Source ID does not exist.             |
+| `404`  | `TABLE_NOT_FOUND`   | Table does not exist in the database. |
+| `422`  | `PROFILE_ERROR`     | Profiling failed.                     |
+
+---
+
+## Apply Transformations
+
+Apply one or more transformation operations to a data source. DataLaser supports 16 transformation types.
+
+```
+POST /api/pipeline/transform
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="operations" type="array" required>
+  Array of transformation operations to apply in order.
+
+  Each operation is an object with a `type` and type-specific `params`.
+</ParamField>
+
+**Supported operation types:**
+
+| Type                  | Description                                          |
+|-----------------------|------------------------------------------------------|
+| `rename_column`       | Rename a column.                                     |
+| `drop_column`         | Remove a column.                                     |
+| `cast_type`           | Cast column to a new data type.                      |
+| `fill_missing`        | Fill null values (mean, median, mode, constant).     |
+| `drop_missing`        | Drop rows where specified columns are null.          |
+| `drop_duplicates`     | Remove duplicate rows by subset of columns.          |
+| `filter_rows`         | Filter rows by a condition expression.               |
+| `sort`                | Sort by one or more columns.                         |
+| `add_computed_column`  | Create a column from an expression.                 |
+| `normalize`           | Min-max or z-score normalization.                    |
+| `bin`                 | Bin a numeric column into intervals.                 |
+| `one_hot_encode`      | One-hot encode a categorical column.                 |
+| `extract_date_part`   | Extract year, month, day, etc. from a date column.   |
+| `string_transform`    | Trim, lowercase, uppercase, regex replace.           |
+| `pivot`               | Pivot long to wide format.                           |
+| `unpivot`             | Melt wide to long format.                            |
+
+### Example Request Body
+
+```json
+{
+  "source_id": "src_8f3a1b2c",
+  "operations": [
+    {
+      "type": "fill_missing",
+      "params": { "column": "revenue", "strategy": "median" }
+    },
+    {
+      "type": "drop_duplicates",
+      "params": { "subset": ["order_id"] }
+    },
+    {
+      "type": "add_computed_column",
+      "params": {
+        "name": "revenue_per_unit",
+        "expression": "revenue / quantity"
+      }
+    },
+    {
+      "type": "filter_rows",
+      "params": { "condition": "revenue > 0" }
+    }
+  ]
+}
+```
+
+### Response
+
+```json
+{
+  "source_id": "src_8f3a1b2c",
+  "version": 2,
+  "operations_applied": 4,
+  "row_count_before": 12450,
+  "row_count_after": 12103,
+  "columns_before": 18,
+  "columns_after": 19,
+  "preview": [
+    { "order_id": 1001, "revenue": 4250.00, "revenue_per_unit": 85.00 },
+    { "order_id": 1002, "revenue": 12800.50, "revenue_per_unit": 256.01 }
+  ],
+  "audit_log": [
+    { "type": "fill_missing", "column": "revenue", "rows_affected": 23 },
+    { "type": "drop_duplicates", "rows_removed": 324 },
+    { "type": "add_computed_column", "column_added": "revenue_per_unit" },
+    { "type": "filter_rows", "rows_removed": 0 }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/transform \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "operations": [
+      { "type": "fill_missing", "params": { "column": "revenue", "strategy": "median" } },
+      { "type": "drop_duplicates", "params": { "subset": ["order_id"] } }
+    ]
+  }'
+```
+
+### Errors
+
+| Status | Code                   | Description                                  |
+|--------|------------------------|----------------------------------------------|
+| `400`  | `INVALID_OPERATION`    | Unknown transformation type.                 |
+| `404`  | `SOURCE_NOT_FOUND`     | Source ID does not exist.                    |
+| `422`  | `TRANSFORM_ERROR`      | Transformation failed (e.g. column not found).|
+
+---
+
+## Get Transformation Suggestions
+
+Use AI to suggest transformations based on the source profile.
+
+```
+POST /api/pipeline/suggestions
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="column_profiles" type="array">
+  Pre-computed column profiles. If omitted, the service profiles the source first.
+</ParamField>
+
+<ParamField body="goal" type="string">
+  Optional plain-language goal, e.g. `"prepare for time series forecasting"`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "suggestions": [
+    {
+      "priority": 1,
+      "type": "fill_missing",
+      "params": { "column": "revenue", "strategy": "median" },
+      "reason": "23 missing values (0.18%) in numeric column. Median fill preserves distribution.",
+      "impact": "high"
+    },
+    {
+      "priority": 2,
+      "type": "drop_duplicates",
+      "params": { "subset": ["order_id"] },
+      "reason": "324 duplicate rows detected on order_id.",
+      "impact": "high"
+    },
+    {
+      "priority": 3,
+      "type": "cast_type",
+      "params": { "column": "created_at", "target_type": "datetime" },
+      "reason": "Column contains ISO 8601 strings that should be parsed as datetime.",
+      "impact": "medium"
+    }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/suggestions \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "goal": "prepare for regression analysis"
+  }'
+```
+
+### Errors
+
+| Status | Code                | Description                        |
+|--------|---------------------|------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`  | Source ID does not exist.          |
+| `422`  | `SUGGESTION_ERROR`  | Could not generate suggestions.    |
+
+---
+
+## Run Validations
+
+Run data quality validations across 8 categories.
+
+```
+POST /api/pipeline/validate
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="categories" type="array">
+  Array of validation categories to run. Defaults to all 8.
+
+  Valid values: `completeness`, `uniqueness`, `consistency`, `accuracy`, `timeliness`, `format`, `range`, `referential`.
+</ParamField>
+
+<ParamField body="rules" type="array">
+  Optional custom validation rules to apply in addition to automatic checks.
+</ParamField>
+
+### Response
+
+```json
+{
+  "source_id": "src_8f3a1b2c",
+  "overall_score": 87.4,
+  "categories": {
+    "completeness": {
+      "score": 95.2,
+      "checks": 18,
+      "passed": 17,
+      "failed": 1,
+      "findings": [
+        {
+          "column": "revenue",
+          "check": "null_ratio",
+          "threshold": 0.01,
+          "actual": 0.0018,
+          "status": "warning",
+          "message": "0.18% null values detected."
+        }
+      ]
+    },
+    "uniqueness": {
+      "score": 78.0,
+      "checks": 12,
+      "passed": 9,
+      "failed": 3,
+      "findings": [
+        {
+          "column": "order_id",
+          "check": "duplicate_rows",
+          "expected": 0,
+          "actual": 324,
+          "status": "fail",
+          "message": "324 duplicate values in primary key column."
+        }
+      ]
+    }
+  },
+  "total_checks": 96,
+  "total_passed": 84,
+  "total_failed": 12
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/validate \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "categories": ["completeness", "uniqueness", "consistency"]
+  }'
+```
+
+### Errors
+
+| Status | Code                 | Description                         |
+|--------|----------------------|-------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`   | Source ID does not exist.           |
+| `422`  | `VALIDATION_ERROR`   | Validation could not be executed.   |
+
+---
+
+## Detect Join Keys
+
+Use RapidFuzz fuzzy matching to detect potential join keys between two data sources.
+
+```
+POST /api/pipeline/join/detect
+```
+
+### Request
+
+<ParamField body="left_source_id" type="string" required>
+  The UUID of the left data source.
+</ParamField>
+
+<ParamField body="right_source_id" type="string" required>
+  The UUID of the right data source.
+</ParamField>
+
+<ParamField body="threshold" type="number">
+  Minimum similarity score (0.0 to 1.0) for fuzzy matching. Defaults to `0.8`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "candidates": [
+    {
+      "left_column": "customer_id",
+      "right_column": "cust_id",
+      "match_type": "exact",
+      "similarity": 1.0,
+      "sample_matches": 4500,
+      "confidence": "high"
+    },
+    {
+      "left_column": "company_name",
+      "right_column": "customer_name",
+      "match_type": "fuzzy",
+      "similarity": 0.87,
+      "sample_matches": 3200,
+      "confidence": "medium"
+    }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/join/detect \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "left_source_id": "src_8f3a1b2c",
+    "right_source_id": "src_a1b2c3d4",
+    "threshold": 0.75
+  }'
+```
+
+### Errors
+
+| Status | Code                | Description                        |
+|--------|---------------------|------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`  | One or both source IDs not found.  |
+| `422`  | `DETECTION_ERROR`   | Join key detection failed.         |
+
+---
+
+## Apply Join
+
+Merge two data sources on specified keys.
+
+```
+POST /api/pipeline/join/apply
+```
+
+### Request
+
+<ParamField body="left_source_id" type="string" required>
+  The UUID of the left data source.
+</ParamField>
+
+<ParamField body="right_source_id" type="string" required>
+  The UUID of the right data source.
+</ParamField>
+
+<ParamField body="join_type" type="string" required>
+  Join strategy. One of: `inner`, `left`, `right`, `outer`, `cross`.
+</ParamField>
+
+<ParamField body="keys" type="array" required>
+  Array of key pairs. Each object has `left` and `right` column names.
+</ParamField>
+
+<ParamField body="fuzzy" type="boolean">
+  Enable fuzzy matching on join keys. Defaults to `false`.
+</ParamField>
+
+<ParamField body="fuzzy_threshold" type="number">
+  Similarity threshold for fuzzy joins. Defaults to `0.85`.
+</ParamField>
+
+<ParamField body="output_name" type="string">
+  Name for the resulting merged source. Defaults to `"merged_<timestamp>"`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "source_id": "src_merged_e5f6a7b8",
+  "name": "sales_customers_merged",
+  "row_count": 11800,
+  "column_count": 26,
+  "join_type": "inner",
+  "keys": [
+    { "left": "customer_id", "right": "cust_id" }
+  ],
+  "match_stats": {
+    "matched_rows": 11800,
+    "left_unmatched": 650,
+    "right_unmatched": 200
+  },
+  "created_at": "2026-03-24T10:45:00Z"
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/join/apply \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "left_source_id": "src_8f3a1b2c",
+    "right_source_id": "src_a1b2c3d4",
+    "join_type": "inner",
+    "keys": [
+      { "left": "customer_id", "right": "cust_id" }
+    ],
+    "fuzzy": false,
+    "output_name": "sales_customers_merged"
+  }'
+```
+
+### Errors
+
+| Status | Code                | Description                          |
+|--------|---------------------|--------------------------------------|
+| `400`  | `INVALID_JOIN_TYPE` | Unsupported join type.               |
+| `404`  | `SOURCE_NOT_FOUND`  | One or both source IDs not found.    |
+| `422`  | `JOIN_ERROR`        | Join operation failed.               |
+| `422`  | `KEY_NOT_FOUND`     | Specified join key column not found. |

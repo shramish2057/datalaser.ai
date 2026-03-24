@@ -114,7 +114,7 @@ export default function ProjectHomePage() {
   const hasInsights = topInsights.length > 0
 
   return (
-    <div className="max-w-4xl mx-auto px-8 py-8">
+    <div className="max-w-4xl mx-auto px-8 py-10">
       {/* Project header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
@@ -150,7 +150,7 @@ export default function ProjectHomePage() {
               <Zap size={14} className="text-dl-brand" /> {t('home.topInsights')}
             </h2>
             <button onClick={() => router.push(`${base}/insights`)}
-              className="text-[11px] text-dl-brand hover:underline flex items-center gap-1">
+              className="text-dl-xs text-dl-brand hover:underline flex items-center gap-1">
               {t('common.viewAll')} <ArrowRight size={10} />
             </button>
           </div>
@@ -164,9 +164,9 @@ export default function ProjectHomePage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(ins.headline, locale)}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] text-dl-text-light">{ins.source_name}</span>
-                      <span className="text-[10px] text-dl-text-light">•</span>
-                      <span className="text-[10px] text-dl-text-light">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
+                      <span className="text-dl-xs text-dl-text-light">{ins.source_name}</span>
+                      <span className="text-dl-xs text-dl-text-light">•</span>
+                      <span className="text-dl-xs text-dl-text-light">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
                     </div>
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export default function ProjectHomePage() {
               <Database size={14} className="text-dl-text-light" /> {t('home.dataSources')}
             </h2>
             <button onClick={() => router.push(`${base}/sources`)}
-              className="text-[11px] text-dl-brand hover:underline flex items-center gap-1">
+              className="text-dl-xs text-dl-brand hover:underline flex items-center gap-1">
               {t('common.manage')} <ArrowRight size={10} />
             </button>
           </div>
@@ -198,9 +198,9 @@ export default function ProjectHomePage() {
                     src.status === 'ready' ? 'bg-dl-success' : src.insight_count > 0 ? 'bg-dl-brand' : 'bg-dl-border-dark'
                   }`} />
                   <span className="text-[13px] font-medium text-dl-text-dark truncate">{src.name}</span>
-                  <span className="text-[10px] text-dl-text-light uppercase ml-auto">{src.source_type}</span>
+                  <span className="text-dl-xs text-dl-text-light uppercase ml-auto">{src.source_type}</span>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] text-dl-text-light">
+                <div className="flex items-center gap-3 text-dl-xs text-dl-text-light">
                   {src.row_count > 0 && <span>{src.row_count.toLocaleString()} rows</span>}
                   {src.insight_count > 0 && (
                     <span className="text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
@@ -230,7 +230,7 @@ export default function ProjectHomePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-dl-sm font-black text-dl-text-dark mb-0.5">{action.label}</p>
-                <p className="text-[11px] text-dl-text-medium">{action.desc}</p>
+                <p className="text-dl-xs text-dl-text-medium">{action.desc}</p>
               </div>
             </button>
           ))}

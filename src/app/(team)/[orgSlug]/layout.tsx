@@ -1,5 +1,6 @@
 'use client'
 import { useTranslations } from 'next-intl'
+import { Logo } from '@/components/Logo'
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -102,13 +103,13 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
   return (
     <div className="flex h-screen bg-dl-bg-light overflow-hidden font-sans">
       <aside className={`
-        ${sidebarExpanded ? 'w-[220px]' : 'w-[52px]'}
+        ${sidebarExpanded ? 'w-[260px]' : 'w-[52px]'}
         flex-shrink-0 h-screen bg-dl-bg border-r border-dl-border
         flex flex-col transition-all duration-150
       `}>
         {/* Org header */}
         <div className={`
-          h-[65px] flex items-center border-b border-dl-border flex-shrink-0
+          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
           ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
         `}>
           {sidebarExpanded ? (
@@ -119,9 +120,8 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
                 </div>
                 <span className="font-black text-dl-text-dark text-dl-sm truncate">{org?.name}</span>
               </div>
-              <div className="flex items-center gap-1 mt-0.5 ml-9">
-                <span className="text-dl-brand text-[10px] font-black">▲</span>
-                <span className="text-dl-text-light text-[10px] font-bold">DataLaser</span>
+              <div className="mt-0.5 ml-9">
+                <Logo size="sm" />
               </div>
             </div>
           ) : (
@@ -143,7 +143,7 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
                 key={ws.id}
                 href={`/${orgSlug}/${ws.slug}`}
                 className={`
-                  relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                  relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-2.5' : 'justify-center'}
                   ${active
@@ -177,7 +177,7 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
                 key={item.label}
                 href={item.href}
                 className={`
-                  relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                  relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-2.5' : 'justify-center'}
                   ${active
@@ -207,13 +207,13 @@ function OrgShell({ orgSlug, children }: { orgSlug: string; children: React.Reac
           )}
 
           <button onClick={toggleSidebar}
-            className="flex items-center justify-center w-full h-[36px]
+            className="flex items-center justify-center w-full h-[40px]
               text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light transition-colors">
             {sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
           </button>
 
           <button onClick={logout}
-            className={`flex items-center h-[36px] w-full font-bold text-dl-sm
+            className={`flex items-center h-[40px] w-full font-bold text-dl-sm
               text-dl-text-light hover:text-red-500 hover:bg-red-50 transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}`}>
             <LogOut size={15} className="flex-shrink-0" />

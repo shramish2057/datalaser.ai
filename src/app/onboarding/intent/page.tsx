@@ -28,23 +28,29 @@ type ConnectInfo = {
   connectedSources: string[]
 }
 
-const CHART_TYPES = [
-  { id: 'bar', label: 'Bar Chart', icon: '▬', desc: 'Compare values across categories' },
-  { id: 'line', label: 'Line Chart', icon: '📈', desc: 'Show trends over time' },
-  { id: 'area', label: 'Area Chart', icon: '◭', desc: 'Trends with filled area' },
-  { id: 'pie', label: 'Pie / Donut', icon: '◕', desc: 'Show proportions of a whole' },
-  { id: 'scatter', label: 'Scatter Plot', icon: '⁘', desc: 'Find correlations between variables' },
-  { id: 'heatmap', label: 'Heatmap', icon: '▦', desc: 'Show intensity across two dimensions' },
-  { id: 'funnel', label: 'Funnel', icon: '⬡', desc: 'Show conversion or drop-off stages' },
-  { id: 'table', label: 'Data Table', icon: '⊞', desc: 'Browse and filter raw data' },
-  { id: 'stacked_bar', label: 'Stacked Bar', icon: '▬', desc: 'Compare parts of a whole across categories' },
-]
+const CHART_ICONS: Record<string, string> = {
+  bar: '▬', line: '📈', area: '◭', pie: '◕', scatter: '⁘',
+  heatmap: '▦', funnel: '⬡', table: '⊞', stacked_bar: '▬',
+}
 
 // step: 'configure' = axes/charts/question, 'health' = data quality results
 type PageStep = 'configure' | 'saving' | 'profiling' | 'health'
 
 export default function IntentPage() {
   const t = useTranslations()
+
+  const CHART_TYPES = [
+    { id: 'bar', label: t('onboarding.chartBar'), icon: CHART_ICONS.bar, desc: t('onboarding.chartBarDesc') },
+    { id: 'line', label: t('onboarding.chartLine'), icon: CHART_ICONS.line, desc: t('onboarding.chartLineDesc') },
+    { id: 'area', label: t('onboarding.chartArea'), icon: CHART_ICONS.area, desc: t('onboarding.chartAreaDesc') },
+    { id: 'pie', label: t('onboarding.chartPie'), icon: CHART_ICONS.pie, desc: t('onboarding.chartPieDesc') },
+    { id: 'scatter', label: t('onboarding.chartScatter'), icon: CHART_ICONS.scatter, desc: t('onboarding.chartScatterDesc') },
+    { id: 'heatmap', label: t('onboarding.chartHeatmap'), icon: CHART_ICONS.heatmap, desc: t('onboarding.chartHeatmapDesc') },
+    { id: 'funnel', label: t('onboarding.chartFunnel'), icon: CHART_ICONS.funnel, desc: t('onboarding.chartFunnelDesc') },
+    { id: 'table', label: t('onboarding.chartTable'), icon: CHART_ICONS.table, desc: t('onboarding.chartTableDesc') },
+    { id: 'stacked_bar', label: t('onboarding.chartStacked'), icon: CHART_ICONS.stacked_bar, desc: t('onboarding.chartStackedDesc') },
+  ]
+
   const router = useRouter()
   const [connectInfo, setConnectInfo] = useState<ConnectInfo | null>(null)
   const [question, setQuestion] = useState('')
@@ -259,7 +265,7 @@ export default function IntentPage() {
 
   return (
     <div className="max-w-2xl mx-auto pt-12 px-6 pb-24">
-      <StepIndicator current={currentStep} labels={['Workspace', 'Connect', 'Configure', 'Data Health']} />
+      <StepIndicator current={currentStep} labels={[t('onboarding.stepWorkspace'), t('onboarding.stepConnect'), t('onboarding.stepConfigure'), t('onboarding.stepDataHealth')]} />
 
       {/* ════════════════════════════════════════════════════════════
           STEP 3: CONFIGURE
@@ -267,17 +273,15 @@ export default function IntentPage() {
       {pageStep === 'configure' && (
         <>
           <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
-            What do you want to understand?
+            {t('onboarding.whatToUnderstand')}
           </h1>
           <p className="text-dl-text-medium text-dl-base mb-8">
-            We detected {file?.columns.length} columns and {file?.rows.toLocaleString()} rows
-            in <span className="font-bold text-dl-text-dark">{file?.name}</span>.
-            Tell us what you want to explore.
+            {t('onboarding.detectedColumnsDesc', { cols: file?.columns.length ?? 0, rows: file?.rows.toLocaleString() ?? '0', name: file?.name ?? '' })}
           </p>
 
           {/* Detected columns */}
           <div className="dl-card p-4 mb-6">
-            <p className="dl-section-header mb-3">Detected columns</p>
+            <p className="dl-section-header mb-3">{t('onboarding.detectedColumns')}</p>
             <div className="flex flex-wrap gap-2">
               {file?.columns.map(col => (
                 <span key={col.name} className={`
@@ -298,7 +302,7 @@ export default function IntentPage() {
 
           {/* Question */}
           <div className="mb-6">
-            <label className="dl-label">What question do you want answered? (optional)</label>
+            <label className="dl-label">{t('onboarding.questionLabel')}</label>
             <textarea
               className="dl-input min-h-[80px] resize-none"
               placeholder={t("studio.askPlaceholder")}
@@ -306,7 +310,7 @@ export default function IntentPage() {
               onChange={e => setQuestion(e.target.value)}
             />
             <p className="text-dl-text-light text-dl-xs mt-1">
-              Leave blank and we&apos;ll auto-generate the most interesting analysis.
+              {t('onboarding.questionHelp')}
             </p>
           </div>
 
@@ -314,7 +318,7 @@ export default function IntentPage() {
           {categoricalCols.length > 0 && numericCols.length > 0 && (
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="dl-label">X Axis (categories / time)</label>
+                <label className="dl-label">{t('onboarding.xAxisLabel')}</label>
                 <select className="dl-input" value={xAxis} onChange={e => setXAxis(e.target.value)}>
                   <option value="">{t("common.autoDetect")}</option>
                   {[...categoricalCols, ...file?.columns.filter(c => c.dtype === 'id') ?? []].map(c => (
@@ -323,7 +327,7 @@ export default function IntentPage() {
                 </select>
               </div>
               <div>
-                <label className="dl-label">Y Axis (values to measure)</label>
+                <label className="dl-label">{t('onboarding.yAxisLabel')}</label>
                 <select className="dl-input" value={yAxis} onChange={e => setYAxis(e.target.value)}>
                   <option value="">{t("common.autoDetect")}</option>
                   {numericCols.map(c => (
@@ -336,7 +340,7 @@ export default function IntentPage() {
 
           {/* Chart types */}
           <div className="mb-8">
-            <label className="dl-label">Preferred visualisation types (select all that apply)</label>
+            <label className="dl-label">{t('onboarding.vizTypesLabel')}</label>
             <div className="grid grid-cols-3 gap-2 mt-2">
               {CHART_TYPES.map(chart => (
                 <button
@@ -365,13 +369,13 @@ export default function IntentPage() {
           {/* Bottom bar */}
           <div className="fixed bottom-0 left-0 right-0 bg-dl-bg border-t border-dl-border px-8 py-3 flex items-center justify-between z-40">
             <span className="text-dl-text-medium text-dl-sm">
-              Ready to analyse <span className="font-bold text-dl-text-dark">{file?.name}</span>
+              {t('onboarding.readyToAnalyse')} <span className="font-bold text-dl-text-dark">{file?.name}</span>
             </span>
             <button
               onClick={handleAnalyse}
               className="dl-btn-primary px-8 py-2 text-dl-base font-black"
             >
-              Analyse data <ArrowRight size={16} />
+              {t('onboarding.analyseData')} <ArrowRight size={16} />
             </button>
           </div>
         </>
@@ -384,12 +388,12 @@ export default function IntentPage() {
         <div className="text-center py-16">
           <Loader2 className="w-10 h-10 text-dl-brand animate-spin mx-auto mb-4" />
           <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">
-            {pageStep === 'saving' ? 'Saving your data...' : 'Analysing data quality...'}
+            {pageStep === 'saving' ? t('onboarding.savingData') : t('onboarding.analysingQuality')}
           </h2>
           <p className="text-dl-text-medium text-dl-sm">
             {pageStep === 'saving'
-              ? 'Uploading to secure storage'
-              : 'Checking for missing values, type issues, outliers, and more'}
+              ? t('onboarding.uploadingStorage')
+              : t('onboarding.checkingQuality')}
           </p>
           <div className="max-w-sm mx-auto mt-6 space-y-2">
             <div className="h-4 rounded-dl-md bg-dl-bg-medium animate-pulse" />
@@ -405,7 +409,7 @@ export default function IntentPage() {
       {pageStep === 'health' && (
         <div>
           <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
-            Data Health Report
+            {t('onboarding.dataHealthReport')}
           </h1>
           <p className="text-dl-text-medium text-dl-base mb-6">
             {file?.name}
@@ -428,9 +432,9 @@ export default function IntentPage() {
                         pipelineProfile.quality_level === 'amber' ? 'bg-orange-100 text-orange-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {pipelineProfile.quality_level === 'good' ? 'Good' :
-                         pipelineProfile.quality_level === 'yellow' ? 'Minor issues' :
-                         pipelineProfile.quality_level === 'amber' ? 'Issues found' : 'Significant issues'}
+                        {pipelineProfile.quality_level === 'good' ? t('onboarding.qualityGood') :
+                         pipelineProfile.quality_level === 'yellow' ? t('onboarding.qualityMinor') :
+                         pipelineProfile.quality_level === 'amber' ? t('onboarding.qualityIssues') : t('onboarding.qualitySignificant')}
                       </span>
                     </div>
                   </div>
@@ -452,7 +456,7 @@ export default function IntentPage() {
               {pipelineProfile.warnings.length > 0 && (
                 <div className="mb-6 space-y-2">
                   <p className="dl-section-header mb-2">
-                    {pipelineProfile.warnings.length} issue{pipelineProfile.warnings.length !== 1 ? 's' : ''} found
+                    {t('onboarding.issuesFound', { count: pipelineProfile.warnings.length })}
                   </p>
                   {pipelineProfile.warnings.map((w, i) => (
                     <div key={i} className={`flex items-start gap-3 p-3 rounded-dl-md border ${
@@ -479,8 +483,8 @@ export default function IntentPage() {
                 <div className="mb-6 p-4 rounded-dl-md bg-green-50 border border-dl-success flex items-center gap-3">
                   <CheckCircle2 size={20} className="text-dl-success" />
                   <div>
-                    <p className="text-dl-sm font-black text-green-700">No data quality issues found</p>
-                    <p className="text-dl-xs text-green-600">Your data looks clean and ready for analysis.</p>
+                    <p className="text-dl-sm font-black text-green-700">{t('onboarding.noIssuesFound')}</p>
+                    <p className="text-dl-xs text-green-600">{t('onboarding.dataLooksClean')}</p>
                   </div>
                 </div>
               )}
@@ -492,7 +496,7 @@ export default function IntentPage() {
                 <AlertTriangle size={18} className="text-orange-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-dl-sm font-black text-orange-800">{error}</p>
-                  <p className="text-dl-xs text-orange-600 mt-1">You can still explore your data — quality checks will be available later.</p>
+                  <p className="text-dl-xs text-orange-600 mt-1">{t('onboarding.qualityLater')}</p>
                 </div>
               </div>
             )
@@ -500,11 +504,11 @@ export default function IntentPage() {
 
           {/* ── Decision CTAs ───────────────────────────────────── */}
           <div className="border-t border-dl-border pt-6 mt-6">
-            <h2 className="text-dl-lg font-black text-dl-text-dark mb-2">What would you like to do?</h2>
+            <h2 className="text-dl-lg font-black text-dl-text-dark mb-2">{t('onboarding.whatToDo')}</h2>
             <p className="text-dl-text-medium text-dl-sm mb-5">
               {pipelineProfile && pipelineProfile.warnings.length > 0
-                ? 'We found data quality issues. You can clean them before analysis, or explore the raw data.'
-                : 'Your data is ready. You can explore it right away or run the preparation pipeline.'}
+                ? t('onboarding.issuesCTA')
+                : t('onboarding.noIssuesCTA')}
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -523,10 +527,10 @@ export default function IntentPage() {
                 </div>
                 <p className={`text-dl-sm font-black mb-1 ${
                   pipelineProfile && pipelineProfile.warnings.length > 0 ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
-                  Clean &amp; prepare first
+                  {t('onboarding.cleanFirst')}
                 </p>
                 <p className="text-dl-xs text-dl-text-medium">
-                  Fix issues with AI-suggested transformations
+                  {t('onboarding.cleanFirstDesc')}
                 </p>
               </button>
 
@@ -536,15 +540,15 @@ export default function IntentPage() {
                 <div className="w-10 h-10 rounded-dl-md flex items-center justify-center mb-3 bg-dl-bg-medium group-hover:bg-dl-brand transition-colors">
                   <MessageSquare size={18} className="text-dl-text-light group-hover:text-white" />
                 </div>
-                <p className="text-dl-sm font-black text-dl-text-dark mb-1">Skip, explore as-is</p>
-                <p className="text-dl-xs text-dl-text-medium">Go straight to Ask Data with the raw dataset</p>
+                <p className="text-dl-sm font-black text-dl-text-dark mb-1">{t('onboarding.skipExplore')}</p>
+                <p className="text-dl-xs text-dl-text-medium">{t('onboarding.skipExploreDesc')}</p>
               </button>
             </div>
 
             <div className="mt-4 text-center">
               <button onClick={goToInsights}
                 className="text-dl-xs font-bold text-dl-text-light hover:text-dl-brand transition-colors inline-flex items-center gap-1">
-                Or go to AI Insights <ArrowRight size={11} />
+                {t('onboarding.orGoInsights')} <ArrowRight size={11} />
               </button>
             </div>
           </div>

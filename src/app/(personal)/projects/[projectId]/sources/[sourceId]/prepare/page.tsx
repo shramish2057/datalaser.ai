@@ -16,13 +16,10 @@ import type {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const STEPS: { key: PipelineStep; label: string; icon: typeof BarChart2 }[] = [
-  { key: 'profile', label: 'Profile', icon: BarChart2 },
-  { key: 'suggest', label: 'Suggestions', icon: Sparkles },
-  { key: 'transform', label: 'Transform', icon: Wand2 },
-  { key: 'validate', label: 'Validate', icon: Shield },
-  { key: 'ready', label: 'Ready', icon: Rocket },
-]
+const STEP_ICONS: Record<PipelineStep, typeof BarChart2> = {
+  profile: BarChart2, suggest: Sparkles, transform: Wand2, validate: Shield, ready: Rocket,
+}
+const STEP_KEYS: PipelineStep[] = ['profile', 'suggest', 'transform', 'validate', 'ready']
 
 const STEP_INDEX: Record<PipelineStep, number> = { profile: 0, suggest: 1, transform: 2, validate: 3, ready: 4 }
 
@@ -62,6 +59,15 @@ function severityClass(s: string) {
 
 export default function PreparePage() {
   const t = useTranslations()
+
+  const STEPS: { key: PipelineStep; label: string; icon: typeof BarChart2 }[] = [
+    { key: 'profile', label: t('prep.stepProfile'), icon: STEP_ICONS.profile },
+    { key: 'suggest', label: t('prep.stepSuggestions'), icon: STEP_ICONS.suggest },
+    { key: 'transform', label: t('prep.stepTransform'), icon: STEP_ICONS.transform },
+    { key: 'validate', label: t('prep.stepValidate'), icon: STEP_ICONS.validate },
+    { key: 'ready', label: t('prep.stepReady'), icon: STEP_ICONS.ready },
+  ]
+
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string
@@ -374,7 +380,7 @@ export default function PreparePage() {
                   `}>
                     {done ? <Check size={14} /> : i + 1}
                   </div>
-                  <span className={`text-[10px] font-bold hidden sm:block ${active ? 'text-dl-brand' : 'text-dl-text-light'}`}>
+                  <span className={`text-dl-xs font-bold hidden sm:block ${active ? 'text-dl-brand' : 'text-dl-text-light'}`}>
                     {s.label}
                   </span>
                 </div>
@@ -408,15 +414,15 @@ export default function PreparePage() {
           {step === 'profile' && !loading && !profile && DB_TYPES.includes(sourceType) && (
             <div className="max-w-md mx-auto py-12">
               <div className="dl-card p-6">
-                <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">Select a table to profile</h2>
+                <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('prep.selectTable')}</h2>
                 <p className="text-dl-text-medium text-dl-sm mb-4">
-                  Enter the table name from your database to start profiling.
+                  {t('prep.selectTableDesc')}
                 </p>
                 <div className="mb-4">
-                  <label className="dl-label">Table name</label>
+                  <label className="dl-label">{t('prep.tableName')}</label>
                   <input
                     className="dl-input"
-                    placeholder="e.g. orders or public.orders"
+                    placeholder={t('prep.tableNamePlaceholder')}
                     value={dbTableName}
                     onChange={e => setDbTableName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && dbTableName.trim() && profileDbTable()}
@@ -427,7 +433,7 @@ export default function PreparePage() {
                   disabled={!dbTableName.trim()}
                   className={`dl-btn-primary w-full justify-center ${!dbTableName.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
                 >
-                  Profile this table
+                  {t('prep.profileTable')}
                 </button>
               </div>
             </div>
@@ -438,7 +444,7 @@ export default function PreparePage() {
             loading ? (
               <div className="space-y-4 py-12 text-center">
                 <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto" />
-                <p className="text-dl-text-medium text-dl-sm font-bold">Analysing your data...</p>
+                <p className="text-dl-text-medium text-dl-sm font-bold">{t('prep.analysing')}</p>
                 <div className="max-w-md mx-auto space-y-2">
                   <div className="h-6 rounded-dl-md bg-dl-bg-medium animate-pulse" />
                   <div className="h-6 rounded-dl-md bg-dl-bg-medium animate-pulse" />
@@ -450,10 +456,10 @@ export default function PreparePage() {
                 {/* Summary stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                   {[
-                    { label: 'Total Rows', value: profile.total_rows.toLocaleString() },
-                    { label: 'Columns', value: profile.total_columns },
-                    { label: 'Quality Score', value: `${profile.quality_score}/100` },
-                    { label: 'Encoding', value: profile.detected_encoding.toUpperCase() },
+                    { label: t('prep.totalRows'), value: profile.total_rows.toLocaleString() },
+                    { label: t('prep.columns'), value: profile.total_columns },
+                    { label: t('prep.qualityScore'), value: `${profile.quality_score}/100` },
+                    { label: t('prep.encoding'), value: profile.detected_encoding.toUpperCase() },
                   ].map(s => (
                     <div key={s.label} className="bg-dl-bg border border-dl-border rounded-dl-lg p-4">
                       <p className="text-dl-xs font-bold text-dl-text-light uppercase tracking-wider mb-1">{s.label}</p>
@@ -495,7 +501,7 @@ export default function PreparePage() {
                         <tr key={col.name}>
                           <td className="font-bold">{col.name}</td>
                           <td>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${DTYPE_COLORS[col.dtype] || DTYPE_COLORS.text}`}>
+                            <span className={`px-2 py-0.5 rounded text-dl-xs font-bold ${DTYPE_COLORS[col.dtype] || DTYPE_COLORS.text}`}>
                               {col.dtype}
                             </span>
                           </td>
@@ -527,7 +533,7 @@ export default function PreparePage() {
                 {/* Warnings */}
                 {profile.warnings.length > 0 && (
                   <div className="mb-6 space-y-2">
-                    <p className="dl-section-header mb-2">Warnings</p>
+                    <p className="dl-section-header mb-2">{t('health.warnings')}</p>
                     {profile.warnings.map((w, i) => (
                       <div key={i} className={`border rounded-dl-md p-3 flex items-start gap-2 ${severityClass(w.severity)}`}>
                         <AlertTriangle size={14} className="flex-shrink-0 mt-0.5 text-dl-text-medium" />
@@ -544,7 +550,7 @@ export default function PreparePage() {
                 )}
 
                 <button onClick={runSuggestions} className="dl-btn-primary px-6 py-2.5 font-black">
-                  View AI Suggestions <ArrowRight size={14} />
+                  {t('prep.viewSuggestions')} <ArrowRight size={14} />
                 </button>
               </div>
             ) : null
@@ -555,12 +561,12 @@ export default function PreparePage() {
             loading ? (
               <div className="py-12 text-center">
                 <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto mb-3" />
-                <p className="text-dl-text-dark text-dl-sm font-bold">Claude is analysing your data quality...</p>
-                <p className="text-dl-text-light text-dl-xs mt-1">Generating transformation suggestions</p>
+                <p className="text-dl-text-dark text-dl-sm font-bold">{t('prep.claudeAnalysing')}</p>
+                <p className="text-dl-text-light text-dl-xs mt-1">{t('prep.generatingSuggestions')}</p>
               </div>
             ) : (
               <div>
-                <h2 className="text-dl-xl font-black text-dl-text-dark mb-4">Suggested Transformations</h2>
+                <h2 className="text-dl-xl font-black text-dl-text-dark mb-4">{t('prep.suggestedTransforms')}</h2>
                 <div className="space-y-3 mb-6">
                   {suggestions.map(s => {
                     const isAccepted = accepted.has(s.id)
@@ -570,7 +576,7 @@ export default function PreparePage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="text-dl-xs font-black text-dl-text-light">#{s.priority}</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${OP_COLORS[s.operation] || 'bg-dl-bg-medium text-dl-text-medium'}`}>
+                              <span className={`px-2 py-0.5 rounded text-dl-xs font-bold ${OP_COLORS[s.operation] || 'bg-dl-bg-medium text-dl-text-medium'}`}>
                                 {s.operation}
                               </span>
                               {s.column && <span className="text-dl-xs font-mono text-dl-text-dark">{s.column}</span>}
@@ -582,10 +588,10 @@ export default function PreparePage() {
                               <div className="w-24 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
                                 <div className="h-full bg-dl-brand rounded-full" style={{ width: `${s.confidence * 100}%` }} />
                               </div>
-                              <span className="text-[10px] text-dl-text-light">{Math.round(s.confidence * 100)}%</span>
+                              <span className="text-dl-xs text-dl-text-light">{Math.round(s.confidence * 100)}%</span>
                             </div>
                             {s.before_sample && s.after_sample && (
-                              <div className="flex items-center gap-2 mt-2 text-[10px] font-mono text-dl-text-light">
+                              <div className="flex items-center gap-2 mt-2 text-dl-xs font-mono text-dl-text-light">
                                 <span>{JSON.stringify(s.before_sample?.slice(0, 3))}</span>
                                 <ArrowRight size={10} />
                                 <span>{JSON.stringify(s.after_sample?.slice(0, 3))}</span>
@@ -603,7 +609,7 @@ export default function PreparePage() {
                                 ? 'bg-dl-success text-white'
                                 : 'border border-dl-border text-dl-text-medium hover:border-dl-brand'}`}
                           >
-                            {isAccepted ? <><Check size={12} /> Accepted</> : 'Accept'}
+                            {isAccepted ? <><Check size={12} /> {t('prep.accepted')}</> : t('prep.accept')}
                           </button>
                         </div>
                       </div>
@@ -613,21 +619,21 @@ export default function PreparePage() {
 
                 <div className="flex items-center justify-between">
                   <p className="text-dl-text-medium text-dl-sm">
-                    {accepted.size} of {suggestions.length} accepted
+                    {t('prep.acceptedOf', { accepted: accepted.size, total: suggestions.length })}
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setAccepted(new Set(suggestions.map(s => s.id)))}
                       className="dl-btn-secondary text-dl-xs"
                     >
-                      Accept All
+                      {t('prep.acceptAll')}
                     </button>
                     <button
                       onClick={runTransform}
                       disabled={accepted.size === 0}
                       className={`dl-btn-primary px-6 py-2 font-black ${accepted.size === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
                     >
-                      Run {accepted.size} transformations <ArrowRight size={14} />
+                      {t('prep.runTransformations', { count: accepted.size })} <ArrowRight size={14} />
                     </button>
                   </div>
                 </div>
@@ -640,7 +646,7 @@ export default function PreparePage() {
             loading ? (
               <div className="py-12 text-center">
                 <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto mb-3" />
-                <p className="text-dl-text-dark text-dl-sm font-bold">Applying transformations...</p>
+                <p className="text-dl-text-dark text-dl-sm font-bold">{t('prep.applyingTransformations')}</p>
               </div>
             ) : result ? (
               <div>
@@ -648,7 +654,7 @@ export default function PreparePage() {
                   <span className="text-dl-2xl font-black text-dl-text-dark font-mono">{result.rows_before.toLocaleString()}</span>
                   <ArrowRight size={20} className="text-dl-text-light" />
                   <span className="text-dl-2xl font-black text-dl-text-dark font-mono">{result.rows_after.toLocaleString()}</span>
-                  <span className="text-dl-text-medium text-dl-sm">rows</span>
+                  <span className="text-dl-text-medium text-dl-sm">{t('prep.rows')}</span>
                 </div>
 
                 {/* Lineage log */}
@@ -695,7 +701,7 @@ export default function PreparePage() {
                 )}
 
                 <button onClick={runValidation} className="dl-btn-primary px-6 py-2.5 font-black">
-                  Validate Data <ArrowRight size={14} />
+                  {t('prep.validateData')} <ArrowRight size={14} />
                 </button>
               </div>
             ) : null
@@ -706,7 +712,7 @@ export default function PreparePage() {
             loading ? (
               <div className="py-12 text-center">
                 <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto mb-3" />
-                <p className="text-dl-text-dark text-dl-sm font-bold">Running quality checks...</p>
+                <p className="text-dl-text-dark text-dl-sm font-bold">{t('prep.runningQualityChecks')}</p>
               </div>
             ) : validation ? (
               (() => {
@@ -735,7 +741,7 @@ export default function PreparePage() {
                   {/* Issues (if any) */}
                   {issues.length > 0 && (
                     <div className="mb-6">
-                      <p className="dl-section-header mb-2">Issues to fix</p>
+                      <p className="dl-section-header mb-2">{t('prep.issuesToFix')}</p>
                       <div className="space-y-2">
                         {issues.map((t, i) => (
                           <div key={i} className="flex items-start gap-3 p-3 rounded-dl-md border border-dl-error bg-red-50">
@@ -753,7 +759,7 @@ export default function PreparePage() {
                   {/* Characteristics */}
                   {characteristics.length > 0 && (
                     <div className="mb-6">
-                      <p className="dl-section-header mb-2">Data characteristics (no action needed)</p>
+                      <p className="dl-section-header mb-2">{t('prep.dataCharacteristics')}</p>
                       <div className="space-y-2">
                         {characteristics.map((t, i) => (
                           <div key={i} className="flex items-start gap-2 p-3 rounded-dl-md border border-dl-border bg-dl-bg-light">
@@ -771,7 +777,7 @@ export default function PreparePage() {
                   {/* Full test table (collapsed by default) */}
                   <details className="mb-6">
                     <summary className="text-dl-xs font-bold text-dl-text-light cursor-pointer hover:text-dl-brand">
-                      View all {validation.tests.length} checks
+                      {t('prep.viewAllChecks', { count: validation.tests.length })}
                     </summary>
                     <div className="dl-card overflow-hidden mt-2">
                       <table className="dl-table">
@@ -800,12 +806,12 @@ export default function PreparePage() {
                   <div className="flex gap-2">
                     {!fixableResolved ? (
                       <>
-                        <button onClick={() => setStep('suggest')} className="dl-btn-secondary">Fix issues</button>
-                        <button onClick={finishPipeline} className="dl-btn-subtle">Use anyway</button>
+                        <button onClick={() => setStep('suggest')} className="dl-btn-secondary">{t('prep.fixIssuesBtn')}</button>
+                        <button onClick={finishPipeline} className="dl-btn-subtle">{t('prep.useAnyway')}</button>
                       </>
                     ) : (
                       <button onClick={finishPipeline} className="dl-btn-primary px-6 py-2.5 font-black">
-                        Use this data <ArrowRight size={14} />
+                        {t('prep.useThisData')} <ArrowRight size={14} />
                       </button>
                     )}
                   </div>
@@ -821,7 +827,7 @@ export default function PreparePage() {
               <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4 animate-[scale-in_0.3s_ease-out]">
                 <CheckCircle2 size={40} className="text-dl-success" />
               </div>
-              <h2 className="text-dl-2xl font-black text-dl-text-dark mb-2">Your data is pipeline-ready</h2>
+              <h2 className="text-dl-2xl font-black text-dl-text-dark mb-2">{t('prep.dataPipelineReady')}</h2>
               {profile && (
                 <p className="text-dl-text-medium text-dl-sm mb-2">
                   Quality score: <span className="font-black">{profile.quality_score}/100</span>
@@ -836,7 +842,7 @@ export default function PreparePage() {
               {/* Summary of changes */}
               {result && result.lineage.length > 0 && (
                 <div className="dl-card p-4 text-left max-w-md mx-auto mb-8">
-                  <p className="dl-section-header mb-2">What was cleaned</p>
+                  <p className="dl-section-header mb-2">{t('prep.whatWasCleaned')}</p>
                   <ul className="space-y-1">
                     {result.lineage.map((l: Record<string, unknown>, i: number) => (
                       <li key={i} className="flex items-center gap-2 text-dl-xs text-dl-text-medium">
@@ -850,10 +856,10 @@ export default function PreparePage() {
 
               <div className="flex gap-3 justify-center">
                 <button onClick={() => router.push(`${base}/insights`)} className="dl-btn-primary px-6 py-2.5 font-black">
-                  Go to Insights <ArrowRight size={14} />
+                  {t('prep.goToInsights')} <ArrowRight size={14} />
                 </button>
                 <button onClick={() => router.push(`${base}/ask`)} className="dl-btn-secondary px-6 py-2.5">
-                  Ask questions
+                  {t('prep.askQuestions')}
                 </button>
               </div>
             </div>

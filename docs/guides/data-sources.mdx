@@ -1,0 +1,119 @@
+---
+title: "Data Sources"
+description: "Connect databases, cloud services, and files to DataLaser in seconds."
+icon: "database"
+---
+
+DataLaser connects to 17 data sources across databases, cloud warehouses, SaaS platforms, and local files. Every connection is encrypted and tested before data flows.
+
+## Supported Connectors
+
+<CardGroup cols={3}>
+  <Card title="Relational Databases" icon="server">
+    - PostgreSQL
+    - MySQL
+    - SQL Server
+  </Card>
+  <Card title="Cloud Warehouses" icon="cloud">
+    - Snowflake
+    - BigQuery
+    - Redshift
+    - Databricks
+  </Card>
+  <Card title="NoSQL" icon="leaf">
+    - MongoDB
+  </Card>
+  <Card title="Commerce & Payments" icon="cart-shopping">
+    - Shopify
+    - Stripe
+    - Square
+  </Card>
+  <Card title="Advertising" icon="bullhorn">
+    - Google Ads
+    - Meta Ads
+  </Card>
+  <Card title="Analytics & Finance" icon="chart-line">
+    - Google Analytics
+    - QuickBooks
+    - Xero
+    - Plaid
+  </Card>
+</CardGroup>
+
+### File Uploads
+
+DataLaser accepts direct file uploads in these formats:
+
+| Format  | Max Size | Notes |
+|---------|----------|-------|
+| CSV     | 500 MB   | Auto-detects delimiter and encoding |
+| Excel   | 250 MB   | Reads all sheets; select one at import |
+| JSON    | 500 MB   | Supports nested structures (auto-flattened) |
+| Parquet | 1 GB     | Columnar format, fastest import |
+
+<Tip>
+Drag and drop files directly onto the Sources page, or click **Upload File** to browse.
+</Tip>
+
+## Connecting a Database
+
+<Steps>
+  <Step title="Choose connector">
+    Navigate to **Sources** and click **Add Source**. Select your database type from the grid.
+  </Step>
+  <Step title="Enter credentials">
+    Provide host, port, database name, username, and password. For cloud warehouses, paste your connection string or service account JSON.
+  </Step>
+  <Step title="Configure encryption">
+    Toggle **Require SSL** (enabled by default). Upload a CA certificate if your server requires one.
+  </Step>
+  <Step title="Test connection">
+    Click **Test Connection**. DataLaser verifies network reachability, authentication, and read permissions. Errors surface inline with suggested fixes.
+  </Step>
+  <Step title="Select tables">
+    Browse the schema tree and check the tables or views you want to analyze. You can always add more later.
+  </Step>
+</Steps>
+
+<Warning>
+DataLaser requires **read-only** access. Never provide credentials with write or admin privileges.
+</Warning>
+
+## Connecting SaaS Platforms
+
+SaaS connectors use OAuth or API keys.
+
+<Tabs>
+  <Tab title="OAuth (Google Ads, Meta Ads, Google Analytics)">
+    Click **Connect**, sign in to the provider, and authorize DataLaser. Tokens are stored encrypted and refreshed automatically.
+  </Tab>
+  <Tab title="API Key (Shopify, Stripe, Square, QuickBooks, Xero, Plaid)">
+    Paste your API key or secret into the credentials form. DataLaser validates the key before saving.
+  </Tab>
+</Tabs>
+
+## Live vs. Scheduled Sync
+
+<CardGroup cols={2}>
+  <Card title="Live Query" icon="bolt">
+    Queries run against your database in real time. Best for small-to-medium tables where freshness matters. Available for all database connectors.
+  </Card>
+  <Card title="Scheduled Sync" icon="clock">
+    DataLaser snapshots your data on a schedule (hourly, daily, weekly, or custom cron). Best for large datasets, SaaS sources, or when you want consistent point-in-time analysis.
+  </Card>
+</CardGroup>
+
+To configure sync frequency, open a source's **Settings** tab and choose a schedule under **Sync Interval**.
+
+## Managing Sources
+
+From the **Sources** list you can:
+
+- **Rename** a source for clarity (e.g., `prod-postgres` instead of `db-12345`).
+- **Re-test** a connection after credential rotation.
+- **Pause sync** without deleting the source.
+- **Delete** a source and all associated metadata. Analyses referencing this source will show a warning.
+
+<Tip>
+Each source automatically receives a **Data Health** score after its first sync. Check the [Data Health guide](/guides/data-health) to understand what that score means.
+</Tip>

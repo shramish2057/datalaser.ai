@@ -45,10 +45,10 @@ export default function TeamProjectSettingsPage() {
 
   const handleDelete = async () => { setDeleting(true); await supabase.from('projects').delete().eq('id', projectId); router.push(wsBase) }
 
-  if (loading) return <div className="max-w-2xl mx-auto px-6 py-8 space-y-4"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-20 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div>
+  if (loading) return <div className="max-w-2xl mx-auto px-8 py-10 space-y-4"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-20 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div>
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-2xl mx-auto px-8 py-10">
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">Project Settings</h1>
       <div className="mb-6"><label className="dl-label">{t("common.projectName")}</label><input className="dl-input" value={name} onChange={e => setName(e.target.value)} /></div>
       <div className="mb-6"><label className="dl-label">{t("common.description")}</label><textarea className="dl-input min-h-[80px] resize-none" placeholder={t("settings.projectDescription")} value={description} onChange={e => setDescription(e.target.value)} /></div>

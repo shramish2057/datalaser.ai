@@ -28,7 +28,7 @@ export default function TeamSourcesPage() {
   const handleRefresh = async (sourceId: string) => { setRefreshingId(sourceId); await supabase.from('data_sources').update({ status: 'syncing', last_synced_at: new Date().toISOString() }).eq('id', sourceId); await loadSources(); setRefreshingId(null) }
   const handleDelete = async (sourceId: string, sourceName: string) => { if (!confirm(t('studio.deleteConfirm', { name: sourceName }))) return; await supabase.from('data_sources').delete().eq('id', sourceId); setSources(prev => prev.filter(s => s.id !== sourceId)) }
 
-  if (loading) return <div className="max-w-4xl mx-auto px-6 py-8 space-y-3"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div>
+  if (loading) return <div className="max-w-4xl mx-auto px-8 py-10 space-y-3"><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /><div className="h-10 rounded-dl-md dl-shimmer" /></div>
 
   if (sources.length === 0) return (
     <div className="flex items-center justify-center h-full p-8"><div className="text-center max-w-sm">
@@ -40,7 +40,7 @@ export default function TeamSourcesPage() {
   )
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-8 py-10">
       <div className="flex items-center justify-between mb-6">
         <div><h1 className="text-dl-2xl font-black text-dl-text-dark">Data Sources</h1><p className="text-dl-text-light text-dl-sm mt-0.5">{sources.length} source{sources.length !== 1 ? 's' : ''} connected</p></div>
         <button className="dl-btn-primary" onClick={() => router.push(`${base}/sources/new`)}><Plus size={14} /> {t("sources.addSource")}</button>

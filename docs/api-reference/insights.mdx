@@ -1,0 +1,270 @@
+---
+title: "Insights"
+description: "Generate AI-powered insights and detect anomalies across your data sources."
+---
+
+## Overview
+
+The Insights API triggers DataLaser's AI engine to analyze your data and surface actionable findings. Insights are generated at the project level, combining signals from all sources within a project. The anomaly detection endpoint returns statistical outliers identified during profiling and analysis.
+
+---
+
+## Generate Insights
+
+Trigger insight generation for an entire project. DataLaser analyzes all sources in the project, cross-references patterns, and produces prioritized insights.
+
+```
+POST /api/insights/generate
+```
+
+### Request
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token.
+</ParamField>
+
+<ParamField header="X-Project-Id" type="string" required>
+  The project UUID.
+</ParamField>
+
+<ParamField body="project_id" type="string" required>
+  The project UUID.
+</ParamField>
+
+<ParamField body="source_ids" type="array">
+  Array of source UUIDs to include. Defaults to all sources in the project.
+</ParamField>
+
+<ParamField body="categories" type="array">
+  Filter insight categories. Valid values: `trend`, `anomaly`, `correlation`, `distribution`, `quality`, `recommendation`.
+
+  Defaults to all categories.
+</ParamField>
+
+<ParamField body="min_confidence" type="number">
+  Minimum confidence score (0.0 to 1.0) for returned insights. Defaults to `0.7`.
+</ParamField>
+
+<ParamField body="max_insights" type="integer">
+  Maximum number of insights to return. Defaults to `50`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "project_id": "proj_abc123",
+  "generated_at": "2026-03-24T10:30:00Z",
+  "generation_time_seconds": 24.5,
+  "insights": [
+    {
+      "id": "ins_a1b2c3d4",
+      "category": "trend",
+      "severity": "info",
+      "confidence": 0.94,
+      "title": "Revenue Growing 12% Month-over-Month",
+      "description": "Across the sales dataset, monthly revenue shows a consistent upward trend with 12.3% average MoM growth. This trend has been stable for the past 6 months.",
+      "source_id": "src_8f3a1b2c",
+      "columns": ["revenue", "created_at"],
+      "evidence": {
+        "metric": "mom_growth_rate",
+        "value": 0.123,
+        "period": "2025-10 to 2026-03",
+        "r_squared": 0.87
+      },
+      "chart": {
+        "type": "line",
+        "title": "Monthly Revenue Trend",
+        "data": [
+          { "month": "2025-10", "revenue": 5200000 },
+          { "month": "2025-11", "revenue": 5800000 },
+          { "month": "2025-12", "revenue": 6100000 },
+          { "month": "2026-01", "revenue": 4900000 },
+          { "month": "2026-02", "revenue": 5100000 },
+          { "month": "2026-03", "revenue": 3980000 }
+        ]
+      }
+    },
+    {
+      "id": "ins_e5f6g7h8",
+      "category": "anomaly",
+      "severity": "warning",
+      "confidence": 0.91,
+      "title": "Unusual Drop in March 2026 Revenue",
+      "description": "March 2026 revenue is 22% below the expected trend line. This is a statistically significant deviation (z-score: -2.4) and may warrant investigation.",
+      "source_id": "src_8f3a1b2c",
+      "columns": ["revenue", "created_at"],
+      "evidence": {
+        "metric": "z_score",
+        "value": -2.4,
+        "expected": 5720000,
+        "actual": 3980000,
+        "deviation_pct": -22.0
+      }
+    },
+    {
+      "id": "ins_i9j0k1l2",
+      "category": "correlation",
+      "severity": "info",
+      "confidence": 0.88,
+      "title": "Strong Correlation Between Discount Rate and Order Volume",
+      "description": "A strong positive correlation (r=0.82) exists between discount_rate and order_count. Higher discounts are associated with significantly more orders.",
+      "source_id": "src_8f3a1b2c",
+      "columns": ["discount_rate", "order_count"],
+      "evidence": {
+        "metric": "pearson_r",
+        "value": 0.82,
+        "p_value": 0.0001
+      }
+    },
+    {
+      "id": "ins_m3n4o5p6",
+      "category": "quality",
+      "severity": "critical",
+      "confidence": 0.97,
+      "title": "324 Duplicate Order IDs Detected",
+      "description": "The order_id column contains 324 duplicate values. This column appears to be a primary key and should be unique. Duplicates may cause incorrect aggregations.",
+      "source_id": "src_8f3a1b2c",
+      "columns": ["order_id"],
+      "evidence": {
+        "metric": "duplicate_count",
+        "value": 324,
+        "total_rows": 12450,
+        "duplicate_pct": 2.6
+      }
+    }
+  ],
+  "summary": {
+    "total_insights": 4,
+    "by_severity": { "critical": 1, "warning": 1, "info": 2 },
+    "by_category": { "trend": 1, "anomaly": 1, "correlation": 1, "quality": 1 }
+  }
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/insights/generate \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "proj_abc123",
+    "categories": ["trend", "anomaly", "correlation"],
+    "min_confidence": 0.8,
+    "max_insights": 20
+  }'
+```
+
+### Errors
+
+| Status | Code                  | Description                                   |
+|--------|-----------------------|-----------------------------------------------|
+| `404`  | `PROJECT_NOT_FOUND`   | Project ID does not exist.                    |
+| `422`  | `NO_SOURCES`          | The project has no data sources to analyze.   |
+| `422`  | `GENERATION_ERROR`    | Insight generation failed.                    |
+| `408`  | `TIMEOUT`             | Generation exceeded the 120s timeout.         |
+
+---
+
+## Get Anomalies
+
+Retrieve anomaly detection results for a project or specific source. Anomalies are detected automatically during profiling and insight generation.
+
+```
+GET /api/anomalies
+```
+
+### Query Parameters
+
+<ParamField query="project_id" type="string" required>
+  The project UUID.
+</ParamField>
+
+<ParamField query="source_id" type="string">
+  Filter anomalies to a specific source. Returns all sources if omitted.
+</ParamField>
+
+<ParamField query="severity" type="string">
+  Filter by severity. One of: `critical`, `warning`, `info`. Returns all severities if omitted.
+</ParamField>
+
+<ParamField query="column" type="string">
+  Filter anomalies to a specific column name.
+</ParamField>
+
+<ParamField query="limit" type="integer">
+  Maximum results to return. Defaults to `100`.
+</ParamField>
+
+<ParamField query="offset" type="integer">
+  Pagination offset. Defaults to `0`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "project_id": "proj_abc123",
+  "total_count": 7,
+  "anomalies": [
+    {
+      "id": "anom_x1y2z3",
+      "source_id": "src_8f3a1b2c",
+      "source_name": "sales_2024.csv",
+      "column": "revenue",
+      "type": "statistical_outlier",
+      "severity": "warning",
+      "title": "12 Statistical Outliers in Revenue",
+      "description": "12 values exceed 3 standard deviations from the mean. Largest outlier: 98,500 (z-score: 4.2).",
+      "details": {
+        "outlier_count": 12,
+        "method": "z_score",
+        "threshold": 3.0,
+        "mean": 4521.37,
+        "std": 2105.44,
+        "max_outlier": 98500.00,
+        "max_z_score": 4.2
+      },
+      "detected_at": "2026-03-24T10:15:30Z"
+    },
+    {
+      "id": "anom_a4b5c6",
+      "source_id": "src_8f3a1b2c",
+      "source_name": "sales_2024.csv",
+      "column": "created_at",
+      "type": "temporal_gap",
+      "severity": "info",
+      "title": "3-Day Gap in Transaction Dates",
+      "description": "No transactions recorded between 2026-01-15 and 2026-01-18. This gap is unusual for this dataset's typical daily frequency.",
+      "details": {
+        "gap_start": "2026-01-15",
+        "gap_end": "2026-01-18",
+        "gap_days": 3,
+        "expected_frequency": "daily"
+      },
+      "detected_at": "2026-03-24T10:15:30Z"
+    }
+  ],
+  "pagination": {
+    "limit": 100,
+    "offset": 0,
+    "has_more": false
+  }
+}
+```
+
+### Example
+
+```bash
+curl -X GET "https://datalaser.de/api/anomalies?project_id=proj_abc123&severity=warning&limit=50" \
+  -H "Authorization: Bearer $DATALASER_API_KEY"
+```
+
+### Errors
+
+| Status | Code                  | Description                        |
+|--------|-----------------------|------------------------------------|
+| `404`  | `PROJECT_NOT_FOUND`   | Project ID does not exist.         |
+| `404`  | `SOURCE_NOT_FOUND`    | Filtered source ID does not exist. |

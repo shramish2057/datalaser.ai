@@ -1,0 +1,139 @@
+---
+title: "Quickstart"
+description: "Go from zero to your first AI-powered insight in under 5 minutes."
+icon: "rocket"
+---
+
+## Get started in 5 minutes
+
+This guide walks you through creating an account, connecting your first data source, and seeing your first verified insight. No technical background required.
+
+<Info>
+  **What you'll need:** An email address and a data file (CSV, Excel, or JSON) or database credentials. If you don't have data handy, DataLaser provides sample datasets to explore.
+</Info>
+
+<Steps>
+  <Step title="Create your account">
+    ### Sign up
+
+    Go to [app.datalaser.io](https://app.datalaser.io) and create your account with email or Google SSO.
+
+    ```
+    1. Enter your work email
+    2. Set a password (min. 12 characters)
+    3. Verify your email via the confirmation link
+    ```
+
+    ### Create your first project
+
+    After verifying, you'll be prompted to create a **project**. Projects are containers for related data sources and analyses. Think of them as workspaces for a specific business area.
+
+    <Tip>
+      **Naming your project:** Use something descriptive like "Sales Analytics Q1" or "Kundenanalyse 2026". You can always rename it later.
+    </Tip>
+
+    Give your project a name and optional description, then continue.
+  </Step>
+
+  <Step title="Connect your data">
+    ### Upload a file or connect a database
+
+    DataLaser supports two ways to get data in:
+
+    <Tabs>
+      <Tab title="Upload a file">
+        Drag and drop or click to upload. Supported formats:
+
+        | Format  | Extensions         |
+        |---------|--------------------|
+        | CSV     | `.csv`             |
+        | Excel   | `.xlsx`, `.xls`    |
+        | JSON    | `.json`            |
+        | Parquet | `.parquet`         |
+
+        DataLaser auto-detects delimiters, encodings (including UTF-8 with BOM, common in German exports), date formats, and decimal separators (comma vs. period).
+
+        <Tip>
+          **German Excel exports** often use semicolons as delimiters and commas as decimal separators. DataLaser handles this automatically. No need to reformat your file.
+        </Tip>
+      </Tab>
+      <Tab title="Connect a database">
+        Choose from **17 supported connectors**:
+
+        - **Databases:** PostgreSQL, MySQL, SQL Server
+        - **NoSQL:** MongoDB
+        - **Warehouses:** Snowflake, BigQuery, Redshift, Databricks
+        - **Commerce & Payments:** Shopify, Stripe, Square
+        - **Advertising:** Google Ads, Meta Ads
+        - **Analytics:** Google Analytics
+        - **Accounting & Banking:** QuickBooks, Xero, Plaid
+
+        Enter your connection credentials. All credentials are encrypted with **AES-256-GCM** before storage.
+
+        ```
+        Host:     your-db.example.com
+        Port:     5432
+        Database: analytics
+        User:     readonly_user
+        Password: ••••••••
+        ```
+
+        <Warning>
+          **Use a read-only database user.** DataLaser only needs SELECT access. We recommend creating a dedicated user with minimal permissions.
+        </Warning>
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="See your first insight">
+    ### Auto-profiling begins immediately
+
+    The moment your data lands, DataLaser:
+
+    1. **Profiles every column**: types, distributions, missing values, outliers
+    2. **Detects applicable templates**: matching your data schema against 42 industry templates
+    3. **Runs auto-analyses**: correlations, trends, anomalies, segments, and more
+
+    This typically takes **10-30 seconds** for files under 100 MB.
+
+    ### Your Insights page
+
+    Navigate to the **Insights** tab to see what DataLaser found. Each insight card shows:
+
+    - A plain-language summary of the finding
+    - A supporting visualization (chart, distribution, or table)
+    - The statistical method used and confidence level
+    - An option to explore further in Studio
+
+    <Tip>
+      **Not seeing what you expected?** Check the **Health** tab for your data source. A low quality score (below 60) usually means missing values or inconsistent formatting that you can fix at the source.
+    </Tip>
+  </Step>
+</Steps>
+
+## What happens next
+
+Now that you have your first insights, you can:
+
+<CardGroup cols={2}>
+  <Card title="Explore in Ask Data" icon="comments">
+    Ask follow-up questions in natural language. Try: *"What's driving the variance in Q3?"* or *"Welche Kunden haben den h&ouml;chsten Lifetime Value?"*
+  </Card>
+  <Card title="Deep dive in Studio" icon="flask">
+    Open any insight in Studio to customize the analysis, adjust parameters, or chain it with other analyses.
+  </Card>
+  <Card title="Connect more data" icon="plug">
+    Add additional data sources to unlock cross-source analyses, e.g., correlate marketing spend with revenue.
+  </Card>
+  <Card title="Invite your team" icon="users">
+    Share the project with colleagues. They'll see the same insights and can ask their own questions.
+  </Card>
+</CardGroup>
+
+<Note>
+  **Need help?** Every insight includes an explanation of the methodology. Click "How was this calculated?" on any insight card for a detailed breakdown.
+</Note>
+
+## Next: connect your data source in detail
+
+Ready to go deeper? Learn about all supported connectors, credential security, and data quality monitoring in [Connecting Your First Data Source](/first-datasource).

@@ -1,0 +1,353 @@
+---
+title: "Templates & AutoAnalysis"
+description: "Run pre-built analysis templates or trigger a full AutoAnalyzer pass across your dataset."
+---
+
+## Overview
+
+Templates are pre-built analysis workflows that match specific data patterns. DataLaser ships with templates for common scenarios (churn analysis, revenue trends, cohort analysis, etc.) and automatically recommends applicable ones based on your column profiles. The AutoAnalyzer runs all 17 built-in analyses in a single call.
+
+---
+
+## Get Applicable Templates
+
+Given column profiles, return all matching templates ranked by relevance.
+
+```
+POST /api/pipeline/templates
+```
+
+### Request
+
+<ParamField body="action" type="string" required>
+  Must be `"applicable"`.
+</ParamField>
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="column_profiles" type="array" required>
+  Array of column profile objects. Typically obtained from the [Profile File](/api-reference/pipeline#profile-file) or [Profile Database](/api-reference/pipeline#profile-database) endpoints.
+
+  Each object should include `name`, `inferred_type`, `null_pct`, `unique_count`, and statistics relevant to the column type.
+</ParamField>
+
+### Response
+
+```json
+{
+  "templates": [
+    {
+      "id": "tpl_revenue_trend",
+      "name": "Revenue Trend Analysis",
+      "description": "Analyze revenue patterns over time with seasonality detection and growth rate calculation.",
+      "category": "financial",
+      "required_columns": {
+        "date": "created_at",
+        "metric": "revenue"
+      },
+      "match_score": 0.95,
+      "match_reason": "Dataset contains a datetime column and a numeric revenue column.",
+      "estimated_duration_seconds": 12
+    },
+    {
+      "id": "tpl_churn_analysis",
+      "name": "Customer Churn Analysis",
+      "description": "Identify churn patterns, at-risk segments, and retention drivers.",
+      "category": "customer",
+      "required_columns": {
+        "customer_id": "customer_id",
+        "date": "created_at",
+        "status": "subscription_status"
+      },
+      "match_score": 0.82,
+      "match_reason": "Customer ID, date, and status columns detected.",
+      "estimated_duration_seconds": 18
+    },
+    {
+      "id": "tpl_cohort_analysis",
+      "name": "Cohort Analysis",
+      "description": "Group users by acquisition period and track behavior over time.",
+      "category": "customer",
+      "required_columns": {
+        "user_id": "customer_id",
+        "signup_date": "created_at",
+        "activity_date": "last_order_date"
+      },
+      "match_score": 0.74,
+      "match_reason": "User ID and two date columns found.",
+      "estimated_duration_seconds": 15
+    }
+  ],
+  "total_matched": 3,
+  "total_available": 17
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/templates \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "applicable",
+    "source_id": "src_8f3a1b2c",
+    "column_profiles": [
+      {
+        "name": "revenue",
+        "inferred_type": "float64",
+        "null_pct": 0.18,
+        "unique_count": 11200,
+        "mean": 4521.37
+      },
+      {
+        "name": "created_at",
+        "inferred_type": "datetime64",
+        "null_pct": 0.0,
+        "unique_count": 365
+      },
+      {
+        "name": "customer_id",
+        "inferred_type": "string",
+        "null_pct": 0.0,
+        "unique_count": 4500
+      }
+    ]
+  }'
+```
+
+### Errors
+
+| Status | Code                  | Description                              |
+|--------|-----------------------|------------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`    | Source ID does not exist.                |
+| `422`  | `INVALID_PROFILES`    | Column profiles are malformed.           |
+
+---
+
+## Run Template
+
+Execute a specific analysis template against a data source. Returns structured findings, statistical results, and chart specifications.
+
+```
+POST /api/pipeline/templates
+```
+
+### Request
+
+<ParamField body="action" type="string" required>
+  Must be `"run"`.
+</ParamField>
+
+<ParamField body="template_id" type="string" required>
+  The template identifier, e.g. `tpl_revenue_trend`.
+</ParamField>
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="column_mapping" type="object" required>
+  Maps template-expected columns to actual column names in the source.
+</ParamField>
+
+<ParamField body="parameters" type="object">
+  Optional template-specific parameters (e.g. date range, grouping level).
+</ParamField>
+
+### Response
+
+```json
+{
+  "template_id": "tpl_revenue_trend",
+  "template_name": "Revenue Trend Analysis",
+  "source_id": "src_8f3a1b2c",
+  "execution_time_seconds": 8.4,
+  "findings": [
+    {
+      "type": "trend",
+      "title": "Revenue Growing 12% MoM",
+      "description": "Monthly revenue shows a consistent upward trend with 12.3% average month-over-month growth over the last 6 months.",
+      "confidence": 0.94,
+      "severity": "info"
+    },
+    {
+      "type": "seasonality",
+      "title": "Q4 Seasonal Peak Detected",
+      "description": "Revenue peaks in Q4 (October-December) with an average 34% lift above baseline.",
+      "confidence": 0.89,
+      "severity": "info"
+    },
+    {
+      "type": "anomaly",
+      "title": "Revenue Drop in March 2026",
+      "description": "March 2026 revenue is 22% below the trend line, a statistically significant deviation (z-score: -2.4).",
+      "confidence": 0.91,
+      "severity": "warning"
+    }
+  ],
+  "statistics": {
+    "total_revenue": 54200000.00,
+    "avg_monthly_revenue": 4516666.67,
+    "growth_rate_pct": 12.3,
+    "seasonality_strength": 0.34,
+    "trend_r_squared": 0.87
+  },
+  "charts": [
+    {
+      "type": "line",
+      "title": "Monthly Revenue Trend",
+      "x_axis": "month",
+      "y_axis": "revenue",
+      "data": [
+        { "month": "2025-10", "revenue": 5200000 },
+        { "month": "2025-11", "revenue": 5800000 },
+        { "month": "2025-12", "revenue": 6100000 },
+        { "month": "2026-01", "revenue": 4900000 },
+        { "month": "2026-02", "revenue": 5100000 },
+        { "month": "2026-03", "revenue": 3980000 }
+      ],
+      "trend_line": true
+    },
+    {
+      "type": "bar",
+      "title": "Revenue by Quarter",
+      "x_axis": "quarter",
+      "y_axis": "revenue",
+      "data": [
+        { "quarter": "Q1 2026", "revenue": 14000000 },
+        { "quarter": "Q4 2025", "revenue": 17100000 }
+      ]
+    }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/templates \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "run",
+    "template_id": "tpl_revenue_trend",
+    "source_id": "src_8f3a1b2c",
+    "column_mapping": {
+      "date": "created_at",
+      "metric": "revenue"
+    },
+    "parameters": {
+      "granularity": "monthly",
+      "date_range": {
+        "start": "2025-10-01",
+        "end": "2026-03-31"
+      }
+    }
+  }'
+```
+
+### Errors
+
+| Status | Code                  | Description                                      |
+|--------|-----------------------|--------------------------------------------------|
+| `404`  | `TEMPLATE_NOT_FOUND`  | Template ID does not exist.                      |
+| `404`  | `SOURCE_NOT_FOUND`    | Source ID does not exist.                        |
+| `422`  | `MAPPING_ERROR`       | Column mapping is invalid or incomplete.         |
+| `422`  | `EXECUTION_ERROR`     | Template execution failed.                       |
+
+---
+
+## Run AutoAnalysis
+
+Execute all 17 built-in analyses in a single call. The AutoAnalyzer profiles the data, selects applicable templates, runs them in parallel, and returns consolidated results.
+
+```
+POST /api/pipeline/auto-analysis
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="include_charts" type="boolean">
+  Include chart specifications in the response. Defaults to `true`.
+</ParamField>
+
+<ParamField body="max_analyses" type="integer">
+  Maximum number of analyses to run. Defaults to `17` (all available).
+</ParamField>
+
+### Response
+
+```json
+{
+  "source_id": "src_8f3a1b2c",
+  "analyses_run": 11,
+  "analyses_skipped": 6,
+  "total_execution_time_seconds": 42.7,
+  "results": [
+    {
+      "template_id": "tpl_revenue_trend",
+      "template_name": "Revenue Trend Analysis",
+      "status": "completed",
+      "execution_time_seconds": 8.4,
+      "findings_count": 3,
+      "findings": [ "..." ],
+      "charts": [ "..." ]
+    },
+    {
+      "template_id": "tpl_descriptive_stats",
+      "template_name": "Descriptive Statistics",
+      "status": "completed",
+      "execution_time_seconds": 2.1,
+      "findings_count": 5,
+      "findings": [ "..." ],
+      "charts": [ "..." ]
+    }
+  ],
+  "summary": {
+    "total_findings": 28,
+    "critical_findings": 2,
+    "warning_findings": 5,
+    "info_findings": 21
+  },
+  "skipped_reasons": [
+    {
+      "template_id": "tpl_geospatial",
+      "reason": "No latitude/longitude columns detected."
+    }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/pipeline/auto-analysis \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "include_charts": true
+  }'
+```
+
+<Note>
+  AutoAnalysis can take 30-60 seconds for large datasets. The endpoint returns results synchronously. For very large sources, consider running individual templates instead.
+</Note>
+
+### Errors
+
+| Status | Code                | Description                          |
+|--------|---------------------|--------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`  | Source ID does not exist.            |
+| `408`  | `TIMEOUT`           | Analysis exceeded the 120s timeout.  |
+| `422`  | `ANALYSIS_ERROR`    | One or more analyses failed.         |

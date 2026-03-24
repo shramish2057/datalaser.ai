@@ -1,0 +1,132 @@
+---
+title: "Data Prep"
+description: "Clean, transform, and validate your data with a guided 5-step wizard powered by AI suggestions."
+icon: "wand-magic-sparkles"
+---
+
+The Data Prep wizard walks you through five steps to turn raw data into an analysis-ready dataset. Every action is recorded as a **pipeline recipe** that you can replay on future syncs or new files with the same schema.
+
+## The 5 Steps
+
+<Steps>
+  <Step title="Profile">
+    DataLaser scans every column and computes:
+
+    - **Null rate**: percentage of missing values
+    - **Outlier detection**: values beyond 3 standard deviations (IQR method for skewed distributions)
+    - **Type inference**: integer, float, string, date, boolean, categorical
+    - **Encoding check**: UTF-8 compliance, mojibake detection
+    - **Column quality score**: 0-100, combining completeness, consistency, and validity
+
+    The profile summary shows a sortable table with sparkline distributions. Red-flagged columns need attention; green columns are clean.
+
+    <Tip>
+    Profiling runs in under 10 seconds for datasets up to 1 million rows. Larger datasets are sampled intelligently.
+    </Tip>
+  </Step>
+
+  <Step title="Suggestions">
+    The AI engine ranks recommended transformations by impact. Each suggestion card shows:
+
+    - **What**: the proposed transformation (e.g., "Fill 412 nulls in `revenue` with column median")
+    - **Why**: the problem it solves and how it affects the quality score
+    - **Impact**: projected score improvement
+
+    You can **Accept**, **Reject**, or **Edit** each suggestion. Accepted suggestions queue into Step 3.
+
+    <Tip>
+    Suggestions are generated using column statistics and your industry template context. They never see raw data rows.
+    </Tip>
+  </Step>
+
+  <Step title="Transform">
+    Apply transformations manually or execute the accepted suggestions from Step 2. DataLaser supports **16 operations**:
+
+    <Tabs>
+      <Tab title="Missing Data">
+        1. **Fill with mean**: numeric columns
+        2. **Fill with median**: numeric columns (outlier-resistant)
+        3. **Fill with mode**: categorical columns
+        4. **Fill with constant**: user-specified value
+        5. **Forward fill**: time-series carry-forward
+        6. **Drop rows**: remove rows where column is null
+      </Tab>
+      <Tab title="Type & Format">
+        7. **Cast type**: convert between string, int, float, date, boolean
+        8. **Parse dates**: auto-detect or specify format string
+        9. **Normalize encoding**: fix UTF-8 issues, strip BOM
+        10. **Standardize case**: lower, upper, title, or sentence case
+      </Tab>
+      <Tab title="Structure">
+        11. **Rename column**: change header name
+        12. **Drop column**: remove from dataset
+        13. **Deduplicate**: remove identical rows (keep first, last, or none)
+        14. **Split column**: separate by delimiter into multiple columns
+      </Tab>
+      <Tab title="Values">
+        15. **Clip outliers**: cap values at percentile bounds (e.g., 1st-99th)
+        16. **Map values**: replace specific values with new ones (find-and-replace)
+      </Tab>
+    </Tabs>
+
+    Each operation previews a before/after diff on a sample of rows before you confirm.
+  </Step>
+
+  <Step title="Validate">
+    After transformations, DataLaser re-profiles the dataset and runs **8 test categories**:
+
+    | # | Test Category | What It Checks |
+    |---|--------------|----------------|
+    | 1 | Completeness | No remaining nulls above threshold |
+    | 2 | Type purity | Every value in a column matches its declared type |
+    | 3 | Range validity | Numeric values within expected min/max bounds |
+    | 4 | Format compliance | Dates, emails, and codes match their patterns |
+    | 5 | Uniqueness | Primary-key columns have no duplicates |
+    | 6 | Referential integrity | Foreign-key values exist in referenced columns |
+    | 7 | Distribution stability | No extreme skew introduced by transformations |
+    | 8 | Row count consistency | No unexpected row loss (>5% drop triggers a warning) |
+
+    Each test result is classified as:
+
+    - **Issue** (red): Must fix before proceeding.
+    - **Characteristic** (blue): Acknowledged but acceptable.
+    - **Info** (gray): Neutral observation.
+
+    <Warning>
+    If any **Issue** is flagged, you can still proceed, but DataLaser will display a persistent warning on all downstream analyses.
+    </Warning>
+  </Step>
+
+  <Step title="Ready">
+    Your cleaned dataset is saved and versioned. Three things happen:
+
+    1. **Cleaned file stored**: a new snapshot is written alongside the original so you can always revert.
+    2. **Recipe saved**: every transformation step is recorded as a replayable JSON pipeline.
+    3. **Sync configured**: if your source is on a scheduled sync, the recipe automatically re-runs after each refresh.
+
+    From here you can jump to [Insights](/guides/insights), [Ask Data](/guides/ask-data), or [Studio](/guides/studio).
+  </Step>
+</Steps>
+
+## Pipeline Recipes
+
+A recipe is the ordered list of transformations you applied during Data Prep. Recipes enable:
+
+<CardGroup cols={2}>
+  <Card title="Reproducibility" icon="arrows-rotate">
+    Re-run the same cleaning steps on updated data without manual work.
+  </Card>
+  <Card title="Portability" icon="file-export">
+    Export a recipe as JSON and apply it to another source with the same schema.
+  </Card>
+  <Card title="Scheduled Cleaning" icon="calendar-check">
+    Attach a recipe to a sync schedule so every refresh produces a clean dataset automatically.
+  </Card>
+  <Card title="Audit Trail" icon="clipboard-list">
+    Every recipe records who ran it, when, and what changed, providing full lineage from raw to clean.
+  </Card>
+</CardGroup>
+
+<Tip>
+To view or edit a recipe, open the source's **Prep** tab and click **View Recipe**. You can reorder steps, remove steps, or add new ones.
+</Tip>

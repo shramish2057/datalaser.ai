@@ -67,7 +67,7 @@ export default function ProjectSourcesPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-3">
+      <div className="max-w-4xl mx-auto px-8 py-10 space-y-3">
         <div className="h-10 rounded-dl-md dl-shimmer" />
         <div className="h-10 rounded-dl-md dl-shimmer" />
         <div className="h-10 rounded-dl-md dl-shimmer" />
@@ -100,7 +100,7 @@ export default function ProjectSourcesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-8 py-10">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -138,17 +138,17 @@ export default function ProjectSourcesPage() {
                   <div className="flex items-center gap-2">
                     {src.name}
                     {src.pipeline_status === 'ready' && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-dl-xs font-bold bg-green-100 text-green-700">
                         <CheckCircle2 size={10} /> Pipeline Ready
                       </span>
                     )}
                     {src.pipeline_status === 'scheduled' && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-brand-hover text-dl-brand">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-dl-xs font-bold bg-dl-brand-hover text-dl-brand">
                         ⟳ Syncing
                       </span>
                     )}
                     {src.pipeline_status === 'error' && (
-                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-dl-xs font-bold bg-red-100 text-red-700">
                         Pipeline Error
                       </span>
                     )}

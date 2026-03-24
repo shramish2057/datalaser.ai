@@ -1,0 +1,209 @@
+---
+title: "Connect Your First Data Source"
+description: "Upload files or connect databases and SaaS tools, with enterprise-grade encryption and automatic quality monitoring."
+icon: "plug"
+---
+
+## Supported data sources
+
+DataLaser connects to the data you already have, whether it's a CSV export from your ERP, a production PostgreSQL database, or a SaaS platform like Shopify or Stripe.
+
+### File uploads
+
+Drag and drop files directly into your project. DataLaser handles the rest.
+
+<CardGroup cols={2}>
+  <Card title="CSV" icon="file-csv">
+    Auto-detects delimiters (comma, semicolon, tab), encodings (UTF-8, Latin-1, Windows-1252), and decimal formats.
+  </Card>
+  <Card title="Excel" icon="file-excel">
+    Reads `.xlsx` and `.xls` files. Multi-sheet workbooks are split into separate tables. Named ranges are preserved.
+  </Card>
+  <Card title="JSON" icon="file-code">
+    Supports flat and nested structures. Nested objects are automatically flattened into columns with dot notation.
+  </Card>
+  <Card title="Parquet" icon="file">
+    Native Parquet support for large datasets. Column types and metadata are preserved exactly.
+  </Card>
+</CardGroup>
+
+<Tip>
+  **File size limits:** Up to 500 MB per file on all plans. For larger datasets, connect directly via a database connector for streaming ingestion.
+</Tip>
+
+#### File upload best practices
+
+<AccordionGroup>
+  <Accordion title="Handling German CSV exports">
+    German tools (SAP, DATEV, Excel with German locale) often export CSVs with:
+    - **Semicolon** delimiters instead of commas
+    - **Comma** decimal separators (e.g., `1.234,56` instead of `1,234.56`)
+    - **ISO 8859-1** or **Windows-1252** encoding
+
+    DataLaser detects and handles all of these automatically. No preprocessing needed.
+  </Accordion>
+  <Accordion title="Multiple files for the same source">
+    If you have monthly exports (e.g., `sales_jan.csv`, `sales_feb.csv`), upload them all. DataLaser will detect matching schemas and offer to merge them into a single time-series table.
+  </Accordion>
+  <Accordion title="Header row detection">
+    DataLaser auto-detects whether your file has a header row. If column names are missing, synthetic names (`column_1`, `column_2`, ...) are assigned and you can rename them in the Health page.
+  </Accordion>
+</AccordionGroup>
+
+### Database connectors
+
+Connect directly to your databases for live or scheduled data access.
+
+<Tabs>
+  <Tab title="Relational databases">
+    | Database   | Versions supported | Connection method       |
+    |------------|--------------------|-------------------------|
+    | PostgreSQL | 12+                | Direct TCP, SSL         |
+    | MySQL      | 5.7+               | Direct TCP, SSL         |
+    | SQL Server | 2016+              | Direct TCP, TLS         |
+  </Tab>
+  <Tab title="Cloud data warehouses">
+    | Platform    | Authentication               |
+    |-------------|------------------------------|
+    | Snowflake   | Username/password, key pair  |
+    | BigQuery    | Service account JSON         |
+    | Redshift    | IAM or username/password     |
+    | Databricks  | Personal access token        |
+  </Tab>
+  <Tab title="Commerce & Payments">
+    | Platform         | Data pulled                        |
+    |------------------|------------------------------------|
+    | Shopify          | Orders, products, customers        |
+    | Stripe           | Payments, subscriptions, invoices  |
+    | Square           | Payments, orders, customers        |
+  </Tab>
+  <Tab title="Advertising & Analytics">
+    | Platform         | Data pulled                        |
+    |------------------|------------------------------------|
+    | Google Ads       | Campaigns, ad groups, conversions  |
+    | Meta Ads         | Campaigns, ad sets, conversions    |
+    | Google Analytics | Sessions, events, conversions      |
+  </Tab>
+  <Tab title="Accounting & Banking">
+    | Platform   | Data pulled                          |
+    |------------|--------------------------------------|
+    | QuickBooks | Invoices, expenses, reports           |
+    | Xero       | Invoices, bank transactions, reports |
+    | Plaid      | Accounts, transactions, balances     |
+  </Tab>
+</Tabs>
+
+<Warning>
+  **Always use a read-only user.** DataLaser only executes SELECT queries against your database. Create a dedicated user with minimal permissions for maximum security.
+</Warning>
+
+#### Example: connecting PostgreSQL
+
+```sql
+-- Create a read-only user for DataLaser
+CREATE USER datalaser_reader WITH PASSWORD 'your-secure-password';
+GRANT CONNECT ON DATABASE your_db TO datalaser_reader;
+GRANT USAGE ON SCHEMA public TO datalaser_reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO datalaser_reader;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT ON TABLES TO datalaser_reader;
+```
+
+Then in DataLaser, enter:
+
+```
+Host:     your-db.example.com
+Port:     5432
+Database: your_db
+User:     datalaser_reader
+Password: your-secure-password
+SSL:      Required (recommended)
+```
+
+DataLaser will test the connection, list available tables, and let you select which ones to import.
+
+## How credentials are encrypted
+
+DataLaser takes credential security seriously. Here's exactly what happens when you save a connection:
+
+<Steps>
+  <Step title="Client-side validation">
+    Credentials are validated in your browser. They are transmitted over TLS 1.3 to our API.
+  </Step>
+  <Step title="Server-side encryption">
+    Credentials are encrypted using **AES-256-GCM** with a unique data encryption key (DEK) per connection.
+  </Step>
+  <Step title="Key management">
+    Each DEK is itself encrypted with a key encryption key (KEK) stored in a separate key management service. This is envelope encryption, the same approach used by AWS KMS and Google Cloud KMS.
+  </Step>
+  <Step title="Storage">
+    Only the encrypted credential blob and encrypted DEK are stored in the database. No plaintext credentials ever touch persistent storage.
+  </Step>
+</Steps>
+
+<Info>
+  **Credential access:** Encrypted credentials are only decrypted in memory at the moment of query execution. They are never logged, never cached, and never included in error reports.
+</Info>
+
+## Understanding the Health page
+
+After connecting a data source, DataLaser automatically profiles it and generates a **Health** page. This is your data quality dashboard.
+
+### Quality score (0-100)
+
+Every data source receives a quality score based on:
+
+| Factor              | Weight | What it measures                                  |
+|---------------------|--------|---------------------------------------------------|
+| Completeness        | 30%    | Percentage of non-null values across all columns   |
+| Consistency         | 25%    | Type consistency within columns, format uniformity |
+| Uniqueness          | 20%    | Duplicate row detection, key uniqueness            |
+| Validity            | 15%    | Values within expected ranges, valid formats       |
+| Timeliness          | 10%    | Data freshness for connected sources               |
+
+<Note>
+  **Score thresholds:**
+  - **80-100**: Excellent. Ready for all analyses.
+  - **60-79**: Good. Some analyses may flag data quality caveats.
+  - **40-59**: Fair. Review warnings before relying on insights.
+  - **Below 40**: Poor. Significant data issues should be addressed at the source.
+</Note>
+
+### Column breakdown
+
+Each column shows:
+
+- **Detected type**: numeric, categorical, datetime, text, boolean
+- **Fill rate**: percentage of non-null values
+- **Distribution preview**: histogram for numerics, frequency chart for categoricals
+- **Warnings**: mixed types, high cardinality, suspicious patterns
+
+### Common warnings and how to fix them
+
+<AccordionGroup>
+  <Accordion title="Mixed types in column">
+    A column contains both numbers and text (e.g., `42`, `N/A`, `37`). Fix at source by using consistent null representations, or let DataLaser coerce the column during import.
+  </Accordion>
+  <Accordion title="High missing value rate">
+    More than 30% of values are null. This may limit which analyses can run on this column. Consider whether the missing data is systematic (and meaningful) or accidental.
+  </Accordion>
+  <Accordion title="Potential PII detected">
+    DataLaser flagged columns that may contain personally identifiable information (email addresses, phone numbers, national IDs). Review and confirm whether these columns should be included in analyses.
+  </Accordion>
+  <Accordion title="Date format inconsistency">
+    Multiple date formats detected in the same column (e.g., `DD.MM.YYYY` mixed with `MM/DD/YYYY`). DataLaser will attempt to parse all values, but ambiguous dates (like `01/02/2026`) may be misinterpreted.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+Your data source is connected, profiled, and quality-scored. Now it's time to see what DataLaser found.
+
+<CardGroup cols={2}>
+  <Card title="Your first insight" icon="lightbulb" href="/first-insight">
+    Understand how templates detect patterns and what the Insights page shows you.
+  </Card>
+  <Card title="Introduction" icon="bolt" href="/introduction">
+    Revisit the platform overview and the three analysis modes.
+  </Card>
+</CardGroup>

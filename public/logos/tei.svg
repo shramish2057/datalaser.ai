@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="128" fill="#0F2440"/>
+
+  <!-- Upward trend line -->
+  <polyline
+    points="100,560 300,400 460,455 810,120"
+    fill="none"
+    stroke="#A3703C"
+    stroke-width="52"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <!-- Peak dot -->
+  <circle cx="810" cy="120" r="42" fill="#A3703C"/>
+
+  <!-- TEI — large premium serif typography -->
+  <text
+    x="512"
+    y="870"
+    text-anchor="middle"
+    font-family="Didot, 'Bodoni 72', 'Times New Roman', serif"
+    font-weight="700"
+    font-style="normal"
+    font-size="300"
+    letter-spacing="36"
+    fill="white"
+  >TEI</text>
+</svg>

@@ -83,7 +83,7 @@ export default function PrepHistoryPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-3">
+      <div className="max-w-4xl mx-auto px-8 py-10 space-y-3">
         <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
         <div className="h-10 rounded-dl-md bg-dl-bg-medium animate-pulse" />
       </div>
@@ -91,22 +91,22 @@ export default function PrepHistoryPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-8 py-10">
       <div className="flex items-center gap-3 mb-6">
         <Link href={`${base}/prep`} className="text-dl-text-light hover:text-dl-brand transition-colors">
           <ArrowLeft size={16} />
         </Link>
         <div>
-          <h1 className="text-dl-2xl font-black text-dl-text-dark">Pipeline Run History</h1>
-          <p className="text-dl-text-light text-dl-sm mt-0.5">All data preparation runs for this project</p>
+          <h1 className="text-dl-2xl font-black text-dl-text-dark">{t('prep.runHistory')}</h1>
+          <p className="text-dl-text-light text-dl-sm mt-0.5">{t('prep.runHistoryDesc')}</p>
         </div>
       </div>
 
       {runs.length === 0 ? (
         <div className="dl-card p-8 text-center">
           <History size={24} className="text-dl-brand mx-auto mb-3" />
-          <p className="text-dl-text-dark text-dl-sm font-bold">No pipeline runs yet</p>
-          <p className="text-dl-text-light text-dl-xs mt-1">Prepare a data source to see run history here.</p>
+          <p className="text-dl-text-dark text-dl-sm font-bold">{t('prep.noRuns')}</p>
+          <p className="text-dl-text-light text-dl-xs mt-1">{t('prep.noRunsDesc')}</p>
         </div>
       ) : (
         <div className="dl-card overflow-hidden">

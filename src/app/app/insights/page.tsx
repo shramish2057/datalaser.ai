@@ -137,7 +137,7 @@ export default function InsightsPage() {
   // --- STATE 2: Generating ---
   if (state === 'loading' || state === 'generating') {
     return (
-      <div className="max-w-[860px] mx-auto px-6 py-8 space-y-4">
+      <div className="max-w-[860px] mx-auto px-8 py-10 space-y-4">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-4 h-4 rounded-full border-2 border-dl-brand border-t-transparent animate-spin" />
           <span className="text-dl-text-medium text-dl-base font-bold">
@@ -158,7 +158,7 @@ export default function InsightsPage() {
   if (!doc) return null
 
   return (
-    <div className="max-w-[860px] mx-auto px-6 py-8">
+    <div className="max-w-[860px] mx-auto px-8 py-10">
 
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6">

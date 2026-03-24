@@ -396,20 +396,20 @@ export default function NotebookWorkspace() {
       <div className="h-[40px] flex items-center px-4 border-b border-dl-border flex-shrink-0 bg-white gap-3">
         <input value={notebookTitle} onChange={e => setNotebookTitle(e.target.value)} onBlur={saveTitle}
           className="bg-transparent border-none outline-none text-dl-sm font-medium text-dl-text-dark w-48" />
-        <span className="text-[11px] text-dl-text-light">{isSaving ? t('common.saving') : lastSavedAt ? t('common.saved') : ''}</span>
+        <span className="text-dl-xs text-dl-text-light">{isSaving ? t('common.saving') : lastSavedAt ? t('common.saved') : ''}</span>
         <div className="w-px h-4 bg-dl-border" />
-        <button onClick={() => addCell('heading')} className="text-[11px] text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add heading">
+        <button onClick={() => addCell('heading')} className="text-dl-xs text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add heading">
           <Heading1 size={14} />
         </button>
-        <button onClick={() => addCell('text')} className="text-[11px] text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add text">
+        <button onClick={() => addCell('text')} className="text-dl-xs text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add text">
           <Type size={14} />
         </button>
-        <button onClick={() => addCell('python')} className="text-[11px] text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add code cell">
+        <button onClick={() => addCell('python')} className="text-dl-xs text-dl-text-light hover:text-dl-text-dark p-1 rounded hover:bg-dl-bg-light" title="Add code cell">
           <Code size={14} />
         </button>
         <div className="w-px h-4 bg-dl-border" />
         <button onClick={async () => { for (const c of cells) if (c.type === 'python' || c.type === 'sql') await runCell(c.id) }}
-          className="text-[11px] bg-dl-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-dl-brand-dark">
+          className="text-dl-xs bg-dl-brand text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-dl-brand-dark">
           <Play size={11} /> {t('studio.runAll')}
         </button>
       </div>
@@ -433,11 +433,11 @@ export default function NotebookWorkspace() {
                   {proactive.map(s => (
                     <div key={s.id} className="bg-white border border-dl-border rounded-dl-lg p-3 hover:border-dl-brand transition-colors">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-bg-medium text-dl-text-medium">{s.operation}</span>
+                        <span className="px-1.5 py-0.5 rounded text-dl-xs font-bold bg-dl-bg-medium text-dl-text-medium">{s.operation}</span>
                         <span className="text-dl-sm font-medium text-dl-text-dark">{s.title}</span>
                       </div>
-                      <p className="text-[11px] text-dl-text-medium mb-2">{s.description}</p>
-                      <button onClick={() => addCellFromSuggestion(s)} className="text-[11px] text-dl-brand hover:underline">→ Analyse</button>
+                      <p className="text-dl-xs text-dl-text-medium mb-2">{s.description}</p>
+                      <button onClick={() => addCellFromSuggestion(s)} className="text-dl-xs text-dl-brand hover:underline">→ Analyse</button>
                     </div>
                   ))}
                 </div>
@@ -448,7 +448,7 @@ export default function NotebookWorkspace() {
 
           {/* Ask */}
           <div className="mb-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light mb-2">{t('studio.askAboutData')}</p>
+            <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light mb-2">{t('studio.askAboutData')}</p>
             <textarea value={question} onChange={e => setQuestion(e.target.value)}
               onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleAsk() }}
               placeholder="e.g. Does passenger class affect survival?" rows={2}
@@ -464,7 +464,7 @@ export default function NotebookWorkspace() {
           {/* Cells */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light">{t('studio.cells')} ({cells.length})</p>
+              <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light">{t('studio.cells')} ({cells.length})</p>
             </div>
             {cells.map((cell, i) => (
               <CellCard key={cell.id} cell={cell} cellNumber={i + 1} isActive={cell.id === activeCellId}

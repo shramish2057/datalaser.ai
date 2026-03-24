@@ -62,11 +62,10 @@ export default function ProjectPage() {
       <StepIndicator current={2} labels={['You', 'Project', 'Data']} />
 
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
-        Create your first project
+        {t('onboarding.createFirstProject')}
       </h1>
       <p className="text-dl-text-medium text-dl-base mb-10">
-        A project holds your data sources, insights, and dashboards.
-        You can create more later.
+        {t('onboarding.createFirstProjectDesc')}
       </p>
 
       {error && (
@@ -87,12 +86,12 @@ export default function ProjectPage() {
       </div>
 
       <div className="mb-6">
-        <label className="dl-label">Icon</label>
+        <label className="dl-label">{t('onboarding.icon')}</label>
         <ProjectIconPicker value={icon} color={color} onChange={setIcon} />
       </div>
 
       <div className="mb-10">
-        <label className="dl-label">Color</label>
+        <label className="dl-label">{t('onboarding.color')}</label>
         <div className="flex gap-2 mt-1">
           {COLORS.map(c => (
             <button
@@ -110,7 +109,7 @@ export default function ProjectPage() {
 
       <div className="flex gap-3">
         <button onClick={() => router.back()} className="dl-btn-secondary px-6">
-          &larr; Back
+          {t('onboarding.back')}
         </button>
         <button
           onClick={handleCreate}
@@ -118,7 +117,7 @@ export default function ProjectPage() {
           className={`dl-btn-primary flex-1 py-2.5 font-black justify-center
             ${(!name.trim() || loading) ? 'opacity-40 cursor-not-allowed' : ''}`}
         >
-          {loading ? 'Creating...' : 'Create Project →'}
+          {loading ? t('onboarding.creating') : t('onboarding.createProject')}
         </button>
       </div>
     </div>

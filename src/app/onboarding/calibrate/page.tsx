@@ -42,10 +42,10 @@ type AIResponse = {
 // ─── Sync frequencies ───────────────────────────────────────────────────────
 
 const FREQUENCIES = [
-  { id: 'realtime', icon: Zap, label: 'Real-time', desc: 'Continuous sync' },
-  { id: 'hourly', icon: Clock, label: 'Hourly', desc: 'Every hour' },
-  { id: 'daily', icon: Calendar, label: 'Daily', desc: 'Once per day' },
-  { id: 'weekly', icon: BarChart3, label: 'Weekly', desc: 'Once per week' },
+  { id: 'realtime', icon: Zap, labelKey: 'onboarding.freqRealtime', descKey: 'onboarding.freqRealtimeDesc' },
+  { id: 'hourly', icon: Clock, labelKey: 'onboarding.freqHourly', descKey: 'onboarding.freqHourlyDesc' },
+  { id: 'daily', icon: Calendar, labelKey: 'onboarding.freqDaily', descKey: 'onboarding.freqDailyDesc' },
+  { id: 'weekly', icon: BarChart3, labelKey: 'onboarding.freqWeekly', descKey: 'onboarding.freqWeeklyDesc' },
 ]
 
 const AGG_LABELS: Record<string, string> = {
@@ -320,17 +320,17 @@ export default function CalibratePage() {
 
   return (
     <div className="max-w-2xl mx-auto pt-12 px-6 pb-24">
-      <StepIndicator current={3} labels={['Workspace', 'Connect', 'Calibrate']} />
+      <StepIndicator current={3} labels={[t('onboarding.stepWorkspace'), t('onboarding.stepConnect'), t('onboarding.stepCalibrate')]} />
 
-      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Almost there</h1>
+      <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">{t('onboarding.almostThere')}</h1>
       <p className="text-dl-text-medium text-dl-base mb-8">
         {aiLoading
-          ? 'Analyzing your data with AI...'
+          ? t('onboarding.analyzingWithAI')
           : dataSummary
             ? dataSummary
             : hasColumnData
-              ? `Analyzing ${totalColumns} fields from your data...`
-              : 'Tell the AI what metrics matter most to you.'}
+              ? t('onboarding.analyzingFields', { count: totalColumns })
+              : t('onboarding.tellAIMetrics')}
       </p>
 
       {/* ── Data summary ── */}
@@ -341,7 +341,7 @@ export default function CalibratePage() {
               <FileText className="w-3.5 h-3.5 text-dl-text-light" />
               <span className="text-dl-xs font-bold text-dl-text-dark">{f.name}</span>
               <span className="text-dl-xs text-dl-text-light">
-                {f.columns?.length ?? 0} fields &middot; {f.rows.toLocaleString()} rows
+                {f.columns?.length ?? 0} {t('onboarding.fields')} &middot; {f.rows.toLocaleString()} {t('common.rows')}
               </span>
             </div>
           ))}
@@ -358,9 +358,9 @@ export default function CalibratePage() {
       {aiLoading && (
         <div className="mb-8 flex flex-col items-center justify-center py-12 dl-card">
           <Loader2 className="w-8 h-8 text-dl-brand animate-spin mb-3" />
-          <p className="text-dl-sm font-bold text-dl-text-dark">AI is analyzing your data</p>
+          <p className="text-dl-sm font-bold text-dl-text-dark">{t('onboarding.aiAnalyzing')}</p>
           <p className="text-dl-xs text-dl-text-light mt-1">
-            Identifying columns, data types, and meaningful metrics...
+            {t('onboarding.identifyingColumns')}
           </p>
         </div>
       )}
@@ -368,13 +368,13 @@ export default function CalibratePage() {
       {/* ── AI Error ── */}
       {aiError && (
         <div className="mb-6 px-4 py-3 rounded-dl-md bg-red-50 border border-dl-error">
-          <p className="text-dl-sm font-bold text-dl-error">Couldn&apos;t analyze data automatically</p>
+          <p className="text-dl-sm font-bold text-dl-error">{t('onboarding.couldntAnalyze')}</p>
           <p className="text-dl-xs text-dl-text-medium mt-1">{aiError}</p>
           <button
             onClick={() => connectInfo && fetchAISuggestions(connectInfo)}
             className="dl-btn-secondary text-dl-xs mt-2"
           >
-            Retry
+            {t('onboarding.retry')}
           </button>
         </div>
       )}
@@ -384,7 +384,7 @@ export default function CalibratePage() {
         <div className="mb-6">
           <label className="dl-label flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-dl-brand" />
-            AI-suggested metrics from your data
+            {t('onboarding.aiSuggestedMetrics')}
           </label>
           <div className="space-y-1.5 mt-2">
             {aiMetrics.map(m => (
@@ -414,7 +414,7 @@ export default function CalibratePage() {
                       <span className={`text-dl-sm font-bold ${selectedMetrics.includes(m.name) ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                         {m.name}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-dl-bg-medium text-dl-text-light uppercase flex-shrink-0">
+                      <span className="px-1.5 py-0.5 rounded text-dl-xs font-bold bg-dl-bg-medium text-dl-text-light uppercase flex-shrink-0">
                         {AGG_LABELS[m.aggregation] || m.aggregation}
                       </span>
                     </div>
@@ -435,7 +435,7 @@ export default function CalibratePage() {
         <div className="mb-6">
           <label className="dl-label flex items-center gap-1.5">
             <Tag className="w-3.5 h-3.5 text-purple-500" />
-            Dimensions to group &amp; filter by
+            {t('onboarding.dimensionsToGroup')}
           </label>
           <div className="space-y-1 mt-2">
             {aiDimensions.map((d, i) => (
@@ -457,7 +457,7 @@ export default function CalibratePage() {
       {/* ── Fallback when no data or AI hasn't run — generic metric chips ── */}
       {!aiLoading && !hasColumnData && aiMetrics.length === 0 && (
         <div className="mb-6">
-          <label className="dl-label">Key metrics you track</label>
+          <label className="dl-label">{t('onboarding.keyMetrics')}</label>
           <div className="flex flex-wrap gap-2 mt-1">
             {['Revenue', 'MRR', 'Churn Rate', 'CAC', 'LTV', 'Conversion Rate',
               'Ad Spend', 'ROAS', 'Avg Order Value', 'Gross Margin', 'Burn Rate', 'NPS',
@@ -499,11 +499,11 @@ export default function CalibratePage() {
 
       {/* ── Add custom metric ── */}
       <div className="mb-8">
-        <label className="dl-label">Add a custom metric</label>
+        <label className="dl-label">{t('onboarding.addCustomMetric')}</label>
         <div className="flex gap-2 mt-1">
           <input
             className="dl-input flex-1"
-            placeholder="e.g. Customer Retention Rate"
+            placeholder={t('onboarding.customMetricPlaceholder')}
             value={customMetric}
             onChange={e => setCustomMetric(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addCustomMetric()}
@@ -514,7 +514,7 @@ export default function CalibratePage() {
             className={`dl-btn-secondary flex items-center gap-1.5 ${!customMetric.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             <Plus className="w-4 h-4" />
-            Add
+            {t('common.add')}
           </button>
         </div>
       </div>
@@ -522,9 +522,9 @@ export default function CalibratePage() {
       {/* ── Sync frequency — only for connected databases ── */}
       {hasConnectedDatabases && (
         <div className="mb-8">
-          <label className="dl-label">How often should data sync?</label>
+          <label className="dl-label">{t('onboarding.howOftenSync')}</label>
           <p className="text-dl-xs text-dl-text-light mb-2">
-            Applies to your connected databases &amp; apps. Uploaded files are imported once.
+            {t('onboarding.syncExplanation')}
           </p>
           <div className="grid grid-cols-2 gap-3">
             {FREQUENCIES.map(f => (
@@ -542,9 +542,9 @@ export default function CalibratePage() {
                   className={`w-5 h-5 mb-2 ${frequency === f.id ? 'text-dl-brand' : 'text-dl-text-light'}`}
                 />
                 <div className={`text-dl-sm font-black ${frequency === f.id ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
-                  {f.label}
+                  {t(f.labelKey)}
                 </div>
-                <div className="text-dl-xs text-dl-text-light">{f.desc}</div>
+                <div className="text-dl-xs text-dl-text-light">{t(f.descKey)}</div>
               </button>
             ))}
           </div>
@@ -558,12 +558,12 @@ export default function CalibratePage() {
         className={`dl-btn-primary w-full py-2.5 text-dl-base font-black justify-center
           ${loading || aiLoading || selectedMetrics.length === 0 ? 'opacity-40 cursor-not-allowed' : ''}`}
       >
-        {loading ? 'Saving...' : 'Start analyzing'}
+        {loading ? t('common.saving') : t('onboarding.startAnalyzing')}
       </button>
 
       {!aiLoading && selectedMetrics.length === 0 && (
         <p className="text-dl-xs text-dl-text-light text-center mt-2">
-          Select at least one metric to continue
+          {t('onboarding.selectMetric')}
         </p>
       )}
     </div>

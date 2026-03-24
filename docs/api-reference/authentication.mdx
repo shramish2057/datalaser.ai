@@ -1,0 +1,171 @@
+---
+title: "Authentication"
+description: "Authenticate requests to the DataLaser API using Supabase JWT tokens."
+---
+
+## Base URL
+
+All API requests are made to:
+
+```
+https://datalaser.de/api
+```
+
+Requests are proxied through the Next.js application layer to the underlying FastAPI pipeline service. You never call the pipeline service directly.
+
+## Authentication Method
+
+DataLaser uses **Bearer token** authentication with Supabase-issued JWTs. Every request must include an `Authorization` header.
+
+```
+Authorization: Bearer <your_api_key>
+```
+
+## Obtaining an API Key
+
+<Steps>
+  <Step title="Open Settings">
+    Navigate to **Settings** from the sidebar in your DataLaser workspace.
+  </Step>
+  <Step title="Go to API Keys">
+    Select the **API Keys** tab.
+  </Step>
+  <Step title="Create a Key">
+    Click **Create API Key**, give it a name (e.g. `ci-pipeline`), and copy the token immediately. It will not be shown again.
+  </Step>
+</Steps>
+
+<Warning>
+  Treat your API key like a password. Do not commit it to version control or expose it in client-side code.
+</Warning>
+
+## Making Your First Request
+
+```bash
+curl -X GET https://datalaser.de/api/sources \
+  -H "Authorization: Bearer dl_sk_abc123..."
+```
+
+## Request Headers
+
+Every request should include these headers:
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token in the format `Bearer <api_key>`.
+</ParamField>
+
+<ParamField header="Content-Type" type="string">
+  `application/json` for JSON payloads. Omit for multipart file uploads.
+</ParamField>
+
+<ParamField header="X-Project-Id" type="string">
+  The project UUID. Required for all project-scoped endpoints.
+</ParamField>
+
+## Rate Limits
+
+All API endpoints are rate-limited per API key.
+
+| Plan       | Limit            | Window  |
+|------------|------------------|---------|
+| Free       | 100 requests     | 1 minute |
+| Pro        | 500 requests     | 1 minute |
+| Enterprise | Custom           | Custom   |
+
+Rate limit headers are included in every response:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 87
+X-RateLimit-Reset: 1711324800
+```
+
+When you exceed the limit, the API returns a `429` status code. Wait until the `X-RateLimit-Reset` timestamp before retrying.
+
+## Error Codes
+
+All error responses follow a consistent shape:
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid or expired API key.",
+    "status": 401
+  }
+}
+```
+
+### Authentication and Authorization Errors
+
+| Status | Code            | Description                                                    |
+|--------|-----------------|----------------------------------------------------------------|
+| `401`  | `UNAUTHORIZED`  | Missing, invalid, or expired API key.                          |
+| `403`  | `FORBIDDEN`     | The key is valid but lacks permission for this resource.       |
+| `429`  | `RATE_LIMITED`   | Too many requests. Retry after the `X-RateLimit-Reset` window. |
+
+### General Errors
+
+| Status | Code                | Description                                   |
+|--------|---------------------|-----------------------------------------------|
+| `400`  | `BAD_REQUEST`       | Malformed request body or missing parameters. |
+| `404`  | `NOT_FOUND`         | The requested resource does not exist.        |
+| `409`  | `CONFLICT`          | Resource already exists or state conflict.    |
+| `422`  | `VALIDATION_ERROR`  | Request body failed schema validation.        |
+| `500`  | `INTERNAL_ERROR`    | An unexpected server error occurred.          |
+| `503`  | `SERVICE_UNAVAILABLE` | Pipeline service is temporarily unavailable.|
+
+## Token Refresh
+
+Supabase JWTs expire after 1 hour by default. If you are using the JavaScript SDK, the client handles refresh automatically. For direct API usage, request a new token before the current one expires:
+
+```bash
+curl -X POST https://datalaser.de/api/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{ "refresh_token": "your_refresh_token" }'
+```
+
+**Response:**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "expires_in": 3600,
+  "refresh_token": "new_refresh_token"
+}
+```
+
+## Environment Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X GET https://datalaser.de/api/sources \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123"
+```
+
+```python Python
+import requests
+
+headers = {
+    "Authorization": f"Bearer {DATALASER_API_KEY}",
+    "X-Project-Id": "proj_abc123",
+}
+
+response = requests.get("https://datalaser.de/api/sources", headers=headers)
+print(response.json())
+```
+
+```typescript TypeScript
+const res = await fetch("https://datalaser.de/api/sources", {
+  headers: {
+    Authorization: `Bearer ${process.env.DATALASER_API_KEY}`,
+    "X-Project-Id": "proj_abc123",
+  },
+});
+
+const data = await res.json();
+```
+
+</CodeGroup>

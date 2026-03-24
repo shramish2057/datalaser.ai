@@ -119,7 +119,7 @@ export default function InsightsPage() {
   const pending = sources.filter(s => s.insight_count === 0)
 
   return (
-    <div className="max-w-4xl mx-auto px-8 py-8">
+    <div className="max-w-4xl mx-auto px-8 py-10">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-[20px] font-black text-dl-text-dark">{t('insights.title')}</h1>
@@ -128,7 +128,7 @@ export default function InsightsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-dl-text-light">
+          <span className="text-dl-xs text-dl-text-light">
             {analyzed.length} {t('common.of')} {sources.length} sources
           </span>
         </div>
@@ -149,7 +149,7 @@ export default function InsightsPage() {
       {/* Analyzed Sources */}
       {analyzed.length > 0 && (
         <section className="mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-dl-text-light mb-3">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light mb-3">
             {t('insights.analyzed')} ({analyzed.length})
           </p>
           <div className="space-y-3">
@@ -161,12 +161,12 @@ export default function InsightsPage() {
                   <div className="flex items-center gap-2.5">
                     <CheckCircle2 size={16} className="text-dl-success flex-shrink-0" />
                     <span className="text-[14px] font-bold text-dl-text-dark">{src.name}</span>
-                    <span className="text-[10px] text-dl-text-light uppercase bg-dl-bg-light px-1.5 py-0.5 rounded">
+                    <span className="text-dl-xs text-dl-text-light uppercase bg-dl-bg-light px-1.5 py-0.5 rounded">
                       {src.source_type}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[11px] text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
+                    <span className="text-dl-xs text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
                     <ArrowRight size={14} className="text-dl-text-light group-hover:text-dl-brand transition-colors" />
                   </div>
                 </div>
@@ -175,13 +175,13 @@ export default function InsightsPage() {
                 <div className="ml-7 space-y-1">
                   {src.top_insights.map((ins, i) => (
                     <p key={i} className="text-[12px] text-dl-text-medium truncate">
-                      <span className="text-[10px] text-dl-text-light mr-1.5">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
+                      <span className="text-dl-xs text-dl-text-light mr-1.5">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
                       {translateFinding(ins.headline, locale)}
                     </p>
                   ))}
                 </div>
 
-                <div className="ml-7 mt-2 flex items-center gap-3 text-[10px] text-dl-text-light">
+                <div className="ml-7 mt-2 flex items-center gap-3 text-dl-xs text-dl-text-light">
                   <span>{src.row_count.toLocaleString()} rows</span>
                   {src.analyzed_at && (
                     <span>{t('insights.analyzed')} {new Date(src.analyzed_at).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span>
@@ -196,7 +196,7 @@ export default function InsightsPage() {
       {/* Pending Sources */}
       {pending.length > 0 && (
         <section>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-dl-text-light mb-3">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light mb-3">
             {t('insights.notAnalyzed')} ({pending.length})
           </p>
           <div className="space-y-2">
@@ -207,8 +207,8 @@ export default function InsightsPage() {
                   <Clock size={16} className="text-dl-text-light flex-shrink-0" />
                   <div>
                     <span className="text-[13px] font-medium text-dl-text-dark">{src.name}</span>
-                    <span className="text-[10px] text-dl-text-light uppercase ml-2">{src.source_type}</span>
-                    <p className="text-[11px] text-dl-text-light">{src.row_count.toLocaleString()} rows</p>
+                    <span className="text-dl-xs text-dl-text-light uppercase ml-2">{src.source_type}</span>
+                    <p className="text-dl-xs text-dl-text-light">{src.row_count.toLocaleString()} rows</p>
                   </div>
                 </div>
                 <button

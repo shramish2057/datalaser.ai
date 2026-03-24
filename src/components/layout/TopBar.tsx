@@ -17,7 +17,7 @@ export function TopBar() {
   const label = Object.entries(LABELS).find(([k]) => pathname.startsWith(k))?.[1] ?? 'DataLaser'
 
   return (
-    <header className="h-[65px] bg-dl-bg border-b border-dl-border flex items-center justify-between px-6 flex-shrink-0 font-sans">
+    <header className="h-[72px] bg-dl-bg border-b border-dl-border flex items-center justify-between px-6 flex-shrink-0 font-sans">
       <h1 className="text-dl-lg font-black text-dl-text-dark">{label}</h1>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1.5 text-dl-text-medium text-dl-sm">

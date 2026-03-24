@@ -26,14 +26,14 @@ export default function OrgPage() {
       <StepIndicator current={1} labels={['You', 'Project', 'Data']} />
 
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">
-        Set up your organization
+        {t('onboarding.setupOrg')}
       </h1>
       <p className="text-dl-text-medium text-dl-base mb-10">
-        This is your company or team&apos;s shared DataLaser account.
+        {t('onboarding.setupOrgDesc')}
       </p>
 
       <div className="mb-6">
-        <label className="dl-label">Organization name</label>
+        <label className="dl-label">{t('onboarding.orgName')}</label>
         <input
           className="dl-input"
           placeholder={t("onboarding.fullName")}
@@ -42,12 +42,12 @@ export default function OrgPage() {
           autoFocus
         />
         <p className="text-dl-xs text-dl-text-light mt-1">
-          This is your company name. You can change it later.
+          {t('onboarding.orgNameHelp')}
         </p>
       </div>
 
       <div className="mb-10">
-        <label className="dl-label">First workspace name</label>
+        <label className="dl-label">{t('onboarding.workspaceName')}</label>
         <input
           className="dl-input"
           placeholder={t("settings.general")}
@@ -55,7 +55,7 @@ export default function OrgPage() {
           onChange={e => setWorkspaceName(e.target.value)}
         />
         <p className="text-dl-xs text-dl-text-light mt-1">
-          Think of workspaces as departments or teams. e.g. Marketing, Finance, Product.
+          {t('onboarding.workspaceHelp')}
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export default function OrgPage() {
           onClick={() => router.back()}
           className="dl-btn-secondary px-6"
         >
-          &larr; Back
+          {t('onboarding.back')}
         </button>
         <button
           onClick={handleContinue}
@@ -72,7 +72,7 @@ export default function OrgPage() {
           className={`dl-btn-primary flex-1 py-2.5 font-black justify-center
             ${!orgName.trim() ? 'opacity-40 cursor-not-allowed' : ''}`}
         >
-          Continue &rarr;
+          {t('onboarding.continueArrow')}
         </button>
       </div>
     </div>

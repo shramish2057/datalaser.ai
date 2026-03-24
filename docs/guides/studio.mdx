@@ -1,0 +1,119 @@
+---
+title: "Studio"
+description: "A two-panel notebook environment for deep analysis, reporting, and export."
+icon: "flask"
+---
+
+Studio is DataLaser's power-user environment. It combines a code notebook on the left with a live report panel on the right, giving you full control over analysis while producing presentation-ready output.
+
+## Two-Panel Layout
+
+<CardGroup cols={2}>
+  <Card title="Left Panel: Notebook" icon="code">
+    Write and execute cells in sequence. Mix headings, narrative text, Python code, and SQL queries. Cells run top-to-bottom with shared state.
+  </Card>
+  <Card title="Right Panel: Report" icon="file-chart-column">
+    A live preview of your report as it would appear when exported. Charts, tables, and text render in real time as you execute cells.
+  </Card>
+</CardGroup>
+
+Toggle the report panel on or off with the **Report** button in the toolbar. In single-panel mode, the notebook expands to full width.
+
+## Creating Notebooks
+
+<Steps>
+  <Step title="Open Studio">
+    Navigate to a project and click **Studio** in the sidebar, or click **Open in Studio** from any Insight card or Ask Data response.
+  </Step>
+  <Step title="Choose a source">
+    Select one or more data sources for the notebook. You can query multiple sources within the same notebook.
+  </Step>
+  <Step title="Start from scratch or use AI">
+    Create a blank notebook or click **Generate with AI** to have DataLaser auto-create **14+ cells** based on your data's matched templates: headings, narrative, analysis code, and charts pre-populated.
+  </Step>
+</Steps>
+
+<Tip>
+AI-generated notebooks include all matched template analyses, explanatory text, and interactive charts. They are fully editable. Treat them as a starting point.
+</Tip>
+
+## Cell Types
+
+<AccordionGroup>
+  <Accordion title="Heading Cell" icon="heading">
+    Renders as an H1, H2, or H3 heading in the report. Use these to structure your analysis into sections.
+  </Accordion>
+  <Accordion title="Text Cell" icon="align-left">
+    Rich-text markdown for narrative, methodology notes, or commentary. Supports bold, italic, lists, links, and inline code.
+  </Accordion>
+  <Accordion title="Python Cell" icon="python">
+    Execute Python code with access to pandas, numpy, scipy, sklearn, plotly, matplotlib, and seaborn. DataFrames are pre-loaded for your selected sources. Chart outputs render inline and in the report panel.
+  </Accordion>
+  <Accordion title="SQL Cell" icon="database">
+    Write SQL queries against connected databases. Results return as a pandas DataFrame that subsequent Python cells can reference. Supports parameterized queries.
+  </Accordion>
+</AccordionGroup>
+
+## Running Code
+
+- **Run cell**: `Shift+Enter` or click the play button. Output appears below the cell and in the report panel.
+- **Run all**: Execute every cell top-to-bottom. A progress bar shows execution status.
+- **Interrupt**: Stop a long-running cell with the stop button or `Ctrl+C`.
+- **Clear outputs**: Reset all cell outputs without deleting code.
+
+Cells share a single Python kernel session. Variables defined in one cell are available in all subsequent cells.
+
+## Execution Modes
+
+<Tabs>
+  <Tab title="File Mode">
+    Analysis runs against the cleaned dataset snapshot stored by Data Prep. Best for reproducibility, since results are the same regardless of when you run.
+  </Tab>
+  <Tab title="Live Database Mode">
+    SQL cells query the database in real time. Python cells can also pull fresh data via the `dl.query()` helper. Best when you need up-to-the-minute results.
+  </Tab>
+</Tabs>
+
+Switch modes from the **Execution** dropdown in the toolbar.
+
+## Query Library
+
+The sidebar includes a **Query Library** with saved, reusable queries:
+
+- **Template queries**: pre-built queries generated from your matched industry templates.
+- **Saved queries**: queries you or your team have saved from previous notebooks.
+- **Community queries**: curated queries for common analytical patterns.
+
+Drag a query from the library into the notebook to insert it as a new cell.
+
+## Exporting
+
+Studio supports three export formats:
+
+<CardGroup cols={3}>
+  <Card title="PDF" icon="file-pdf">
+    Export the report panel as a styled PDF. Charts render as high-resolution images. Ideal for stakeholder presentations.
+  </Card>
+  <Card title="Jupyter Notebook" icon="book">
+    Download as a standard `.ipynb` file compatible with JupyterLab, VS Code, and Google Colab.
+  </Card>
+  <Card title="Python Script" icon="file-code">
+    Export all code cells as a standalone `.py` file with comments preserving the narrative structure.
+  </Card>
+</CardGroup>
+
+To export, click **Export** in the toolbar and select your format. PDF exports use the report panel layout; Jupyter and Python exports include all cells.
+
+## AI-Generated Notebooks
+
+When you click **Generate with AI**, DataLaser:
+
+1. Identifies all templates matched to your source.
+2. Generates **14+ cells** covering headings, narrative context, analysis code, and visualizations.
+3. Populates the report panel with a complete, structured analysis.
+
+The generated notebook is a first draft. Edit freely: add cells, remove sections, modify code, or change chart types.
+
+<Warning>
+AI-generated code runs in the same sandboxed environment as manual code. It has read-only access to your data and cannot modify source databases.
+</Warning>

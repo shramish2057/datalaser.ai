@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
+  <rect x="2" y="4" width="32" height="32" rx="8" fill="#FFFFFF"/>
+  <g transform="translate(10, 10)" fill="none">
+    <path d="M13 2L5.5 14h5l-1 8 7.5-12h-5l1-8z" fill="#191919" stroke="none"/>
+  </g>
+  <text x="44" y="27" font-family="Lato, system-ui, -apple-system, sans-serif" font-weight="700" font-size="20" fill="#FFFFFF" letter-spacing="-0.3">DataLaser</text>
+</svg>

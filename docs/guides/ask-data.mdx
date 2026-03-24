@@ -1,0 +1,111 @@
+---
+title: "Ask Data"
+description: "Ask questions in plain language and get verified, chart-rich answers from your data."
+icon: "comments"
+---
+
+Ask Data is DataLaser's conversational analytics interface. Type a question, select a source, and get a verified answer with interactive charts. No SQL or Python required.
+
+## How It Works
+
+<Steps>
+  <Step title="Templates match your source">
+    When you select a data source, DataLaser identifies which of the **42 industry templates** apply based on detected columns (bilingual DE/EN matching). These templates provide verified analytical context.
+  </Step>
+  <Step title="Verified context is assembled">
+    Your question, the source schema, column statistics, and all matching template findings (marked `[VERIFIED]`) are bundled into a prompt. No raw data rows are included.
+  </Step>
+  <Step title="Claude writes analysis code">
+    Claude generates Python or SQL code to answer your question, grounded in the verified template context. The code references only column names and statistical facts it can verify.
+  </Step>
+  <Step title="Pipeline executes">
+    The generated code runs in DataLaser's sandboxed execution engine against your actual data. Results are computed server-side.
+  </Step>
+  <Step title="Results stream back">
+    Charts, tables, and summary statistics stream into the chat in real time. Claude then explains the findings in plain language, citing the verified data points.
+  </Step>
+</Steps>
+
+## What You Can Ask
+
+<Tabs>
+  <Tab title="Trends & Comparisons">
+    - "How has revenue changed over the last 6 months?"
+    - "Compare Q1 vs Q2 sales by region."
+    - "Show me the year-over-year growth rate."
+    - "Wie hat sich der Umsatz im letzten Quartal entwickelt?"
+  </Tab>
+  <Tab title="Breakdowns & Rankings">
+    - "What are the top 10 products by revenue?"
+    - "Break down costs by department."
+    - "Which customer segment has the highest churn?"
+    - "Zeige die Top-5 Kategorien nach Marge."
+  </Tab>
+  <Tab title="Anomalies & Patterns">
+    - "Are there any anomalies in last month's transactions?"
+    - "What correlates most strongly with customer lifetime value?"
+    - "Find seasonal patterns in order volume."
+    - "Gibt es Ausreisser in den Bestelldaten?"
+  </Tab>
+  <Tab title="Forecasting & What-If">
+    - "Forecast next quarter's revenue based on current trends."
+    - "What would happen to margin if we raised prices 5%?"
+    - "Project headcount needs for 20% growth."
+  </Tab>
+</Tabs>
+
+<Tip>
+Ask Data works in both **English** and **German**. Template detection is bilingual, so column names like `Umsatz` and `Revenue` are recognized equally.
+</Tip>
+
+## Source Selector
+
+At the top of the chat, a dropdown lets you choose which data source to query. You can switch sources mid-conversation. When you switch:
+
+- The template context refreshes for the new source.
+- Previous messages remain visible for reference.
+- New questions run against the newly selected source.
+
+<Warning>
+Each question executes against a single source. To compare data across sources, use [Studio](/guides/studio) where you can query multiple sources in one notebook.
+</Warning>
+
+## Chart Interactions
+
+Every chart returned by Ask Data is interactive:
+
+- **Hover**: see exact values in a tooltip.
+- **Click a segment**: drill down into that category or time range.
+- **Zoom**: scroll to zoom on time-series charts; drag to pan.
+- **Download**: export the chart as PNG or SVG from the action menu.
+- **Open in Studio**: send the chart and its underlying query to a Studio notebook for further exploration.
+
+## Conversation History
+
+Your conversations are saved automatically. From the sidebar you can:
+
+- **Resume** a previous conversation with full context.
+- **Search** across all conversations by keyword.
+- **Delete** conversations you no longer need.
+- **Share** a conversation snapshot with a team member (read-only link).
+
+Each conversation retains up to **50 exchanges** before older messages are summarized to maintain context quality.
+
+## Privacy
+
+Ask Data is built on DataLaser's privacy-first architecture:
+
+<CardGroup cols={2}>
+  <Card title="No raw data in prompts" icon="shield-halved">
+    Claude receives only the source schema, column statistics, and `[VERIFIED]` template findings. Raw data rows never leave the execution engine.
+  </Card>
+  <Card title="Code runs server-side" icon="lock">
+    Generated code executes in a sandboxed environment. Claude sees aggregated results, never individual records.
+  </Card>
+  <Card title="Audit log" icon="file-lines">
+    Every question, generated query, and result is logged for compliance review.
+  </Card>
+  <Card title="No training on your data" icon="eye-slash">
+    Your data and conversations are never used to train AI models.
+  </Card>
+</CardGroup>

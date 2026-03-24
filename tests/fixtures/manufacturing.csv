@@ -1,0 +1,11 @@
+Artikel,Maschine,Ausschuss,Lieferzeit,Menge,Produktionsdatum,Schicht
+Gehaeuse,M-100,3,4.2,500,2024-01-15,Frueh
+Kolben,M-200,1,1.6,800,2024-01-15,Spaet
+Welle,M-100,5,3.1,350,2024-01-20,Frueh
+Gehaeuse,M-300,2,4.5,480,2024-01-25,Nacht
+Kolben,M-200,0,1.4,850,2024-02-01,Frueh
+Welle,M-300,4,2.9,370,2024-02-05,Spaet
+Gehaeuse,M-100,6,4.8,460,2024-02-10,Frueh
+Kolben,M-200,1,1.5,830,2024-02-15,Nacht
+Welle,M-100,3,3.3,340,2024-02-20,Spaet
+Gehaeuse,M-300,8,5.1,440,2024-02-25,Frueh

@@ -132,12 +132,12 @@ export default function AccountSettingsPage() {
                 <p className={`text-[13px] font-bold ${selectedLocale === lang.code ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                   {lang.label}
                 </p>
-                <p className="text-[11px] text-dl-text-light">{lang.region}</p>
+                <p className="text-dl-xs text-dl-text-light">{lang.region}</p>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-dl-text-light mt-2">
+        <p className="text-dl-xs text-dl-text-light mt-2">
           {selectedLocale === 'de'
             ? 'Ändert Sprache, KI-Antworten, Zahlen- und Datumsformat für alle Projekte.'
             : 'Changes language, AI responses, number and date format for all projects.'}

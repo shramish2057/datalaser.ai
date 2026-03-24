@@ -22,7 +22,7 @@ export function KPICard({ label, value, delta, deltaLabel, unit = '', trend, siz
   const trendBg = autoTrend === 'up' ? 'bg-green-50' : autoTrend === 'down' ? 'bg-red-50' : 'bg-dl-bg-light'
 
   const valueSizes = { sm: 'text-[18px]', md: 'text-[24px]', lg: 'text-[32px]' }
-  const labelSizes = { sm: 'text-[10px]', md: 'text-[11px]', lg: 'text-[12px]' }
+  const labelSizes = { sm: 'text-dl-xs', md: 'text-dl-xs', lg: 'text-[12px]' }
 
   const formattedValue = typeof value === 'number' ? smartFormat(value, locale) : value
 
@@ -44,10 +44,10 @@ export function KPICard({ label, value, delta, deltaLabel, unit = '', trend, siz
               {autoTrend === 'up' && <TrendingUp size={11} className={trendColor} />}
               {autoTrend === 'down' && <TrendingDown size={11} className={trendColor} />}
               {autoTrend === 'flat' && <Minus size={11} className={trendColor} />}
-              <span className={`text-[11px] font-bold ${trendColor}`}>
+              <span className={`text-dl-xs font-bold ${trendColor}`}>
                 {delta > 0 ? '+' : ''}{typeof delta === 'number' ? delta.toFixed(1) : delta}%
               </span>
-              {deltaLabel && <span className="text-[10px] text-dl-text-light ml-0.5">{deltaLabel}</span>}
+              {deltaLabel && <span className="text-dl-xs text-dl-text-light ml-0.5">{deltaLabel}</span>}
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 'use client'
 import { useTranslations } from 'next-intl'
+import { Logo } from '@/components/Logo'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -51,9 +52,9 @@ export default function TeamNewProjectPage() {
 
   return (
     <div className="min-h-screen bg-dl-bg-light font-sans">
-      <div className="bg-dl-bg border-b border-dl-border h-[65px] flex items-center px-8">
+      <div className="bg-dl-bg border-b border-dl-border h-[72px] flex items-center px-8">
         <Link href={wsBase} className="flex items-center gap-2 hover:opacity-70 transition-opacity">
-          <span className="text-dl-brand font-black text-xl">▲</span>
+          <span className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
           <span className="font-black text-dl-lg text-dl-text-dark">DataLaser</span>
         </Link>
       </div>

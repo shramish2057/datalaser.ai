@@ -46,7 +46,7 @@ export default function ProjectDashboardPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-3">
+      <div className="max-w-4xl mx-auto px-8 py-10 space-y-3">
         <div className="h-10 rounded-dl-md dl-shimmer" />
         <div className="h-10 rounded-dl-md dl-shimmer" />
         <div className="h-10 rounded-dl-md dl-shimmer" />
@@ -89,7 +89,7 @@ export default function ProjectDashboardPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto px-8 py-10">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

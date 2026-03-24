@@ -18,7 +18,7 @@ export function LocaleToggle() {
     <div className="flex items-center bg-dl-bg-medium rounded-full p-0.5">
       <button
         onClick={() => switchLocale('de')}
-        className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+        className={`text-dl-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
           locale === 'de'
             ? 'bg-white text-dl-text-dark shadow-sm'
             : 'text-dl-text-light hover:text-dl-text-medium'
@@ -28,7 +28,7 @@ export function LocaleToggle() {
       </button>
       <button
         onClick={() => switchLocale('en')}
-        className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-colors ${
+        className={`text-dl-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
           locale === 'en'
             ? 'bg-white text-dl-text-dark shadow-sm'
             : 'text-dl-text-light hover:text-dl-text-medium'

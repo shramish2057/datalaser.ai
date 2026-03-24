@@ -1,5 +1,6 @@
 'use client'
 import { useTranslations, useLocale } from 'next-intl'
+import { Logo } from '@/components/Logo'
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -39,11 +40,10 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center px-6 py-12"><div className="w-full max-w-sm">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 mb-6">
-          <span className="text-dl-brand font-black text-2xl">▲</span>
-          <span className="font-black text-dl-2xl text-dl-text-dark">DataLaser</span>
+        <div className="flex justify-center mb-6">
+          <Logo size="lg" />
         </div>
         <h1 className="text-dl-xl font-bold text-dl-text-dark mb-1">{t('auth.signUpTitle')}</h1>
         <p className="text-dl-text-medium text-dl-sm">{t('auth.signUpSubtitle')}</p>
@@ -103,6 +103,6 @@ export default function SignupPage() {
           {t('auth.signIn')}
         </Link>
       </p>
-    </div>
+    </div></div>
   )
 }

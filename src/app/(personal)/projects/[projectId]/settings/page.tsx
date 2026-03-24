@@ -97,7 +97,7 @@ export default function ProjectSettingsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto px-6 py-8 space-y-4">
+      <div className="max-w-2xl mx-auto px-8 py-10 space-y-4">
         <div className="h-10 rounded-dl-md dl-shimmer" />
         <div className="h-20 rounded-dl-md dl-shimmer" />
         <div className="h-10 rounded-dl-md dl-shimmer" />
@@ -106,7 +106,7 @@ export default function ProjectSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-8">
+    <div className="max-w-2xl mx-auto px-8 py-10">
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">{t('settings.title')}</h1>
 
       {/* Name */}
@@ -162,12 +162,12 @@ export default function ProjectSettingsPage() {
                 <p className={`text-[13px] font-bold ${selectedLocale === lang.code ? 'text-dl-brand' : 'text-dl-text-dark'}`}>
                   {lang.label}
                 </p>
-                <p className="text-[11px] text-dl-text-light">{lang.region}</p>
+                <p className="text-dl-xs text-dl-text-light">{lang.region}</p>
               </div>
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-dl-text-light mt-2">
+        <p className="text-dl-xs text-dl-text-light mt-2">
           {selectedLocale === 'de'
             ? 'Alle Oberflächen, KI-Antworten und Zahlenformate werden auf Deutsch angezeigt.'
             : 'All UI, AI responses, and number formats will be displayed in English.'}

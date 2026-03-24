@@ -1,0 +1,326 @@
+---
+title: "Data Sources"
+description: "Upload files, connect databases, and manage data sources in your project."
+---
+
+## Overview
+
+Data sources are the entry point for all analysis in DataLaser. You can upload flat files (CSV, Excel, Parquet, JSON) or connect live databases (PostgreSQL, MySQL, BigQuery, Snowflake). All source endpoints are project-scoped.
+
+---
+
+## Upload File
+
+Upload a file as a new data source. Supported formats: CSV, TSV, Excel (.xlsx, .xls), Parquet, and JSON.
+
+<Note>
+  Maximum file size is 100 MB. For larger datasets, use a database connection.
+</Note>
+
+```
+POST /api/sources/upload
+```
+
+### Request
+
+Content type: `multipart/form-data`
+
+<ParamField body="file" type="file" required>
+  The file to upload. Must be one of: `.csv`, `.tsv`, `.xlsx`, `.xls`, `.parquet`, `.json`.
+</ParamField>
+
+<ParamField body="name" type="string">
+  Display name for the source. Defaults to the file name.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Optional description of the data source.
+</ParamField>
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token.
+</ParamField>
+
+<ParamField header="X-Project-Id" type="string" required>
+  The project UUID.
+</ParamField>
+
+### Response
+
+```json
+{
+  "id": "src_8f3a1b2c",
+  "name": "sales_2024.csv",
+  "type": "file",
+  "format": "csv",
+  "size_bytes": 2457600,
+  "row_count": 12450,
+  "column_count": 18,
+  "status": "profiling",
+  "created_at": "2026-03-24T10:15:00Z"
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/sources/upload \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -F "file=@sales_2024.csv" \
+  -F "name=Sales Data 2024"
+```
+
+### Errors
+
+| Status | Code               | Description                            |
+|--------|--------------------|----------------------------------------|
+| `400`  | `INVALID_FORMAT`   | File type is not supported.            |
+| `413`  | `FILE_TOO_LARGE`   | File exceeds the 100 MB limit.         |
+| `422`  | `PARSE_ERROR`      | File could not be parsed.              |
+
+---
+
+## Connect Database
+
+Connect a live database as a data source.
+
+```
+POST /api/sources/connect
+```
+
+### Request
+
+<ParamField body="name" type="string" required>
+  Display name for the connection.
+</ParamField>
+
+<ParamField body="engine" type="string" required>
+  Database engine. One of: `postgresql`, `mysql`, `bigquery`, `snowflake`, `redshift`, `mssql`.
+</ParamField>
+
+<ParamField body="host" type="string" required>
+  Database host address.
+</ParamField>
+
+<ParamField body="port" type="integer" required>
+  Database port number.
+</ParamField>
+
+<ParamField body="database" type="string" required>
+  Database name.
+</ParamField>
+
+<ParamField body="username" type="string" required>
+  Database username.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Database password. Encrypted at rest using AES-256.
+</ParamField>
+
+<ParamField body="schema" type="string">
+  Database schema. Defaults to `public` for PostgreSQL.
+</ParamField>
+
+<ParamField body="ssl" type="boolean">
+  Whether to use SSL. Defaults to `true`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "id": "src_d4e5f6a7",
+  "name": "Production Analytics DB",
+  "type": "database",
+  "engine": "postgresql",
+  "host": "db.example.com",
+  "port": 5432,
+  "database": "analytics",
+  "schema": "public",
+  "ssl": true,
+  "status": "connected",
+  "tables": [
+    { "name": "orders", "row_count": 284000, "column_count": 12 },
+    { "name": "customers", "row_count": 45000, "column_count": 8 },
+    { "name": "products", "row_count": 1200, "column_count": 15 }
+  ],
+  "created_at": "2026-03-24T10:20:00Z"
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/sources/connect \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Production Analytics DB",
+    "engine": "postgresql",
+    "host": "db.example.com",
+    "port": 5432,
+    "database": "analytics",
+    "username": "readonly_user",
+    "password": "s3cureP@ss",
+    "schema": "public",
+    "ssl": true
+  }'
+```
+
+### Errors
+
+| Status | Code                  | Description                                |
+|--------|-----------------------|--------------------------------------------|
+| `400`  | `UNSUPPORTED_ENGINE`  | The database engine is not supported.      |
+| `422`  | `CONNECTION_FAILED`   | Could not connect with the given credentials. |
+| `408`  | `CONNECTION_TIMEOUT`  | Connection timed out after 30 seconds.     |
+
+---
+
+## Test Connection
+
+Validate database credentials without creating a source.
+
+```
+POST /api/sources/test
+```
+
+### Request
+
+<ParamField body="engine" type="string" required>
+  Database engine. Same values as the connect endpoint.
+</ParamField>
+
+<ParamField body="host" type="string" required>
+  Database host address.
+</ParamField>
+
+<ParamField body="port" type="integer" required>
+  Database port number.
+</ParamField>
+
+<ParamField body="database" type="string" required>
+  Database name.
+</ParamField>
+
+<ParamField body="username" type="string" required>
+  Database username.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Database password.
+</ParamField>
+
+<ParamField body="ssl" type="boolean">
+  Whether to use SSL. Defaults to `true`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "success": true,
+  "latency_ms": 45,
+  "server_version": "PostgreSQL 15.4",
+  "tables_found": 12
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/sources/test \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "engine": "postgresql",
+    "host": "db.example.com",
+    "port": 5432,
+    "database": "analytics",
+    "username": "readonly_user",
+    "password": "s3cureP@ss",
+    "ssl": true
+  }'
+```
+
+### Errors
+
+| Status | Code                  | Description                               |
+|--------|-----------------------|-------------------------------------------|
+| `422`  | `CONNECTION_FAILED`   | Could not connect with the given credentials. |
+| `408`  | `CONNECTION_TIMEOUT`  | Connection timed out after 30 seconds.    |
+
+---
+
+## Query Source
+
+Execute a read-only SQL query against a connected database source.
+
+```
+POST /api/sources/query
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID. Must be a database source.
+</ParamField>
+
+<ParamField body="query" type="string" required>
+  SQL query to execute. Must be a `SELECT` statement. Write operations are blocked.
+</ParamField>
+
+<ParamField body="limit" type="integer">
+  Maximum number of rows to return. Defaults to `1000`. Maximum `50000`.
+</ParamField>
+
+<ParamField body="timeout_seconds" type="integer">
+  Query timeout. Defaults to `30`. Maximum `120`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "columns": [
+    { "name": "order_id", "type": "integer" },
+    { "name": "customer_name", "type": "text" },
+    { "name": "total", "type": "numeric" },
+    { "name": "created_at", "type": "timestamp" }
+  ],
+  "rows": [
+    [1001, "Acme GmbH", 4250.00, "2026-03-01T09:30:00Z"],
+    [1002, "TechCorp AG", 12800.50, "2026-03-01T11:15:00Z"]
+  ],
+  "row_count": 2,
+  "truncated": false,
+  "execution_time_ms": 82
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/sources/query \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_d4e5f6a7",
+    "query": "SELECT order_id, customer_name, total, created_at FROM orders WHERE total > 1000 ORDER BY created_at DESC",
+    "limit": 100
+  }'
+```
+
+### Errors
+
+| Status | Code                | Description                                      |
+|--------|---------------------|--------------------------------------------------|
+| `400`  | `WRITE_BLOCKED`     | Only SELECT queries are allowed.                 |
+| `400`  | `INVALID_SQL`       | The query could not be parsed.                   |
+| `404`  | `SOURCE_NOT_FOUND`  | The source ID does not exist in this project.    |
+| `408`  | `QUERY_TIMEOUT`     | Query exceeded the timeout limit.                |
+| `422`  | `EXECUTION_ERROR`   | The query returned a database error.             |

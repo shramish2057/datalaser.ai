@@ -129,11 +129,11 @@ export default function StudioSidebar({
 
   return (
     <>
-      <aside className="w-[220px] flex-shrink-0 h-full bg-dl-bg-light border-r border-dl-border overflow-y-auto flex flex-col">
+      <aside className="w-[260px] flex-shrink-0 h-full bg-dl-bg-light border-r border-dl-border overflow-y-auto flex flex-col">
 
         {/* SECTION: DATA SOURCES */}
         <div className="px-3 pt-3 pb-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
             {t('nav.dataSources')}
           </p>
           {sources.map(src => (
@@ -145,7 +145,7 @@ export default function StudioSidebar({
               <span className="text-[13px] text-dl-text-dark truncate flex-1" style={{ maxWidth: 120 }}>
                 {src.name}
               </span>
-              <span className="text-[10px] text-dl-text-light flex-shrink-0 uppercase">
+              <span className="text-dl-xs text-dl-text-light flex-shrink-0 uppercase">
                 {src.source_type === 'postgres' ? 'PG' :
                  src.source_type === 'mysql' ? 'SQL' :
                  src.source_type.toUpperCase().slice(0, 4)}
@@ -178,7 +178,7 @@ export default function StudioSidebar({
 
         {/* SECTION: NOTEBOOKS */}
         <div className="px-3 py-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
             {t('studio.notebooks')}
           </p>
           {notebooks.map(nb => {
@@ -242,11 +242,11 @@ export default function StudioSidebar({
 
         {/* SECTION: QUERY LIBRARY */}
         <div className="px-3 py-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
             {t('studio.savedQueries')}
           </p>
           {queryLibrary.length === 0 ? (
-            <p className="text-[11px] text-dl-text-light px-1 py-2">{t('studio.noSavedQueries')}</p>
+            <p className="text-dl-xs text-dl-text-light px-1 py-2">{t('studio.noSavedQueries')}</p>
           ) : (
             queryLibrary.slice(0, 5).map(q => (
               <button
@@ -255,12 +255,12 @@ export default function StudioSidebar({
                 className="w-full text-left px-2 py-1.5 rounded-dl-md hover:bg-dl-bg-medium"
               >
                 <div className="flex items-center gap-2">
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${OP_COLORS[q.operation] || OP_COLORS.custom}`}>
+                  <span className={`px-1.5 py-0.5 rounded text-dl-xs font-bold ${OP_COLORS[q.operation] || OP_COLORS.custom}`}>
                     {q.operation}
                   </span>
                   <span className="text-[12px] text-dl-text-dark truncate">{q.title}</span>
                 </div>
-                <span className="text-[10px] text-dl-text-light ml-7">{q.use_count} uses</span>
+                <span className="text-dl-xs text-dl-text-light ml-7">{q.use_count} uses</span>
               </button>
             ))
           )}
@@ -270,14 +270,14 @@ export default function StudioSidebar({
 
         {/* SECTION: SCHEMA */}
         <div className="px-3 py-1 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
             {t('studio.schema')}
           </p>
           {!activeSourceName ? (
-            <p className="text-[11px] text-dl-text-light px-1">{t('studio.selectSource')}</p>
+            <p className="text-dl-xs text-dl-text-light px-1">{t('studio.selectSource')}</p>
           ) : (
             <>
-              <p className="text-[11px] font-medium text-dl-text-medium px-1 mb-2">{activeSourceName}</p>
+              <p className="text-dl-xs font-medium text-dl-text-medium px-1 mb-2">{activeSourceName}</p>
               {schemaColumns.map(col => (
                 <button
                   key={col.name}
@@ -285,7 +285,7 @@ export default function StudioSidebar({
                   className="flex items-center gap-1.5 px-2 py-1 w-full rounded hover:bg-dl-bg-medium group"
                   title={t("common.copy")}
                 >
-                  <span className="font-mono text-[11px] text-dl-text-dark truncate flex-1 text-left">
+                  <span className="font-mono text-dl-xs text-dl-text-dark truncate flex-1 text-left">
                     {col.name}
                   </span>
                   {copiedCol === col.name ? (
@@ -293,7 +293,7 @@ export default function StudioSidebar({
                   ) : (
                     <Copy size={10} className="text-dl-text-light opacity-0 group-hover:opacity-100 flex-shrink-0" />
                   )}
-                  <span className={`text-[10px] flex-shrink-0 ${
+                  <span className={`text-dl-xs flex-shrink-0 ${
                     col.dtype === 'numeric' ? 'text-blue-600' :
                     col.dtype === 'categorical' ? 'text-purple-600' :
                     col.dtype === 'date' ? 'text-green-600' : 'text-dl-text-light'
@@ -504,7 +504,7 @@ function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone:
         {DB_CONNECTORS.map(db => (
           <button key={db.id} onClick={() => { setSelectedDb(db.id); setFields({}); setTestResult(null) }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-dl-md border border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover transition-colors text-left">
-            <div className="w-8 h-8 rounded-dl-md bg-dl-bg-medium flex items-center justify-center text-[11px] font-bold text-dl-text-medium flex-shrink-0">
+            <div className="w-8 h-8 rounded-dl-md bg-dl-bg-medium flex items-center justify-center text-dl-xs font-bold text-dl-text-medium flex-shrink-0">
               {db.icon}
             </div>
             <span className="text-[13px] font-medium text-dl-text-dark">{db.name}</span>
@@ -521,7 +521,7 @@ function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone:
         ← Back to database list
       </button>
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-dl-md bg-dl-bg-medium flex items-center justify-center text-[11px] font-bold text-dl-text-medium">
+        <div className="w-8 h-8 rounded-dl-md bg-dl-bg-medium flex items-center justify-center text-dl-xs font-bold text-dl-text-medium">
           {connector!.icon}
         </div>
         <span className="text-[14px] font-bold text-dl-text-dark">{connector!.name}</span>
@@ -529,14 +529,14 @@ function ConnectDatabaseForm({ projectId, onDone }: { projectId: string; onDone:
 
       <div className="space-y-3">
         <div>
-          <label className="text-[11px] font-semibold text-dl-text-medium uppercase tracking-wider">Display Name</label>
+          <label className="text-dl-xs font-semibold text-dl-text-medium uppercase tracking-wider">Display Name</label>
           <input value={sourceName} onChange={e => setSourceName(e.target.value)}
             placeholder={t('sources.displayName')}
             className="w-full mt-1 px-3 py-2 text-[13px] border border-dl-border rounded-dl-md outline-none focus:border-dl-brand" />
         </div>
         {connector!.fields.map(field => (
           <div key={field}>
-            <label className="text-[11px] font-semibold text-dl-text-medium uppercase tracking-wider">
+            <label className="text-dl-xs font-semibold text-dl-text-medium uppercase tracking-wider">
               {field.replace(/_/g, ' ')}
             </label>
             <input

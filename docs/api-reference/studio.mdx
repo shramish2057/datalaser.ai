@@ -1,0 +1,784 @@
+---
+title: "Studio"
+description: "Execute code, run statistical analyses, manage notebooks, and query your data with natural language."
+---
+
+## Overview
+
+Studio is DataLaser's computational environment. It provides sandboxed Python execution against file and database sources, a full suite of statistical analysis endpoints, AI-powered code generation, and notebook management. All execution happens server-side in isolated containers.
+
+---
+
+## Execute Code (File Source)
+
+Execute Python code against a file-based data source in a sandboxed environment. The source data is available as a pandas DataFrame named `df`.
+
+```
+POST /api/studio/execute
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The file-based data source UUID.
+</ParamField>
+
+<ParamField body="code" type="string" required>
+  Python code to execute. The source data is pre-loaded as `df` (a pandas DataFrame). Use `result` to return output.
+</ParamField>
+
+<ParamField body="timeout_seconds" type="integer">
+  Execution timeout. Defaults to `30`. Maximum `120`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "status": "success",
+  "execution_time_ms": 245,
+  "result": {
+    "type": "dataframe",
+    "columns": ["region", "total_revenue", "order_count"],
+    "rows": [
+      ["DACH", 18500000, 4500],
+      ["Nordics", 12800000, 3200],
+      ["Benelux", 9600000, 2800]
+    ],
+    "shape": [3, 3]
+  },
+  "stdout": "",
+  "stderr": "",
+  "charts": []
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/studio/execute \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "code": "result = df.groupby(\"region\").agg({\"revenue\": \"sum\", \"order_id\": \"count\"}).rename(columns={\"revenue\": \"total_revenue\", \"order_id\": \"order_count\"}).reset_index()",
+    "timeout_seconds": 30
+  }'
+```
+
+### Errors
+
+| Status | Code                 | Description                              |
+|--------|----------------------|------------------------------------------|
+| `400`  | `SYNTAX_ERROR`       | Python code has a syntax error.          |
+| `404`  | `SOURCE_NOT_FOUND`   | Source ID does not exist.                |
+| `408`  | `EXECUTION_TIMEOUT`  | Code exceeded the timeout limit.         |
+| `422`  | `RUNTIME_ERROR`      | Code raised an unhandled exception.      |
+| `422`  | `SANDBOX_VIOLATION`  | Code attempted a disallowed operation.   |
+
+---
+
+## Execute Code (Database Source)
+
+Execute Python code against a live database connection. The database connection is available via `conn` (SQLAlchemy engine) and you can use `pd.read_sql()`.
+
+```
+POST /api/studio/execute-db
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The database source UUID.
+</ParamField>
+
+<ParamField body="code" type="string" required>
+  Python code to execute. A SQLAlchemy `conn` object and `pd` (pandas) are pre-imported. Use `result` to return output.
+</ParamField>
+
+<ParamField body="timeout_seconds" type="integer">
+  Execution timeout. Defaults to `30`. Maximum `120`.
+</ParamField>
+
+### Response
+
+Same shape as the [Execute Code](#execute-code-file-source) response.
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/studio/execute-db \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_d4e5f6a7",
+    "code": "df = pd.read_sql(\"SELECT region, SUM(revenue) as total FROM orders GROUP BY region\", conn)\nresult = df"
+  }'
+```
+
+### Errors
+
+Same error codes as [Execute Code](#execute-code-file-source), plus:
+
+| Status | Code                  | Description                              |
+|--------|-----------------------|------------------------------------------|
+| `422`  | `CONNECTION_FAILED`   | Could not connect to the database.       |
+
+---
+
+## Suggest Code
+
+Generate Python code cells from a natural language description. Powered by AI with context from the source schema.
+
+```
+POST /api/studio/suggest
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="prompt" type="string" required>
+  Natural language description of what you want to do, e.g. `"Show revenue by region as a bar chart"`.
+</ParamField>
+
+<ParamField body="context" type="array">
+  Array of previous code cells for conversational context.
+</ParamField>
+
+### Response
+
+```json
+{
+  "cells": [
+    {
+      "type": "code",
+      "language": "python",
+      "source": "import matplotlib.pyplot as plt\n\nrevenue_by_region = df.groupby('region')['revenue'].sum().sort_values(ascending=False)\n\nfig, ax = plt.subplots(figsize=(10, 6))\nrevenue_by_region.plot(kind='bar', ax=ax, color='#191919')\nax.set_title('Revenue by Region')\nax.set_ylabel('Total Revenue')\nax.set_xlabel('Region')\nplt.tight_layout()\nresult = fig",
+      "explanation": "Groups the data by region, sums revenue, and creates a bar chart sorted by total revenue descending."
+    }
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/studio/suggest \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "prompt": "Show revenue by region as a bar chart"
+  }'
+```
+
+### Errors
+
+| Status | Code                | Description                        |
+|--------|---------------------|------------------------------------|
+| `404`  | `SOURCE_NOT_FOUND`  | Source ID does not exist.          |
+| `422`  | `GENERATION_ERROR`  | Code generation failed.            |
+
+---
+
+## Interpret Results
+
+Get an AI-generated interpretation of execution results.
+
+```
+POST /api/studio/interpret
+```
+
+### Request
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="code" type="string" required>
+  The code that was executed.
+</ParamField>
+
+<ParamField body="result" type="object" required>
+  The execution result object from the execute endpoint.
+</ParamField>
+
+<ParamField body="prompt" type="string">
+  Optional guiding question, e.g. `"What does this tell us about regional performance?"`.
+</ParamField>
+
+### Response
+
+```json
+{
+  "interpretation": "The DACH region dominates revenue with 18.5M (48% of total), followed by Nordics at 12.8M (33%) and Benelux at 9.6M (25%). DACH also leads in order volume, but Nordics has a higher average order value (4,000 vs 4,111). This suggests the Nordics market has higher-value transactions despite fewer orders.",
+  "key_points": [
+    "DACH accounts for 48% of total revenue",
+    "Nordics has the highest average order value at 4,111",
+    "Benelux shows the most room for growth"
+  ],
+  "suggested_followups": [
+    "Break down DACH revenue by product category",
+    "Compare monthly trends across regions",
+    "Analyze customer retention rates per region"
+  ]
+}
+```
+
+### Example
+
+```bash
+curl -X POST https://datalaser.de/api/studio/interpret \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "code": "result = df.groupby(\"region\").agg({\"revenue\": \"sum\"}).reset_index()",
+    "result": {
+      "type": "dataframe",
+      "columns": ["region", "revenue"],
+      "rows": [["DACH", 18500000], ["Nordics", 12800000], ["Benelux", 9600000]]
+    },
+    "prompt": "What does this tell us about regional performance?"
+  }'
+```
+
+---
+
+## Notebooks CRUD
+
+Manage Studio notebooks (create, list, read, update, delete).
+
+### Create Notebook
+
+```
+POST /api/studio/notebooks
+```
+
+<ParamField body="name" type="string" required>
+  Notebook display name.
+</ParamField>
+
+<ParamField body="source_id" type="string" required>
+  The data source this notebook is associated with.
+</ParamField>
+
+<ParamField body="cells" type="array">
+  Initial array of notebook cells. Defaults to an empty notebook.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "id": "nb_f1g2h3i4",
+  "name": "Revenue Analysis",
+  "source_id": "src_8f3a1b2c",
+  "cells": [],
+  "created_at": "2026-03-24T11:00:00Z",
+  "updated_at": "2026-03-24T11:00:00Z"
+}
+```
+
+### List Notebooks
+
+```
+GET /api/studio/notebooks
+```
+
+Returns all notebooks for the current project (set via `X-Project-Id` header).
+
+### Get Notebook
+
+```
+GET /api/studio/notebooks/{notebook_id}
+```
+
+### Update Notebook
+
+```
+PATCH /api/studio/notebooks/{notebook_id}
+```
+
+<ParamField body="name" type="string">
+  Updated name.
+</ParamField>
+
+<ParamField body="cells" type="array">
+  Updated cell array. Replaces all cells.
+</ParamField>
+
+### Delete Notebook
+
+```
+DELETE /api/studio/notebooks/{notebook_id}
+```
+
+### Example
+
+```bash
+# Create a notebook
+curl -X POST https://datalaser.de/api/studio/notebooks \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Revenue Analysis",
+    "source_id": "src_8f3a1b2c",
+    "cells": [
+      {
+        "type": "code",
+        "source": "result = df.describe()"
+      }
+    ]
+  }'
+
+# List notebooks
+curl -X GET https://datalaser.de/api/studio/notebooks \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123"
+```
+
+---
+
+## Query Library
+
+Access and manage saved queries for reuse across notebooks.
+
+```
+POST /api/studio/query-library
+```
+
+### Request
+
+<ParamField body="action" type="string" required>
+  One of: `list`, `get`, `create`, `update`, `delete`.
+</ParamField>
+
+<ParamField body="query_id" type="string">
+  Required for `get`, `update`, `delete`.
+</ParamField>
+
+<ParamField body="name" type="string">
+  Query name. Required for `create`.
+</ParamField>
+
+<ParamField body="code" type="string">
+  Python code. Required for `create` and `update`.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Optional description.
+</ParamField>
+
+<ParamField body="tags" type="array">
+  Optional array of tag strings for categorization.
+</ParamField>
+
+### Response (list)
+
+```json
+{
+  "queries": [
+    {
+      "id": "qry_a1b2c3",
+      "name": "Revenue by Region",
+      "description": "Groups data by region and sums revenue.",
+      "code": "result = df.groupby('region')['revenue'].sum().reset_index()",
+      "tags": ["revenue", "regional"],
+      "created_at": "2026-03-20T14:00:00Z",
+      "last_used_at": "2026-03-24T10:00:00Z"
+    }
+  ],
+  "total": 1
+}
+```
+
+---
+
+## Statistical Analysis Endpoints
+
+The following endpoints provide pre-built statistical analyses. All accept a `source_id` and return structured results.
+
+### Descriptive Statistics
+
+Compute summary statistics for all numeric columns.
+
+```
+POST /api/analyst/descriptive
+```
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="columns" type="array">
+  Specific columns to analyze. Defaults to all numeric columns.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "statistics": {
+    "revenue": {
+      "count": 12427,
+      "mean": 4521.37,
+      "std": 2105.44,
+      "min": 12.50,
+      "p25": 2100.00,
+      "median": 3800.00,
+      "p75": 5900.00,
+      "max": 98500.00,
+      "skewness": 1.84,
+      "kurtosis": 5.21
+    },
+    "quantity": {
+      "count": 12450,
+      "mean": 12.4,
+      "std": 8.7,
+      "min": 1,
+      "p25": 5,
+      "median": 10,
+      "p75": 18,
+      "max": 99,
+      "skewness": 0.92,
+      "kurtosis": 0.45
+    }
+  }
+}
+```
+
+```bash
+curl -X POST https://datalaser.de/api/analyst/descriptive \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{ "source_id": "src_8f3a1b2c" }'
+```
+
+---
+
+### Correlation Matrix
+
+Compute pairwise Pearson correlation coefficients between numeric columns.
+
+```
+POST /api/analyst/correlation
+```
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="columns" type="array">
+  Columns to include. Defaults to all numeric columns.
+</ParamField>
+
+<ParamField body="method" type="string">
+  Correlation method: `pearson`, `spearman`, or `kendall`. Defaults to `pearson`.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "method": "pearson",
+  "columns": ["revenue", "quantity", "discount_rate"],
+  "matrix": [
+    [1.00, 0.72, -0.15],
+    [0.72, 1.00, 0.08],
+    [-0.15, 0.08, 1.00]
+  ],
+  "significant_pairs": [
+    {
+      "columns": ["revenue", "quantity"],
+      "r": 0.72,
+      "p_value": 0.00001,
+      "strength": "strong"
+    }
+  ]
+}
+```
+
+```bash
+curl -X POST https://datalaser.de/api/analyst/correlation \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "method": "pearson"
+  }'
+```
+
+---
+
+### Linear / Multiple Regression
+
+Fit a linear regression model.
+
+```
+POST /api/analyst/regression
+```
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="target" type="string" required>
+  The dependent variable column name.
+</ParamField>
+
+<ParamField body="features" type="array" required>
+  Array of independent variable column names.
+</ParamField>
+
+<ParamField body="test_size" type="number">
+  Fraction of data for testing (0.0 to 0.5). Defaults to `0.2`.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "target": "revenue",
+  "features": ["quantity", "discount_rate"],
+  "coefficients": {
+    "intercept": 1250.00,
+    "quantity": 285.50,
+    "discount_rate": -4200.00
+  },
+  "metrics": {
+    "r_squared": 0.68,
+    "adjusted_r_squared": 0.67,
+    "rmse": 1180.44,
+    "mae": 920.12,
+    "f_statistic": 1320.5,
+    "f_p_value": 0.0
+  },
+  "residual_analysis": {
+    "normality_test": { "statistic": 0.98, "p_value": 0.12 },
+    "homoscedasticity_test": { "statistic": 2.1, "p_value": 0.08 }
+  }
+}
+```
+
+```bash
+curl -X POST https://datalaser.de/api/analyst/regression \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "target": "revenue",
+    "features": ["quantity", "discount_rate"],
+    "test_size": 0.2
+  }'
+```
+
+---
+
+### One-Way ANOVA
+
+Test for significant differences in means across groups.
+
+```
+POST /api/analyst/anova
+```
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="metric" type="string" required>
+  The numeric column to analyze.
+</ParamField>
+
+<ParamField body="group_by" type="string" required>
+  The categorical column defining groups.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "metric": "revenue",
+  "group_by": "region",
+  "groups": [
+    { "name": "DACH", "count": 4500, "mean": 4111.11, "std": 1980.00 },
+    { "name": "Nordics", "count": 3200, "mean": 4000.00, "std": 2050.00 },
+    { "name": "Benelux", "count": 2800, "mean": 3428.57, "std": 1750.00 }
+  ],
+  "anova": {
+    "f_statistic": 28.4,
+    "p_value": 0.00001,
+    "significant": true,
+    "alpha": 0.05
+  },
+  "post_hoc": {
+    "method": "tukey_hsd",
+    "comparisons": [
+      { "group1": "DACH", "group2": "Benelux", "p_value": 0.0001, "significant": true },
+      { "group1": "DACH", "group2": "Nordics", "p_value": 0.42, "significant": false },
+      { "group1": "Nordics", "group2": "Benelux", "p_value": 0.002, "significant": true }
+    ]
+  }
+}
+```
+
+```bash
+curl -X POST https://datalaser.de/api/analyst/anova \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "metric": "revenue",
+    "group_by": "region"
+  }'
+```
+
+---
+
+### Time Series Forecast
+
+Generate a time series forecast using statistical models (Prophet / ARIMA).
+
+```
+POST /api/analyst/forecast
+```
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="date_column" type="string" required>
+  The datetime column.
+</ParamField>
+
+<ParamField body="metric_column" type="string" required>
+  The numeric column to forecast.
+</ParamField>
+
+<ParamField body="periods" type="integer" required>
+  Number of future periods to forecast.
+</ParamField>
+
+<ParamField body="frequency" type="string">
+  Time frequency: `D` (daily), `W` (weekly), `M` (monthly), `Q` (quarterly). Defaults to auto-detect.
+</ParamField>
+
+<ParamField body="model" type="string">
+  Forecasting model: `prophet` or `arima`. Defaults to `prophet`.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "model": "prophet",
+  "date_column": "created_at",
+  "metric_column": "revenue",
+  "frequency": "M",
+  "historical": [
+    { "date": "2025-10-01", "actual": 5200000 },
+    { "date": "2025-11-01", "actual": 5800000 },
+    { "date": "2025-12-01", "actual": 6100000 },
+    { "date": "2026-01-01", "actual": 4900000 },
+    { "date": "2026-02-01", "actual": 5100000 },
+    { "date": "2026-03-01", "actual": 3980000 }
+  ],
+  "forecast": [
+    { "date": "2026-04-01", "predicted": 5350000, "lower_bound": 4800000, "upper_bound": 5900000 },
+    { "date": "2026-05-01", "predicted": 5520000, "lower_bound": 4850000, "upper_bound": 6190000 },
+    { "date": "2026-06-01", "predicted": 5700000, "lower_bound": 4900000, "upper_bound": 6500000 }
+  ],
+  "metrics": {
+    "mape": 8.2,
+    "rmse": 420000,
+    "r_squared": 0.82
+  },
+  "seasonality": {
+    "detected": true,
+    "period": 12,
+    "strength": 0.34
+  }
+}
+```
+
+```bash
+curl -X POST https://datalaser.de/api/analyst/forecast \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "date_column": "created_at",
+    "metric_column": "revenue",
+    "periods": 3,
+    "frequency": "M",
+    "model": "prophet"
+  }'
+```
+
+---
+
+### Suggest Analysis
+
+Generate Python analysis code from a natural language query. Similar to `/studio/suggest` but focused on statistical analysis.
+
+```
+POST /api/analyst/suggest-analysis
+```
+
+<ParamField body="source_id" type="string" required>
+  The data source UUID.
+</ParamField>
+
+<ParamField body="question" type="string" required>
+  Natural language question, e.g. `"Is there a significant difference in revenue between regions?"`.
+</ParamField>
+
+**Response:**
+
+```json
+{
+  "analysis_type": "anova",
+  "description": "One-way ANOVA test to compare mean revenue across regions, with Tukey HSD post-hoc test.",
+  "code": "from scipy import stats\n\ngroups = [group['revenue'].values for name, group in df.groupby('region')]\nf_stat, p_value = stats.f_oneway(*groups)\n\nresult = {'f_statistic': f_stat, 'p_value': p_value, 'significant': p_value < 0.05}",
+  "explanation": "Uses one-way ANOVA to test if mean revenue differs significantly across regions. A p-value below 0.05 indicates statistically significant differences."
+}
+```
+
+```bash
+curl -X POST https://datalaser.de/api/analyst/suggest-analysis \
+  -H "Authorization: Bearer $DATALASER_API_KEY" \
+  -H "X-Project-Id: proj_abc123" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_id": "src_8f3a1b2c",
+    "question": "Is there a significant difference in revenue between regions?"
+  }'
+```
+
+---
+
+## Common Errors (All Studio Endpoints)
+
+| Status | Code                 | Description                              |
+|--------|----------------------|------------------------------------------|
+| `400`  | `SYNTAX_ERROR`       | Python code has a syntax error.          |
+| `404`  | `SOURCE_NOT_FOUND`   | Source ID does not exist.                |
+| `404`  | `NOTEBOOK_NOT_FOUND` | Notebook ID does not exist.              |
+| `408`  | `EXECUTION_TIMEOUT`  | Code exceeded the timeout limit.         |
+| `422`  | `RUNTIME_ERROR`      | Unhandled exception during execution.    |
+| `422`  | `SANDBOX_VIOLATION`  | Disallowed operation (file I/O, network).|
+| `422`  | `ANALYSIS_ERROR`     | Statistical analysis could not complete. |

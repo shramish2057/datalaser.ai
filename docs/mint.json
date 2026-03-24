@@ -1,0 +1,97 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "DataLaser",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#191919",
+    "light": "#F8FAFB",
+    "dark": "#000000",
+    "anchors": {
+      "from": "#191919",
+      "to": "#4A4A4A"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "datalaser.de",
+      "url": "https://datalaser.de"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "https://datalaser.de/en/signup"
+  },
+  "anchors": [
+    {
+      "name": "API Reference",
+      "icon": "code",
+      "url": "api-reference"
+    },
+    {
+      "name": "Security",
+      "icon": "shield-halved",
+      "url": "security"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "first-datasource",
+        "first-insight"
+      ]
+    },
+    {
+      "group": "Product Guides",
+      "pages": [
+        "guides/data-sources",
+        "guides/data-health",
+        "guides/data-prep",
+        "guides/insights",
+        "guides/ask-data",
+        "guides/studio",
+        "guides/templates"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/authentication",
+        "api-reference/data-sources",
+        "api-reference/pipeline",
+        "api-reference/templates",
+        "api-reference/insights",
+        "api-reference/studio"
+      ]
+    },
+    {
+      "group": "Architecture",
+      "pages": [
+        "architecture/overview",
+        "architecture/privacy",
+        "architecture/data-connection",
+        "architecture/data-prep-pipeline",
+        "architecture/insights-engine",
+        "architecture/ask-and-studio"
+      ]
+    },
+    {
+      "group": "Security",
+      "pages": [
+        "security/overview",
+        "security/data-flow",
+        "security/eu-residency",
+        "security/dsgvo"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "linkedin": "https://linkedin.com/company/datalaser"
+  }
+}

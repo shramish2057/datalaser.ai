@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="128" fill="#1A3A5C"/>
+  <g transform="translate(512, 350)" fill="none" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="0,-160 140,80 -140,80" opacity="0.9"/>
+    <line x1="0" y1="-160" x2="0" y2="80" opacity="0.4"/>
+    <line x1="-70" y1="-40" x2="70" y2="-40" opacity="0.4"/>
+  </g>
+  <text x="512" y="810" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="600" font-size="200" letter-spacing="12" fill="white">NK</text>
+  <rect x="310" y="838" width="404" height="4" rx="2" fill="white" opacity="0.3"/>
+</svg>

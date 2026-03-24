@@ -108,13 +108,13 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
   return (
     <div className="flex h-screen bg-dl-bg-light overflow-hidden font-sans">
       <aside className={`
-        ${sidebarExpanded ? 'w-[220px]' : 'w-[52px]'}
+        ${sidebarExpanded ? 'w-[260px]' : 'w-[52px]'}
         flex-shrink-0 h-screen bg-dl-bg border-r border-dl-border
         flex flex-col transition-all duration-150
       `}>
         {/* Back to org + workspace name */}
         <div className={`
-          h-[65px] flex items-center border-b border-dl-border flex-shrink-0
+          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
           ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
         `}>
           {sidebarExpanded ? (
@@ -142,7 +142,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
             const active = pathname.startsWith(`${wsBase}/${p.slug}`)
             return (
               <Link key={p.id} href={`${wsBase}/${p.slug}`}
-                className={`relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                className={`relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-2.5' : 'justify-center'}
                   ${active ? 'text-dl-brand bg-dl-brand-hover' : 'text-dl-text-medium hover:text-dl-text-dark hover:bg-dl-bg-light'}`}>
@@ -155,7 +155,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
 
           {sidebarExpanded && (
             <button onClick={() => router.push(`${wsBase}/new`)}
-              className="flex items-center gap-2 px-4 h-[36px] w-full text-dl-xs
+              className="flex items-center gap-2 px-4 h-[40px] w-full text-dl-xs
                 text-dl-text-light hover:text-dl-brand transition-colors mt-1">
               <Plus size={13} /> {t('projects.newProject')}
             </button>
@@ -175,7 +175,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
             const active = pathname === item.href
             return (
               <Link key={item.label} href={item.href}
-                className={`relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                className={`relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-2.5' : 'justify-center'}
                   ${active ? 'text-dl-brand bg-dl-brand-hover' : 'text-dl-text-medium hover:text-dl-text-dark hover:bg-dl-bg-light'}`}>
@@ -200,12 +200,12 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
             </div>
           )}
           <button onClick={toggleSidebar}
-            className="flex items-center justify-center w-full h-[36px]
+            className="flex items-center justify-center w-full h-[40px]
               text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light transition-colors">
             {sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
           </button>
           <button onClick={logout}
-            className={`flex items-center h-[36px] w-full font-bold text-dl-sm
+            className={`flex items-center h-[40px] w-full font-bold text-dl-sm
               text-dl-text-light hover:text-red-500 hover:bg-red-50 transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}`}>
             <LogOut size={15} className="flex-shrink-0" />

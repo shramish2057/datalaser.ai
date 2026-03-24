@@ -1,0 +1,469 @@
+---
+title: "Industry Templates"
+description: "42 bilingual analysis templates that automatically detect your data's domain and power verified insights."
+icon: "swatchbook"
+---
+
+DataLaser ships with **42 industry templates** that automatically match your data's columns, in both German and English, and generate verified analytical findings. Templates are the foundation of [Insights](/guides/insights), [Ask Data](/guides/ask-data), and AI-generated [Studio](/guides/studio) notebooks.
+
+## How Detection Works
+
+When you connect a data source, DataLaser:
+
+1. **Reads column names** and sample values (no raw row data is sent to AI).
+2. **Matches against bilingual patterns**: each template defines required columns in both German and English (e.g., `Umsatz` / `Revenue`, `Datum` / `Date`, `Kundengruppe` / `Customer Segment`).
+3. **Scores match confidence**: templates require a minimum column match threshold to activate.
+4. **Runs all matched templates**: findings are tagged `[VERIFIED]` and surfaced in Insights and Ask Data.
+
+<Tip>
+Templates use fuzzy matching. Columns named `rev`, `total_revenue`, `Gesamtumsatz`, or `sales_amount` can all match a revenue pattern.
+</Tip>
+
+---
+
+## Universal Templates (T01-T08)
+
+These templates work across any industry and activate whenever the required column types are present.
+
+<AccordionGroup>
+  <Accordion title="T01: Revenue Trend">
+    **What it answers:** How is revenue changing over time?
+
+    **Required columns:**
+    - `Revenue` / `Umsatz` (numeric)
+    - `Date` / `Datum` (date/datetime)
+
+    **Computation:** Time-series aggregation with linear trend, moving average (7/30-day), and period-over-period growth rate.
+
+    **Example output:** "Revenue grew 12% month-over-month in February, continuing a 3-month upward trend. 7-day moving average is EUR 42,300."
+  </Accordion>
+  <Accordion title="T02: Category Breakdown">
+    **What it answers:** How do values distribute across categories?
+
+    **Required columns:**
+    - `Category` / `Kategorie` (categorical)
+    - `Value` / `Wert` or `Revenue` / `Umsatz` (numeric)
+
+    **Computation:** Group-by aggregation with percentage share, Pareto analysis, and Herfindahl index for concentration.
+
+    **Example output:** "Top 3 categories account for 71% of total revenue. 'Electronics' leads at 34%, followed by 'Clothing' (22%) and 'Home' (15%)."
+  </Accordion>
+  <Accordion title="T03: Correlation Matrix">
+    **What it answers:** Which numeric columns are related?
+
+    **Required columns:**
+    - 3+ numeric columns
+
+    **Computation:** Pearson and Spearman correlation coefficients with p-value filtering (significance threshold p < 0.05).
+
+    **Example output:** "Strong positive correlation (r=0.87) between ad_spend and revenue. Moderate negative correlation (r=-0.45) between price and units_sold."
+  </Accordion>
+  <Accordion title="T04: Distribution Profile">
+    **What it answers:** What does the shape of each numeric column look like?
+
+    **Required columns:**
+    - 1+ numeric columns
+
+    **Computation:** Histogram binning, skewness, kurtosis, normality test (Shapiro-Wilk), and percentile breakdown (P10, P25, P50, P75, P90).
+
+    **Example output:** "Order value is right-skewed (skew=2.1) with median EUR 67 and mean EUR 94. Top 10% of orders exceed EUR 210."
+  </Accordion>
+  <Accordion title="T05: Anomaly Detection">
+    **What it answers:** Are there unusual data points or sudden changes?
+
+    **Required columns:**
+    - 1+ numeric columns
+    - `Date` / `Datum` (date/datetime, optional but enables time-series anomaly detection)
+
+    **Computation:** Z-score method (threshold=3), IQR method, and Isolation Forest for multivariate anomalies. Time-series variant uses STL decomposition.
+
+    **Example output:** "3 anomalous days detected in March where transaction volume exceeded 4.2 standard deviations above the mean."
+  </Accordion>
+  <Accordion title="T06: Top-N Ranking">
+    **What it answers:** What are the highest and lowest performers?
+
+    **Required columns:**
+    - `Entity` / `Name` / `Produkt` (categorical identifier)
+    - `Value` / `Wert` (numeric)
+
+    **Computation:** Sorted ranking with cumulative share and percentile position.
+
+    **Example output:** "Top 10 customers generate 43% of revenue. Customer 'Acme GmbH' leads with EUR 128,400 (8.2% share)."
+  </Accordion>
+  <Accordion title="T07: Time Comparison">
+    **What it answers:** How does this period compare to the last?
+
+    **Required columns:**
+    - `Date` / `Datum` (date/datetime)
+    - 1+ numeric columns
+
+    **Computation:** Period-over-period (WoW, MoM, QoQ, YoY) with absolute and percentage change, and statistical significance test.
+
+    **Example output:** "Q4 revenue was EUR 1.2M, up 18% vs Q3 (EUR 1.02M). The increase is statistically significant (p=0.003)."
+  </Accordion>
+  <Accordion title="T08: Segmentation">
+    **What it answers:** What natural groups exist in the data?
+
+    **Required columns:**
+    - 3+ numeric columns
+
+    **Computation:** K-means clustering (k selected via elbow method), segment profiling with centroid descriptions and silhouette score.
+
+    **Example output:** "3 segments identified (silhouette=0.72): 'High-value loyal' (18% of customers, 52% of revenue), 'Occasional buyers' (45%, 31%), 'One-time' (37%, 17%)."
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## German Mittelstand Templates (T09-T22)
+
+Tailored for mid-market German businesses, covering manufacturing, retail, finance, and HR patterns common in DACH-region companies.
+
+<AccordionGroup>
+  <Accordion title="T09: Umsatz nach Region (Revenue by Region)">
+    **What it answers:** How does revenue distribute across geographic regions?
+
+    **Required columns:** `Umsatz` / `Revenue` (numeric), `Region` / `Bundesland` / `PLZ` (categorical/geographic)
+
+    **Computation:** Regional aggregation, geographic heat map, concentration index.
+
+    **Example output:** "Bayern leads with 28% of revenue (EUR 3.4M), followed by NRW (22%) and Baden-Wuerttemberg (18%)."
+  </Accordion>
+  <Accordion title="T10: Auftragseingang (Order Intake)">
+    **What it answers:** How is the order pipeline trending?
+
+    **Required columns:** `Auftragseingang` / `Order Value` (numeric), `Datum` / `Date` (date)
+
+    **Computation:** Intake trend, book-to-bill ratio, pipeline velocity.
+
+    **Example output:** "Order intake up 9% MoM. Book-to-bill ratio of 1.14 indicates growing backlog."
+  </Accordion>
+  <Accordion title="T11: Deckungsbeitrag (Contribution Margin)">
+    **What it answers:** What is the margin per product or category?
+
+    **Required columns:** `Umsatz` / `Revenue`, `Kosten` / `Costs` or `Deckungsbeitrag` / `Contribution Margin` (numeric), `Produkt` / `Product` (categorical)
+
+    **Computation:** Margin calculation, margin-by-product ranking, break-even analysis.
+
+    **Example output:** "Average contribution margin is 38%. 'Premium Line' has highest margin at 52%; 'Budget Range' is at 12%, below target."
+  </Accordion>
+  <Accordion title="T12: Lagerumschlag (Inventory Turnover)">
+    **What it answers:** How efficiently is inventory moving?
+
+    **Required columns:** `Lagerbestand` / `Inventory` (numeric), `Absatz` / `Sales` (numeric), `Produkt` / `Product` (categorical)
+
+    **Computation:** Turnover ratio, days-of-supply, slow-mover identification.
+
+    **Example output:** "Average turnover is 6.2x/year. 14 SKUs have not moved in 90+ days, tying up EUR 234K in working capital."
+  </Accordion>
+  <Accordion title="T13: Personalkosten (Personnel Costs)">
+    **What it answers:** How are labor costs distributed and trending?
+
+    **Required columns:** `Personalkosten` / `Personnel Costs` (numeric), `Abteilung` / `Department` (categorical), `Datum` / `Date` (date)
+
+    **Computation:** Cost-per-department trend, headcount ratio, cost-per-FTE.
+
+    **Example output:** "Personnel costs are 42% of revenue, up from 39% last year. Engineering department grew 18% in cost vs 12% in headcount."
+  </Accordion>
+  <Accordion title="T14: Zahlungsmoral (Payment Behavior)">
+    **What it answers:** How quickly are customers paying?
+
+    **Required columns:** `Rechnungsdatum` / `Invoice Date`, `Zahlungsdatum` / `Payment Date` (dates), `Betrag` / `Amount` (numeric)
+
+    **Computation:** Days-sales-outstanding (DSO), aging buckets (0-30, 31-60, 61-90, 90+), late-payment rate.
+
+    **Example output:** "DSO is 47 days, up from 41 days last quarter. 12% of receivables are 90+ days overdue (EUR 89K)."
+  </Accordion>
+  <Accordion title="T15: Kundenentwicklung (Customer Development)">
+    **What it answers:** How is the customer base growing or shrinking?
+
+    **Required columns:** `Kunde` / `Customer` (identifier), `Datum` / `Date` (date), `Umsatz` / `Revenue` (numeric)
+
+    **Computation:** New vs returning customer count, cohort retention, customer lifetime value estimation.
+
+    **Example output:** "142 new customers acquired in March (up 23% MoM). 30-day retention is 68%. Estimated CLV for the March cohort is EUR 4,200."
+  </Accordion>
+  <Accordion title="T16: Reklamationsquote (Complaint Rate)">
+    **What it answers:** What is the complaint/return rate and where are the problems?
+
+    **Required columns:** `Reklamation` / `Complaint` or `Retoure` / `Return` (numeric/flag), `Produkt` / `Product` (categorical), `Datum` / `Date` (date)
+
+    **Computation:** Complaint rate trend, top-offender products, root-cause category breakdown.
+
+    **Example output:** "Complaint rate is 3.8%, up from 2.9%. 'Model X-200' accounts for 31% of all complaints, primarily 'defective packaging'."
+  </Accordion>
+  <Accordion title="T17: Produktivitaet (Productivity)">
+    **What it answers:** How productive are teams or production lines?
+
+    **Required columns:** `Output` / `Menge` (numeric), `Stunden` / `Hours` or `Mitarbeiter` / `Employees` (numeric), `Abteilung` / `Department` (categorical)
+
+    **Computation:** Output-per-hour, output-per-FTE, trend and department comparison.
+
+    **Example output:** "Production line A outputs 142 units/hour vs line B at 118 units/hour. Overall productivity up 5% QoQ."
+  </Accordion>
+  <Accordion title="T18: Energieverbrauch (Energy Consumption)">
+    **What it answers:** How is energy usage trending and where are the peaks?
+
+    **Required columns:** `Verbrauch` / `Consumption` (numeric), `Datum` / `Date` (date), optionally `Standort` / `Location` (categorical)
+
+    **Computation:** Consumption trend, peak detection, cost estimation, per-unit-output efficiency.
+
+    **Example output:** "Energy consumption peaked at 42 MWh on March 12 (3x average). Plant Stuttgart uses 38% more energy per unit than Plant Hamburg."
+  </Accordion>
+  <Accordion title="T19: Lieferantenanalyse (Supplier Analysis)">
+    **What it answers:** How do suppliers compare on price, quality, and delivery?
+
+    **Required columns:** `Lieferant` / `Supplier` (categorical), `Preis` / `Price` (numeric), optionally `Lieferzeit` / `Lead Time` (numeric), `Qualitaet` / `Quality Score` (numeric)
+
+    **Computation:** Supplier ranking, price variance, delivery reliability, quality scorecard.
+
+    **Example output:** "Supplier 'Müller AG' has lowest price but 22% late-delivery rate. 'Schmidt GmbH' is 8% more expensive but 98% on-time."
+  </Accordion>
+  <Accordion title="T20: Maschinenauslastung (Machine Utilization)">
+    **What it answers:** How well are production assets being used?
+
+    **Required columns:** `Maschine` / `Machine` (identifier), `Laufzeit` / `Runtime` (numeric), `Kapazitaet` / `Capacity` (numeric)
+
+    **Computation:** Utilization rate, downtime analysis, OEE estimation.
+
+    **Example output:** "Average utilization is 74%. Machine CNC-03 has 18% downtime, primarily due to planned maintenance windows."
+  </Accordion>
+  <Accordion title="T21: Cashflow-Analyse (Cashflow Analysis)">
+    **What it answers:** What are the inflows, outflows, and net cash position?
+
+    **Required columns:** `Einnahmen` / `Inflows` (numeric), `Ausgaben` / `Outflows` (numeric), `Datum` / `Date` (date)
+
+    **Computation:** Net cashflow trend, rolling 30-day balance, burn rate, runway projection.
+
+    **Example output:** "Net cashflow positive at EUR 84K in March. 3-month rolling average is EUR 62K. Runway exceeds 18 months at current burn."
+  </Accordion>
+  <Accordion title="T22: Angebotskonversion (Quote Conversion)">
+    **What it answers:** What percentage of quotes convert to orders?
+
+    **Required columns:** `Angebot` / `Quote` (identifier/numeric), `Auftrag` / `Order` (identifier/flag), `Wert` / `Value` (numeric)
+
+    **Computation:** Conversion rate, average deal size, pipeline stage analysis, win/loss reasons.
+
+    **Example output:** "Quote-to-order conversion is 34%. Deals over EUR 50K convert at 21% vs 42% for deals under EUR 10K."
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Broader Verticals (T23-T30)
+
+Templates for e-commerce, SaaS, healthcare, hospitality, logistics, education, real estate, and non-profits.
+
+<AccordionGroup>
+  <Accordion title="T23: E-Commerce Funnel">
+    **What it answers:** Where do shoppers drop off?
+
+    **Required columns:** `Session` / `Sitzung` (identifier), `Step` / `Schritt` (categorical: visit, cart, checkout, purchase), `Datum` / `Date` (date)
+
+    **Computation:** Funnel conversion rates, drop-off points, device/channel segmentation.
+
+    **Example output:** "Cart-to-checkout drop-off is 62%. Mobile users convert at 1.8% vs desktop at 3.4%."
+  </Accordion>
+  <Accordion title="T24: SaaS Metrics">
+    **What it answers:** What are MRR, churn, LTV, and CAC?
+
+    **Required columns:** `Customer` / `Kunde` (identifier), `MRR` / `Revenue` (numeric), `Datum` / `Date` (date), optionally `Plan` (categorical), `Acquisition Cost` (numeric)
+
+    **Computation:** MRR trend, net revenue retention, churn rate, LTV/CAC ratio, expansion revenue.
+
+    **Example output:** "MRR is EUR 124K, up 8% MoM. Net revenue retention is 112%. LTV/CAC ratio is 3.8x."
+  </Accordion>
+  <Accordion title="T25: Patient Flow (Healthcare)">
+    **What it answers:** How are patients moving through the facility?
+
+    **Required columns:** `Patient` (identifier), `Aufnahme` / `Admission` (date), `Entlassung` / `Discharge` (date), `Abteilung` / `Department` (categorical)
+
+    **Computation:** Average length of stay, occupancy rate, readmission rate, department load.
+
+    **Example output:** "Average stay is 4.2 days. Occupancy at 87%. Cardiology readmission rate is 14%, above the 10% target."
+  </Accordion>
+  <Accordion title="T26: Hotel / Gastro Occupancy">
+    **What it answers:** What are occupancy and RevPAR trends?
+
+    **Required columns:** `Zimmer` / `Room` or `Tisch` / `Table` (identifier), `Belegung` / `Occupancy` (flag/numeric), `Umsatz` / `Revenue` (numeric), `Datum` / `Date` (date)
+
+    **Computation:** Occupancy rate, RevPAR, ADR, seasonal patterns, day-of-week analysis.
+
+    **Example output:** "Occupancy is 78% (weekdays 71%, weekends 92%). RevPAR is EUR 112, up 6% YoY."
+  </Accordion>
+  <Accordion title="T27: Logistics & Delivery">
+    **What it answers:** How reliable and efficient are deliveries?
+
+    **Required columns:** `Sendung` / `Shipment` (identifier), `Versanddatum` / `Ship Date`, `Lieferdatum` / `Delivery Date` (dates), optionally `Kosten` / `Cost` (numeric)
+
+    **Computation:** On-time delivery rate, average transit time, cost-per-shipment, carrier comparison.
+
+    **Example output:** "On-time delivery is 91%. Average transit is 3.2 days. Carrier B is 15% cheaper but 8% less reliable than Carrier A."
+  </Accordion>
+  <Accordion title="T28: Education Performance">
+    **What it answers:** How are students/participants performing?
+
+    **Required columns:** `Student` / `Teilnehmer` (identifier), `Note` / `Score` (numeric), `Kurs` / `Course` (categorical)
+
+    **Computation:** Score distribution, pass/fail rates, course comparison, improvement trends.
+
+    **Example output:** "Average score is 78/100. Pass rate is 88%. 'Advanced Analytics' has the highest fail rate at 24%."
+  </Accordion>
+  <Accordion title="T29: Real Estate Portfolio">
+    **What it answers:** How is the property portfolio performing?
+
+    **Required columns:** `Objekt` / `Property` (identifier), `Miete` / `Rent` (numeric), `Flaeche` / `Area` (numeric), `Leerstand` / `Vacancy` (flag/numeric)
+
+    **Computation:** Yield per sqm, vacancy rate, rent trend, portfolio concentration.
+
+    **Example output:** "Portfolio yield is 5.8%. Vacancy rate is 7.2%, down from 9.1%. Berlin properties outperform at 6.4% yield."
+  </Accordion>
+  <Accordion title="T30: Non-Profit Donations">
+    **What it answers:** How are donations trending and who are the top donors?
+
+    **Required columns:** `Spende` / `Donation` (numeric), `Spender` / `Donor` (identifier), `Datum` / `Date` (date)
+
+    **Computation:** Donation trend, donor retention, average gift size, campaign attribution.
+
+    **Example output:** "Total donations EUR 342K this quarter, up 11%. Top 5% of donors contribute 48% of total. Retention rate is 62%."
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Extended Templates (T31-T42)
+
+Specialized analyses for advanced use cases.
+
+<AccordionGroup>
+  <Accordion title="T31: Seasonality Detection">
+    **What it answers:** Are there recurring patterns at regular intervals?
+
+    **Required columns:** 1+ numeric column, `Date` / `Datum` (date, 12+ months of data recommended)
+
+    **Computation:** FFT spectral analysis, STL decomposition, autocorrelation at daily/weekly/monthly/yearly lags.
+
+    **Example output:** "Strong weekly seasonality detected (peak on Fridays). Monthly pattern shows dip in August. Year-over-year December spike confirmed."
+  </Accordion>
+  <Accordion title="T32: Cohort Retention">
+    **What it answers:** How do user groups behave over time?
+
+    **Required columns:** `User` / `Kunde` (identifier), `Signup Date` / `Registrierung` (date), `Activity Date` / `Aktivitaet` (date)
+
+    **Computation:** Cohort retention matrix, retention curves, median lifetime.
+
+    **Example output:** "January cohort: 72% active at month 1, 45% at month 3, 28% at month 6. Retention improving vs prior cohorts."
+  </Accordion>
+  <Accordion title="T33: Pareto Analysis">
+    **What it answers:** Does the 80/20 rule apply?
+
+    **Required columns:** `Entity` / `Name` (categorical), `Value` / `Wert` (numeric)
+
+    **Computation:** Cumulative share curve, Gini coefficient, concentration thresholds.
+
+    **Example output:** "Top 18% of products generate 79% of revenue (near-perfect Pareto). Gini coefficient is 0.74."
+  </Accordion>
+  <Accordion title="T34: Moving Average Crossover">
+    **What it answers:** Are short-term trends diverging from long-term trends?
+
+    **Required columns:** 1+ numeric column, `Date` / `Datum` (date)
+
+    **Computation:** 7-day, 30-day, and 90-day moving averages with crossover signals.
+
+    **Example output:** "7-day MA crossed above 30-day MA on March 5, signaling upward momentum. Last crossover was bearish on January 12."
+  </Accordion>
+  <Accordion title="T35: Key Influencer Analysis">
+    **What it answers:** Which factors most strongly predict a target outcome?
+
+    **Required columns:** 1 target numeric/categorical column, 3+ potential predictor columns
+
+    **Computation:** Feature importance via gradient boosting, partial dependence plots, SHAP values.
+
+    **Example output:** "'Tenure' is the strongest predictor of churn (SHAP=0.34), followed by 'support_tickets' (0.22) and 'plan_type' (0.18)."
+  </Accordion>
+  <Accordion title="T36: Variance Analysis">
+    **What it answers:** Where are we over or under budget/plan?
+
+    **Required columns:** `Actual` / `Ist` (numeric), `Plan` / `Budget` / `Soll` (numeric), `Category` / `Kategorie` (categorical)
+
+    **Computation:** Absolute and percentage variance, waterfall decomposition, top variance drivers.
+
+    **Example output:** "Total variance is +EUR 124K (+8% vs plan). Marketing overspent by EUR 45K; Sales exceeded target by EUR 89K."
+  </Accordion>
+  <Accordion title="T37: Basket Analysis">
+    **What it answers:** Which products are frequently bought together?
+
+    **Required columns:** `Transaction` / `Transaktion` (identifier), `Product` / `Produkt` (categorical)
+
+    **Computation:** Association rules (Apriori), support/confidence/lift metrics, top product pairs.
+
+    **Example output:** "Customers who buy 'Laptop' also buy 'Laptop Bag' in 42% of cases (lift=3.8). Top pair by lift: 'Phone Case' + 'Screen Protector' (lift=5.2)."
+  </Accordion>
+  <Accordion title="T38: Churn Prediction">
+    **What it answers:** Which customers are at risk of leaving?
+
+    **Required columns:** `Customer` / `Kunde` (identifier), `Churned` / `Abgewandert` (flag), 3+ behavioral columns
+
+    **Computation:** Classification model (gradient boosting), risk scores, feature importance, at-risk list.
+
+    **Example output:** "Model accuracy 84% (AUC=0.89). 47 customers flagged as high churn risk. Top risk factor: no activity in 30+ days."
+  </Accordion>
+  <Accordion title="T39: Price Elasticity">
+    **What it answers:** How sensitive is demand to price changes?
+
+    **Required columns:** `Price` / `Preis` (numeric), `Quantity` / `Menge` (numeric), `Product` / `Produkt` (categorical)
+
+    **Computation:** Log-log regression, elasticity coefficients, revenue-maximizing price estimation.
+
+    **Example output:** "Elasticity for 'Premium Widget' is -1.3 (elastic). A 10% price increase would reduce volume by 13% and net revenue by ~4%."
+  </Accordion>
+  <Accordion title="T40: NPS / Satisfaction Analysis">
+    **What it answers:** What drives customer satisfaction?
+
+    **Required columns:** `Score` / `Bewertung` (numeric 0-10), optionally `Comment` / `Kommentar` (text), `Category` / `Kategorie` (categorical)
+
+    **Computation:** NPS calculation (promoters - detractors), driver analysis, trend over time, category comparison.
+
+    **Example output:** "NPS is +38 (54% promoters, 16% detractors). 'Delivery speed' is the top satisfaction driver. NPS up 12 points vs last quarter."
+  </Accordion>
+  <Accordion title="T41: Workforce Attrition">
+    **What it answers:** What patterns exist in employee turnover?
+
+    **Required columns:** `Mitarbeiter` / `Employee` (identifier), `Eintrittsdatum` / `Start Date`, `Austrittsdatum` / `End Date` (dates), `Abteilung` / `Department` (categorical)
+
+    **Computation:** Attrition rate by department/tenure, survival curves, peak departure periods.
+
+    **Example output:** "Annual attrition is 14%. Highest in 'Sales' (22%). Most departures occur between months 6-12 of tenure."
+  </Accordion>
+  <Accordion title="T42: Carbon Footprint Tracking">
+    **What it answers:** How are emissions trending by source?
+
+    **Required columns:** `Emission` / `CO2` (numeric), `Quelle` / `Source` (categorical: Scope 1/2/3), `Datum` / `Date` (date)
+
+    **Computation:** Total and per-scope trend, intensity ratios (per revenue or per employee), reduction trajectory.
+
+    **Example output:** "Total emissions 1,240 tCO2e this quarter. Scope 2 (electricity) accounts for 58%. Intensity down 8% per EUR 1M revenue."
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## How Templates Power AI
+
+Templates are the bridge between your data and DataLaser's AI features:
+
+<CardGroup cols={3}>
+  <Card title="Verified Findings" icon="circle-check">
+    Every template computation produces `[VERIFIED]` findings, statistical facts grounded in your actual data. Claude references these instead of guessing.
+  </Card>
+  <Card title="Ask Data Context" icon="comments">
+    When you ask a question, matched template findings are included as verified context. This grounds Claude's answers in real computed metrics.
+  </Card>
+  <Card title="Studio Notebooks" icon="flask">
+    AI-generated notebooks use template outputs to pre-populate 14+ cells with relevant analyses, charts, and narrative.
+  </Card>
+</CardGroup>
+
+<Warning>
+Templates operate on column statistics and aggregated results only. Claude never receives raw data rows. The `[VERIFIED]` tag means the finding was computed directly from your data by DataLaser's engine, not inferred by the AI model.
+</Warning>

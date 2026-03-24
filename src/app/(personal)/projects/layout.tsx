@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Logo } from '@/components/Logo'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
@@ -99,23 +100,22 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen bg-dl-bg-light overflow-hidden font-sans">
       {/* SIDEBAR */}
       <aside className={`
-        ${sidebarExpanded ? 'w-[220px]' : 'w-[52px]'}
+        ${sidebarExpanded ? 'w-[260px]' : 'w-[52px]'}
         flex-shrink-0 h-screen bg-dl-bg border-r border-dl-border
         flex flex-col transition-all duration-150
       `}>
         {/* Logo */}
         <div className={`
-          h-[65px] flex items-center border-b border-dl-border flex-shrink-0
+          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
           ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
         `}>
           {sidebarExpanded ? (
             <Link href="/projects" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
-              <span className="text-dl-brand font-black text-xl">▲</span>
-              <span className="font-black text-dl-text-dark text-dl-base">DataLaser</span>
+              <Logo size="sm" />
             </Link>
           ) : (
             <Link href="/projects">
-              <span className="text-dl-brand font-black text-xl">▲</span>
+              <span className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
             </Link>
           )}
         </div>
@@ -133,7 +133,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
                 key={p.id}
                 href={`/projects/${p.id}`}
                 className={`
-                  relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                  relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-2.5' : 'justify-center'}
                   ${active
@@ -154,7 +154,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
           {sidebarExpanded && (
             <button
               onClick={() => router.push('/projects/new')}
-              className="flex items-center gap-2 px-4 h-[36px] w-full text-dl-xs
+              className="flex items-center gap-2 px-4 h-[40px] w-full text-dl-xs
                 text-dl-text-light hover:text-dl-brand transition-colors mt-1"
             >
               <Plus size={13} /> {t('projects.newProject')}
@@ -167,7 +167,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/settings"
             className={`
-              flex items-center h-[36px] w-full font-bold text-dl-sm
+              flex items-center h-[40px] w-full font-bold text-dl-sm
               text-dl-text-light hover:text-dl-brand hover:bg-dl-bg-light transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
             `}
@@ -189,7 +189,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
 
           <button
             onClick={toggleSidebar}
-            className="flex items-center justify-center w-full h-[36px]
+            className="flex items-center justify-center w-full h-[40px]
               text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light transition-colors"
           >
             {sidebarExpanded ? <ChevronLeft size={15} /> : <ChevronRight size={15} />}
@@ -198,7 +198,7 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={logout}
             className={`
-              flex items-center h-[36px] w-full font-bold text-dl-sm
+              flex items-center h-[40px] w-full font-bold text-dl-sm
               text-dl-text-light hover:text-red-500 hover:bg-red-50 transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
             `}

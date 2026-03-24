@@ -390,7 +390,7 @@ export function InteractiveChart({ chart, onPin, onDrillDown }: Props) {
         <div className="flex items-center gap-2">
           <span className="text-dl-sm font-bold text-dl-text-dark">{chart.title}</span>
           {onDrillDown && (
-            <span className="text-[10px] text-dl-text-light flex items-center gap-0.5">
+            <span className="text-dl-xs text-dl-text-light flex items-center gap-0.5">
               <MousePointer size={9} /> Click to drill
             </span>
           )}

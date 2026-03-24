@@ -7,6 +7,7 @@ import {
   BarChart2, MessageSquare, LayoutGrid, Database, Settings,
   ChevronLeft, ChevronRight,
 } from 'lucide-react'
+import { Logo } from '@/components/Logo'
 
 type NavItem = { icon: typeof BarChart2; label: string; href: string } | null
 
@@ -37,7 +38,7 @@ export function Sidebar() {
   return (
     <aside
       className={`
-        ${expanded ? 'w-[200px]' : 'w-[52px]'}
+        ${expanded ? 'w-[260px]' : 'w-[52px]'}
         flex-shrink-0 h-screen bg-dl-bg
         border-r border-dl-border
         flex flex-col transition-all duration-150 font-sans
@@ -46,14 +47,11 @@ export function Sidebar() {
       {/* Logo */}
       <div
         className={`
-          h-[65px] flex items-center border-b border-dl-border flex-shrink-0
+          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
           ${expanded ? 'px-4 gap-2' : 'justify-center'}
         `}
       >
-        <span className="text-dl-brand font-black text-xl flex-shrink-0">▲</span>
-        {expanded && (
-          <span className="font-black text-dl-text-dark text-dl-base leading-none">DataLaser</span>
-        )}
+        <Logo size={expanded ? 'md' : 'sm'} />
       </div>
 
       {/* Nav */}
@@ -69,7 +67,7 @@ export function Sidebar() {
               key={href}
               href={href}
               className={`
-                relative flex items-center h-[36px] font-sans font-bold text-dl-sm
+                relative flex items-center h-[40px] font-sans font-bold text-dl-sm
                 transition-colors duration-100 cursor-pointer group
                 ${expanded ? 'px-4 gap-3' : 'justify-center'}
                 ${active
@@ -97,7 +95,7 @@ export function Sidebar() {
       <div className="border-t border-dl-border flex-shrink-0">
         <button
           onClick={toggle}
-          className="flex items-center justify-center w-full h-[36px] text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light transition-colors"
+          className="flex items-center justify-center w-full h-[40px] text-dl-text-light hover:text-dl-text-medium hover:bg-dl-bg-light transition-colors"
         >
           {expanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
         </button>
