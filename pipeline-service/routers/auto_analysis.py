@@ -41,3 +41,90 @@ async def run_auto_analysis(
         return JSONResponse(content=sanitize(result))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Auto-analysis failed: {str(e)}")
+
+
+def _quick_profile(df: pd.DataFrame) -> list[dict]:
+    """Infer column semantic roles from a pandas DataFrame without full profiling."""
+    profiles = []
+    for col in df.columns:
+        dtype = df[col].dtype
+        nunique = df[col].nunique()
+        total = len(df[col].dropna())
+        name_lower = col.lower()
+
+        # Date detection by name or dtype
+        date_keywords = ['date', 'time', 'created', 'updated', 'timestamp', '_at', '_on',
+                         'datum', 'zeitpunkt', 'erstellt', 'produktionsdatum', 'bestelldatum']
+        if pd.api.types.is_datetime64_any_dtype(dtype) or any(kw in name_lower for kw in date_keywords):
+            role = 'date'
+        elif name_lower in ('id',) or name_lower.endswith('_id') or name_lower.endswith('id'):
+            role = 'id'
+        elif pd.api.types.is_numeric_dtype(dtype):
+            if nunique == 2:
+                role = 'binary'
+            elif nunique > 20 or (total > 0 and nunique / total > 0.9):
+                role = 'id' if nunique > 100 else 'measure'
+            else:
+                role = 'measure'
+        elif pd.api.types.is_object_dtype(dtype) or pd.api.types.is_categorical_dtype(dtype):
+            if nunique == 2:
+                role = 'binary'
+            elif nunique <= 50:
+                role = 'dimension'
+            else:
+                role = 'text'
+        else:
+            role = 'measure'
+
+        profiles.append({
+            'name': col,
+            'dtype': 'numeric' if pd.api.types.is_numeric_dtype(dtype) else 'categorical',
+            'semantic_role': role,
+        })
+    return profiles
+
+
+@router.post("/run-db")
+async def run_auto_analysis_db(
+    source_type: str = Form(...),
+    connection_string: str = Form(...),
+    table_name: str = Form(...),
+    column_profiles: Optional[str] = Form(None),
+):
+    """Run full 17-analysis suite against a live database table.
+    Smart-samples up to 50K rows for statistical computation.
+    No AI/LLM calls, pure computation."""
+    try:
+        import sqlalchemy
+        engine = sqlalchemy.create_engine(
+            connection_string, connect_args={"connect_timeout": 10}
+        )
+
+        # Get actual row count
+        with engine.connect() as conn:
+            row_count = conn.execute(
+                sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"')
+            ).scalar()
+
+        # Smart sample: up to 50K rows
+        if row_count > 50000:
+            df = pd.read_sql(
+                f'SELECT * FROM "{table_name}" ORDER BY RANDOM() LIMIT 50000',
+                engine
+            )
+        else:
+            df = pd.read_sql(f'SELECT * FROM "{table_name}"', engine)
+
+        # Profile columns
+        if column_profiles:
+            profiles = json.loads(column_profiles)
+        else:
+            profiles = _quick_profile(df)
+
+        # Run the same AutoAnalyzer that files use
+        result = auto_analyzer.analyze(df, profiles)
+        result['row_count'] = row_count  # Use actual count, not sample size
+
+        return JSONResponse(content=sanitize(result))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"DB auto-analysis failed: {str(e)}")
