@@ -254,7 +254,8 @@ const GERMAN_TRANSLATORS: FindingTranslator[] = [
  * Translate an English finding to German using pattern matching.
  * Returns the original text if no pattern matches.
  */
-export function translateFinding(text: string, locale: string): string {
+export function translateFinding(text: string | unknown, locale: string): string {
+  if (typeof text !== 'string') return String(text ?? '')
   if (locale !== 'de') return text
 
   for (const translator of GERMAN_TRANSLATORS) {

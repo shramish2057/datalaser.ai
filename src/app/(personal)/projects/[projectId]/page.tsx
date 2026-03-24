@@ -192,7 +192,7 @@ export default function ProjectHomePage() {
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-dl-xs text-dl-text-light">{ins.source_name}</span>
                       <span className="text-dl-xs text-dl-text-light">•</span>
-                      <span className="text-dl-xs text-dl-text-light">{t(`insightTypes.${ins.type}` as Parameters<typeof t>[0])}</span>
+                      <span className="text-dl-xs text-dl-text-light">{ins.type}</span>
                     </div>
                   </div>
                 </div>
