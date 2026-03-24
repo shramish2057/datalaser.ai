@@ -214,7 +214,7 @@ export default function InsightsPage() {
                 <div className="ml-7 space-y-1">
                   {src.top_insights.map((ins, i) => (
                     <p key={i} className="text-[12px] text-dl-text-medium truncate">
-                      <span className="text-dl-xs text-dl-text-light mr-1.5">{(() => { try { return t(`insightTypes.${ins.type}` as Parameters<typeof t>[0]) } catch { return ins.type } })()}</span>
+                      <span className="text-dl-xs text-dl-text-light mr-1.5">{ins.type}</span>
                       {translateFinding(ins.headline, locale)}
                     </p>
                   ))}
