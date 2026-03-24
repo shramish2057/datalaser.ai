@@ -182,19 +182,20 @@ export default function ProjectHomePage() {
               {t('common.viewAll')} <ArrowRight size={10} />
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {topInsights.map((ins, i) => {
-              const Icon = INSIGHT_ICONS[ins.type] || Zap
-              const borderColor = INSIGHT_COLORS[ins.type] || 'border-l-dl-border'
+              const severity = (ins as any).severity || ((ins as any).effect_size > 0.5 ? 'warning' : 'info')
+              const dotColor = severity === 'warning' ? 'bg-amber-400' : severity === 'critical' ? 'bg-red-400' : 'bg-blue-400'
+              const bgColor = severity === 'warning' ? 'bg-amber-50/40' : severity === 'critical' ? 'bg-red-50/40' : 'bg-white'
               return (
-                <div key={i} className={`bg-white border border-dl-border ${borderColor} border-l-4 rounded-dl-md px-4 py-3 flex items-start gap-3`}>
-                  <Icon size={14} className="text-dl-text-light mt-0.5 flex-shrink-0" />
+                <div key={i} className={`${bgColor} border border-dl-border rounded-dl-lg px-5 py-3.5 flex items-start gap-3`}>
+                  <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(ins.headline, locale)}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-dl-xs text-dl-text-light">{ins.source_name}</span>
-                      <span className="text-dl-xs text-dl-text-light">•</span>
-                      <span className="text-dl-xs text-dl-text-light">{ins.type}</span>
+                    <p className="text-dl-sm text-dl-text-dark leading-relaxed">
+                      {translateFinding(ins.headline, locale)}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-dl-xs font-medium text-dl-text-medium">{ins.source_name}</span>
                     </div>
                   </div>
                 </div>

@@ -77,20 +77,55 @@ export default function AutoAnalysisPage() {
       try {
         // Get source info
         const { data: src } = await supabase
-          .from('data_sources').select('name, file_path, source_type, auto_analysis')
+          .from('data_sources').select('name, file_path, source_type, auto_analysis, row_count')
           .eq('id', sourceId).single()
         if (!src) { setError('Source not found'); setLoading(false); return }
         setSourceName(src.name)
 
-        // DB sources use the overview page, not this file-analysis page
-        if (isDbSource(src.source_type)) {
-          router.replace(`/projects/${projectId}/sources/${sourceId}/overview`)
-          return
-        }
-
         // If auto_analysis already cached, use it
         if (src.auto_analysis) {
           setAnalysis(src.auto_analysis as AutoAnalysisResult)
+          setLoading(false)
+          return
+        }
+
+        // For DB sources without cached analysis, run live insights
+        if (isDbSource(src.source_type) && !src.auto_analysis) {
+          try {
+            const res = await fetch('/api/insights/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ project_id: projectId, source_ids: [sourceId] }),
+            })
+            const result = await res.json()
+            if (result.success && result.document) {
+              // Store for next time
+              await supabase.from('data_sources').update({
+                auto_analysis: {
+                  top_insights: (result.document.key_findings || []).map((f: string) => ({ type: 'insight', headline: f })),
+                  kpis: result.document.kpis || [],
+                  summary: result.document.executive_summary || '',
+                  row_count: src.row_count || 0,
+                  column_count: 0,
+                  measures: [], dimensions: [], binaries: [], dates: [],
+                  correlations: { matrix: [], columns: [], pairs: [] },
+                  distributions: [], segments: [], clusters: { n_clusters: 0 },
+                  anomalies: [], key_influencers: [], contribution_analysis: [], majority: [],
+                },
+                analysis_status: 'complete',
+                analyzed_at: new Date().toISOString(),
+              }).eq('id', sourceId)
+              // Reload
+              const { data: updated } = await supabase.from('data_sources').select('auto_analysis').eq('id', sourceId).single()
+              if (updated?.auto_analysis) {
+                setAnalysis(updated.auto_analysis as AutoAnalysisResult)
+              }
+            } else {
+              setError(result.error || 'Analysis failed')
+            }
+          } catch (e: any) {
+            setError(e.message || 'Analysis failed')
+          }
           setLoading(false)
           return
         }

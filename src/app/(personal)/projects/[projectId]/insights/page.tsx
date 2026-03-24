@@ -195,42 +195,61 @@ export default function InsightsPage() {
           </p>
           <div className="space-y-3">
             {analyzed.map(src => (
-              <button key={src.id}
-                onClick={() => router.push(isDbSource(src.source_type)
-                  ? `${base}/sources/${src.id}/overview`
-                  : `${base}/sources/${src.id}/analysis`)}
-                className="w-full bg-white border border-dl-border rounded-dl-lg p-4 text-left hover:border-dl-brand transition-colors group">
-                <div className="flex items-center justify-between mb-2">
+              <div key={src.id} className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
+                {/* Source header */}
+                <div className="flex items-center justify-between px-5 py-3 bg-dl-bg-light border-b border-dl-border">
                   <div className="flex items-center gap-2.5">
-                    <CheckCircle2 size={16} className="text-dl-success flex-shrink-0" />
-                    <span className="text-[14px] font-bold text-dl-text-dark">{src.name}</span>
-                    <span className="text-dl-xs text-dl-text-light uppercase bg-dl-bg-light px-1.5 py-0.5 rounded">
+                    <CheckCircle2 size={14} className="text-dl-success flex-shrink-0" />
+                    <span className="text-dl-sm font-bold text-dl-text-dark">{src.name}</span>
+                    <span className="text-dl-xs text-dl-text-light uppercase bg-dl-bg-medium px-1.5 py-0.5 rounded-dl-sm">
                       {src.source_type}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-dl-xs text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
-                    <ArrowRight size={14} className="text-dl-text-light group-hover:text-dl-brand transition-colors" />
+                  <div className="flex items-center gap-3 text-dl-xs text-dl-text-light">
+                    <span>{src.row_count.toLocaleString()} {t('common.rows')}</span>
+                    {src.analyzed_at && (
+                      <span>{new Date(src.analyzed_at).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span>
+                    )}
                   </div>
                 </div>
 
-                {/* Preview of top insights */}
-                <div className="ml-7 space-y-1">
-                  {src.top_insights.map((ins, i) => (
-                    <p key={i} className="text-[12px] text-dl-text-medium truncate">
-                      <span className="text-dl-xs text-dl-text-light mr-1.5">{ins.type}</span>
-                      {translateFinding(ins.headline, locale)}
-                    </p>
-                  ))}
+                {/* Insight items */}
+                <div className="divide-y divide-dl-border">
+                  {src.top_insights.map((ins, i) => {
+                    const severity = (ins as any).severity || 'info'
+                    const severityColor = severity === 'warning' ? 'border-l-amber-400 bg-amber-50/30' :
+                      severity === 'critical' ? 'border-l-red-400 bg-red-50/30' : 'border-l-blue-400 bg-blue-50/30'
+                    return (
+                      <div key={i} className={`px-5 py-3 border-l-3 ${severityColor} flex items-start gap-3`}>
+                        <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${
+                          severity === 'warning' ? 'bg-amber-400' : severity === 'critical' ? 'bg-red-400' : 'bg-blue-400'
+                        }`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-dl-sm text-dl-text-dark leading-relaxed">
+                            {translateFinding(ins.headline, locale)}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
 
-                <div className="ml-7 mt-2 flex items-center gap-3 text-dl-xs text-dl-text-light">
-                  <span>{src.row_count.toLocaleString()} rows</span>
-                  {src.analyzed_at && (
-                    <span>{t('insights.analyzed')} {new Date(src.analyzed_at).toLocaleDateString(locale === 'de' ? 'de-DE' : 'en-US')}</span>
-                  )}
+                {/* Actions */}
+                <div className="flex items-center gap-2 px-5 py-3 bg-dl-bg-light border-t border-dl-border">
+                  <button
+                    onClick={() => router.push(`${base}/sources/${src.id}/analysis`)}
+                    className="dl-btn-secondary text-dl-xs px-3 py-1.5"
+                  >
+                    {t('insights.runAnalysis')}
+                  </button>
+                  <button
+                    onClick={() => router.push(`${base}/ask`)}
+                    className="dl-btn-subtle text-dl-xs px-3 py-1.5"
+                  >
+                    {t('home.askData')}
+                  </button>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         </section>
