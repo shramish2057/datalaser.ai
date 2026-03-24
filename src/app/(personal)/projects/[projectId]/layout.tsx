@@ -7,7 +7,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Home, BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
-  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical
+  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical, Bell
 } from 'lucide-react'
 import { LocaleToggle } from '@/components/LocaleToggle'
 import { useTranslations } from 'next-intl'
@@ -30,6 +30,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
   const [org, setOrg] = useState<Organization | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const [alertCount, setAlertCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const pathname = usePathname()
@@ -91,6 +92,14 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
       .order('created_at', { ascending: false })
     setProjects(allProjects ?? [])
 
+    // Fetch unresolved alert count
+    const { count } = await supabase
+      .from('anomalies')
+      .select('id', { count: 'exact', head: true })
+      .eq('project_id', projectId)
+      .is('resolved_at', null)
+    setAlertCount(count ?? 0)
+
     setLoading(false)
   }
 
@@ -112,6 +121,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
 
   const projectNav = [
     { icon: Home, label: t('nav.home'), path: '' },
+    { icon: Bell, label: t('nav.alerts'), path: '/alerts', alertCount },
     { icon: BarChart2, label: t('nav.insights'), path: '/insights' },
     { icon: MessageSquare, label: t('nav.askData'), path: '/ask' },
     { icon: FlaskConical, label: t('nav.studio'), path: '/studio', badge: t('common.pro') },
@@ -193,7 +203,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
 
         {/* Nav items */}
         <nav className="flex-1 py-2 overflow-y-auto">
-          {projectNav.map(({ icon: Icon, label, path, badge }: { icon: typeof BarChart2; label: string; path: string; badge?: string }) => {
+          {projectNav.map(({ icon: Icon, label, path, badge, alertCount: navAlertCount }: { icon: typeof BarChart2; label: string; path: string; badge?: string; alertCount?: number }) => {
             const active = isActive(path)
             return (
               <Link
@@ -217,6 +227,11 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
                     {label}
                     {badge && (
                       <span className="text-dl-xs font-semibold px-1 py-px rounded bg-yellow-100 text-yellow-700">{badge}</span>
+                    )}
+                    {navAlertCount != null && navAlertCount > 0 && (
+                      <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-100 text-red-700 text-[10px] font-bold leading-none">
+                        {navAlertCount}
+                      </span>
                     )}
                   </span>
                 )}

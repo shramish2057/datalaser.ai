@@ -7,7 +7,8 @@
     "dashboard": "Dashboard",
     "dataSources": "Datenquellen",
     "dataPrep": "Datenaufbereitung",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "alerts": "Warnungen"
   },
   "common": {
     "loading": "Wird geladen...",
@@ -650,6 +651,21 @@
     "affectedRows": "{count} Zeilen betroffen",
     "step1": "Probleme",
     "step2": "Korrektur"
+  },
+  "alerts": {
+    "title": "Warnungen",
+    "noAlerts": "Keine Warnungen",
+    "noAlertsDesc": "Alle Datenquellen sind gesund.",
+    "issuesDetected": "{count} Datenqualitätsproblem(e) erkannt",
+    "viewAlerts": "Warnungen anzeigen",
+    "fix": "Beheben",
+    "dismiss": "Verwerfen",
+    "dismissed": "Verworfen",
+    "healthDegradation": "Qualitätsverschlechterung",
+    "schemaDrift": "Schema-Änderung erkannt",
+    "qualityDropped": "Qualität von {table} sank von {from} auf {to}",
+    "newColumns": "Neue Spalten in {table} erkannt",
+    "removedColumns": "Spalten aus {table} entfernt"
   },
   "overview": {
     "title": "Datenbank-Übersicht",

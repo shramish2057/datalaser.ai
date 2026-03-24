@@ -52,12 +52,16 @@ export default function ProjectSourcesPage() {
 
   const handleRefresh = async (sourceId: string) => {
     setRefreshingId(sourceId)
-    await supabase
-      .from('data_sources')
-      .update({ status: 'syncing', last_synced_at: new Date().toISOString() })
-      .eq('id', sourceId)
-    await loadSources()
-    setRefreshingId(null)
+    try {
+      await fetch('/api/sources/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source_id: sourceId }),
+      })
+      await loadSources()
+    } finally {
+      setRefreshingId(null)
+    }
   }
 
   const handleDelete = async (sourceId: string, sourceName: string) => {

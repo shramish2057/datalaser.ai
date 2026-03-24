@@ -7,7 +7,8 @@
     "dashboard": "Dashboard",
     "dataSources": "Data Sources",
     "dataPrep": "Data Prep",
-    "settings": "Settings"
+    "settings": "Settings",
+    "alerts": "Alerts"
   },
   "common": {
     "loading": "Loading...",
@@ -650,6 +651,21 @@
     "affectedRows": "{count} rows affected",
     "step1": "Issues",
     "step2": "Fix"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "noAlerts": "No alerts",
+    "noAlertsDesc": "All data sources are healthy.",
+    "issuesDetected": "{count} data quality issue(s) detected",
+    "viewAlerts": "View alerts",
+    "fix": "Fix",
+    "dismiss": "Dismiss",
+    "dismissed": "Dismissed",
+    "healthDegradation": "Quality degradation",
+    "schemaDrift": "Schema change detected",
+    "qualityDropped": "{table} quality dropped from {from} to {to}",
+    "newColumns": "New columns detected in {table}",
+    "removedColumns": "Columns removed from {table}"
   },
   "overview": {
     "title": "Database Overview",

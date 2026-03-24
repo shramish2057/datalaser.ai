@@ -6,6 +6,7 @@ import {
   Database, BarChart2, MessageSquare, FlaskConical, ArrowRight,
   Zap, TrendingUp, GitBranch, AlertTriangle, Target, Layers, Search
 } from 'lucide-react'
+import Link from 'next/link'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
@@ -53,6 +54,7 @@ export default function ProjectHomePage() {
   const [project, setProject] = useState<Project | null>(null)
   const [sources, setSources] = useState<SourceSummary[]>([])
   const [topInsights, setTopInsights] = useState<TopInsight[]>([])
+  const [alertCount, setAlertCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const params = useParams()
@@ -102,6 +104,15 @@ export default function ProjectHomePage() {
       allInsights.sort((a, b) => b.effect_size - a.effect_size)
       setTopInsights(allInsights.slice(0, 5))
       setSources(sourceSummaries)
+
+      // Fetch unresolved alert count
+      const { count } = await supabase
+        .from('anomalies')
+        .select('id', { count: 'exact', head: true })
+        .eq('project_id', projectId)
+        .is('resolved_at', null)
+      setAlertCount(count ?? 0)
+
       setLoading(false)
     }
     load()
@@ -115,6 +126,21 @@ export default function ProjectHomePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-8 py-10">
+      {/* Health alert banner */}
+      {alertCount > 0 && (
+        <div className="bg-amber-50 border border-amber-300 rounded-dl-lg p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="text-amber-500" size={18} />
+            <span className="text-dl-sm font-medium text-dl-text-dark">
+              {t('alerts.issuesDetected', { count: alertCount })}
+            </span>
+          </div>
+          <Link href={`/projects/${projectId}/alerts`} className="dl-btn-secondary text-dl-xs">
+            {t('alerts.viewAlerts')}
+          </Link>
+        </div>
+      )}
+
       {/* Project header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-1">
