@@ -132,7 +132,9 @@ class DataProfiler:
 
                 q1, q3 = np.percentile(arr, [25, 75])
                 iqr = q3 - q1
-                if iqr > 0:
+                # Only flag outliers if IQR is meaningful (skip zero-heavy distributions
+                # like discount columns where most values are 0)
+                if iqr > 0 and (q1 != 0 or q3 != 0):
                     lower = q1 - 1.5 * iqr
                     upper = q3 + 1.5 * iqr
                     outlier_count = int(np.sum((arr < lower) | (arr > upper)))
@@ -176,8 +178,10 @@ class DataProfiler:
     def _detect_dtype(self, series: pl.Series, non_null_strs: list, col_name: str) -> str:
         lower_name = col_name.lower()
 
-        # Date heuristic by name
-        date_keywords = ['date', 'time', 'created', 'updated', 'timestamp', '_at', '_on']
+        # Date heuristic by name (English + German)
+        date_keywords = ['date', 'time', 'created', 'updated', 'timestamp', '_at', '_on',
+                         'datum', 'zeitpunkt', 'erstellt', 'aktualisiert', 'produktionsdatum',
+                         'bestelldatum', 'lieferdatum', 'rechnungsdatum']
         if any(kw in lower_name for kw in date_keywords):
             return 'date'
 
@@ -314,7 +318,31 @@ class DataProfiler:
             return 'amber'
         return 'red'
 
-    # ── Database profiling ───────────────────────────────────────
+    # ── SQL type mapping ────────────────────────────────────────
+
+    def _sql_type_to_dtype(self, sql_type: str, col_name: str) -> str:
+        lower_name = col_name.lower()
+        # German + English date keywords
+        date_keywords = ['date', 'time', 'created', 'updated', 'timestamp', '_at', '_on',
+                         'datum', 'zeitpunkt', 'erstellt', 'produktionsdatum', 'bestelldatum']
+        if any(kw in lower_name for kw in date_keywords):
+            return 'date'
+        id_keywords = ['_id', 'uuid', 'key']
+        if any(lower_name.endswith(kw) or lower_name == kw for kw in id_keywords) or lower_name == 'id':
+            return 'id'
+
+        t = sql_type.lower()
+        if any(k in t for k in ['int', 'float', 'double', 'decimal', 'numeric', 'real', 'money', 'serial']):
+            return 'numeric'
+        if any(k in t for k in ['date', 'time', 'timestamp']):
+            return 'date'
+        if 'bool' in t:
+            return 'categorical'
+        if 'uuid' in t:
+            return 'id'
+        return 'categorical'
+
+    # ── Database profiling (SQL aggregates only, no raw rows) ─
 
     def profile_database_table(
         self,
@@ -325,15 +353,102 @@ class DataProfiler:
     ) -> DataProfile:
         import sqlalchemy
         engine = sqlalchemy.create_engine(connection_string)
-        df_pd = pd.read_sql(f"SELECT * FROM {table_name} LIMIT 100000", engine)
-        buf = io.BytesIO()
-        df_pd.to_csv(buf, index=False)
-        return self.profile_file(
-            file_bytes=buf.getvalue(),
-            file_name=f"{table_name}.csv",
-            run_id=run_id,
-            source_id=source_id,
-        )
+
+        with engine.connect() as conn:
+            # 1. Get row count
+            row_count = conn.execute(sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"')).scalar()
+
+            # 2. Get column metadata from information_schema
+            col_query = sqlalchemy.text("""
+                SELECT column_name, data_type, is_nullable
+                FROM information_schema.columns
+                WHERE table_name = :table
+                ORDER BY ordinal_position
+            """)
+            col_rows = conn.execute(col_query, {"table": table_name}).fetchall()
+
+            # 3. For each column, compute stats via SQL
+            columns = []
+            for col_name, data_type, is_nullable in col_rows:
+                # Null count
+                null_count = conn.execute(
+                    sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}" WHERE "{col_name}" IS NULL')
+                ).scalar()
+                null_rate = null_count / row_count if row_count > 0 else 0
+
+                # Unique count
+                unique_count = conn.execute(
+                    sqlalchemy.text(f'SELECT COUNT(DISTINCT "{col_name}") FROM "{table_name}"')
+                ).scalar()
+                unique_rate = unique_count / (row_count - null_count) if (row_count - null_count) > 0 else 0
+
+                # Determine dtype from SQL data_type
+                dtype = self._sql_type_to_dtype(data_type, col_name)
+
+                # Numeric stats (only for numeric columns)
+                min_val = max_val = mean_val = median_val = std_val = None
+                outlier_count = 0
+                if dtype == 'numeric':
+                    stats = conn.execute(sqlalchemy.text(f'''
+                        SELECT MIN("{col_name}")::float, MAX("{col_name}")::float,
+                               AVG("{col_name}")::float, STDDEV("{col_name}")::float,
+                               PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY "{col_name}") as q1,
+                               PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY "{col_name}") as median,
+                               PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY "{col_name}") as q3
+                        FROM "{table_name}" WHERE "{col_name}" IS NOT NULL
+                    ''')).fetchone()
+                    if stats and stats[0] is not None:
+                        min_val, max_val, mean_val, std_val = float(stats[0]), float(stats[1]), float(stats[2]), float(stats[3]) if stats[3] else 0
+                        median_val = float(stats[5]) if stats[5] else None
+                        q1, q3 = float(stats[4]) if stats[4] else 0, float(stats[6]) if stats[6] else 0
+                        iqr = q3 - q1
+                        if iqr > 0 and (q1 != 0 or q3 != 0):
+                            lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+                            outlier_count = conn.execute(sqlalchemy.text(f'''
+                                SELECT COUNT(*) FROM "{table_name}"
+                                WHERE "{col_name}" IS NOT NULL
+                                AND ("{col_name}" < :lower OR "{col_name}" > :upper)
+                            '''), {"lower": lower, "upper": upper}).scalar()
+
+                # Top values for categoricals (no raw data, just value counts)
+                top_values = []
+                sample_values = []
+                if dtype in ('categorical', 'text'):
+                    top_rows = conn.execute(sqlalchemy.text(f'''
+                        SELECT "{col_name}"::text, COUNT(*) as cnt
+                        FROM "{table_name}" WHERE "{col_name}" IS NOT NULL
+                        GROUP BY "{col_name}" ORDER BY cnt DESC LIMIT 10
+                    ''')).fetchall()
+                    top_values = [{"value": str(r[0]), "count": int(r[1])} for r in top_rows]
+                    sample_values = [str(r[0]) for r in top_rows[:5]]
+
+                semantic_role = self._detect_semantic_role(dtype, unique_count, unique_rate, col_name, sample_values, row_count)
+
+                columns.append(ColumnProfile(
+                    name=col_name, dtype=dtype, semantic_role=semantic_role,
+                    null_rate=round(null_rate, 4), unique_rate=round(unique_rate, 4),
+                    total_values=row_count - null_count, null_count=null_count,
+                    unique_count=unique_count,
+                    min_value=min_val, max_value=max_val,
+                    mean_value=round(mean_val, 4) if mean_val else None,
+                    median_value=round(median_val, 4) if median_val else None,
+                    std_dev=round(std_val, 4) if std_val else None,
+                    top_values=top_values, sample_values=sample_values,
+                    format_issues=False, mixed_types=False, outlier_count=outlier_count or 0,
+                ))
+
+            warnings = self._generate_warnings(columns, row_count)
+            quality_score = self._compute_quality_score(warnings, columns)
+            quality_level = self._quality_level(quality_score)
+
+            return DataProfile(
+                run_id=run_id, source_id=source_id,
+                file_name=table_name, file_type='database',
+                total_rows=row_count, total_columns=len(columns),
+                file_size_bytes=0, columns=columns,
+                quality_score=quality_score, quality_level=quality_level,
+                warnings=warnings, detected_encoding='N/A', has_header=True,
+            )
 
 
 profiler = DataProfiler()

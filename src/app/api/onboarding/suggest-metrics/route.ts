@@ -4,7 +4,7 @@ import { suggestMetrics } from '@/lib/ai/claude';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { files } = body;
+    const { files, locale } = body;
 
     if (!files || !Array.isArray(files) || files.length === 0) {
       return NextResponse.json(
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const suggestions = await suggestMetrics(files);
+    const suggestions = await suggestMetrics(files, locale || 'en');
     return NextResponse.json(suggestions);
   } catch (error) {
     console.error('Metric suggestion error:', error);

@@ -74,7 +74,7 @@ console.log(`\nContext length: ${context.length} chars (~${Math.round(context.le
 assert(context.includes('SOURCE: Shopify Sales DB'), 'Context contains source name');
 assert(context.includes('orders (14,823 rows)'), 'Context contains table with row count');
 assert(context.includes('total_amount'), 'Context contains column names');
-assert(context.includes('284.5'), 'Context contains sample data values');
+assert(!context.includes('284.5'), 'Context does NOT contain sample data values');
 assert(context.includes('----'), 'Context has separator');
 
 // --- Test 2: Prompts ---

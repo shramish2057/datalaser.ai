@@ -15,16 +15,30 @@ interface SchemaSnapshot {
   database_name: string;
 }
 
-interface SampleTable {
+interface TableProfile {
   name: string;
-  columns: string[];
-  rows: any[][];
+  quality_score: number;
+  quality_level: string;
   total_rows: number;
-  sampled_rows: number;
+  total_columns: number;
+  columns?: ColumnStats[];
 }
 
-interface SampleData {
-  tables: SampleTable[];
+interface ColumnStats {
+  name: string;
+  dtype: string;
+  null_rate?: number;
+  unique_count?: number;
+  min_value?: number | null;
+  max_value?: number | null;
+  mean_value?: number | null;
+  top_values?: { value: string; count: number }[];
+}
+
+interface DataProfile {
+  overall_quality: number;
+  table_profiles: TableProfile[];
+  profiled_at: string;
 }
 
 function formatSchema(tables: SchemaTable[]): string {
@@ -34,18 +48,54 @@ function formatSchema(tables: SchemaTable[]): string {
   }).join('\n');
 }
 
-function formatSampleRows(table: SampleTable, maxRows: number): string {
-  if (!table.rows || table.rows.length === 0) return '    (no sample data)';
-  const header = `    | ${table.columns.join(' | ')} |`;
-  const rows = table.rows.slice(0, maxRows).map((row) => {
-    const cells = row.map((cell) => {
-      if (cell === null || cell === undefined) return 'NULL';
-      const str = String(cell);
-      return str.length > 40 ? str.slice(0, 37) + '...' : str;
+function formatStatistics(tables: SchemaTable[], profile?: DataProfile | null): string {
+  const profileMap = new Map<string, TableProfile>();
+  if (profile?.table_profiles) {
+    for (const tp of profile.table_profiles) {
+      profileMap.set(tp.name, tp);
+    }
+  }
+
+  return tables.map((t) => {
+    const tp = profileMap.get(t.name);
+    const colStats = tp?.columns;
+    const colMap = new Map<string, ColumnStats>();
+    if (colStats) {
+      for (const c of colStats) colMap.set(c.name, c);
+    }
+
+    const lines = t.columns.map((c) => {
+      const stats = colMap.get(c.name);
+      if (!stats) return `    ${c.name} (${c.type})`;
+
+      const parts: string[] = [];
+      if (stats.min_value != null && stats.max_value != null) {
+        parts.push(`min=${stats.min_value}, max=${stats.max_value}`);
+      }
+      if (stats.mean_value != null) {
+        parts.push(`avg=${Number(stats.mean_value).toFixed(1)}`);
+      }
+      if (stats.null_rate != null) {
+        parts.push(`nulls=${Math.round(stats.null_rate * 100)}%`);
+      }
+      if (stats.unique_count != null) {
+        parts.push(`${stats.unique_count} unique values`);
+      }
+      if (stats.top_values && stats.top_values.length > 0) {
+        const totalCount = stats.top_values.reduce((s, v) => s + v.count, 0);
+        const topStr = stats.top_values.slice(0, 3).map((v) => {
+          const pct = totalCount > 0 ? Math.round((v.count / totalCount) * 100) : 0;
+          return `"${v.value}" (${pct}%)`;
+        }).join(', ');
+        parts.push(`top: ${topStr}`);
+      }
+
+      const suffix = parts.length > 0 ? `: ${parts.join(', ')}` : '';
+      return `    ${c.name} (${stats.dtype || c.type})${suffix}`;
     });
-    return `    | ${cells.join(' | ')} |`;
-  });
-  return [header, ...rows].join('\n');
+
+    return `  ${t.name}:\n${lines.join('\n')}`;
+  }).join('\n');
 }
 
 export async function buildDataContext(workspaceId: string, projectId?: string, sourceIds?: string[]): Promise<string> {
@@ -53,7 +103,7 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
 
   let query = supabase
     .from('data_sources')
-    .select('id, name, source_type, schema_snapshot, sample_data, row_count, cleaned_file_path, file_path')
+    .select('id, name, source_type, schema_snapshot, data_profile, row_count, cleaned_file_path, file_path')
     .eq('status', 'active');
 
   if (sourceIds && sourceIds.length > 0) {
@@ -75,13 +125,13 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
   for (const source of sources) {
     const cleanedPath = source.cleaned_file_path as string | null;
     const schema = source.schema_snapshot as unknown as SchemaSnapshot | null;
-    const sample = source.sample_data as unknown as SampleData | null;
+    const profile = source.data_profile as unknown as DataProfile | null;
 
     let section = `SOURCE: ${source.name} (${source.source_type})`;
     if (cleanedPath) section += ` [CLEANED]`;
     section += '\n';
 
-    // If cleaned data exists in Storage, use it for context
+    // If cleaned data exists in Storage, extract column names and row count only
     if (cleanedPath) {
       try {
         const { data: blob } = await supabase.storage
@@ -91,28 +141,25 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
           const text = await blob.text();
           const lines = text.split('\n').filter(l => l.trim());
           const headers = lines[0];
-          const sampleLines = lines.slice(1, 6).join('\n');
           section += `COLUMNS: ${headers}\n`;
           section += `ROWS: ${lines.length - 1}\n`;
-          section += `SAMPLE DATA (first 5 rows):\n${headers}\n${sampleLines}\n`;
           section += '----';
           sections.push(section);
           continue;
         }
       } catch {
-        // Fall through to sample_data
+        // Fall through to schema
       }
     }
 
     if (schema?.tables) {
       section += `TABLES: ${schema.tables.map((t) => `${t.name} (${t.row_count.toLocaleString()} rows)`).join(', ')}\n`;
       section += `SCHEMA:\n${formatSchema(schema.tables)}\n`;
-    }
 
-    if (sample?.tables) {
-      section += `SAMPLE DATA (first 5 rows per table):\n`;
-      for (const table of sample.tables) {
-        section += `  ${table.name}:\n${formatSampleRows(table, 5)}\n`;
+      // Add aggregate statistics from profile (no raw data values)
+      const stats = formatStatistics(schema.tables, profile);
+      if (stats.trim()) {
+        section += `STATISTICS:\n${stats}\n`;
       }
     }
 
@@ -122,7 +169,7 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
 
   let context = sections.join('\n\n');
 
-  // Truncate if over budget — drop sample data first, keep schema
+  // Truncate if over budget — drop statistics first, keep schema
   if (context.length > MAX_CONTEXT_CHARS) {
     const schemaSections: string[] = [];
     for (const source of sources) {
@@ -132,7 +179,7 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
         section += `TABLES: ${schema.tables.map((t) => `${t.name} (${t.row_count.toLocaleString()} rows)`).join(', ')}\n`;
         section += `SCHEMA:\n${formatSchema(schema.tables)}\n`;
       }
-      section += '(sample data truncated for brevity)\n----';
+      section += '(statistics truncated for brevity)\n----';
       schemaSections.push(section);
     }
     context = schemaSections.join('\n\n');
@@ -147,11 +194,11 @@ export async function buildDataContext(workspaceId: string, projectId?: string, 
 }
 
 /**
- * Build context from raw schema/sample objects (no Supabase fetch).
+ * Build context from raw schema objects (no Supabase fetch).
  * Used for testing and when data is already in memory.
  */
 export function buildDataContextFromRaw(
-  sources: { name: string; source_type: string; schema: SchemaSnapshot; sample: SampleData }[]
+  sources: { name: string; source_type: string; schema: SchemaSnapshot; profile?: DataProfile | null }[]
 ): string {
   const sections: string[] = [];
 
@@ -159,10 +206,12 @@ export function buildDataContextFromRaw(
     let section = `SOURCE: ${source.name} (${source.source_type})\n`;
     section += `TABLES: ${source.schema.tables.map((t) => `${t.name} (${t.row_count.toLocaleString()} rows)`).join(', ')}\n`;
     section += `SCHEMA:\n${formatSchema(source.schema.tables)}\n`;
-    section += `SAMPLE DATA (first 5 rows per table):\n`;
-    for (const table of source.sample.tables) {
-      section += `  ${table.name}:\n${formatSampleRows(table, 5)}\n`;
+
+    const stats = formatStatistics(source.schema.tables, source.profile);
+    if (stats.trim()) {
+      section += `STATISTICS:\n${stats}\n`;
     }
+
     section += '----';
     sections.push(section);
   }

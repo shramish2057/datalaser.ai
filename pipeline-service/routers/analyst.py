@@ -234,21 +234,62 @@ async def execute_code_db(
     table_name: str = Form(...),
     code: str = Form(...),
     cell_id: Optional[str] = Form(None),
-    row_limit: int = Form(100000),
+    row_limit: int = Form(10000),
 ):
-    """Execute Python code against a live database connection."""
+    """Execute code against a live database connection.
+
+    For SQL code: executes directly on the DB, returns only the result set.
+    For Python code: provides a `query(sql)` helper that runs SQL on the DB
+    and returns a DataFrame, so code never loads full tables.
+    Raw rows are never bulk-copied out of the database.
+    """
     try:
         import sqlalchemy
         engine = sqlalchemy.create_engine(
             connection_string, connect_args={"connect_timeout": 10}
         )
-        df = pd.read_sql(f"SELECT * FROM {table_name} LIMIT {row_limit}", engine)
-        result = executor.execute(code, df)
-        return JSONResponse(content=sanitize({
-            "cell_id": cell_id or str(uuid.uuid4()),
-            "row_count": len(df),
-            "source_type": source_type,
-            **result,
-        }))
+
+        # Detect if user wrote raw SQL (starts with SELECT, WITH, etc.)
+        code_stripped = code.strip().upper()
+        is_raw_sql = code_stripped.startswith(('SELECT', 'WITH', 'SHOW', 'DESCRIBE', 'EXPLAIN'))
+
+        if is_raw_sql:
+            # Execute SQL directly on the DB, return only the result
+            with engine.connect() as conn:
+                result_proxy = conn.execute(sqlalchemy.text(code.strip()))
+                columns = list(result_proxy.keys())
+                rows = [list(r) for r in result_proxy.fetchmany(row_limit)]
+                df_result = pd.DataFrame(rows, columns=columns)
+            return JSONResponse(content=sanitize({
+                "cell_id": cell_id or str(uuid.uuid4()),
+                "row_count": len(df_result),
+                "source_type": source_type,
+                "data": df_result.to_dict(orient="records") if len(df_result) <= 500 else df_result.head(500).to_dict(orient="records"),
+                "stdout": f"SQL executed: {len(df_result)} rows returned",
+                "chart": None,
+            }))
+        else:
+            # Python code: provide a query() helper that runs SQL on-demand
+            # Only load a small sample for the `df` variable (100 rows, not 100k)
+            df = pd.read_sql(f'SELECT * FROM "{table_name}" LIMIT 100', engine)
+
+            # Inject a query() function so user code can run custom SQL
+            query_results = {}
+            def db_query(sql: str, limit: int = 10000) -> pd.DataFrame:
+                """Run SQL against the connected database."""
+                result = pd.read_sql(sql, engine)
+                if len(result) > limit:
+                    result = result.head(limit)
+                query_results['last'] = result
+                return result
+
+            # Add query function to the execution namespace
+            result = executor.execute(code, df, context={"query": db_query, "engine": engine})
+            return JSONResponse(content=sanitize({
+                "cell_id": cell_id or str(uuid.uuid4()),
+                "row_count": len(df),
+                "source_type": source_type,
+                **result,
+            }))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database execution failed: {str(e)}")

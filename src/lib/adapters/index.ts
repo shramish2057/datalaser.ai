@@ -49,20 +49,36 @@ export interface QueryResult {
   duration_ms: number;
 }
 
+// --- Normalize credential keys to lowercase ---
+// The onboarding form sends keys like "Host", "Port", "Database"
+// but adapters expect "host", "port", "database"
+function normalizeCredentials(creds: Record<string, any>): Record<string, any> {
+  const normalized: Record<string, any> = {}
+  for (const [key, value] of Object.entries(creds)) {
+    normalized[key.toLowerCase()] = value
+  }
+  // Ensure port is a number
+  if (normalized.port && typeof normalized.port === 'string') {
+    normalized.port = parseInt(normalized.port, 10)
+  }
+  return normalized
+}
+
 // --- Factory ---
 
 export function createAdapter(sourceType: SourceType, credentials: AnyCredentials): DataAdapter {
+  const creds = normalizeCredentials(credentials as Record<string, any>)
   switch (sourceType) {
     case 'postgres':
-      return new PostgresAdapter(credentials as any);
+      return new PostgresAdapter(creds as any);
     case 'mysql':
-      return new MysqlAdapter(credentials as any);
+      return new MysqlAdapter(creds as any);
     case 'mongodb':
-      return new MongoDBAdapter(credentials as any);
+      return new MongoDBAdapter(creds as any);
     case 'snowflake':
-      return new SnowflakeAdapter(credentials as any);
+      return new SnowflakeAdapter(creds as any);
     case 'csv':
-      return new CSVAdapter(credentials as any);
+      return new CSVAdapter(creds as any);
     default:
       throw new Error(`Unsupported source type: ${sourceType}. Supported: postgres, mysql, mongodb, snowflake, csv`);
   }

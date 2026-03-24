@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdapter } from '@/lib/adapters';
 import { encryptCredentials } from '@/lib/vault/encrypt';
 import type { SourceType, SourceCategory } from '@/types/connectors';
+import { isDbSource } from '@/lib/source-types';
 
 const SOURCE_TYPES: SourceType[] = [
   'postgres', 'mysql', 'mssql', 'mongodb', 'sqlite',
@@ -75,11 +76,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Pull schema and sample data
+    // 4. Pull schema (and sample data for file sources only)
     let schemaSnapshot, sampleData;
     try {
       schemaSnapshot = await adapter.getSchema();
-      sampleData = await adapter.getSampleData({ max_rows: 100 });
+      // For DB sources: only get schema, skip sample data — we never copy raw rows
+      if (isDbSource(source_type)) {
+        sampleData = { tables: [] };
+      } else {
+        // File sources: get both (files are already uploaded, not live)
+        sampleData = await adapter.getSampleData({ max_rows: 100 });
+      }
     } catch (err: any) {
       await adapter.disconnect();
       return NextResponse.json(

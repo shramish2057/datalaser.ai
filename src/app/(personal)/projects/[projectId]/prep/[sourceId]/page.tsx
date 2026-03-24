@@ -13,6 +13,8 @@ import type {
   PipelineStep, DataProfile, TransformSuggestion,
   TransformResult, ValidationReport, TransformStep
 } from '@/types/pipeline'
+import { translateValidatorMessage, translateValidationSummary } from '@/lib/i18n/validatorMessages'
+import { isFileSource, isDbSource } from '@/lib/source-types'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -88,8 +90,7 @@ export default function PreparePage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const DB_TYPES = ['postgres', 'mysql', 'mssql', 'mongodb', 'sqlite', 'snowflake', 'bigquery', 'redshift', 'databricks']
-  const FILE_TYPES = ['csv', 'xlsx', 'xls', 'json', 'parquet', 'file']
+  const [schemaTables, setSchemaTables] = useState<{ name: string; row_count: number; columns: { name: string; type: string }[] }[]>([])
 
   /** Get cached file or download from Storage */
   const getFile = useCallback(async (fileName: string, filePath: string | null): Promise<File | null> => {
@@ -149,7 +150,7 @@ export default function PreparePage() {
       if (!src) { setError(srcErr ? `Source error: ${srcErr.message}` : 'Data source not found'); return }
       setSourceType(src.source_type as string)
 
-      if (FILE_TYPES.includes(src.source_type)) {
+      if (isFileSource(src.source_type)) {
         const file = await getFile(src.name, src.file_path)
         if (file) {
           setSourceFile({ name: file.name, bytes: file })
@@ -157,8 +158,14 @@ export default function PreparePage() {
         } else {
           setError('Could not load file. Please re-upload the data source.')
         }
-      } else if (DB_TYPES.includes(src.source_type)) {
-        // Database source — show table selection UI (handled in render)
+      } else if (isDbSource(src.source_type)) {
+        const schema = src.schema_snapshot as { tables?: { name: string; row_count: number; columns: { name: string; type: string }[] }[] } | null
+        if (schema?.tables?.length) {
+          setSchemaTables(schema.tables)
+          if (schema.tables.length === 1) {
+            setDbTableName(schema.tables[0].name)
+          }
+        }
       } else {
         setError('Unsupported source type for preparation.')
       }
@@ -422,7 +429,7 @@ export default function PreparePage() {
         <div className="max-w-4xl mx-auto">
 
           {/* DATABASE TABLE SELECTION */}
-          {step === 'profile' && !loading && !profile && DB_TYPES.includes(sourceType) && (
+          {step === 'profile' && !loading && !profile && isDbSource(sourceType) && (
             <div className="max-w-md mx-auto py-12">
               <div className="dl-card p-6">
                 <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('prep.selectTable')}</h2>
@@ -431,13 +438,27 @@ export default function PreparePage() {
                 </p>
                 <div className="mb-4">
                   <label className="dl-label">{t('prep.tableName')}</label>
-                  <input
-                    className="dl-input"
-                    placeholder={t('prep.tableNamePlaceholder')}
-                    value={dbTableName}
-                    onChange={e => setDbTableName(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && dbTableName.trim() && profileDbTable()}
-                  />
+                  {schemaTables.length > 0 ? (
+                    <select
+                      className="dl-input"
+                      value={dbTableName}
+                      onChange={e => setDbTableName(e.target.value)}
+                    >
+                      <option value="">{t('prep.selectTable')}</option>
+                      {schemaTables.map(tbl => (
+                        <option key={tbl.name} value={tbl.name}>
+                          {tbl.name} ({tbl.row_count?.toLocaleString()} {t('prep.rows')}, {tbl.columns?.length} {t('prep.columns')})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      className="dl-input"
+                      value={dbTableName}
+                      onChange={e => setDbTableName(e.target.value)}
+                      placeholder={t('prep.tableNamePlaceholder')}
+                    />
+                  )}
                 </div>
                 <button
                   onClick={profileDbTable}
@@ -451,7 +472,7 @@ export default function PreparePage() {
           )}
 
           {/* STEP 1: PROFILE */}
-          {step === 'profile' && (DB_TYPES.includes(sourceType) ? !!profile : true) && (
+          {step === 'profile' && (isDbSource(sourceType) ? !!profile : true) && (
             loading ? (
               <div className="space-y-4 py-12 text-center">
                 <Loader2 className="w-8 h-8 text-dl-brand animate-spin mx-auto" />
@@ -744,8 +765,8 @@ export default function PreparePage() {
                      validation.overall_status === 'warning' ? <AlertTriangle size={20} className="text-orange-400" /> :
                      <XCircle size={20} className="text-dl-error" />}
                     <div>
-                      <p className="text-dl-sm font-black text-dl-text-dark">{validation.summary}</p>
-                      <p className="text-dl-xs text-dl-text-medium">Score: {validation.score}/100</p>
+                      <p className="text-dl-sm font-black text-dl-text-dark">{translateValidationSummary(validation.summary, t)}</p>
+                      <p className="text-dl-xs text-dl-text-medium">{t('prep.score')}: {validation.score}/100</p>
                     </div>
                   </div>
 
@@ -754,12 +775,12 @@ export default function PreparePage() {
                     <div className="mb-6">
                       <p className="dl-section-header mb-2">{t('prep.issuesToFix')}</p>
                       <div className="space-y-2">
-                        {issues.map((t, i) => (
+                        {issues.map((vt, i) => (
                           <div key={i} className="flex items-start gap-3 p-3 rounded-dl-md border border-dl-error bg-red-50">
                             <XCircle size={14} className="text-dl-error flex-shrink-0 mt-0.5" />
                             <div>
-                              <span className="text-dl-xs font-black text-dl-text-dark">{t.column || 'Dataset'}</span>
-                              <span className="text-dl-xs text-dl-text-medium ml-2">{t.message}</span>
+                              <span className="text-dl-xs font-black text-dl-text-dark">{vt.column || 'Dataset'}</span>
+                              <span className="text-dl-xs text-dl-text-medium ml-2">{translateValidatorMessage(vt.message, t)}</span>
                             </div>
                           </div>
                         ))}
@@ -772,12 +793,12 @@ export default function PreparePage() {
                     <div className="mb-6">
                       <p className="dl-section-header mb-2">{t('prep.dataCharacteristics')}</p>
                       <div className="space-y-2">
-                        {characteristics.map((t, i) => (
+                        {characteristics.map((vt, i) => (
                           <div key={i} className="flex items-start gap-2 p-3 rounded-dl-md border border-dl-border bg-dl-bg-light">
                             <AlertTriangle size={13} className="text-dl-text-light flex-shrink-0 mt-0.5" />
                             <div>
-                              <span className="text-dl-xs font-bold text-dl-text-dark">{t.column || 'Dataset'}</span>
-                              <span className="text-dl-xs text-dl-text-medium ml-2">{t.message}</span>
+                              <span className="text-dl-xs font-bold text-dl-text-dark">{vt.column || 'Dataset'}</span>
+                              <span className="text-dl-xs text-dl-text-medium ml-2">{translateValidatorMessage(vt.message, t)}</span>
                             </div>
                           </div>
                         ))}
@@ -796,17 +817,17 @@ export default function PreparePage() {
                           <tr><th>{t("common.test")}</th><th>{t("common.column")}</th><th>{t("common.status")}</th><th>{t("common.message")}</th></tr>
                         </thead>
                         <tbody>
-                          {validation.tests.map((t, i) => (
+                          {validation.tests.map((vt, i) => (
                             <tr key={i}>
-                              <td className="font-bold text-dl-xs">{t.test_name}</td>
-                              <td className="text-dl-text-medium text-dl-xs">{t.column || '—'}</td>
+                              <td className="font-bold text-dl-xs">{vt.test_name}</td>
+                              <td className="text-dl-text-medium text-dl-xs">{vt.column || '—'}</td>
                               <td>
                                 <span className={
-                                  t.status === 'passed' ? 'dl-badge-success' :
-                                  t.status === 'warning' ? 'dl-badge-warning' : 'dl-badge-error'
-                                }>{t.status}</span>
+                                  vt.status === 'passed' ? 'dl-badge-success' :
+                                  vt.status === 'warning' ? 'dl-badge-warning' : 'dl-badge-error'
+                                }>{vt.status}</span>
                               </td>
-                              <td className="text-dl-xs text-dl-text-medium">{t.message}</td>
+                              <td className="text-dl-xs text-dl-text-medium">{translateValidatorMessage(vt.message, t)}</td>
                             </tr>
                           ))}
                         </tbody>

@@ -2,18 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 import { decryptCredentials } from '@/lib/vault/decrypt'
+import { buildConnectionString } from '@/lib/db/connection-string'
 
 const PIPELINE_URL = process.env.PIPELINE_SERVICE_URL || 'http://localhost:8001'
-
-function buildConnectionString(sourceType: string, creds: Record<string, string>): string {
-  const { Host, Port, Database, Username, Password, Account, Warehouse, Schema } = creds
-  switch (sourceType) {
-    case 'postgres': return `postgresql://${Username}:${Password}@${Host}:${Port || 5432}/${Database}`
-    case 'mysql': return `mysql+pymysql://${Username}:${Password}@${Host}:${Port || 3306}/${Database}`
-    case 'snowflake': return `snowflake://${Username}:${Password}@${Account}/${Database}/${Schema || 'PUBLIC'}?warehouse=${Warehouse}`
-    default: return `postgresql://${Username}:${Password}@${Host}:${Port || 5432}/${Database}`
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {

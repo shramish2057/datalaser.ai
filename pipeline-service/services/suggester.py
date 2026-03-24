@@ -3,7 +3,6 @@ import json
 import httpx
 from models.schemas import DataProfile
 
-CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 CLAUDE_MODEL = "claude-sonnet-4-20250514"
 
 SUGGESTION_PROMPT = """You are a senior data engineer analysing a dataset profile.
@@ -45,7 +44,8 @@ Do not suggest transformations for columns that look clean."""
 
 
 async def generate_suggestions(profile: DataProfile) -> list:
-    if not CLAUDE_API_KEY:
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
         raise ValueError("ANTHROPIC_API_KEY environment variable is not set")
 
     column_summaries = []
@@ -83,7 +83,7 @@ Generate transformation suggestions for this dataset."""
         response = await client.post(
             "https://api.anthropic.com/v1/messages",
             headers={
-                "x-api-key": CLAUDE_API_KEY,
+                "x-api-key": api_key,
                 "anthropic-version": "2023-06-01",
                 "content-type": "application/json",
             },

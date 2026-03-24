@@ -34,26 +34,16 @@ export async function POST(request: NextRequest) {
         dataContext = await buildDataContext('', project_id, source_ids);
       } catch { /* fallback to empty context */ }
     }
-    if (intent?.columns && intent.sampleRows) {
+    if (intent?.columns) {
       const colList = intent.columns
-        .map((c: { name: string; dtype: string; sample: string[] }) =>
-          `  - ${c.name} (${c.dtype})${c.sample?.length > 0 ? `: ${c.sample.slice(0, 3).join(', ')}` : ''}`)
-        .join('\n');
-
-      const headerRow = intent.columns.map((c: { name: string }) => c.name).join(' | ');
-      const sampleRowsStr = (intent.sampleRows as string[][])
-        .slice(0, 5)
-        .map((row: string[]) => row.join(' | '))
+        .map((c: { name: string; dtype: string }) =>
+          `  - ${c.name} (${c.dtype})`)
         .join('\n');
 
       dataContext = `
 FILE: ${intent.fileName} (${intent.rows?.toLocaleString()} rows)
 COLUMNS:
 ${colList}
-
-SAMPLE DATA:
-${headerRow}
-${sampleRowsStr}
 
 USER PREFERENCES:
 - Preferred chart types: ${(intent.chartTypes as string[])?.join(', ') || 'bar'}
