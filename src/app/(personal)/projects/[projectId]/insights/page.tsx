@@ -65,9 +65,24 @@ export default function InsightsPage() {
 
       setSources(mapped)
       setLoading(false)
+
+      // Auto-run analysis for DB sources that haven't been analyzed yet
+      const unanalyzedDb = mapped.filter(s => s.insight_count === 0 && isDbSource(s.source_type))
+      if (unanalyzedDb.length > 0) {
+        setAutoRunSourceId(unanalyzedDb[0].id)
+      }
     }
     load()
   }, [projectId])
+
+  // Auto-trigger analysis for unanalyzed DB sources
+  const [autoRunSourceId, setAutoRunSourceId] = useState<string | null>(null)
+  useEffect(() => {
+    if (autoRunSourceId && !runningId) {
+      handleRunAnalysis(autoRunSourceId)
+      setAutoRunSourceId(null)
+    }
+  }, [autoRunSourceId])
 
   const handleRunAnalysis = async (sourceId: string) => {
     setRunningId(sourceId)
