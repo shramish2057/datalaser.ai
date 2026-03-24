@@ -288,47 +288,42 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* MAIN */}
-      <div className="flex flex-col flex-1 min-w-0">
-        {/* Top bar */}
-        <header className="
-          h-[72px] bg-dl-bg border-b border-dl-border
-          flex items-center justify-between px-6 flex-shrink-0
-        ">
-          <div className="flex items-center gap-2">
-            {project && (
-              <>
-                <ProjectIconBadge icon={project.icon} color={project.color} size="md" />
-                <h1 className="text-dl-lg font-black text-dl-text-dark">
-                  {project.name}
-                </h1>
-              </>
-            )}
-            <div className="mx-4">
+      <ActiveSourceProvider projectId={projectId as string}>
+        <div className="flex flex-col flex-1 min-w-0">
+          {/* Top bar */}
+          <header className="
+            h-[72px] bg-dl-bg border-b border-dl-border
+            flex items-center justify-between px-6 flex-shrink-0
+          ">
+            <div className="flex items-center gap-2">
+              {project && (
+                <>
+                  <ProjectIconBadge icon={project.icon} color={project.color} size="md" />
+                  <h1 className="text-dl-lg font-black text-dl-text-dark">
+                    {project.name}
+                  </h1>
+                </>
+              )}
+            </div>
+            <div className="flex-1 flex justify-center">
               <DataSourceSelector />
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 text-dl-text-medium text-dl-sm">
-              <div className="w-2 h-2 rounded-full bg-dl-success" />
-              {t("common.connected")}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push(`/projects/${projectId}/sources/new`)}
+                className="dl-btn-secondary flex items-center gap-1.5 text-dl-sm py-1.5"
+              >
+                <Plus size={13} /> {t('sources.addSource')}
+              </button>
             </div>
-            <div className="w-px h-4 bg-dl-border mx-1" />
-            <button
-              onClick={() => router.push(`/projects/${projectId}/sources/new`)}
-              className="dl-btn-secondary flex items-center gap-1.5 text-dl-sm py-1.5"
-            >
-              <Plus size={13} /> {t('sources.addSource')}
-            </button>
-          </div>
-        </header>
+          </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-dl-bg-light">
-          <ActiveSourceProvider projectId={projectId as string}>
+          {/* Page content */}
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-dl-bg-light">
             {children}
-          </ActiveSourceProvider>
-        </main>
-      </div>
+          </main>
+        </div>
+      </ActiveSourceProvider>
     </div>
   )
 }

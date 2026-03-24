@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter, usePathname } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Zap } from 'lucide-react'
 import StudioSidebar from '@/components/studio/StudioSidebar'
+import { DataSourceSelector } from '@/components/DataSourceSelector'
+import { ActiveSourceProvider } from '@/lib/context/ActiveSourceContext'
 import type { StudioNotebook, StudioSource, QueryLibraryItem, SchemaColumn } from '@/types/studio'
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
@@ -102,15 +104,20 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
   }
 
   return (
+    <ActiveSourceProvider projectId={projectId}>
     <div className="flex flex-col h-screen overflow-hidden bg-white font-sans">
       {/* Top bar */}
       <div className="h-[48px] flex items-center justify-between border-b border-dl-border px-4 flex-shrink-0">
-        <Link href={`/projects/${projectId}`} className="flex items-center gap-1.5 text-dl-sm text-dl-text-medium hover:text-dl-text-dark transition-colors">
-          <ChevronLeft size={16} />
+        <Link href={`/projects/${projectId}`} className="flex items-center gap-2 text-dl-sm text-dl-text-dark hover:opacity-70 transition-opacity">
+          <div className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center">
+            <Zap size={12} className="text-white" />
+          </div>
+          <span className="font-bold tracking-tight">DataLaser Studio</span>
+        </Link>
+        <DataSourceSelector />
+        <Link href={`/projects/${projectId}`} className="text-dl-xs text-dl-text-light hover:text-dl-brand transition-colors">
           {projectName}
         </Link>
-        <span className="text-dl-sm font-semibold text-dl-text-dark tracking-wide">Studio</span>
-        <div className="w-[100px]" /> {/* Spacer for balance */}
       </div>
 
       {/* Body */}
@@ -134,5 +141,6 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
         </main>
       </div>
     </div>
+    </ActiveSourceProvider>
   )
 }
