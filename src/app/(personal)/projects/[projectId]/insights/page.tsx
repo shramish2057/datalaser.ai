@@ -142,10 +142,10 @@ export default function InsightsPage() {
         <div className="flex items-center gap-3">
           <DataSourceSelector />
           <button
-          onClick={() => runAnalysis()}
-          disabled={running}
-          className="dl-btn-secondary text-dl-xs px-3 py-1.5 flex items-center gap-1.5"
-        >
+            onClick={() => runAnalysis()}
+            disabled={running}
+            className="dl-btn-secondary text-dl-xs px-3 py-1.5 flex items-center gap-1.5"
+          >
           {running ? (
             <><Loader2 size={12} className="animate-spin" /> {t('common.analyzing')}</>
           ) : (
