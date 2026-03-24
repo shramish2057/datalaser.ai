@@ -99,6 +99,21 @@ export async function generateInsights(workspaceId: string, projectId?: string, 
 }
 
 /**
+ * Generate insights from live database query results (fresh aggregates, not cached).
+ */
+export async function generateInsightsFromLiveData(
+  liveContext: string,
+  locale: string = 'en'
+): Promise<InsightResponse> {
+  const client = getClient();
+  return _generateInsightsFromContext(
+    client,
+    `LIVE DATA (queried just now from the database):\n${liveContext}`,
+    locale
+  );
+}
+
+/**
  * Generate insights from a raw context string (for testing without Supabase).
  */
 export async function generateInsightsFromContext(context: string): Promise<InsightResponse> {
