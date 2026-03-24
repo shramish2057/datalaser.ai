@@ -4,8 +4,9 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   BookOpen, Plus, Database, Copy, Check, UploadCloud, X,
-  MoreHorizontal, Pencil, Trash2, Server
+  MoreHorizontal, Pencil, Trash2, Server, Network
 } from 'lucide-react'
+import Link from 'next/link'
 import type { StudioNotebook, StudioSource, QueryLibraryItem, SchemaColumn } from '@/types/studio'
 import { useDropzone } from 'react-dropzone'
 import { useTranslations } from 'next-intl'
@@ -307,6 +308,21 @@ export default function StudioSidebar({
               ))}
             </>
           )}
+        </div>
+
+        {/* Visual Graph mini-view */}
+        <div className="h-px bg-dl-border mx-3 my-1" />
+        <div className="px-3 py-1">
+          <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light px-1 mb-1.5">
+            Visual Graph
+          </p>
+          <Link
+            href={`/projects/${projectId}/graph`}
+            className="flex items-center gap-2 px-2 py-2 rounded-dl-md hover:bg-dl-bg-medium text-dl-xs text-dl-text-medium hover:text-dl-brand transition-colors"
+          >
+            <Network size={14} />
+            <span>Open Visual Graph</span>
+          </Link>
         </div>
       </aside>
 

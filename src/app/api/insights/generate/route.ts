@@ -53,6 +53,23 @@ export async function POST(request: NextRequest) {
 
     const { data: sources } = await sourcesQuery;
 
+    // Fetch VIL KPIs for this project
+    let vilKpis: any[] = []
+    if (projectId) {
+      try {
+        const { data: vilGraph } = await adminClient
+          .from('vil_graphs')
+          .select('kpis_mapped, industry_type')
+          .eq('project_id', projectId)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single()
+        if (vilGraph?.kpis_mapped) {
+          vilKpis = (vilGraph.kpis_mapped as any[]).filter((k: any) => k.mapped)
+        }
+      } catch { /* VIL KPIs optional */ }
+    }
+
     let liveDbContext = '';
     for (const src of (sources || [])) {
       if (!isDbSource(src.source_type) || !src.encrypted_credentials) continue;
@@ -118,6 +135,13 @@ export async function POST(request: NextRequest) {
         } catch {
           liveDbContext += `TABLE ${table.name}: query failed\n`;
         }
+      }
+    }
+
+    if (vilKpis.length > 0) {
+      liveDbContext += '\nMAPPED KPIS (company-specific):\n'
+      for (const kpi of vilKpis) {
+        liveDbContext += `  ${kpi.name_de || kpi.name_en}: ${kpi.value || 'not computed'} (${kpi.unit || ''})\n`
       }
     }
 

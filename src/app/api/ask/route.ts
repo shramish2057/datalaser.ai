@@ -30,6 +30,63 @@ export async function POST(request: NextRequest) {
 
     const client = getClient();
 
+    // Fetch VIL context for enhanced AI understanding
+    let vilContext = ''
+    if (project_id) {
+      try {
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+        const { data: vilGraph } = await supabaseAdmin
+          .from('vil_graphs')
+          .select('graph_data, industry_type, industry_confidence, kpis_mapped')
+          .eq('project_id', project_id)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        if (vilGraph) {
+          const gd = vilGraph.graph_data as any
+          const nodes = gd?.nodes || []
+          const edges = gd?.edges || []
+
+          // Build column role mappings
+          const columnMappings = nodes
+            .filter((n: any) => n.type === 'metric' || n.type === 'dimension')
+            .map((n: any) => `${n.label} (${n.metadata?.column || n.id}) = ${n.metadata?.business_role || n.type}`)
+            .join('\n  ')
+
+          // Build relationship descriptions
+          const relationships = edges
+            .filter((e: any) => e.type === 'relationship')
+            .map((e: any) => `${e.source} -> ${e.target}: ${e.label_en || e.label_de || 'related'}`)
+            .join('\n  ')
+
+          // Build KPI formulas
+          const kpis = (vilGraph.kpis_mapped as any[] || [])
+            .filter((k: any) => k.mapped)
+            .map((k: any) => `${k.name_en}: ${k.formula} (columns: ${(k.columns || []).join(', ')})`)
+            .join('\n  ')
+
+          vilContext = `
+=== VERIFIED INTELLIGENCE LAYER ===
+Industry: ${vilGraph.industry_type || 'unknown'} (${Math.round((vilGraph.industry_confidence || 0) * 100)}% confidence)
+
+Column Business Roles:
+  ${columnMappings || 'No mappings available'}
+
+Table Relationships:
+  ${relationships || 'No relationships detected'}
+
+Mapped KPIs:
+  ${kpis || 'No KPIs mapped'}
+=== END VIL CONTEXT ===
+`
+        }
+      } catch { /* VIL context optional */ }
+    }
+
     // Build data context — from intent if available, otherwise from project's data sources
     let dataContext = '';
     if (!intent?.columns && project_id) {
@@ -139,7 +196,7 @@ Return ONLY the raw SQL query, no explanation, no markdown, no code fences.
 The SQL must be valid PostgreSQL. Use aggregate functions (COUNT, SUM, AVG, etc.) to summarize data.
 Never SELECT * — always select specific columns and aggregate.
 Limit results to 50 rows maximum.
-
+${vilContext}
 DATABASE SCHEMA:
 ${schemaText}`,
         messages: [{ role: 'user', content: message }],
@@ -173,7 +230,7 @@ ${schemaText}`,
           model: 'claude-sonnet-4-20250514',
           max_tokens: 4000,
           system: `You are DataLaser's data analyst AI.
-${verifiedBlock}
+${vilContext}${verifiedBlock}
 ${RESPONSE_FORMAT}
 
 RULES:
@@ -225,7 +282,7 @@ Reference actual numbers from the query results.`,
     // ─── FILE SOURCE FLOW (or fallback) ───
     const systemPrompt = `You are DataLaser's data analyst AI.
 You answer questions about the user's data with precision and always include visualisations.
-
+${vilContext}
 ${dataContext ? `DATA CONTEXT:\n${dataContext}\n` : ''}${qualityContext}${verifiedBlock}
 ${RESPONSE_FORMAT}
 
