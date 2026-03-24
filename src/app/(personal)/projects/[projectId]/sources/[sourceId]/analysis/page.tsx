@@ -82,9 +82,27 @@ export default function AutoAnalysisPage() {
         if (!src) { setError('Source not found'); setLoading(false); return }
         setSourceName(src.name)
 
-        // If auto_analysis already cached, use it
+        // If auto_analysis already cached, use it (with safe defaults for missing fields)
         if (src.auto_analysis) {
-          setAnalysis(src.auto_analysis as AutoAnalysisResult)
+          const raw = src.auto_analysis as Record<string, unknown>
+          const safe: AutoAnalysisResult = {
+            row_count: (raw.row_count as number) || src.row_count || 0,
+            column_count: (raw.column_count as number) || 0,
+            measures: (raw.measures as string[]) || [],
+            dimensions: (raw.dimensions as string[]) || [],
+            binaries: (raw.binaries as string[]) || [],
+            dates: (raw.dates as string[]) || [],
+            top_insights: (raw.top_insights as AutoAnalysisResult['top_insights']) || [],
+            correlations: (raw.correlations as AutoAnalysisResult['correlations']) || { matrix: [], columns: [], pairs: [] },
+            distributions: (raw.distributions as AutoAnalysisResult['distributions']) || [],
+            segments: (raw.segments as AutoAnalysisResult['segments']) || [],
+            clusters: (raw.clusters as AutoAnalysisResult['clusters']) || { n_clusters: 0 },
+            anomalies: (raw.anomalies as AutoAnalysisResult['anomalies']) || [],
+            key_influencers: (raw.key_influencers as AutoAnalysisResult['key_influencers']) || [],
+            contribution_analysis: (raw.contribution_analysis as AutoAnalysisResult['contribution_analysis']) || [],
+            majority: (raw.majority as AutoAnalysisResult['majority']) || [],
+          } as AutoAnalysisResult
+          setAnalysis(safe)
           setLoading(false)
           return
         }
