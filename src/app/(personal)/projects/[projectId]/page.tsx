@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
+import { normalizeInsights } from '@/lib/normalizeInsight'
 import {
   Database, BarChart2, MessageSquare, FlaskConical, ArrowRight,
   Zap, TrendingUp, GitBranch, AlertTriangle, Target, Layers, Search
@@ -83,7 +84,8 @@ export default function ProjectHomePage() {
 
       for (const src of srcs || []) {
         const analysis = src.auto_analysis as Record<string, unknown> | null
-        const insights = (analysis?.top_insights as { type: string; headline: string; columns: string[]; p_value: number; effect_size: number }[]) || []
+        const rawInsights = (analysis?.top_insights as { type: string; headline: unknown }[]) || []
+        const insights = normalizeInsights(rawInsights) as { type: string; headline: string; columns: string[]; p_value: number; effect_size: number }[]
 
         sourceSummaries.push({
           id: src.id,

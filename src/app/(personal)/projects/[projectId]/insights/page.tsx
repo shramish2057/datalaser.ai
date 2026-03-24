@@ -10,6 +10,7 @@ import {
 import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
 import { isDbSource } from '@/lib/source-types'
+import { normalizeInsights } from '@/lib/normalizeInsight'
 
 interface SourceAnalysis {
   id: string
@@ -49,7 +50,8 @@ export default function InsightsPage() {
 
       const mapped: SourceAnalysis[] = (srcs || []).map(src => {
         const analysis = src.auto_analysis as Record<string, unknown> | null
-        const insights = (analysis?.top_insights as { type: string; headline: string }[]) || []
+        const rawInsights = (analysis?.top_insights as { type: string; headline: unknown }[]) || []
+        const insights = normalizeInsights(rawInsights)
         return {
           id: src.id,
           name: src.name,
@@ -194,7 +196,9 @@ export default function InsightsPage() {
           <div className="space-y-3">
             {analyzed.map(src => (
               <button key={src.id}
-                onClick={() => router.push(`${base}/sources/${src.id}/analysis`)}
+                onClick={() => router.push(isDbSource(src.source_type)
+                  ? `${base}/sources/${src.id}/overview`
+                  : `${base}/sources/${src.id}/analysis`)}
                 className="w-full bg-white border border-dl-border rounded-dl-lg p-4 text-left hover:border-dl-brand transition-colors group">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2.5">
