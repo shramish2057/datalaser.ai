@@ -329,11 +329,13 @@ export default function ProjectAskPage() {
             </p>
           ) : (
             conversations.map(c => (
-              <button
+              <div
                 key={c.id}
                 onClick={() => loadConversation(c.id)}
+                role="button"
+                tabIndex={0}
                 className={`
-                  w-full flex items-center gap-2 px-3 py-2 text-left
+                  w-full flex items-center gap-2 px-3 py-2 text-left cursor-pointer
                   text-dl-xs transition-colors group
                   ${activeConvoId === c.id
                     ? 'bg-dl-brand-hover text-dl-brand font-bold'
@@ -353,7 +355,7 @@ export default function ProjectAskPage() {
                 >
                   <Trash2 size={11} />
                 </button>
-              </button>
+              </div>
             ))
           )}
         </div>
