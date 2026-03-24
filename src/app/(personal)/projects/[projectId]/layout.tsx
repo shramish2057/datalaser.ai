@@ -305,9 +305,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
                 </>
               )}
             </div>
-            <div className="flex-1 flex justify-center">
-              <DataSourceSelector />
-            </div>
+            <div className="flex-1" />
             <div className="flex items-center gap-2">
               <button
                 onClick={() => router.push(`/projects/${projectId}/sources/new`)}

@@ -11,6 +11,7 @@ import { InteractiveChart, type ChartData } from '@/components/charts/Interactiv
 import { DataQualityBanner } from '@/components/DataQualityBanner'
 import type { DataQualityReport } from '@/lib/dataQuality'
 import { useActiveSource } from '@/lib/context/ActiveSourceContext'
+import { DataSourceSelector } from '@/components/DataSourceSelector'
 
 type IntentData = {
   question: string
@@ -349,6 +350,11 @@ export default function ProjectAskPage() {
 
       {/* Main chat area */}
       <div className="flex flex-col flex-1 min-w-0">
+        {/* Source selector bar */}
+        <div className="flex items-center justify-between px-6 py-2.5 border-b border-dl-border bg-dl-bg flex-shrink-0">
+          <h2 className="text-dl-sm font-bold text-dl-text-dark">{t('ask.title')}</h2>
+          <DataSourceSelector />
+        </div>
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="max-w-[860px] mx-auto space-y-6">

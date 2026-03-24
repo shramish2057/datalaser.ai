@@ -12,6 +12,7 @@ import { translateFinding } from '@/lib/i18n/findingsMap'
 import { isDbSource } from '@/lib/source-types'
 import { normalizeInsights } from '@/lib/normalizeInsight'
 import { useActiveSource } from '@/lib/context/ActiveSourceContext'
+import { DataSourceSelector } from '@/components/DataSourceSelector'
 
 export default function InsightsPage() {
   const t = useTranslations()
@@ -137,13 +138,10 @@ export default function InsightsPage() {
   return (
     <div className="max-w-4xl mx-auto px-8 py-10">
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-[20px] font-black text-dl-text-dark">{t('insights.title')}</h1>
-          <p className="text-dl-text-light text-dl-xs mt-0.5">
-            {activeSource.name} &middot; {activeSource.source_type.toUpperCase()}
-          </p>
-        </div>
-        <button
+        <h1 className="text-[20px] font-black text-dl-text-dark">{t('insights.title')}</h1>
+        <div className="flex items-center gap-3">
+          <DataSourceSelector />
+          <button
           onClick={() => runAnalysis()}
           disabled={running}
           className="dl-btn-secondary text-dl-xs px-3 py-1.5 flex items-center gap-1.5"
@@ -153,7 +151,8 @@ export default function InsightsPage() {
           ) : (
             <><RefreshCw size={12} /> {t('insights.runAnalysis')}</>
           )}
-        </button>
+          </button>
+        </div>
       </div>
 
       {/* Summary */}
