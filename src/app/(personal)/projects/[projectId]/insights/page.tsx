@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
+import { isDbSource } from '@/lib/source-types'
 
 interface SourceAnalysis {
   id: string
@@ -74,27 +75,50 @@ export default function InsightsPage() {
       const { data: src } = await supabase
         .from('data_sources').select('file_path, source_type, name')
         .eq('id', sourceId).single()
-      if (!src?.file_path) return
+      if (!src) return
 
-      const { data: blob } = await supabase.storage.from('data-sources').download(src.file_path)
-      if (!blob) return
+      let data: Record<string, unknown> | null = null
 
-      const fd = new FormData()
-      fd.append('file', new File([blob], src.name), src.name)
-      fd.append('file_type', src.source_type || 'csv')
-      fd.append('source_id', sourceId)
+      if (isDbSource(src.source_type)) {
+        // DB source: generate insights via live DB query
+        const res = await fetch('/api/insights/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project_id: projectId, source_ids: [sourceId] }),
+        })
+        const result = await res.json()
+        if (result.success && result.document) {
+          // Convert insight document to auto_analysis format for display
+          data = {
+            top_insights: (result.document.key_findings || []).map((f: string, i: number) => ({
+              type: 'insight', headline: f,
+            })),
+            kpis: result.document.kpis || [],
+            summary: result.document.executive_summary || '',
+          }
+        }
+      } else {
+        // File source: download and run auto-analysis pipeline
+        if (!src.file_path) return
+        const { data: blob } = await supabase.storage.from('data-sources').download(src.file_path)
+        if (!blob) return
 
-      const res = await fetch('/api/pipeline/auto-analysis', { method: 'POST', body: fd })
-      const data = await res.json()
+        const fd = new FormData()
+        fd.append('file', new File([blob], src.name), src.name)
+        fd.append('file_type', src.source_type || 'csv')
+        fd.append('source_id', sourceId)
 
-      if (!data.error) {
+        const res = await fetch('/api/pipeline/auto-analysis', { method: 'POST', body: fd })
+        data = await res.json()
+      }
+
+      if (data && !data.error) {
         await supabase.from('data_sources').update({
           auto_analysis: data,
           analysis_status: 'complete',
           analyzed_at: new Date().toISOString(),
         }).eq('id', sourceId)
 
-        // Refresh
         const insights = (data.top_insights as { type: string; headline: string }[]) || []
         setSources(prev => prev.map(s => s.id === sourceId ? {
           ...s, insight_count: insights.length, top_insights: insights.slice(0, 3),

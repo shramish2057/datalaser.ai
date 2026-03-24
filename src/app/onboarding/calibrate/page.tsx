@@ -425,7 +425,7 @@ export default function CalibratePage() {
               <span className="text-dl-xs font-bold text-dl-text-dark">{s.name || s}</span>
               {s.schema_snapshot?.tables && (
                 <span className="text-dl-xs text-dl-text-light">
-                  {s.schema_snapshot.tables.length} {t('common.tables') || 'tables'}
+                  {s.schema_snapshot.tables.length} {t('overview.tables')}
                 </span>
               )}
             </div>
