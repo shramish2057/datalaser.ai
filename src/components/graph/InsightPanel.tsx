@@ -15,7 +15,9 @@ import {
   ShieldCheck,
   Hash,
   Layers,
-  Sigma,
+  Sigma as SigmaIcon,
+  Calendar,
+  CircleDot,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -54,22 +56,28 @@ interface InsightPanelProps {
 /*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
 
-const TYPE_ICON = {
+const TYPE_ICON: Record<string, typeof TrendingUp> = {
   metric: TrendingUp,
   dimension: Layers,
-  kpi: Sigma,
+  kpi: SigmaIcon,
+  date: Calendar,
+  id: Hash,
 }
 
-const TYPE_COLOR = {
+const TYPE_COLOR: Record<string, string> = {
   metric: '#10b981',
   dimension: '#3b82f6',
   kpi: '#7c3aed',
+  date: '#f59e0b',
+  id: '#71717a',
 }
 
-const TYPE_BG = {
+const TYPE_BG: Record<string, string> = {
   metric: 'bg-emerald-500/10 border-emerald-500/20',
   dimension: 'bg-blue-500/10 border-blue-500/20',
   kpi: 'bg-purple-500/10 border-purple-500/20',
+  date: 'bg-amber-500/10 border-amber-500/20',
+  id: 'bg-zinc-500/10 border-zinc-500/20',
 }
 
 const TREND_ICON = {
@@ -86,7 +94,7 @@ export function InsightPanel({ node, graphData, onClose, projectId }: InsightPan
   const t = useTranslations()
   const router = useRouter()
 
-  const Icon = TYPE_ICON[node.type]
+  const Icon = TYPE_ICON[node.type] || CircleDot
   const TrendIcon = node.trend ? TREND_ICON[node.trend] : null
 
   // Connected nodes
