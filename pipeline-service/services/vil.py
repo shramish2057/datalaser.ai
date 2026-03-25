@@ -965,8 +965,9 @@ def detect_relationships(
                     is_match = False
                     direction = None
 
-                    # Exact name match
-                    if c1_lower == c2_lower:
+                    # Only match on ID-like columns (not generic names like 'status', 'datum')
+                    # Exact name match on _id columns only
+                    if c1_lower == c2_lower and (c1_lower.endswith('_id') or c1_lower == 'id'):
                         is_match = True
                     # t1 has FK referencing t2 PK (e.g., kunden_id -> kunden.id)
                     elif c1_lower == f"{t2.lower()}_id" or c1_lower == f"{t2.lower()}id":
@@ -975,9 +976,6 @@ def detect_relationships(
                     elif c2_lower == f"{t1.lower()}_id" or c2_lower == f"{t1.lower()}id":
                         is_match = True
                         direction = (t2, t1)
-                    # Suffix match for _id columns
-                    elif c1_lower.endswith("_id") and c1_lower == c2_lower:
-                        is_match = True
 
                     if not is_match:
                         continue
@@ -1126,8 +1124,22 @@ _EDGE_COLORS = {
     "correlation_strong": "#ef4444",
     "correlation_moderate": "#f97316",
     "correlation_weak": "#fbbf24",
-    "relationship": "#6366f1",
-    "kpi_dependency": "#10b981",
+    "relationship": "#52525b",
+    "hierarchy": "#333333",
+    "kpi_dependency": "#7c3aed",
+}
+
+# Roles that should be excluded from metric nodes
+_EXCLUDED_ROLES = {"identifier", "text", "unknown", "date", "category"}
+
+# Business importance ordering for metric selection
+_METRIC_PRIORITY = {
+    "revenue": 0,
+    "cost": 1,
+    "margin": 2,
+    "rate": 3,
+    "quantity": 4,
+    "count": 5,
 }
 
 
@@ -1214,12 +1226,14 @@ class VILEngine:
         # Step 5 -- detect relationships
         relationships = detect_relationships(engine, schema_tables)
 
-        # Step 6 -- build nodes
-        nodes = self._build_nodes(all_columns, all_fingerprints, kpis, table_dfs)
+        # Step 6 -- build table-centric nodes
+        nodes = self._build_nodes(
+            all_columns, all_fingerprints, kpis, table_dfs, engine, schema_tables
+        )
 
         # Step 7 -- build edges
         edges = self._build_edges(
-            all_columns, all_fingerprints, kpis, relationships, table_dfs
+            all_columns, all_fingerprints, kpis, relationships, nodes
         )
 
         graph = {
@@ -1247,6 +1261,117 @@ class VILEngine:
 
         return graph
 
+    # -- helper methods --------------------------------------------------------
+
+    def _classify_table_role(self, table_name: str, fingerprints: list) -> str:
+        """Classify what business role this table plays."""
+        name = table_name.lower()
+        has_revenue = any(f.get("business_role_hint") == "revenue" for f in fingerprints)
+        has_cost = any(f.get("business_role_hint") == "cost" for f in fingerprints)
+        has_defect = any(
+            f.get("business_role_hint") in ("defect_rate", "quality")
+            for f in fingerprints
+        )
+
+        if "kunde" in name or "customer" in name:
+            return "entity_table"
+        if "produkt" in name or "product" in name:
+            return "entity_table"
+        if "produktion" in name or "production" in name:
+            return "production_table"
+        if "reklamation" in name or "complaint" in name:
+            return "quality_table"
+        if has_revenue and has_cost:
+            return "transaction_table"
+        if has_revenue:
+            return "revenue_table"
+        if has_defect:
+            return "quality_table"
+        return "data_table"
+
+    def _compute_aggregate(self, df, col, scale):
+        """Compute the right aggregate for a column based on its scale."""
+        series = pd.to_numeric(df[col], errors="coerce").dropna()
+        if len(series) == 0:
+            return None
+        if scale in ("currency", "count"):
+            return round(float(series.sum()), 2)
+        else:
+            return round(float(series.mean()), 2)
+
+    def _compute_trend(self, df, col):
+        """Compute % change between first half and second half of data."""
+        series = pd.to_numeric(df[col], errors="coerce").dropna()
+        if len(series) <= 10:
+            return None
+        mid = len(series) // 2
+        first_half = series.iloc[:mid].mean()
+        second_half = series.iloc[mid:].mean()
+        if first_half == 0:
+            return None
+        return round((second_half - first_half) / abs(first_half) * 100, 1)
+
+    def _business_label(self, col_name, fingerprint):
+        """Convert column name to business-friendly label."""
+        label = col_name.replace("_", " ").title()
+        return label
+
+    def _compute_kpi_value(self, kpi: dict, table_dfs: dict) -> float | None:
+        """Try to compute a KPI value from available DataFrames."""
+        try:
+            columns = kpi.get("columns", [])
+            if not columns:
+                return None
+            # Simple formulas: if we have revenue and cost, compute margin
+            formula = kpi.get("formula", "")
+            required = kpi.get("required_roles", [])
+
+            # Find the actual column values
+            col_values = {}
+            for role in required:
+                for table_name, df in table_dfs.items():
+                    for col in df.columns:
+                        # Match by column name containing the role keyword
+                        if role.lower() in col.lower():
+                            series = pd.to_numeric(df[col], errors="coerce").dropna()
+                            if len(series) > 0:
+                                col_values[role] = float(series.sum())
+                            break
+
+            if not col_values:
+                return None
+
+            # Simple computation patterns
+            if "revenue" in col_values and "cost" in col_values:
+                rev = col_values["revenue"]
+                cost = col_values["cost"]
+                if kpi["id"] in ("gross_margin", "net_profit_margin", "operating_margin"):
+                    return round((rev - cost) / rev * 100, 1) if rev != 0 else None
+                if kpi["id"] in ("contribution_margin",):
+                    return round(rev - cost, 2)
+                if kpi["id"] in ("cost_ratio",):
+                    return round(cost / rev * 100, 1) if rev != 0 else None
+
+            # For single-value KPIs (defect rate, etc.)
+            if len(col_values) == 1:
+                val = list(col_values.values())[0]
+                if kpi.get("unit") == "%":
+                    return round(val, 1)
+                return round(val, 2)
+
+            return None
+        except Exception:
+            return None
+
+    def _is_row_id(self, df, col_name):
+        """Check if a column is just a sequential row ID."""
+        series = pd.to_numeric(df[col_name], errors="coerce").dropna()
+        if len(series) == 0:
+            return False
+        nunique = series.nunique()
+        unique_rate = nunique / len(series) if len(series) > 0 else 0
+        return unique_rate > 0.95
+
     # -- node construction -----------------------------------------------------
 
     def _build_nodes(
@@ -1255,65 +1380,131 @@ class VILEngine:
         fingerprints: dict,
         kpis: list[dict],
         table_dfs: dict[str, pd.DataFrame],
+        engine: sqlalchemy.Engine,
+        schema_tables: list[dict],
     ) -> list[dict]:
         nodes: list[dict] = []
         seen_ids: set[str] = set()
 
+        # Group columns by table
+        cols_by_table: dict[str, list[dict]] = {}
         for col in columns:
-            qname = col["qualified_name"]
-            fp = fingerprints.get(qname, {})
-            role = fp.get("business_role_hint", col.get("semantic_role", "unknown"))
-            table_name = col["table"]
-            col_name = col["name"]
+            cols_by_table.setdefault(col["table"], []).append(col)
 
-            # Only create nodes for metrics, dimensions, and dates
-            if role in ("identifier", "text", "unknown"):
+        # Level 1 -- Table nodes
+        for tbl in schema_tables:
+            table_name = tbl.get("table_name") or tbl.get("name", "")
+            if not table_name or table_name not in table_dfs:
                 continue
 
-            node_id = qname
-            if node_id in seen_ids:
-                continue
-            seen_ids.add(node_id)
+            df = table_dfs[table_name]
+            row_count = len(df)
 
-            node_type = "metric" if col.get("dtype") == "numeric" else "dimension"
-            if role == "date":
-                node_type = "date"
+            # Get actual row count from DB if possible
+            try:
+                with engine.connect() as conn:
+                    actual_count = conn.execute(
+                        sqlalchemy.text(f'SELECT COUNT(*) FROM "{table_name}"')
+                    ).scalar()
+                    if actual_count is not None:
+                        row_count = int(actual_count)
+            except Exception:
+                pass
 
-            # Compute summary value for metrics
-            value = None
-            trend = None
-            if node_type == "metric" and table_name in table_dfs:
-                series = table_dfs[table_name][col_name].dropna()
-                if len(series) > 0:
-                    value = round(float(series.mean()), 2)
-                    if len(series) > 10:
-                        mid = len(series) // 2
-                        first_half = series.iloc[:mid].mean()
-                        second_half = series.iloc[mid:].mean()
-                        if first_half != 0:
-                            trend = round(
-                                (second_half - first_half) / abs(first_half) * 100, 1
-                            )
+            table_cols = cols_by_table.get(table_name, [])
+            table_fps = [
+                fingerprints.get(c["qualified_name"], {}) for c in table_cols
+            ]
+            table_role = self._classify_table_role(table_name, table_fps)
 
-            nodes.append({
-                "id": node_id,
-                "type": node_type,
-                "label": col_name,
-                "label_de": col_name,
-                "label_en": col_name,
-                "value": value,
-                "trend": trend,
-                "metadata": {
-                    "table": table_name,
-                    "distribution": fp.get("distribution_shape"),
-                    "scale": fp.get("value_scale"),
-                    "business_role": role,
-                },
-            })
+            table_node_id = f"table:{table_name}"
+            if table_node_id not in seen_ids:
+                seen_ids.add(table_node_id)
+                pretty = table_name.replace("_", " ").title()
+                nodes.append({
+                    "id": table_node_id,
+                    "type": "table",
+                    "label": pretty,
+                    "label_de": pretty,
+                    "label_en": pretty,
+                    "value": row_count,
+                    "trend": None,
+                    "metadata": {
+                        "role": table_role,
+                        "columns": len(table_cols),
+                        "table": table_name,
+                    },
+                })
 
-        # Add KPI nodes
+            # Level 2 -- Key metric nodes (max 4 per table)
+            # Filter to numeric, non-excluded columns
+            metric_candidates = []
+            for col in table_cols:
+                qname = col["qualified_name"]
+                fp = fingerprints.get(qname, {})
+                role = fp.get("business_role_hint", col.get("semantic_role", "unknown"))
+                scale = fp.get("value_scale", "generic")
+                col_name = col["name"]
+
+                # Skip excluded roles
+                if role in _EXCLUDED_ROLES:
+                    continue
+                # Skip non-numeric columns
+                if col.get("dtype") != "numeric":
+                    continue
+                # Skip all-null columns
+                if col_name in df.columns and df[col_name].dropna().empty:
+                    continue
+                # Skip sequential row IDs (but not if VIL identified a business role)
+                known_business_roles = {"revenue", "cost", "margin", "rate", "quantity", "price", "amount"}
+                if role not in known_business_roles:
+                    if col_name in df.columns and scale == "id":
+                        continue
+                    if col_name in df.columns and self._is_row_id(df, col_name):
+                        continue
+
+                priority = _METRIC_PRIORITY.get(role, 6)
+                metric_candidates.append((priority, col_name, qname, fp, role, scale))
+
+            # Sort by business importance, take top 4
+            metric_candidates.sort(key=lambda x: x[0])
+            top_metrics = metric_candidates[:4]
+
+            for _prio, col_name, qname, fp, role, scale in top_metrics:
+                node_id = f"{table_name}.{col_name}"
+                if node_id in seen_ids:
+                    continue
+                seen_ids.add(node_id)
+
+                agg_value = self._compute_aggregate(df, col_name, scale)
+                trend = self._compute_trend(df, col_name)
+
+                nodes.append({
+                    "id": node_id,
+                    "type": "metric",
+                    "label": self._business_label(col_name, fp),
+                    "value": agg_value,
+                    "trend": trend,
+                    "parent": table_node_id,
+                    "metadata": {
+                        "table": table_name,
+                        "column": col_name,
+                        "business_role": role,
+                        "scale": scale,
+                        "distribution": fp.get("distribution_shape", "unknown"),
+                    },
+                })
+
+        # Level 3 -- KPI nodes (only mapped ones with computed values)
         for kpi in kpis:
-            node_id = f"kpi_{kpi['id']}"
+            if not kpi.get("mapped"):
+                continue
+            # Try to compute KPI value from available data
+            kpi_value = self._compute_kpi_value(kpi, table_dfs)
+            if kpi_value is None:
+                continue  # Skip KPIs we can't compute
+
+            node_id = f"kpi:{kpi['id']}"
             if node_id in seen_ids:
                 continue
             seen_ids.add(node_id)
@@ -1321,15 +1512,12 @@ class VILEngine:
             nodes.append({
                 "id": node_id,
                 "type": "kpi",
-                "label": kpi["name_en"],
-                "label_de": kpi["name_de"],
+                "label": kpi["name_de"],
                 "label_en": kpi["name_en"],
-                "value": None,
-                "trend": None,
+                "value": kpi_value,
                 "metadata": {
                     "formula": kpi["formula"],
                     "unit": kpi["unit"],
-                    "status": kpi.get("status", "auto_mapped"),
                 },
             })
 
@@ -1343,94 +1531,66 @@ class VILEngine:
         fingerprints: dict,
         kpis: list[dict],
         relationships: list[dict],
-        table_dfs: dict[str, pd.DataFrame],
+        nodes: list[dict],
     ) -> list[dict]:
         edges: list[dict] = []
 
-        # A) Correlation edges between metrics within same table
-        measure_by_table: dict[str, list[str]] = {}
-        for col in columns:
-            if col.get("dtype") == "numeric":
-                fp = fingerprints.get(col["qualified_name"], {})
-                role = fp.get("business_role_hint", "")
-                if role not in ("identifier",):
-                    measure_by_table.setdefault(col["table"], []).append(col["name"])
+        # Build a set of existing node IDs for validation
+        node_ids = {n["id"] for n in nodes}
 
-        for table_name, measures in measure_by_table.items():
-            if len(measures) < 2 or table_name not in table_dfs:
-                continue
-            df = table_dfs[table_name]
-            valid = [m for m in measures if m in df.columns]
-            if len(valid) < 2:
-                continue
-
-            try:
-                corr_matrix = df[valid].corr(method="pearson")
-                for i, c1 in enumerate(valid):
-                    for c2 in valid[i + 1 :]:
-                        r = corr_matrix.loc[c1, c2]
-                        if pd.isna(r):
-                            continue
-                        abs_r = abs(r)
-                        if abs_r < 0.3:
-                            continue
-
-                        if abs_r >= 0.7:
-                            strength = "strong"
-                        elif abs_r >= 0.5:
-                            strength = "moderate"
-                        else:
-                            strength = "weak"
-
-                        direction = "positiv" if r > 0 else "negativ"
-                        direction_en = "positive" if r > 0 else "negative"
-
-                        edges.append({
-                            "source": f"{table_name}.{c1}",
-                            "target": f"{table_name}.{c2}",
-                            "type": "correlation",
-                            "label_de": f"{strength} {direction} Korrelation ({r:.2f})",
-                            "label_en": f"{strength} {direction_en} correlation ({r:.2f})",
-                            "weight": round(abs_r, 3),
-                            "color": _EDGE_COLORS.get(
-                                f"correlation_{strength}", "#fbbf24"
-                            ),
-                        })
-            except Exception:
-                continue
-
-        # B) Relationship edges between tables
+        # A) Table-to-table relationship edges (from FK detection, deduplicated)
+        seen_edges: set[str] = set()
         for rel in relationships:
-            edges.append({
-                "source": f"{rel['source_table']}.{rel['source_col']}",
-                "target": f"{rel['target_table']}.{rel['target_col']}",
-                "type": "relationship",
-                "label_de": rel["label_de"],
-                "label_en": rel["label_en"],
-                "weight": rel.get("strength", 0.8),
-                "color": _EDGE_COLORS["relationship"],
-            })
+            source_id = f"table:{rel['source_table']}"
+            target_id = f"table:{rel['target_table']}"
+            # Deduplicate: only one edge per table pair (use sorted key)
+            edge_key = tuple(sorted([source_id, target_id]))
+            if edge_key in seen_edges:
+                continue
+            seen_edges.add(edge_key)
+            if source_id in node_ids and target_id in node_ids:
+                edges.append({
+                    "source": source_id,
+                    "target": target_id,
+                    "type": "relationship",
+                    "label": rel["label_en"],
+                    "label_de": rel["label_de"],
+                    "label_en": rel["label_en"],
+                    "weight": rel.get("strength", 0.5),
+                    "color": _EDGE_COLORS["relationship"],
+                })
 
-        # C) KPI dependency edges
+        # B) Metric-to-table hierarchy edges
+        for node in nodes:
+            if node["type"] == "metric" and node.get("parent"):
+                edges.append({
+                    "source": node["id"],
+                    "target": node["parent"],
+                    "type": "hierarchy",
+                    "weight": 0.3,
+                    "color": _EDGE_COLORS["hierarchy"],
+                })
+
+        # C) KPI dependency edges (KPI -> source metrics)
         for kpi in kpis:
-            kpi_node_id = f"kpi_{kpi['id']}"
+            kpi_node_id = f"kpi:{kpi['id']}"
+            if kpi_node_id not in node_ids:
+                continue
             for role, col_name in kpi.get("column_mapping", {}).items():
-                # Find the qualified name for this column
-                target_qname = None
+                # Find the qualified name for this column and check it
+                # exists as a metric node
                 for col in columns:
                     if col["name"] == col_name:
-                        target_qname = col["qualified_name"]
+                        target_id = f"{col['table']}.{col_name}"
+                        if target_id in node_ids:
+                            edges.append({
+                                "source": kpi_node_id,
+                                "target": target_id,
+                                "type": "kpi_dependency",
+                                "weight": 0.3,
+                                "color": _EDGE_COLORS["kpi_dependency"],
+                            })
                         break
-                if target_qname:
-                    edges.append({
-                        "source": kpi_node_id,
-                        "target": target_qname,
-                        "type": "kpi_dependency",
-                        "label_de": f"Benötigt {role}",
-                        "label_en": f"Requires {role}",
-                        "weight": 1.0,
-                        "color": _EDGE_COLORS["kpi_dependency"],
-                    })
 
         return edges
 
