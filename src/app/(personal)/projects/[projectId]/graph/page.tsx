@@ -164,17 +164,20 @@ export default function VisualGraphPage() {
     }
   }, [activeSourceId, projectId])
 
-  /* ---- Initial load: fetch existing or auto-build ---- */
+  /* ---- Initial load: fetch existing graph, auto-build only once ---- */
+  const hasTriedBuild = useRef(false)
   useEffect(() => {
+    if (!activeSourceId) return
     async function init() {
       const found = await fetchGraph()
-      if (!found && activeSourceId && !building) {
-        // No graph saved yet but source connected: auto-build
+      if (!found && !hasTriedBuild.current && !building) {
+        // No graph saved yet, first visit with source: auto-build once
+        hasTriedBuild.current = true
         buildGraph()
       }
     }
     init()
-  }, [fetchGraph, activeSourceId])
+  }, [projectId, activeSourceId])
 
   /* ---- Render Sigma graph ---- */
   useEffect(() => {

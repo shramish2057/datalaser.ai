@@ -88,7 +88,14 @@ export async function POST(request: NextRequest) {
     const graphRecord = {
       project_id,
       source_id,
-      graph_data: { nodes: data.nodes || [], edges: data.edges || [], metadata: data.metadata || {} },
+      graph_data: {
+        nodes: data.nodes || [],
+        edges: data.edges || [],
+        metadata: data.metadata || {},
+        narrative_de: data.narrative_de || '',
+        narrative_en: data.narrative_en || '',
+        categories: data.categories || [],
+      },
       industry_type: data.industry?.type || null,
       industry_confidence: data.industry?.confidence || 0,
       kpis_mapped: data.kpis || [],
