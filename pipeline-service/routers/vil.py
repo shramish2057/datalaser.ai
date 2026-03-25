@@ -8,6 +8,7 @@ from typing import Optional
 import json
 import os
 import logging
+import pandas as pd
 from datetime import datetime, timezone
 
 import httpx
@@ -282,7 +283,32 @@ async def get_node_insight(
             aggregates['top_values'] = [{'label': str(r[0]), 'count': int(r[1]), 'pct': round(int(r[1])/total*100, 1)} for r in top_vals]
             aggregates['total'] = total
 
-    # Send aggregates to Claude for interpretation (no raw data)
+    # Run template engine on the data for verified findings
+    template_findings = []
+    try:
+        from services.templates import template_engine
+        from routers.auto_analysis import _quick_profile
+        # Sample data for template execution (max 5000 rows)
+        df = pd.read_sql(f'SELECT * FROM "{table_name}" LIMIT 5000', engine)
+        profiles = _quick_profile(df)
+        # Get applicable templates
+        applicable = template_engine.get_applicable(profiles)
+        # Run top 3 templates
+        for match in applicable[:3]:
+            try:
+                result = template_engine.run(match.template_id, df, profiles, match.matched_columns)
+                if result.success and result.findings:
+                    for f in result.findings[:3]:
+                        finding_text = f if isinstance(f, str) else f.get('text', str(f))
+                        template_findings.append(f"[VERIFIED] {finding_text} ({match.name})")
+            except Exception:
+                pass
+    except Exception as exc:
+        logger.warning("Template execution failed for insight: %s", exc)
+
+    template_block = "\n".join(template_findings) if template_findings else "No template findings available"
+
+    # Send aggregates + template findings to Claude for interpretation (no raw data)
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
         return JSONResponse(content={"finding": "API key not configured", "recommendation": "", "data_points": []})
@@ -296,6 +322,17 @@ Current value: {node_value}
 
 LIVE AGGREGATED DATA (computed from the actual database just now):
 {json.dumps(aggregates, indent=2, default=str)}
+
+VERIFIED TEMPLATE FINDINGS (computed by DataLaser engine, not AI):
+{template_block}
+
+Use the verified findings as the BASIS of your analysis.
+Do not contradict them. Add context, financial impact, and recommendations.
+
+RULES:
+- You MUST name at least one specific entity (region, product, customer, machine) from the breakdown data.
+- Generic advice like "consider diversifying" is FORBIDDEN. Be specific with targets.
+- The financial_impact line MUST contain a specific EUR amount.
 
 Write a JSON response with these EXACT fields:
 
