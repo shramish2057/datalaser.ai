@@ -314,50 +314,14 @@ export default function VisualGraphPage() {
       labelFont: 'Inter, system-ui, sans-serif',
       labelWeight: '500',
       stagePadding: 60,
-      defaultDrawNodeHover(context: CanvasRenderingContext2D, data: any, settings: any) {
-        const size = data.size || 14
-        const label = data.label || ''
-        const x = data.x
-        const y = data.y
-
-        // Highlighted node circle
+      // No hover tooltip — labels already visible on nodes. Click for details.
+      defaultDrawNodeHover(context: CanvasRenderingContext2D, data: any) {
+        // Just draw a subtle ring around hovered node, no duplicate label
         context.beginPath()
-        context.arc(x, y, size + 3, 0, Math.PI * 2)
-        context.fillStyle = data.color || '#71717a'
-        context.fill()
+        context.arc(data.x, data.y, (data.size || 14) + 3, 0, Math.PI * 2)
         context.strokeStyle = '#ffffff'
         context.lineWidth = 2
         context.stroke()
-
-        // Label with dark background
-        if (label) {
-          context.font = `600 ${settings.labelSize || 12}px ${settings.labelFont || 'sans-serif'}`
-          const lines = label.split('\n')
-          const lineHeight = (settings.labelSize || 12) + 4
-          const maxWidth = Math.max(...lines.map((l: string) => context.measureText(l).width))
-          const pad = 8
-          const bgW = maxWidth + pad * 2
-          const bgH = lines.length * lineHeight + pad * 2
-          const bgX = x - bgW / 2
-          const bgY = y + size + 8
-
-          // Dark rounded background
-          context.fillStyle = '#111111'
-          context.beginPath()
-          context.roundRect(bgX, bgY, bgW, bgH, 6)
-          context.fill()
-          context.strokeStyle = '#333333'
-          context.lineWidth = 1
-          context.stroke()
-
-          // White text
-          context.fillStyle = '#ffffff'
-          context.textAlign = 'center'
-          context.textBaseline = 'top'
-          lines.forEach((line: string, i: number) => {
-            context.fillText(line, x, bgY + pad + i * lineHeight)
-          })
-        }
       },
       defaultNodeColor: '#71717a',
       defaultEdgeColor: '#333333',
