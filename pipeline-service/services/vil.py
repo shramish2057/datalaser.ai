@@ -1731,15 +1731,34 @@ class VILEngine:
             if n['type'] == 'table':
                 table_summary.append(f"{n['label']} ({n['value']} rows)")
 
-        prompt = f"""Write a 3-sentence executive business summary.
-Industry: {industry} ({confidence * 100:.0f}% confidence)
-Tables: {', '.join(table_summary)}
-Key metrics: {', '.join(metric_summary[:10])}
-Relationships: {len([e for e in edges if e['type'] == 'relationship'])} table connections
+        # Also compute key ratios for the narrative
+        ratio_hints = []
+        metric_map = {n['label'].lower(): n.get('value', 0) for n in nodes if n['type'] == 'metric' and n.get('value')}
+        for n in nodes:
+            if n['type'] == 'table' and 'reklamation' in n['label'].lower():
+                orders_table = next((t for t in nodes if t['type'] == 'table' and 'bestell' in t['label'].lower()), None)
+                if orders_table and orders_table.get('value'):
+                    rate = round(n['value'] / orders_table['value'] * 100, 1)
+                    ratio_hints.append(f"Complaint rate: {rate}% ({n['value']} complaints / {orders_table['value']} orders)")
 
-Write in German first, then English. Be specific with numbers.
-Mention the most critical finding first.
-Format: {{"de": "...", "en": "..."}}"""
+        prompt = f"""You are the Head of Controlling at a German Mittelstand company writing a brief for the CEO.
+Industry: {industry} ({confidence * 100:.0f}% confidence)
+Data overview:
+  Tables: {', '.join(table_summary)}
+  Key metrics (aggregated from live database): {', '.join(metric_summary[:10])}
+  Table relationships: {len([e for e in edges if e['type'] == 'relationship'])} connections
+  {'Computed ratios: ' + ', '.join(ratio_hints) if ratio_hints else ''}
+
+Write EXACTLY 3 sentences. Rules:
+- Sentence 1: What this business does, with key volume numbers (orders, customers, revenue)
+- Sentence 2: The MOST CRITICAL finding that needs CEO attention. Name the specific entity (product, region, machine, customer) causing the issue. Include a EUR or % number.
+- Sentence 3: The biggest opportunity with a specific EUR estimate.
+
+Be concrete. Not "revenue is concentrated" but "Mueller GmbH und Schmidt AG machen 45% des Umsatzes aus, Klumpenrisiko €5,6M."
+Not "defect rate is high" but "Maschine M-300 verursacht 67% aller Ausschussteile, Kosten ca. €23.400/Monat."
+
+Return JSON: {{"de": "3 sentences in German", "en": "3 sentences in English"}}
+Return ONLY valid JSON."""
 
         try:
             resp = httpx.post(

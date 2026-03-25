@@ -198,32 +198,69 @@ async def get_node_insight(
                 SELECT COUNT(*) as total, SUM("{column_name}")::float as total_sum,
                        AVG("{column_name}")::float as avg_val,
                        MIN("{column_name}")::float as min_val,
-                       MAX("{column_name}")::float as max_val
+                       MAX("{column_name}")::float as max_val,
+                       STDDEV("{column_name}")::float as std_val
                 FROM "{table_name}" WHERE "{column_name}" IS NOT NULL
             ''')).fetchone()
-            aggregates['total'] = stats[0]
+            aggregates['total_rows'] = stats[0]
             aggregates['sum'] = round(stats[1] or 0, 2)
             aggregates['avg'] = round(stats[2] or 0, 2)
-            aggregates['min'] = stats[3]
-            aggregates['max'] = stats[4]
+            aggregates['min'] = round(float(stats[3] or 0), 2)
+            aggregates['max'] = round(float(stats[4] or 0), 2)
+            aggregates['std'] = round(float(stats[5] or 0), 2)
 
-            # Top contributors (if there's a dimension column)
+            # Period comparison (first half vs second half for trend context)
+            try:
+                half_count = stats[0] // 2
+                halves = conn.execute(sqlalchemy.text(f'''
+                    WITH numbered AS (
+                        SELECT "{column_name}", ROW_NUMBER() OVER () as rn
+                        FROM "{table_name}" WHERE "{column_name}" IS NOT NULL
+                    )
+                    SELECT
+                        AVG(CASE WHEN rn <= {half_count} THEN "{column_name}" END)::float as first_half_avg,
+                        AVG(CASE WHEN rn > {half_count} THEN "{column_name}" END)::float as second_half_avg,
+                        SUM(CASE WHEN rn <= {half_count} THEN "{column_name}" END)::float as first_half_sum,
+                        SUM(CASE WHEN rn > {half_count} THEN "{column_name}" END)::float as second_half_sum
+                    FROM numbered
+                ''')).fetchone()
+                if halves and halves[0] and halves[1]:
+                    pct_change = round((halves[1] - halves[0]) / abs(halves[0]) * 100, 1) if halves[0] != 0 else 0
+                    aggregates['trend'] = {
+                        'first_half_avg': round(halves[0], 2),
+                        'second_half_avg': round(halves[1], 2),
+                        'first_half_sum': round(halves[2], 2),
+                        'second_half_sum': round(halves[3], 2),
+                        'pct_change': pct_change,
+                        'direction': 'up' if pct_change > 0 else 'down' if pct_change < 0 else 'flat',
+                    }
+            except Exception:
+                pass
+
+            # Top contributors by ALL dimension columns
             dim_cols = conn.execute(sqlalchemy.text(f"""
                 SELECT column_name FROM information_schema.columns
                 WHERE table_name = :t AND data_type IN ('text','character varying')
             """), {"t": table_name}).fetchall()
 
-            if dim_cols:
-                dim_col = dim_cols[0][0]
+            aggregates['breakdowns'] = []
+            for (dim_col_name,) in dim_cols[:3]:
                 top = conn.execute(sqlalchemy.text(f'''
-                    SELECT "{dim_col}"::text, SUM("{column_name}")::float as val
+                    SELECT "{dim_col_name}"::text, SUM("{column_name}")::float as val,
+                           COUNT(*) as cnt
                     FROM "{table_name}" WHERE "{column_name}" IS NOT NULL
-                    GROUP BY "{dim_col}" ORDER BY val DESC LIMIT 5
+                    GROUP BY "{dim_col_name}" ORDER BY val DESC LIMIT 5
                 ''')).fetchall()
-                aggregates['top_by_dimension'] = {
-                    'dimension': dim_col,
-                    'values': [{'label': str(r[0]), 'value': round(r[1], 2)} for r in top]
-                }
+                total_val = aggregates['sum']
+                aggregates['breakdowns'].append({
+                    'dimension': dim_col_name,
+                    'values': [
+                        {'label': str(r[0]), 'value': round(r[1], 2),
+                         'pct': round(r[1] / total_val * 100, 1) if total_val else 0,
+                         'count': int(r[2])}
+                        for r in top
+                    ]
+                })
 
     elif node_type == "table":
         with engine.connect() as conn:
@@ -250,21 +287,37 @@ async def get_node_insight(
     if not api_key:
         return JSONResponse(content={"finding": "API key not configured", "recommendation": "", "data_points": []})
 
-    lang_instruction = "Antworte auf Deutsch." if locale == "de" else "Answer in English."
+    lang_instruction = "Antworte KOMPLETT auf Deutsch. Verwende deutsche Fachbegriffe und EUR-Formatierung (€1.234,56)." if locale == "de" else "Answer in English. Use EUR formatting (€1,234.56)."
 
     prompt = f"""{lang_instruction}
-You are a senior business analyst reviewing a {node_type} called "{node_label}" (value: {node_value}).
-Business role: {business_role}
+You are a senior Controlling analyst at a German Mittelstand company.
+You are reviewing: "{node_label}" ({node_type}, business role: {business_role})
+Current value: {node_value}
 
-Aggregated data (computed from live database, not raw rows):
+LIVE AGGREGATED DATA (computed from the actual database just now):
 {json.dumps(aggregates, indent=2, default=str)}
 
-Write a JSON response:
-1. "finding": 2-3 sentences of specific verified insight with actual numbers. Start with the most important finding.
-2. "recommendation": 1-2 sentences of actionable advice for a German Mittelstand CFO.
-3. "data_points": array of 2-4 key metrics, each with "label", "value" (formatted string), "severity" (one of: "success", "warning", "critical", "info")
+Write a JSON response with these EXACT fields:
 
-Return ONLY valid JSON."""
+1. "trend_text": One line showing value + direction + % change + period.
+   Format: "5.546 ↓ 0,4% vs. Vorperiode" or "€12.489.515 ↑ 14,2% vs. Vorperiode"
+   MUST include the actual number, arrow, percentage, and comparison period.
+
+2. "finding": 2-3 sentences. Be SPECIFIC: name the exact dimension value (region, product, customer, machine) causing the pattern. Use actual numbers from the breakdown data. Example: "Region Nord generiert 43% des Gesamtumsatzes (€5,4M), wahrend Ost nur 12% beitragt. Kunden-Konzentration: Die Top-3 Kunden (Mueller GmbH, Schmidt AG, Richter AG) machen 67% des Umsatzes aus."
+
+3. "recommendation": 1-2 sentences. Must be ACTIONABLE with specific targets. Not "diversify customers" but "Akquirieren Sie 5 Neukunden im Bereich €200-500K Jahresumsatz, Fokus auf Region Ost (derzeit nur 12% Anteil)."
+
+4. "financial_impact": One sentence quantifying the EUR impact. Examples:
+   "Potenzielle Einsparung: €8.200/Monat bei Senkung der Ausschussquote um 2%"
+   "Klumpenrisiko: Verlust eines Top-Kunden gefahrdet €4,2M Jahresumsatz"
+   "Umsatzpotenzial Region Ost: €1,8M bei Angleichung an Durchschnitt"
+   This is the MOST IMPORTANT line for the CFO.
+
+5. "data_points": array of 3-5 key metrics:
+   Each: {{"label": "Name", "value": "formatted string with unit", "severity": "success|warning|critical|info"}}
+   Include the top contributor by name, the concentration risk %, and the trend.
+
+Return ONLY valid JSON. No markdown, no explanation."""
 
     try:
         resp = httpx.post(

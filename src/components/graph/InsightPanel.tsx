@@ -103,7 +103,13 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
   const t = useTranslations()
   const router = useRouter()
 
-  const [insight, setInsight] = useState<{finding: string, recommendation: string, data_points: {label: string, value: string, severity: string}[]} | null>(null)
+  const [insight, setInsight] = useState<{
+    trend_text?: string,
+    finding: string,
+    recommendation: string,
+    financial_impact?: string,
+    data_points: {label: string, value: string, severity: string}[]
+  } | null>(null)
   const [insightLoading, setInsightLoading] = useState(false)
 
   useEffect(() => {
@@ -196,12 +202,19 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
       {/* Insight content */}
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
         {insightLoading ? (
-          <div className="flex items-center gap-2 text-zinc-400 text-sm py-8 justify-center">
-            <Loader2 size={16} className="animate-spin" />
-            <span>Generating insight...</span>
+          <div className="flex flex-col items-center gap-3 text-zinc-400 text-sm py-12">
+            <Loader2 size={20} className="animate-spin" />
+            <span>{locale === 'de' ? 'Analyse wird erstellt...' : 'Generating insight...'}</span>
           </div>
         ) : insight ? (
           <>
+            {/* Trend line */}
+            {insight.trend_text && (
+              <div className="bg-[#111] border border-[#222] rounded-lg px-4 py-2.5">
+                <p className="text-sm font-semibold text-white">{insight.trend_text}</p>
+              </div>
+            )}
+
             {/* Verified Finding */}
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -211,19 +224,31 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
               <p className="text-sm text-zinc-200 leading-relaxed">{insight.finding}</p>
             </div>
 
+            {/* Financial Impact (most important for CFO) */}
+            {insight.financial_impact && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
+                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">
+                  {locale === 'de' ? 'Finanzieller Einfluss' : 'Financial Impact'}
+                </p>
+                <p className="text-sm font-bold text-amber-300">{insight.financial_impact}</p>
+              </div>
+            )}
+
             {/* Recommendation */}
             {insight.recommendation && (
-              <div className="bg-[#1a1a2e] border border-[#2a2a4e] rounded-lg p-3">
-                <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">Recommendation</p>
+              <div className="bg-[#1a1a2e] border border-[#2a2a4e] rounded-lg px-4 py-3">
+                <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
+                  {locale === 'de' ? 'Empfehlung' : 'Recommendation'}
+                </p>
                 <p className="text-sm text-zinc-300 leading-relaxed">{insight.recommendation}</p>
               </div>
             )}
 
             {/* Data Points */}
             {insight.data_points?.length > 0 && (
-              <div className="space-y-2">
+              <div className="bg-[#111] border border-[#222] rounded-lg divide-y divide-[#222]">
                 {insight.data_points.map((dp, i) => (
-                  <div key={i} className="flex items-center justify-between py-1.5">
+                  <div key={i} className="flex items-center justify-between px-4 py-2.5">
                     <span className="text-xs text-zinc-400">{dp.label}</span>
                     <span className={`text-sm font-bold ${
                       dp.severity === 'critical' ? 'text-red-400' :
@@ -236,7 +261,9 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
             )}
           </>
         ) : (
-          <p className="text-sm text-zinc-500 text-center py-8">Click a node to see insights</p>
+          <p className="text-sm text-zinc-500 text-center py-8">
+            {locale === 'de' ? 'Klicken Sie auf einen Knoten' : 'Click a node to see insights'}
+          </p>
         )}
 
         {/* Connected nodes */}
