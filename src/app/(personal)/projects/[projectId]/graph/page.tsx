@@ -164,10 +164,17 @@ export default function VisualGraphPage() {
     }
   }, [activeSourceId, projectId])
 
-  /* ---- Initial load ---- */
+  /* ---- Initial load: fetch existing or auto-build ---- */
   useEffect(() => {
-    fetchGraph()
-  }, [fetchGraph])
+    async function init() {
+      const found = await fetchGraph()
+      if (!found && activeSourceId && !building) {
+        // No graph saved yet but source connected: auto-build
+        buildGraph()
+      }
+    }
+    init()
+  }, [fetchGraph, activeSourceId])
 
   /* ---- Render Sigma graph ---- */
   useEffect(() => {
