@@ -100,6 +100,10 @@ export default function VisualGraphPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const sigmaRef = useRef<Sigma | null>(null)
   const graphRef = useRef<Graph | null>(null)
+  const selectedNodeRef = useRef<GraphNode | null>(null)
+
+  // Keep ref in sync with state (so Sigma reducers can read current value)
+  selectedNodeRef.current = selectedNode
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -267,10 +271,10 @@ export default function VisualGraphPage() {
       defaultEdgeColor: '#333333',
       edgeReducer(edge, data) {
         const res = { ...data }
-        if (selectedNode) {
+        if (selectedNodeRef.current) {
           const src = graph.source(edge)
           const tgt = graph.target(edge)
-          if (src !== selectedNode.id && tgt !== selectedNode.id) {
+          if (src !== selectedNodeRef.current!.id && tgt !== selectedNodeRef.current!.id) {
             res.color = '#1a1a1a'
             res.size = 0.5
           } else {
@@ -282,15 +286,15 @@ export default function VisualGraphPage() {
       },
       nodeReducer(node, data) {
         const res = { ...data }
-        if (selectedNode) {
-          if (node === selectedNode.id) {
+        if (selectedNodeRef.current) {
+          if (node === selectedNodeRef.current.id) {
             const nType = graph.getNodeAttribute(node, 'nodeType')
             res.color = NODE_HIGHLIGHT[nType] || '#ffffff'
             res.size = (data.size || 14) * 1.3
             res.zIndex = 10
           } else {
             // Check if neighbor
-            const neighbors = graph.neighbors(selectedNode.id)
+            const neighbors = graph.neighbors(selectedNodeRef.current.id)
             if (!neighbors.includes(node)) {
               res.color = '#2a2a2a'
               res.label = ''
@@ -379,6 +383,13 @@ export default function VisualGraphPage() {
       }
     }
   }, [graphData])
+
+  /* ---- Refresh Sigma reducers when selection changes (no rebuild) ---- */
+  useEffect(() => {
+    if (sigmaRef.current) {
+      sigmaRef.current.refresh()
+    }
+  }, [selectedNode])
 
   /* ---- Loading / building state ---- */
   if (loading || building) {
