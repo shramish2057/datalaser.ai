@@ -272,7 +272,15 @@ export async function suggestMetrics(
   const dataSummary = validFiles.map(f => {
     const colDetails = f.columns.map(c => {
       const samples = Array.isArray(c.sample) ? c.sample : [];
-      return `  - ${c.name} (${c.dtype})${samples.length > 0 ? `: ${samples.slice(0, 5).join(', ')}` : ''}`;
+      // Send statistical metadata, NEVER actual sample values
+      const uniqueCount = new Set(samples).size;
+      const looksNumeric = samples.length > 0 && samples.every(v => !isNaN(Number(v)));
+      const desc = looksNumeric
+        ? `${samples.length} numeric values, ${uniqueCount} unique`
+        : samples.length > 0
+          ? `${uniqueCount} unique values of ${samples.length} sampled`
+          : '';
+      return `  - ${c.name} (${c.dtype})${desc ? `: ${desc}` : ''}`;
     }).join('\n');
     return `File: ${f.name} (${f.rows.toLocaleString()} rows)\nColumns:\n${colDetails}`;
   }).join('\n\n');
