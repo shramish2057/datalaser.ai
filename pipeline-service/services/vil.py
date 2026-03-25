@@ -2,7 +2,7 @@
 DataLaser VIL (Verified Intelligence Layer) -- Core intelligence engine.
 Builds a semantic knowledge graph from raw data sources by combining
 statistical fingerprinting, industry classification, KPI mapping,
-and relationship detection. No AI/LLM calls -- pure computation.
+relationship detection, and optional AI-powered column classification.
 """
 import pandas as pd
 import numpy as np
@@ -11,12 +11,16 @@ import sqlalchemy
 import warnings
 import re
 import json
+import os
 import logging
+import httpx
 from datetime import datetime, timezone
 from typing import Optional
 
 from services.auto_analyzer import auto_analyzer
 from routers.auto_analysis import _quick_profile
+
+CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 warnings.filterwarnings("ignore")
 logger = logging.getLogger(__name__)
@@ -1116,6 +1120,97 @@ def apply_corrections(graph_data: dict, corrections: list[dict]) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# AI-powered Column Classification (statistical metadata only)
+# ---------------------------------------------------------------------------
+
+def classify_columns_with_ai_sync(columns_metadata: list[dict]) -> dict | None:
+    """Classify columns using Claude from statistical metadata only.
+
+    Input per column: name, dtype, min, max, mean, std, unique_count, null_rate, distribution
+    Returns: {columns: [{business_role, business_category, label_de, label_en, importance}],
+              categories: [{id, label_de, label_en, color}]}
+    """
+    if not CLAUDE_API_KEY:
+        return None  # Fallback to regex
+
+    col_descriptions = []
+    for c in columns_metadata:
+        desc = f"- {c['name']} ({c.get('dtype', 'unknown')})"
+        if c.get('min') is not None:
+            desc += f" range: {c['min']}-{c['max']}, mean: {c.get('mean', '?')}, std: {c.get('std', '?')}"
+        desc += f" unique: {c.get('unique_count', '?')}, nulls: {c.get('null_rate', 0) * 100:.1f}%"
+        if c.get('distribution'):
+            desc += f" distribution: {c['distribution']}"
+        col_descriptions.append(desc)
+
+    prompt = f"""You are a business data analyst. Classify each database column by its business meaning.
+You receive ONLY statistical metadata (column name, data type, value ranges, distribution shape).
+Do NOT request or expect actual data values.
+
+Columns:
+{chr(10).join(col_descriptions)}
+
+Return a JSON object with:
+1. "columns": array of objects, one per input column:
+   - "name": exact column name as provided
+   - "business_role": specific role (revenue, cost, quantity, defect_rate, customer_id, product_name, etc.)
+   - "business_category": one of 5-6 categories you detect for THIS business
+   - "label_de": business-friendly German label
+   - "label_en": business-friendly English label
+   - "importance": 1-5 (5=most important for business decisions)
+
+2. "categories": array of 5-6 business categories detected, each with:
+   - "id": short identifier
+   - "label_de": German name
+   - "label_en": English name
+   - "color": hex color (use: #10b981 green, #3b82f6 blue, #ef4444 red, #f59e0b amber, #7c3aed purple, #71717a gray)
+
+3. "industry": detected industry type
+4. "industry_confidence": 0.0-1.0
+
+Return ONLY valid JSON, no explanation."""
+
+    try:
+        resp = httpx.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": CLAUDE_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-sonnet-4-20250514",
+                "max_tokens": 4000,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=30.0,
+        )
+        data = resp.json()
+        text = data["content"][0]["text"].strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text)
+    except Exception as e:
+        logger.warning("Claude classification failed: %s, falling back to regex", e)
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Default business categories (fallback when AI is unavailable)
+# ---------------------------------------------------------------------------
+
+DEFAULT_CATEGORIES = [
+    {"id": "revenue", "label_de": "Umsatz", "label_en": "Revenue", "color": "#10b981"},
+    {"id": "production", "label_de": "Produktion", "label_en": "Production", "color": "#3b82f6"},
+    {"id": "quality", "label_de": "Qualität", "label_en": "Quality", "color": "#ef4444"},
+    {"id": "logistics", "label_de": "Logistik", "label_en": "Logistics", "color": "#f59e0b"},
+    {"id": "entity", "label_de": "Stammdaten", "label_en": "Master Data", "color": "#71717a"},
+]
+
+
+# ---------------------------------------------------------------------------
 # Main VIL Engine
 # ---------------------------------------------------------------------------
 
@@ -1220,6 +1315,46 @@ class VILEngine:
             all_columns, all_fingerprints
         )
 
+        # Step 3b -- AI-powered column classification (statistical metadata only)
+        ai_categories = None
+        ai_result = None
+        columns_metadata = []
+        for qname, fp in all_fingerprints.items():
+            columns_metadata.append({
+                'name': qname.split('.')[-1],
+                'table': qname.split('.')[0],
+                'qualified_name': qname,
+                'dtype': fp.get('dtype', 'unknown'),
+                'min': fp.get('min_value'),
+                'max': fp.get('max_value'),
+                'mean': fp.get('mean_value'),
+                'std': fp.get('std_value'),
+                'unique_count': fp.get('unique_count', 0),
+                'null_rate': fp.get('null_rate', 0),
+                'distribution': fp.get('distribution_shape', ''),
+            })
+
+        ai_result = classify_columns_with_ai_sync(columns_metadata)
+        if ai_result:
+            for ai_col in ai_result.get('columns', []):
+                # Find matching fingerprint and enrich it
+                for qname, fp in all_fingerprints.items():
+                    if qname.endswith(f".{ai_col['name']}"):
+                        fp['business_role_hint'] = ai_col['business_role']
+                        fp['business_category'] = ai_col['business_category']
+                        fp['label_de'] = ai_col['label_de']
+                        fp['label_en'] = ai_col['label_en']
+                        fp['importance'] = ai_col['importance']
+
+            # Store AI-detected categories for graph coloring
+            ai_categories = ai_result.get('categories', [])
+            ai_industry = ai_result.get('industry', industry_type)
+            ai_confidence = ai_result.get('industry_confidence', industry_confidence)
+            # Override industry if AI is more confident
+            if ai_confidence > industry_confidence:
+                industry_type = ai_industry
+                industry_confidence = ai_confidence
+
         # Step 4 -- map KPIs
         kpis = map_kpis(all_columns, all_fingerprints, industry_type)
 
@@ -1236,6 +1371,12 @@ class VILEngine:
             all_columns, all_fingerprints, kpis, relationships, nodes
         )
 
+        # Step 9 -- generate business narrative from aggregates only
+        narrative = self._generate_narrative(
+            industry_type, industry_confidence,
+            nodes, edges, table_dfs
+        )
+
         graph = {
             "nodes": nodes,
             "edges": edges,
@@ -1244,6 +1385,9 @@ class VILEngine:
                 "confidence": industry_confidence,
             },
             "kpis": kpis,
+            "categories": ai_categories if ai_result else DEFAULT_CATEGORIES,
+            "narrative_de": narrative.get("de", ""),
+            "narrative_en": narrative.get("en", ""),
             "metadata": {
                 "node_count": len(nodes),
                 "edge_count": len(edges),
@@ -1252,6 +1396,7 @@ class VILEngine:
                 "source_id": source_id,
                 "project_id": project_id,
                 "built_at": datetime.now(timezone.utc).isoformat(),
+                "ai_enriched": ai_result is not None,
             },
         }
 
@@ -1482,7 +1627,8 @@ class VILEngine:
                 nodes.append({
                     "id": node_id,
                     "type": "metric",
-                    "label": self._business_label(col_name, fp),
+                    "label": fp.get("label_de", self._business_label(col_name, fp)),
+                    "label_en": fp.get("label_en", self._business_label(col_name, fp)),
                     "value": agg_value,
                     "trend": trend,
                     "parent": table_node_id,
@@ -1490,10 +1636,53 @@ class VILEngine:
                         "table": table_name,
                         "column": col_name,
                         "business_role": role,
+                        "business_category": fp.get("business_category", ""),
                         "scale": scale,
                         "distribution": fp.get("distribution_shape", "unknown"),
+                        "importance": fp.get("importance"),
                     },
                 })
+
+            # Level 2b -- Key dimension nodes (max 2 per table)
+            dim_candidates = [c for c in table_cols
+                              if c.get('semantic_role') == 'dimension'
+                              and c['name'] in df.columns]
+
+            for dim_col in dim_candidates[:2]:
+                col_name = dim_col['name']
+                node_id = f"{table_name}.{col_name}"
+                if node_id in seen_ids:
+                    continue
+                try:
+                    with engine.connect() as conn:
+                        top_vals = conn.execute(sqlalchemy.text(f'''
+                            SELECT "{col_name}"::text, COUNT(*) as cnt
+                            FROM "{table_name}" WHERE "{col_name}" IS NOT NULL
+                            GROUP BY "{col_name}" ORDER BY cnt DESC LIMIT 5
+                        ''')).fetchall()
+                    unique_count = df[col_name].nunique()
+
+                    fp = fingerprints.get(f"{table_name}.{col_name}", {})
+                    category = fp.get('business_category', 'entity')
+
+                    seen_ids.add(node_id)
+                    nodes.append({
+                        'id': node_id,
+                        'type': 'dimension',
+                        'label': fp.get('label_de', col_name.replace('_', ' ').title()),
+                        'label_en': fp.get('label_en', col_name.replace('_', ' ').title()),
+                        'value': f'{unique_count} values',
+                        'parent': table_node_id,
+                        'metadata': {
+                            'table': table_name,
+                            'column': col_name,
+                            'unique_count': unique_count,
+                            'top_values': [{'value': str(r[0]), 'count': int(r[1])} for r in top_vals],
+                            'business_category': category,
+                        },
+                    })
+                except Exception:
+                    pass
 
         # Level 3 -- KPI nodes (only mapped ones with computed values)
         for kpi in kpis:
@@ -1522,6 +1711,58 @@ class VILEngine:
             })
 
         return nodes
+
+    # -- narrative generation --------------------------------------------------
+
+    def _generate_narrative(self, industry, confidence, nodes, edges, table_dfs):
+        """Generate 3-sentence executive summary from aggregated metrics only."""
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            return {"de": "", "en": ""}
+
+        # Build summary from nodes (only aggregated values, never raw data)
+        metric_summary = []
+        for n in nodes:
+            if n['type'] == 'metric' and n.get('value') is not None:
+                metric_summary.append(f"{n['label']}: {n['value']}")
+
+        table_summary = []
+        for n in nodes:
+            if n['type'] == 'table':
+                table_summary.append(f"{n['label']} ({n['value']} rows)")
+
+        prompt = f"""Write a 3-sentence executive business summary.
+Industry: {industry} ({confidence * 100:.0f}% confidence)
+Tables: {', '.join(table_summary)}
+Key metrics: {', '.join(metric_summary[:10])}
+Relationships: {len([e for e in edges if e['type'] == 'relationship'])} table connections
+
+Write in German first, then English. Be specific with numbers.
+Mention the most critical finding first.
+Format: {{"de": "...", "en": "..."}}"""
+
+        try:
+            resp = httpx.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-sonnet-4-20250514",
+                    "max_tokens": 1000,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=30.0,
+            )
+            text = resp.json()["content"][0]["text"].strip()
+            if text.startswith("```"):
+                text = text.split("```")[1].lstrip("json\n")
+            return json.loads(text)
+        except Exception as e:
+            logger.warning("Narrative generation failed: %s", e)
+            return {"de": "", "en": ""}
 
     # -- edge construction -----------------------------------------------------
 
@@ -1560,9 +1801,9 @@ class VILEngine:
                     "color": _EDGE_COLORS["relationship"],
                 })
 
-        # B) Metric-to-table hierarchy edges
+        # B) Metric/dimension-to-table hierarchy edges
         for node in nodes:
-            if node["type"] == "metric" and node.get("parent"):
+            if node["type"] in ("metric", "dimension") and node.get("parent"):
                 edges.append({
                     "source": node["id"],
                     "target": node["parent"],

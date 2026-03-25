@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
@@ -18,6 +18,8 @@ import {
   Sigma as SigmaIcon,
   Calendar,
   CircleDot,
+  Table2,
+  Loader2,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -27,20 +29,22 @@ import {
 interface GraphNode {
   id: string
   label: string
-  type: 'metric' | 'dimension' | 'kpi'
-  value?: string | number
-  trend?: 'up' | 'down' | 'flat'
+  type: string
+  value?: string | number | null
+  trend?: number | string | null
   importance?: number
   insight?: string
   verified?: boolean
   values?: { label: string; count: number }[]
   formula?: string
   unit?: string
+  parent?: string
+  metadata?: Record<string, unknown>
 }
 
 interface GraphData {
   nodes: GraphNode[]
-  edges: { source: string; target: string; label?: string; weight?: number }[]
+  edges: { source: string; target: string; label?: string; weight?: number; color?: string }[]
   industry?: { type: string; confidence: number }
   top_insights?: { text: string; type: 'warning' | 'positive' | 'info'; node_id?: string }[]
 }
@@ -50,6 +54,8 @@ interface InsightPanelProps {
   graphData: GraphData | null
   onClose: () => void
   projectId: string
+  locale?: string
+  sourceId?: string
 }
 
 /* ------------------------------------------------------------------ */
@@ -57,6 +63,7 @@ interface InsightPanelProps {
 /* ------------------------------------------------------------------ */
 
 const TYPE_ICON: Record<string, typeof TrendingUp> = {
+  table: Table2,
   metric: TrendingUp,
   dimension: Layers,
   kpi: SigmaIcon,
@@ -65,6 +72,7 @@ const TYPE_ICON: Record<string, typeof TrendingUp> = {
 }
 
 const TYPE_COLOR: Record<string, string> = {
+  table: '#71717a',
   metric: '#10b981',
   dimension: '#3b82f6',
   kpi: '#7c3aed',
@@ -73,6 +81,7 @@ const TYPE_COLOR: Record<string, string> = {
 }
 
 const TYPE_BG: Record<string, string> = {
+  table: 'bg-zinc-500/10 border-zinc-500/20',
   metric: 'bg-emerald-500/10 border-emerald-500/20',
   dimension: 'bg-blue-500/10 border-blue-500/20',
   kpi: 'bg-purple-500/10 border-purple-500/20',
@@ -90,12 +99,44 @@ const TREND_ICON = {
 /*  Component                                                         */
 /* ------------------------------------------------------------------ */
 
-export function InsightPanel({ node, graphData, onClose, projectId }: InsightPanelProps) {
+export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en', sourceId = '' }: InsightPanelProps) {
   const t = useTranslations()
   const router = useRouter()
 
+  const [insight, setInsight] = useState<{finding: string, recommendation: string, data_points: {label: string, value: string, severity: string}[]} | null>(null)
+  const [insightLoading, setInsightLoading] = useState(false)
+
+  useEffect(() => {
+    if (!node) return
+    setInsight(null)
+    setInsightLoading(true)
+
+    const tableName = (node.metadata as Record<string, unknown>)?.table || ''
+    const columnName = (node.metadata as Record<string, unknown>)?.column || ''
+
+    fetch('/api/vil/insight', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_id: sourceId,
+        table_name: tableName,
+        column_name: columnName,
+        node_type: node.type,
+        node_label: node.label,
+        node_value: node.value,
+        business_role: (node.metadata as Record<string, unknown>)?.business_role || '',
+        locale,
+      }),
+    })
+    .then(r => r.json())
+    .then(data => setInsight(data))
+    .catch(() => {})
+    .finally(() => setInsightLoading(false))
+  }, [node?.id])
+
   const Icon = TYPE_ICON[node.type] || CircleDot
-  const TrendIcon = node.trend ? TREND_ICON[node.trend] : null
+  const trendDir = typeof node.trend === 'number' ? (node.trend > 0 ? 'up' : node.trend < 0 ? 'down' : 'flat') : (node.trend || 'flat')
+  const TrendIcon = TREND_ICON[trendDir as keyof typeof TREND_ICON] || null
 
   // Connected nodes
   const connectedEdges = graphData?.edges.filter(
@@ -138,131 +179,64 @@ export function InsightPanel({ node, graphData, onClose, projectId }: InsightPan
         </button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
-        {/* ---- METRIC ---- */}
-        {node.type === 'metric' && (
+      {/* Value display */}
+      <div className="px-5 py-4 border-b border-[#222]">
+        <div className="flex items-baseline gap-3">
+          <span className="text-2xl font-bold text-white">
+            {node.value != null ? (typeof node.value === 'number' ? node.value.toLocaleString() : node.value) : '\u2014'}
+          </span>
+          {node.trend && (
+            <span className={`text-sm font-semibold ${node.trend === 'up' ? 'text-emerald-400' : node.trend === 'down' ? 'text-red-400' : 'text-zinc-400'}`}>
+              {node.trend === 'up' ? '\u2191' : node.trend === 'down' ? '\u2193' : '\u2192'} {node.trend}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Insight content */}
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        {insightLoading ? (
+          <div className="flex items-center gap-2 text-zinc-400 text-sm py-8 justify-center">
+            <Loader2 size={16} className="animate-spin" />
+            <span>Generating insight...</span>
+          </div>
+        ) : insight ? (
           <>
-            {/* Value + trend */}
-            <div className="space-y-2">
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-white tracking-tight">
-                  {node.value !== undefined ? String(node.value) : '--'}
-                </span>
-                {node.unit && (
-                  <span className="text-sm text-zinc-400">{node.unit}</span>
-                )}
-                {TrendIcon && (
-                  <span className={`flex items-center gap-1 text-xs font-medium
-                    ${node.trend === 'up' ? 'text-emerald-400' : node.trend === 'down' ? 'text-red-400' : 'text-zinc-400'}`}>
-                    <TrendIcon size={14} />
-                    {node.trend}
-                  </span>
-                )}
+            {/* Verified Finding */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">{t('graph.verified')}</span>
               </div>
+              <p className="text-sm text-zinc-200 leading-relaxed">{insight.finding}</p>
             </div>
 
-            {/* Insight */}
-            {node.insight && (
-              <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 space-y-2">
-                {node.verified && (
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck size={13} className="text-emerald-400" />
-                    <span className="text-xs font-medium text-emerald-400">{t('graph.verified')}</span>
-                  </div>
-                )}
-                <p className="text-sm text-zinc-300 leading-relaxed">{node.insight}</p>
+            {/* Recommendation */}
+            {insight.recommendation && (
+              <div className="bg-[#1a1a2e] border border-[#2a2a4e] rounded-lg p-3">
+                <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">Recommendation</p>
+                <p className="text-sm text-zinc-300 leading-relaxed">{insight.recommendation}</p>
               </div>
             )}
 
-            {/* Sparkline placeholder */}
-            <div className="h-16 bg-zinc-900/40 border border-zinc-800/50 rounded-xl flex items-center justify-center">
-              <span className="text-xs text-zinc-500">{t('graph.sparklinePlaceholder')}</span>
-            </div>
-          </>
-        )}
-
-        {/* ---- DIMENSION ---- */}
-        {node.type === 'dimension' && (
-          <>
-            {/* Entity count */}
-            <div className="flex items-center gap-2">
-              <Hash size={14} className="text-blue-400" />
-              <span className="text-sm text-zinc-300">
-                {node.values?.length || 0} {t('graph.entities')}
-              </span>
-            </div>
-
-            {/* Value bars */}
-            {node.values && node.values.length > 0 && (
+            {/* Data Points */}
+            {insight.data_points?.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  {t('graph.topValues')}
-                </h3>
-                <div className="space-y-1.5">
-                  {node.values.slice(0, 8).map((v, i) => {
-                    const max = Math.max(...node.values!.map(x => x.count))
-                    const pct = max > 0 ? (v.count / max) * 100 : 0
-                    return (
-                      <div key={i} className="space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-zinc-300 truncate max-w-[200px]">{v.label}</span>
-                          <span className="text-xs text-zinc-500 tabular-nums">{v.count.toLocaleString()}</span>
-                        </div>
-                        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500/60 rounded-full transition-all duration-500"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Distribution insight */}
-            {node.insight && (
-              <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5">
-                <p className="text-sm text-zinc-300 leading-relaxed">{node.insight}</p>
+                {insight.data_points.map((dp, i) => (
+                  <div key={i} className="flex items-center justify-between py-1.5">
+                    <span className="text-xs text-zinc-400">{dp.label}</span>
+                    <span className={`text-sm font-bold ${
+                      dp.severity === 'critical' ? 'text-red-400' :
+                      dp.severity === 'warning' ? 'text-amber-400' :
+                      dp.severity === 'success' ? 'text-emerald-400' : 'text-zinc-300'
+                    }`}>{dp.value}</span>
+                  </div>
+                ))}
               </div>
             )}
           </>
-        )}
-
-        {/* ---- KPI ---- */}
-        {node.type === 'kpi' && (
-          <>
-            {/* Computed value */}
-            <div className="space-y-1">
-              <span className="text-3xl font-bold text-white tracking-tight">
-                {node.value !== undefined ? String(node.value) : '--'}
-              </span>
-              {TrendIcon && (
-                <div className={`flex items-center gap-1 text-sm
-                  ${node.trend === 'up' ? 'text-emerald-400' : node.trend === 'down' ? 'text-red-400' : 'text-zinc-400'}`}>
-                  <TrendIcon size={16} />
-                  <span>{node.trend}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Formula */}
-            {node.formula && (
-              <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 space-y-1.5">
-                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  {t('graph.formula')}
-                </span>
-                <p className="text-sm text-purple-300 font-mono">{node.formula}</p>
-              </div>
-            )}
-
-            {/* Historical trend placeholder */}
-            <div className="h-20 bg-zinc-900/40 border border-zinc-800/50 rounded-xl flex items-center justify-center">
-              <span className="text-xs text-zinc-500">{t('graph.trendPlaceholder')}</span>
-            </div>
-          </>
+        ) : (
+          <p className="text-sm text-zinc-500 text-center py-8">Click a node to see insights</p>
         )}
 
         {/* Connected nodes */}

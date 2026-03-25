@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Loader2, RefreshCw, Zap, AlertTriangle } from 'lucide-react'
 import Graph from 'graphology'
 import forceAtlas2 from 'graphology-layout-forceatlas2'
@@ -20,16 +20,14 @@ import { GraphControls } from '@/components/graph/GraphControls'
 
 interface GraphNode {
   id: string
+  type: 'metric' | 'dimension' | 'kpi' | 'table' | 'date'
   label: string
-  type: 'metric' | 'dimension' | 'kpi'
-  value?: string | number
-  trend?: 'up' | 'down' | 'flat'
-  importance?: number
-  insight?: string
-  verified?: boolean
-  values?: { label: string; count: number }[]
-  formula?: string
-  unit?: string
+  label_de?: string
+  label_en?: string
+  value: number | string | null
+  trend?: number | null
+  parent?: string
+  metadata?: Record<string, unknown>
 }
 
 interface GraphEdge {
@@ -37,6 +35,7 @@ interface GraphEdge {
   target: string
   label?: string
   weight?: number
+  color?: string
 }
 
 interface GraphData {
@@ -63,9 +62,11 @@ const BUILD_STEPS = [
 /* ------------------------------------------------------------------ */
 
 const NODE_COLORS: Record<string, string> = {
-  metric: '#10b981',
-  dimension: '#3b82f6',
-  kpi: '#7c3aed',
+  table: '#71717a',     // zinc - neutral for tables
+  metric: '#10b981',    // emerald - measures
+  kpi: '#7c3aed',       // purple - computed KPIs
+  dimension: '#3b82f6', // blue - categories
+  date: '#f59e0b',      // amber - temporal
 }
 
 const NODE_HIGHLIGHT: Record<string, string> = {
@@ -82,6 +83,7 @@ export default function VisualGraphPage() {
   const params = useParams()
   const router = useRouter()
   const t = useTranslations()
+  const locale = useLocale()
   const projectId = params.projectId as string
   const { activeSourceId } = useActiveSource()
 
@@ -180,16 +182,36 @@ export default function VisualGraphPage() {
     const graph = new Graph()
     graphRef.current = graph
 
+    // Build category color map from graph data
+    const categoryColors: Record<string, string> = {}
+    for (const cat of ((graphData as any).categories || [])) {
+      categoryColors[cat.id] = cat.color
+    }
+
     // Add nodes
     graphData.nodes.forEach((node, i) => {
       const angle = (2 * Math.PI * i) / graphData.nodes.length
       const radius = 3 + Math.random() * 2
+
+      // Dynamic color: category color > type color > default
+      const bizCategory = (node.metadata as any)?.business_category as string
+      const nodeColor = (bizCategory && categoryColors[bizCategory])
+        ? categoryColors[bizCategory]
+        : NODE_COLORS[node.type] || '#71717a'
+
       graph.addNode(node.id, {
         x: Math.cos(angle) * radius + (Math.random() - 0.5),
         y: Math.sin(angle) * radius + (Math.random() - 0.5),
-        size: node.type === 'kpi' ? 18 : node.type === 'metric' ? 14 : 10,
-        color: NODE_COLORS[node.type] || '#71717a',
-        label: node.label + (node.value !== undefined ? `\n${node.value}` : ''),
+        size: node.type === 'table' ? 22 :
+              node.type === 'kpi' ? 16 :
+              node.type === 'metric' ? 14 :
+              node.type === 'dimension' ? 12 : 10,
+        color: nodeColor,
+        label: node.type === 'table'
+          ? `${node.label}\n${node.value ? node.value.toLocaleString() + ' rows' : ''}`
+          : node.type === 'metric' && node.value != null
+            ? `${node.label}\n${typeof node.value === 'number' ? node.value.toLocaleString() : node.value}`
+            : node.label,
         type: 'circle',
         // Store original data
         nodeType: node.type,
@@ -202,7 +224,7 @@ export default function VisualGraphPage() {
       if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
         graph.addEdge(edge.source, edge.target, {
           size: edge.weight ? Math.max(1, edge.weight * 3) : 1.5,
-          color: '#333333',
+          color: edge.color || '#333333',
           label: edge.label || '',
           type: 'line',
         })
@@ -213,10 +235,10 @@ export default function VisualGraphPage() {
     forceAtlas2.assign(graph, {
       iterations: 500,
       settings: {
-        gravity: 1,
-        scalingRatio: 2,
+        gravity: 1.5,
+        scalingRatio: 4,
         barnesHutOptimize: true,
-        slowDown: 5,
+        strongGravityMode: true,
       },
     })
 
@@ -470,6 +492,15 @@ export default function VisualGraphPage() {
         </div>
       </div>
 
+      {/* Narrative banner */}
+      {(graphData as any)?.narrative_de || (graphData as any)?.narrative_en ? (
+        <div className="px-6 py-3 bg-[#111] border-b border-[#222] flex-shrink-0">
+          <p className="text-sm text-zinc-300 leading-relaxed max-w-4xl">
+            {locale === 'de' ? (graphData as any).narrative_de : (graphData as any).narrative_en}
+          </p>
+        </div>
+      ) : null}
+
       {/* Main area */}
       <div className="flex-1 flex min-h-0">
         {/* Graph canvas */}
@@ -490,6 +521,8 @@ export default function VisualGraphPage() {
               graphData={graphData}
               onClose={() => setSelectedNode(null)}
               projectId={projectId}
+              locale={locale}
+              sourceId={activeSourceId || ''}
             />
           )}
         </div>
