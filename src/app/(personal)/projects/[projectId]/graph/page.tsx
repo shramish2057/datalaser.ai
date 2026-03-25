@@ -223,7 +223,7 @@ export default function VisualGraphPage() {
     // Create Sigma
     const sigma = new Sigma(graph, containerRef.current, {
       renderEdgeLabels: false,
-      defaultEdgeType: 'curve',
+      defaultEdgeType: 'line',
       labelColor: { color: '#ffffff' },
       labelSize: 12,
       labelFont: 'Inter, system-ui, sans-serif',
