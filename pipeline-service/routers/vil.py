@@ -98,53 +98,25 @@ async def build_graph(
 
 @router.post("/update")
 async def update_graph(
-    project_id: str = Form(...),
     correction: str = Form(...),
 ):
-    """Apply a single user correction and return the updated graph.
+    """Validate a correction object. The frontend handles persistence to
+    Supabase (vil_corrections table) and triggers a full graph rebuild
+    via /vil/build which loads all corrections from the DB.
 
-    Parameters
-    ----------
-    project_id : str
-        UUID of the project whose graph should be updated.
-    correction : str
-        JSON string representing one correction object with keys:
-        ``action``, ``target_type``, ``target_id``, and action-specific fields.
-
-    Returns
-    -------
-    JSONResponse
-        The updated graph payload.
+    This endpoint does NOT use in-memory cache. Corrections survive
+    pipeline restarts because they live in the database.
     """
     try:
         correction_obj = json.loads(correction)
     except json.JSONDecodeError as exc:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid correction JSON: {exc}",
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid correction JSON: {exc}")
 
-    if project_id not in _graph_cache:
-        raise HTTPException(
-            status_code=404,
-            detail=f"No graph found for project {project_id}. Build one first via /vil/build.",
-        )
+    # Validate required fields
+    if "action" not in correction_obj:
+        raise HTTPException(status_code=400, detail="Correction must have an 'action' field")
 
-    # Store correction
-    _corrections_cache.setdefault(project_id, []).append(correction_obj)
-
-    # Apply to cached graph
-    graph = _graph_cache[project_id]
-    graph = apply_corrections(graph, [correction_obj])
-
-    # Update metadata
-    graph.setdefault("metadata", {})["updated_at"] = datetime.now(timezone.utc).isoformat()
-    graph["metadata"]["node_count"] = len(graph.get("nodes", []))
-    graph["metadata"]["edge_count"] = len(graph.get("edges", []))
-
-    _graph_cache[project_id] = graph
-
-    return JSONResponse(content=sanitize(graph))
+    return JSONResponse(content={"success": True, "correction": correction_obj})
 
 
 @router.post("/graph")
