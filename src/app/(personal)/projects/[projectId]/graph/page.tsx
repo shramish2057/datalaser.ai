@@ -106,10 +106,9 @@ export default function VisualGraphPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  /* ---- Fetch existing graph ---- */
+  /* ---- Fetch existing graph (quick, no heavy loading screen) ---- */
   const fetchGraph = useCallback(async () => {
     try {
-      setLoading(true)
       setError(null)
       const res = await fetch(`/api/vil/graph?project_id=${projectId}`)
       if (res.ok) {
@@ -118,10 +117,8 @@ export default function VisualGraphPage() {
         setLoading(false)
         return true
       }
-      setLoading(false)
       return false
     } catch {
-      setLoading(false)
       return false
     }
   }, [projectId])
@@ -164,20 +161,25 @@ export default function VisualGraphPage() {
     }
   }, [activeSourceId, projectId])
 
-  /* ---- Initial load: fetch existing graph, auto-build only once ---- */
+  /* ---- Initial load: fetch existing graph, auto-build only on first ever visit ---- */
   const hasTriedBuild = useRef(false)
+  const hasFetched = useRef(false)
   useEffect(() => {
-    if (!activeSourceId) return
+    if (!activeSourceId || hasFetched.current) return
+    hasFetched.current = true
     async function init() {
       const found = await fetchGraph()
-      if (!found && !hasTriedBuild.current && !building) {
-        // No graph saved yet, first visit with source: auto-build once
+      if (found) {
+        setLoading(false)
+      } else if (!hasTriedBuild.current && !building) {
         hasTriedBuild.current = true
         buildGraph()
+      } else {
+        setLoading(false)
       }
     }
     init()
-  }, [projectId, activeSourceId])
+  }, [activeSourceId])
 
   /* ---- Render Sigma graph ---- */
   useEffect(() => {
