@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
@@ -103,17 +103,27 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
   const t = useTranslations()
   const router = useRouter()
 
-  const [insight, setInsight] = useState<{
+  type InsightData = {
     trend_text?: string,
     finding: string,
     recommendation: string,
     financial_impact?: string,
     data_points: {label: string, value: string, severity: string}[]
-  } | null>(null)
+  }
+  const [insight, setInsight] = useState<InsightData | null>(null)
   const [insightLoading, setInsightLoading] = useState(false)
+  const insightCache = useRef<Record<string, InsightData>>({})
 
   useEffect(() => {
     if (!node) return
+
+    // Check cache first — no API call if already computed
+    if (insightCache.current[node.id]) {
+      setInsight(insightCache.current[node.id])
+      setInsightLoading(false)
+      return
+    }
+
     setInsight(null)
     setInsightLoading(true)
 
@@ -135,7 +145,10 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
       }),
     })
     .then(r => r.json())
-    .then(data => setInsight(data))
+    .then(data => {
+      insightCache.current[node.id] = data
+      setInsight(data)
+    })
     .catch(() => {})
     .finally(() => setInsightLoading(false))
   }, [node?.id])
