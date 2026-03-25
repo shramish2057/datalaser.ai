@@ -929,6 +929,8 @@ def map_kpis(
 
         mapped.append({
             **kpi,
+            "mapped": True,
+            "columns": list(column_mapping.values()),
             "column_mapping": column_mapping,
             "status": "auto_mapped",
         })
@@ -1462,45 +1464,55 @@ class VILEngine:
         return label
 
     def _compute_kpi_value(self, kpi: dict, table_dfs: dict) -> float | None:
-        """Try to compute a KPI value from available DataFrames."""
+        """Compute KPI value from actual data using VIL-detected column mappings."""
         try:
-            columns = kpi.get("columns", [])
-            if not columns:
-                return None
-            # Simple formulas: if we have revenue and cost, compute margin
-            formula = kpi.get("formula", "")
-            required = kpi.get("required_roles", [])
-
-            # Find the actual column values
-            col_values = {}
-            for role in required:
-                for table_name, df in table_dfs.items():
-                    for col in df.columns:
-                        # Match by column name containing the role keyword
-                        if role.lower() in col.lower():
-                            series = pd.to_numeric(df[col], errors="coerce").dropna()
-                            if len(series) > 0:
-                                col_values[role] = float(series.sum())
-                            break
-
-            if not col_values:
+            col_mapping = kpi.get("column_mapping", {})
+            if not col_mapping:
                 return None
 
-            # Simple computation patterns
-            if "revenue" in col_values and "cost" in col_values:
-                rev = col_values["revenue"]
-                cost = col_values["cost"]
-                if kpi["id"] in ("gross_margin", "net_profit_margin", "operating_margin"):
-                    return round((rev - cost) / rev * 100, 1) if rev != 0 else None
-                if kpi["id"] in ("contribution_margin",):
+            # Resolve each role to its actual column sum
+            role_values: dict[str, float] = {}
+            for role, qualified_name in col_mapping.items():
+                parts = qualified_name.split(".", 1)
+                if len(parts) != 2:
+                    continue
+                table, col = parts
+                if table not in table_dfs or col not in table_dfs[table].columns:
+                    continue
+                series = pd.to_numeric(table_dfs[table][col], errors="coerce").dropna()
+                if len(series) == 0:
+                    continue
+                role_values[role] = float(series.sum())
+
+            if not role_values:
+                return None
+
+            kpi_id = kpi["id"]
+            unit = kpi.get("unit", "")
+
+            # Margin formulas: (revenue - cost) / revenue * 100
+            if "revenue" in role_values and "cost" in role_values:
+                rev, cost = role_values["revenue"], role_values["cost"]
+                if "margin" in kpi_id or "margin" in kpi.get("formula", ""):
+                    return round((rev - cost) / rev * 100, 1) if rev else None
+                if "ratio" in kpi_id:
+                    return round(cost / rev * 100, 1) if rev else None
+                if "contribution" in kpi_id:
                     return round(rev - cost, 2)
-                if kpi["id"] in ("cost_ratio",):
-                    return round(cost / rev * 100, 1) if rev != 0 else None
+                if "revenue_growth" in kpi_id or "growth" in kpi_id:
+                    return None  # Need time series, can't compute from sum
 
-            # For single-value KPIs (defect rate, etc.)
-            if len(col_values) == 1:
-                val = list(col_values.values())[0]
-                if kpi.get("unit") == "%":
+            # Rate formulas: numerator / denominator * 100
+            if len(role_values) == 2:
+                keys = list(role_values.keys())
+                num, den = role_values[keys[0]], role_values[keys[1]]
+                if unit == "%" and den != 0:
+                    return round(num / den * 100, 1)
+
+            # Single-value KPIs (totals, averages)
+            if len(role_values) == 1:
+                val = list(role_values.values())[0]
+                if unit == "%":
                     return round(val, 1)
                 return round(val, 2)
 
