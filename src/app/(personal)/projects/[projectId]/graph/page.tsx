@@ -201,10 +201,19 @@ export default function VisualGraphPage() {
       categoryColors[cat.id] = cat.color
     }
 
+    // Check if positions were saved from a previous render
+    const savedPositions = (graphData as any)._positions as Record<string, {x: number, y: number}> | undefined
+    const hasPositions = savedPositions && Object.keys(savedPositions).length > 0
+
     // Add nodes
     graphData.nodes.forEach((node, i) => {
       const angle = (2 * Math.PI * i) / graphData.nodes.length
-      const radius = 3 + Math.random() * 2
+      const radius = 3
+
+      // Use saved positions if available, otherwise compute initial
+      const pos = hasPositions && savedPositions![node.id]
+        ? savedPositions![node.id]
+        : { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
 
       // Dynamic color: category color > type color > default
       const bizCategory = (node.metadata as any)?.business_category as string
@@ -213,8 +222,8 @@ export default function VisualGraphPage() {
         : NODE_COLORS[node.type] || '#71717a'
 
       graph.addNode(node.id, {
-        x: Math.cos(angle) * radius + (Math.random() - 0.5),
-        y: Math.sin(angle) * radius + (Math.random() - 0.5),
+        x: pos.x,
+        y: pos.y,
         size: node.type === 'table' ? 22 :
               node.type === 'kpi' ? 16 :
               node.type === 'metric' ? 14 :
@@ -244,16 +253,26 @@ export default function VisualGraphPage() {
       }
     })
 
-    // Run force layout
-    forceAtlas2.assign(graph, {
-      iterations: 500,
-      settings: {
-        gravity: 1.5,
-        scalingRatio: 4,
-        barnesHutOptimize: true,
-        strongGravityMode: true,
-      },
-    })
+    // Run force layout only on first build (no saved positions)
+    if (!hasPositions) {
+      forceAtlas2.assign(graph, {
+        iterations: 500,
+        settings: {
+          gravity: 1.5,
+          scalingRatio: 4,
+          barnesHutOptimize: true,
+          strongGravityMode: true,
+        },
+      })
+
+      // Save computed positions back to graphData for persistence
+      const positions: Record<string, {x: number, y: number}> = {}
+      graph.forEachNode((nodeId, attrs) => {
+        positions[nodeId] = { x: attrs.x, y: attrs.y }
+      })
+      // Store positions in graphData so next render uses them
+      ;(graphData as any)._positions = positions
+    }
 
     // Create Sigma
     const sigma = new Sigma(graph, containerRef.current, {
@@ -380,13 +399,6 @@ export default function VisualGraphPage() {
       }
     }
   }, [graphData])
-
-  /* ---- Refresh Sigma reducers when selection changes (no rebuild) ---- */
-  useEffect(() => {
-    if (sigmaRef.current) {
-      sigmaRef.current.refresh()
-    }
-  }, [selectedNode])
 
   /* ---- Loading / building state ---- */
   if (loading || building) {
