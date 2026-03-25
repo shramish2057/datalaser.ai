@@ -206,15 +206,40 @@ export default function VisualGraphPage() {
     const savedPositions = (graphData as any)._positions as Record<string, {x: number, y: number}> | undefined
     const hasPositions = savedPositions && Object.keys(savedPositions).length > 0
 
+    // Pre-compute table positions (tables spread in a circle, children cluster near parent)
+    const tableNodes = graphData.nodes.filter(n => n.type === 'table')
+    const tablePositions: Record<string, {x: number, y: number}> = {}
+    tableNodes.forEach((t, i) => {
+      const angle = (2 * Math.PI * i) / Math.max(tableNodes.length, 1)
+      const radius = 5
+      tablePositions[t.id] = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
+    })
+
     // Add nodes
     graphData.nodes.forEach((node, i) => {
-      const angle = (2 * Math.PI * i) / graphData.nodes.length
-      const radius = 3
+      let pos: {x: number, y: number}
 
-      // Use saved positions if available, otherwise compute initial
-      const pos = hasPositions && savedPositions![node.id]
-        ? savedPositions![node.id]
-        : { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
+      if (hasPositions && savedPositions![node.id]) {
+        // Use saved positions from DB
+        pos = savedPositions![node.id]
+      } else if (node.type === 'table') {
+        // Table nodes: evenly spaced circle
+        pos = tablePositions[node.id] || { x: 0, y: 0 }
+      } else if (node.parent && tablePositions[node.parent]) {
+        // Child nodes: clustered near their parent table with small offset
+        const parentPos = tablePositions[node.parent]
+        const childIndex = graphData.nodes.filter(n => n.parent === node.parent).indexOf(node)
+        const childAngle = (2 * Math.PI * childIndex) / Math.max(graphData.nodes.filter(n => n.parent === node.parent).length, 1)
+        const childRadius = 1.5
+        pos = {
+          x: parentPos.x + Math.cos(childAngle) * childRadius,
+          y: parentPos.y + Math.sin(childAngle) * childRadius,
+        }
+      } else {
+        // Orphan nodes: center area
+        const angle = (2 * Math.PI * i) / graphData.nodes.length
+        pos = { x: Math.cos(angle) * 2, y: Math.sin(angle) * 2 }
+      }
 
       // Dynamic color: category color > type color > default
       const bizCategory = (node.metadata as any)?.business_category as string
@@ -546,7 +571,41 @@ export default function VisualGraphPage() {
           className="flex-1 relative bg-[#0a0a0a]"
           ref={containerRef}
           style={{ minHeight: 0 }}
-        />
+        >
+          {/* Legend overlay */}
+          <div className="absolute bottom-4 left-4 z-10 bg-[#111]/90 backdrop-blur-sm border border-[#222] rounded-xl px-4 py-3 space-y-2.5 text-xs">
+            <p className="text-zinc-500 font-semibold uppercase tracking-wider text-[10px] mb-1">Legend</p>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#71717a]" />
+                <span className="text-zinc-400">{locale === 'de' ? 'Tabellen (Datenbereiche)' : 'Tables (data areas)'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#10b981]" />
+                <span className="text-zinc-400">{locale === 'de' ? 'Kennzahlen (Messwerte)' : 'Metrics (measures)'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#3b82f6]" />
+                <span className="text-zinc-400">{locale === 'de' ? 'Dimensionen (Kategorien)' : 'Dimensions (categories)'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#7c3aed]" />
+                <span className="text-zinc-400">{locale === 'de' ? 'KPIs (berechnete Werte)' : 'KPIs (computed values)'}</span>
+              </div>
+            </div>
+            <div className="border-t border-[#222] pt-2 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-0.5 bg-[#52525b]" />
+                <span className="text-zinc-500">{locale === 'de' ? 'Tabellenbeziehung' : 'Table relationship'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-0.5 bg-[#333]" />
+                <span className="text-zinc-500">{locale === 'de' ? 'Gehört zu (Hierarchie)' : 'Belongs to (hierarchy)'}</span>
+              </div>
+            </div>
+            <p className="text-zinc-600 text-[10px] pt-1">{locale === 'de' ? 'Klicken Sie auf einen Knoten für Details' : 'Click any node for details'}</p>
+          </div>
+        </div>
 
         {/* Right panel (slides in) */}
         <div
