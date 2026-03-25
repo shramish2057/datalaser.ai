@@ -204,7 +204,7 @@ export default function VisualGraphPage() {
           size: edge.weight ? Math.max(1, edge.weight * 3) : 1.5,
           color: '#333333',
           label: edge.label || '',
-          type: 'curve',
+          type: 'line',
         })
       }
     })
