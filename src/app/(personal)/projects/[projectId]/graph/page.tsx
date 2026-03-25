@@ -145,12 +145,15 @@ export default function VisualGraphPage() {
       })
 
       if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Build failed')
+        const errBody = await res.json().catch(() => ({}))
+        const errMsg = typeof errBody.error === 'string' ? errBody.error
+          : typeof errBody.detail === 'string' ? errBody.detail
+          : JSON.stringify(errBody).slice(0, 200)
+        throw new Error(errMsg || 'Build failed')
       }
 
       const data = await res.json()
-      setGraphData(data.graph_data || data)
+      setGraphData(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to build graph')
     } finally {

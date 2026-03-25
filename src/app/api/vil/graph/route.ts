@@ -35,7 +35,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No graph found for project' }, { status: 404 })
     }
 
-    return NextResponse.json(graph.graph_data)
+    // Return graph_data merged with industry and kpis
+    const graphData = graph.graph_data as Record<string, unknown> || {}
+    return NextResponse.json({
+      ...graphData,
+      industry: { type: graph.industry_type, confidence: graph.industry_confidence },
+      kpis: graph.kpis_mapped || [],
+      updated_at: graph.updated_at,
+    })
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Failed to fetch graph' },
@@ -76,7 +83,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No graph found for project' }, { status: 404 })
     }
 
-    return NextResponse.json(graph.graph_data)
+    const graphData = graph.graph_data as Record<string, unknown> || {}
+    return NextResponse.json({
+      ...graphData,
+      industry: { type: graph.industry_type, confidence: graph.industry_confidence },
+      kpis: graph.kpis_mapped || [],
+      updated_at: graph.updated_at,
+    })
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'Failed to fetch graph' },

@@ -63,6 +63,8 @@ export async function POST(request: NextRequest) {
     const formData = new URLSearchParams({
       source_type: source.source_type,
       connection_string: connectionString,
+      source_id,
+      project_id,
       schema_tables: JSON.stringify(schemaTables),
       corrections: JSON.stringify(corrections || []),
     })
@@ -82,15 +84,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 7. Upsert result into vil_graphs (by project_id + source_id)
+    // Pipeline returns: { nodes, edges, industry, kpis, metadata }
     const graphRecord = {
       project_id,
       source_id,
-      graph_data: data.graph_data || data,
-      industry_type: data.industry_type || null,
-      industry_confidence: data.industry_confidence || 0,
-      kpis_mapped: data.kpis_mapped || [],
-      node_count: data.node_count || 0,
-      edge_count: data.edge_count || 0,
+      graph_data: { nodes: data.nodes || [], edges: data.edges || [], metadata: data.metadata || {} },
+      industry_type: data.industry?.type || null,
+      industry_confidence: data.industry?.confidence || 0,
+      kpis_mapped: data.kpis || [],
+      node_count: (data.nodes || []).length,
+      edge_count: (data.edges || []).length,
       updated_at: new Date().toISOString(),
     }
 
@@ -113,7 +116,12 @@ export async function POST(request: NextRequest) {
         .insert(graphRecord)
     }
 
-    return NextResponse.json(data)
+    // Return the same format as /api/vil/graph (graph_data structure)
+    return NextResponse.json({
+      ...graphRecord.graph_data,
+      industry: { type: graphRecord.industry_type, confidence: graphRecord.industry_confidence },
+      kpis: graphRecord.kpis_mapped,
+    })
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'VIL build failed' },
