@@ -265,13 +265,18 @@ export default function VisualGraphPage() {
         },
       })
 
-      // Save computed positions back to graphData for persistence
+      // Save computed positions to graphData + persist to DB
       const positions: Record<string, {x: number, y: number}> = {}
       graph.forEachNode((nodeId, attrs) => {
         positions[nodeId] = { x: attrs.x, y: attrs.y }
       })
-      // Store positions in graphData so next render uses them
       ;(graphData as any)._positions = positions
+
+      // Persist positions to Supabase so they survive page refreshes
+      supabase.from('vil_graphs')
+        .update({ graph_data: { ...(graphData as any), _positions: positions } })
+        .eq('project_id', projectId)
+        .then(() => {})
     }
 
     // Create Sigma
