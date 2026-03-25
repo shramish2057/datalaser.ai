@@ -89,7 +89,7 @@ export default function VisualGraphPage() {
 
   // State
   const [graphData, setGraphData] = useState<GraphData | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [building, setBuilding] = useState(false)
   const [buildProgress, setBuildProgress] = useState<string[]>([])
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
@@ -165,21 +165,18 @@ export default function VisualGraphPage() {
     }
   }, [activeSourceId, projectId])
 
-  /* ---- Initial load: fetch existing graph, auto-build only on first ever visit ---- */
-  const hasTriedBuild = useRef(false)
-  const hasFetched = useRef(false)
+  /* ---- Initial load: fetch from DB (fast), only build if nothing saved ---- */
+  const hasBuilt = useRef(false)
   useEffect(() => {
-    if (!activeSourceId || hasFetched.current) return
-    hasFetched.current = true
+    if (!activeSourceId) return
+    // Skip if we already have graph data loaded
+    if (graphData) return
     async function init() {
       const found = await fetchGraph()
-      if (found) {
-        setLoading(false)
-      } else if (!hasTriedBuild.current && !building) {
-        hasTriedBuild.current = true
+      if (!found && !hasBuilt.current && !building) {
+        // No graph in DB and never built in this session: auto-build once
+        hasBuilt.current = true
         buildGraph()
-      } else {
-        setLoading(false)
       }
     }
     init()
