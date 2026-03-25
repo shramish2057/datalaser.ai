@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import {
@@ -56,6 +56,7 @@ interface InsightPanelProps {
   projectId: string
   locale?: string
   sourceId?: string
+  insightCache?: Record<string, unknown>
 }
 
 /* ------------------------------------------------------------------ */
@@ -99,7 +100,7 @@ const TREND_ICON = {
 /*  Component                                                         */
 /* ------------------------------------------------------------------ */
 
-export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en', sourceId = '' }: InsightPanelProps) {
+export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en', sourceId = '', insightCache = {} }: InsightPanelProps) {
   const t = useTranslations()
   const router = useRouter()
 
@@ -112,14 +113,13 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
   }
   const [insight, setInsight] = useState<InsightData | null>(null)
   const [insightLoading, setInsightLoading] = useState(false)
-  const insightCache = useRef<Record<string, InsightData>>({})
 
   useEffect(() => {
     if (!node) return
 
-    // Check cache first — no API call if already computed
-    if (insightCache.current[node.id]) {
-      setInsight(insightCache.current[node.id])
+    // Check external cache first — survives panel unmount/remount
+    if (insightCache[node.id]) {
+      setInsight(insightCache[node.id] as InsightData)
       setInsightLoading(false)
       return
     }
@@ -146,7 +146,7 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
     })
     .then(r => r.json())
     .then(data => {
-      insightCache.current[node.id] = data
+      insightCache[node.id] = data
       setInsight(data)
     })
     .catch(() => {})

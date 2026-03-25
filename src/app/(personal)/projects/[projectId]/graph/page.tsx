@@ -101,6 +101,7 @@ export default function VisualGraphPage() {
   const sigmaRef = useRef<Sigma | null>(null)
   const graphRef = useRef<Graph | null>(null)
   const selectedNodeRef = useRef<GraphNode | null>(null)
+  const insightCacheRef = useRef<Record<string, unknown>>({})
 
   // Keep ref in sync with state (so Sigma reducers can read current value)
   selectedNodeRef.current = selectedNode
@@ -560,6 +561,7 @@ export default function VisualGraphPage() {
               projectId={projectId}
               locale={locale}
               sourceId={activeSourceId || ''}
+              insightCache={insightCacheRef.current}
             />
           )}
         </div>
