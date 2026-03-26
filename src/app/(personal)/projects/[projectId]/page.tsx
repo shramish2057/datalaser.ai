@@ -4,15 +4,16 @@ import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { normalizeInsights } from '@/lib/normalizeInsight'
 import {
-  Database, BarChart2, MessageSquare, FlaskConical, ArrowRight,
-  AlertTriangle, Shield, Layers, TrendingUp, Zap, GitBranch, Target, Search
+  Database, BarChart2, MessageSquare, FlaskConical,
+  AlertTriangle, DollarSign, Activity, Layers, Bell
 } from 'lucide-react'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
 import { useProjectContext } from '@/lib/hooks/useProjectContext'
+import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from 'recharts'
 import type { Project } from '@/types/database'
 
 interface SourceData {
@@ -26,10 +27,9 @@ interface SourceData {
   analyzed_at: string | null
 }
 
-function smartFormat(n: number): string {
+function fmt(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
-  if (n % 1 !== 0) return n.toFixed(1)
   return n.toLocaleString()
 }
 
@@ -53,366 +53,279 @@ export default function ProjectHomePage() {
       const { data: proj } = await supabase
         .from('projects').select('*').eq('id', projectId).single()
       setProject(proj)
-
       const { data: srcs } = await supabase
         .from('data_sources')
         .select('id, name, source_type, row_count, status, auto_analysis, pipeline_status, analyzed_at')
-        .eq('project_id', projectId)
-        .eq('status', 'active')
+        .eq('project_id', projectId).eq('status', 'active')
         .order('created_at', { ascending: false })
-
       setSources(srcs || [])
-
       const { count } = await supabase
-        .from('anomalies')
-        .select('id', { count: 'exact', head: true })
-        .eq('project_id', projectId)
-        .eq('is_read', false)
+        .from('anomalies').select('id', { count: 'exact', head: true })
+        .eq('project_id', projectId).eq('is_read', false)
       setAlertCount(count ?? 0)
-
       setLoading(false)
     }
     load()
   }, [projectId])
 
-  // Aggregate auto_analysis across sources
-  const { topTrend, topInsights, totalRecords, qualityScore, chartPoints, topDimension } = useMemo(() => {
-    const allAnalysis = sources.map(s => s.auto_analysis).filter((a): a is Record<string, unknown> => a !== null)
-    const trends = allAnalysis.flatMap(a => (a.trends as any[]) || [])
-    const insights = allAnalysis.flatMap(a => {
-      const raw = (a.top_insights as any[]) || []
-      return normalizeInsights(raw) as any[]
-    }).sort((a, b) => (b.effect_size || 0) - (a.effect_size || 0))
-    const majority = allAnalysis.flatMap(a => (a.majority as any[]) || [])
-    const distributions = allAnalysis.flatMap(a => (a.distributions as any[]) || [])
-
-    // Top trend (highest absolute change)
+  const { totalRecords, qualityScore, topTrend, topInsights, chartData } = useMemo(() => {
+    const allA = sources.map(s => s.auto_analysis).filter((a): a is Record<string, unknown> => a !== null)
+    const trends = allA.flatMap(a => (a.trends as any[]) || [])
+    const insights = allA.flatMap(a => normalizeInsights((a.top_insights as any[]) || []) as any[])
+      .sort((a, b) => (b.effect_size || 0) - (a.effect_size || 0))
+    const anomalies = allA.flatMap(a => (a.anomalies as any[]) || [])
+    const totalOut = anomalies.reduce((s: number, a: any) => s + (a.outlier_count || 0), 0)
+    const totalR = sources.reduce((s, src) => s + (src.row_count || 0), 0)
+    const q = totalR > 0 ? Math.max(0, Math.round((1 - totalOut / totalR) * 100)) : 100
     const sorted = [...trends].sort((a, b) => Math.abs(b.total_change_pct || 0) - Math.abs(a.total_change_pct || 0))
-    const topT = sorted[0] || null
+    const top = sorted[0] || null
 
-    // Quality from distributions
-    const anomalies = allAnalysis.flatMap(a => (a.anomalies as any[]) || [])
-    const totalOutliers = anomalies.reduce((s: number, a: any) => s + (a.outlier_count || 0), 0)
-    const totalRows = sources.reduce((s, src) => s + (src.row_count || 0), 0)
-    const quality = totalRows > 0 ? Math.max(0, Math.round((1 - totalOutliers / totalRows) * 100)) : 100
-
-    // Chart points from top trend
-    let points: number[] = []
-    if (topT?.chart_data?.data) {
-      points = (topT.chart_data.data as any[]).map((d: any) => d.count || d.value || d.mean || 0).slice(-20)
-    } else if (distributions[0]?.counts) {
-      points = distributions[0].counts.slice(0, 15)
+    // Build chart data from distributions or trends
+    let cd: { name: string; value: number }[] = []
+    if (top?.chart_data?.data) {
+      cd = (top.chart_data.data as any[]).slice(-12).map((d: any, i: number) => ({
+        name: d.label || d.bin || `${i + 1}`,
+        value: d.count || d.value || d.mean || 0,
+      }))
+    } else {
+      const dists = allA.flatMap(a => (a.distributions as any[]) || [])
+      if (dists[0]?.counts) {
+        cd = (dists[0].counts as number[]).slice(0, 10).map((v: number, i: number) => ({
+          name: `${i + 1}`,
+          value: v,
+        }))
+      }
     }
 
-    // Top dimension breakdown
-    const topDim = majority[0] || null
-
-    return {
-      topTrend: topT,
-      topInsights: insights.slice(0, 3),
-      totalRecords: totalRows,
-      qualityScore: quality,
-      chartPoints: points,
-      topDimension: topDim,
-    }
+    return { totalRecords: totalR, qualityScore: q, topTrend: top, topInsights: insights.slice(0, 5), chartData: cd }
   }, [sources])
 
   const trendPct = topTrend?.total_change_pct || 0
   const trendUp = trendPct > 0
-  const trendLabel = topTrend?.measure_column?.replace(/_/g, ' ') || ''
+  const trendColor = trendUp ? 'text-emerald-600' : trendPct < 0 ? 'text-red-600' : 'text-muted-foreground'
 
-  // Generate SVG chart path from data points
-  const chartPath = useMemo(() => {
-    if (chartPoints.length < 2) return ''
-    const max = Math.max(...chartPoints, 1)
-    const w = 386
-    const h = 60
-    const padY = 5
-    const step = w / (chartPoints.length - 1)
-    return chartPoints.map((v, i) => {
-      const x = i * step
-      const y = h - padY - (v / max) * (h - padY * 2)
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`
-    }).join(' ')
-  }, [chartPoints])
-
-  const chartFillPath = chartPath ? `${chartPath} L386 65 L0 65 Z` : ''
-
-  // All hooks above — early return AFTER hooks
   if (loading) return null
 
   const hasSources = sources.length > 0
 
   return (
-    <div className="py-10 md:py-16">
-      <div className="mx-auto max-w-3xl lg:max-w-5xl px-6">
-
-        {/* Alert banner */}
-        {alertCount > 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-8 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="text-amber-500" size={18} />
-              <span className="text-sm font-medium text-gray-900">
-                {t('alerts.issuesDetected', { count: alertCount })}
-              </span>
-            </div>
-            <Link href={`${basePath}/alerts`} className="text-xs font-semibold text-amber-700 hover:text-amber-900 transition">
-              {t('alerts.viewAlerts')} →
-            </Link>
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {project && <ProjectIconBadge icon={project.icon} color={project.color} size="lg" />}
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">{project?.name}</h2>
+            {project?.description && (
+              <p className="text-muted-foreground text-sm">{project.description}</p>
+            )}
           </div>
-        )}
-
-        {/* Project header */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-1">
-            {project && <ProjectIconBadge icon={project.icon} color={project.color} size="lg" />}
-            <h1 className="text-2xl font-black text-gray-900 tracking-tight">{project?.name}</h1>
-          </div>
-          {project?.description && (
-            <p className="text-gray-500 text-sm ml-[52px]">{project.description}</p>
-          )}
         </div>
-
-        {/* Empty state */}
-        {!hasSources && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-5 border">
-              <Database size={26} className="text-gray-400" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">{t('home.connectFirst')}</h2>
-            <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">{t('home.connectFirstDesc')}</p>
-            <button onClick={() => router.push(`${basePath}/sources/new`)} className="dl-btn-primary px-6 py-2.5 font-bold">
-              {t('home.addSource')} →
-            </button>
-          </div>
-        )}
-
-        {/* ═══ FEATURES-8 INTELLIGENCE GRID ═══ */}
         {hasSources && (
-          <div className="relative">
-            <div className="relative z-10 grid grid-cols-6 gap-3">
+          <button onClick={() => router.push(`${basePath}/sources/new`)} className="dl-btn-primary text-sm">
+            {t('home.addSource')}
+          </button>
+        )}
+      </div>
 
-              {/* ─── CARD 1: Primary Insight (big number + SVG blob) ─── */}
-              <Card className="relative col-span-full flex overflow-hidden lg:col-span-2">
-                <CardContent className="relative m-auto size-fit pt-6">
-                  <div className="relative flex h-24 w-56 items-center">
-                    <svg className="text-muted absolute inset-0 size-full" viewBox="0 0 254 104" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M112.891 97.7022C140.366 97.0802 171.004 94.6715 201.087 87.5116C210.43 85.2881 219.615 82.6412 228.284 78.2473C232.198 76.3179 235.905 73.9942 239.348 71.3124C241.85 69.2557 243.954 66.7571 245.555 63.9408C249.34 57.3235 248.281 50.5341 242.498 45.6109C239.033 42.7237 235.228 40.2703 231.169 38.3054C219.443 32.7209 207.141 28.4382 194.482 25.534C184.013 23.1927 173.358 21.7755 162.64 21.2989C161.376 21.3512 160.113 21.181 158.908 20.796C158.034 20.399 156.857 19.1682 156.962 18.4535C157.115 17.8927 157.381 17.3689 157.743 16.9139C158.104 16.4588 158.555 16.0821 159.067 15.8066C160.14 15.4683 161.274 15.3733 162.389 15.5286C179.805 15.3566 196.626 18.8373 212.998 24.462C220.978 27.2494 228.798 30.4747 236.423 34.1232C240.476 36.1159 244.202 38.7131 247.474 41.8258C254.342 48.2578 255.745 56.9397 251.841 65.4892C249.793 69.8582 246.736 73.6777 242.921 76.6327C236.224 82.0192 228.522 85.4602 220.502 88.2924C205.017 93.7847 188.964 96.9081 172.738 99.2109C153.442 101.949 133.993 103.478 114.506 103.79C91.1468 104.161 67.9334 102.97 45.1169 97.5831C36.0094 95.5616 27.2626 92.1655 19.1771 87.5116C13.839 84.5746 9.1557 80.5802 5.41318 75.7725C-0.54238 67.7259 -1.13794 59.1763 3.25594 50.2827C5.82447 45.3918 9.29572 41.0315 13.4863 37.4319C24.2989 27.5721 37.0438 20.9681 50.5431 15.7272C68.1451 8.8849 86.4883 5.1395 105.175 2.83669C129.045 0.0992292 153.151 0.134761 177.013 2.94256C197.672 5.23215 218.04 9.01724 237.588 16.3889C240.089 17.3418 242.498 18.5197 244.933 19.6446C246.627 20.4387 247.725 21.6695 246.997 23.615C246.455 25.1105 244.814 25.5605 242.63 24.5811C230.322 18.9961 217.233 16.1904 204.117 13.4376C188.761 10.3438 173.2 8.36665 157.558 7.52174C129.914 5.70776 102.154 8.06792 75.2124 14.5228C60.6177 17.8788 46.5758 23.2977 33.5102 30.6161C26.6595 34.3329 20.4123 39.0673 14.9818 44.658C12.9433 46.8071 11.1336 49.1622 9.58207 51.6855C4.87056 59.5336 5.61172 67.2494 11.9246 73.7608C15.2064 77.0494 18.8775 79.925 22.8564 82.3236C31.6176 87.7101 41.3848 90.5291 51.3902 92.5804C70.6068 96.5773 90.0219 97.7419 112.891 97.7022Z" fill="currentColor" />
-                    </svg>
-                    <span className="mx-auto block w-fit text-5xl font-semibold tabular-nums">
-                      {topTrend ? smartFormat(Math.abs(trendPct)) + '%' : smartFormat(totalRecords)}
-                    </span>
-                  </div>
-                  <h2 className="mt-6 text-center text-xl font-semibold">
-                    {topTrend
-                      ? (locale === 'de'
-                        ? `${trendLabel} ${trendUp ? 'steigt' : 'fällt'}`
-                        : `${trendLabel} ${trendUp ? 'growing' : 'declining'}`)
-                      : (locale === 'de' ? 'Datensätze analysiert' : 'Records analyzed')
-                    }
-                  </h2>
-                  {topTrend && (
-                    <p className="mt-2 text-center text-xs text-muted-foreground max-w-[200px]">
-                      {locale === 'de'
-                        ? `${trendUp ? 'Anstieg' : 'Rückgang'} um ${Math.abs(trendPct).toFixed(1)}% über den gesamten Zeitraum`
-                        : `${trendUp ? 'Increased' : 'Decreased'} ${Math.abs(trendPct).toFixed(1)}% across the full period`
-                      }
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
+      {/* Alert banner */}
+      {alertCount > 0 && (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <span className="text-sm font-medium">{t('alerts.issuesDetected', { count: alertCount })}</span>
+          <Link href={`${basePath}/alerts`} className="ml-auto text-xs font-semibold text-amber-700 hover:underline">
+            {t('alerts.viewAlerts')} →
+          </Link>
+        </div>
+      )}
 
-              {/* ─── CARD 2: Data Reliability (circle + quality context) ─── */}
-              <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
-                <CardContent className="pt-6">
-                  <div className="relative mx-auto flex aspect-square size-32 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                    <span className={`m-auto text-4xl font-bold tabular-nums ${qualityScore >= 90 ? 'text-emerald-600' : qualityScore >= 70 ? 'text-amber-600' : 'text-red-600'}`}>
-                      {qualityScore}%
-                    </span>
-                  </div>
-                  <div className="relative z-10 mt-6 space-y-2 text-center">
-                    <h2 className="text-lg font-medium text-zinc-800 transition">
-                      {qualityScore >= 90
-                        ? (locale === 'de' ? 'Zuverlässige Daten' : 'Reliable data')
-                        : qualityScore >= 70
-                          ? (locale === 'de' ? 'Daten prüfenswert' : 'Data needs review')
-                          : (locale === 'de' ? 'Datenqualität kritisch' : 'Critical data issues')
-                      }
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {locale === 'de'
-                        ? `${smartFormat(totalRecords)} Datensätze aus ${sources.length} ${sources.length === 1 ? 'Quelle' : 'Quellen'} geprüft`
-                        : `${smartFormat(totalRecords)} records from ${sources.length} ${sources.length === 1 ? 'source' : 'sources'} verified`
-                      }
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+      {/* Empty state */}
+      {!hasSources && (
+        <Card className="p-12 text-center">
+          <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Database className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-1">{t('home.connectFirst')}</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">{t('home.connectFirstDesc')}</p>
+          <button onClick={() => router.push(`${basePath}/sources/new`)} className="dl-btn-primary">
+            {t('home.addSource')} →
+          </button>
+        </Card>
+      )}
 
-              {/* ─── CARD 3: Trend Movement (SVG chart + business statement) ─── */}
-              <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
-                <CardContent className="pt-6">
-                  <div className="pt-6 lg:px-2">
-                    <svg className="w-full" viewBox="0 0 386 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {hasSources && (
+        <>
+          {/* ── KPI Cards ── */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {locale === 'de' ? 'Datensätze' : 'Total Records'}
+                </CardTitle>
+                <Layers className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{fmt(totalRecords)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {sources.length} {locale === 'de' ? 'Datenquellen verbunden' : 'sources connected'}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {locale === 'de' ? 'Datenqualität' : 'Data Quality'}
+                </CardTitle>
+                <Activity className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{qualityScore}%</div>
+                <p className="text-xs text-muted-foreground">
+                  {qualityScore >= 90
+                    ? (locale === 'de' ? 'Zuverlässig — bereit für Analyse' : 'Reliable — ready for analysis')
+                    : (locale === 'de' ? 'Einige Ausreißer erkannt' : 'Some outliers detected')
+                  }
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {locale === 'de' ? 'Stärkster Trend' : 'Top Trend'}
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {topTrend ? `${trendUp ? '+' : ''}${trendPct.toFixed(1)}%` : '—'}
+                </div>
+                <p className={`text-xs ${trendColor}`}>
+                  {topTrend
+                    ? `${topTrend.measure_column?.replace(/_/g, ' ')} ${locale === 'de' ? 'über den Zeitraum' : 'over the period'}`
+                    : (locale === 'de' ? 'Keine Zeitreihe verfügbar' : 'No time series available')
+                  }
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {locale === 'de' ? 'Warnungen' : 'Alerts'}
+                </CardTitle>
+                <Bell className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{alertCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  {alertCount === 0
+                    ? (locale === 'de' ? 'Keine offenen Warnungen' : 'No open alerts')
+                    : (locale === 'de' ? 'Erfordern Aufmerksamkeit' : 'Require attention')
+                  }
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* ── Chart + Findings ── */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            {/* Chart */}
+            <Card className="lg:col-span-4">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  {topTrend
+                    ? `${topTrend.measure_column?.replace(/_/g, ' ').replace(/^\w/, (c: string) => c.toUpperCase())} ${locale === 'de' ? 'Verlauf' : 'Overview'}`
+                    : (locale === 'de' ? 'Datenverteilung' : 'Data Distribution')
+                  }
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={chartData}>
                       <defs>
-                        <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="70" gradientUnits="userSpaceOnUse">
-                          <stop stopColor={trendUp ? '#10b981' : '#ef4444'} stopOpacity="0.2" />
-                          <stop offset="1" stopColor={trendUp ? '#10b981' : '#ef4444'} stopOpacity="0.01" />
+                        <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={trendUp ? '#10b981' : '#6366f1'} stopOpacity={0.3} />
+                          <stop offset="100%" stopColor={trendUp ? '#10b981' : '#6366f1'} stopOpacity={0.02} />
                         </linearGradient>
                       </defs>
-                      {chartFillPath && <path d={chartFillPath} fill="url(#trendGrad)" />}
-                      {chartPath && <path d={chartPath} stroke={trendUp ? '#10b981' : '#ef4444'} strokeWidth="2.5" fill="none" />}
-                      {!chartPath && (
-                        <path d="M0 35 L386 35" stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="4 4" />
-                      )}
-                    </svg>
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                      <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb' }} />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke={trendUp ? '#10b981' : '#6366f1'}
+                        strokeWidth={2}
+                        fill="url(#fillGrad)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-[300px] text-sm text-muted-foreground">
+                    {locale === 'de' ? 'Analyse starten für Visualisierung' : 'Run analysis for visualization'}
                   </div>
-                  <div className="relative z-10 mt-8 space-y-2 text-center">
-                    <h2 className="text-lg font-medium transition">
-                      {topTrend
-                        ? (locale === 'de'
-                          ? `${trendUp ? 'Aufwärtstrend' : 'Abwärtstrend'} erkannt`
-                          : `${trendUp ? 'Upward' : 'Downward'} trend detected`)
-                        : (locale === 'de' ? 'Kein Zeitverlauf' : 'No time series')
-                      }
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {topTrend
-                        ? (locale === 'de'
-                          ? `${trendLabel} zeigt ${trendUp ? 'positive' : 'negative'} Entwicklung mit ${Math.abs(trendPct).toFixed(1)}% Veränderung`
-                          : `${trendLabel} shows ${trendUp ? 'positive' : 'negative'} movement at ${Math.abs(trendPct).toFixed(1)}% change`)
-                        : (locale === 'de' ? 'Verbinden Sie Daten mit Datumspalte' : 'Connect data with a date column')
-                      }
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Findings */}
+            <Card className="lg:col-span-3">
+              <CardHeader>
+                <CardTitle className="text-sm font-medium">
+                  {locale === 'de' ? 'Wichtigste Erkenntnisse' : 'Top Findings'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {topInsights.length > 0 ? topInsights.map((ins: any, i: number) => {
+                    const isHigh = (ins.effect_size || 0) > 0.5
+                    const isMed = (ins.effect_size || 0) > 0.2
+                    const dotColor = isHigh ? 'bg-red-500' : isMed ? 'bg-amber-500' : 'bg-emerald-500'
+                    return (
+                      <button key={i} onClick={() => router.push(`${basePath}/insights`)}
+                        className="flex items-start gap-3 w-full text-left group"
+                      >
+                        <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${dotColor}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm leading-relaxed group-hover:text-foreground transition line-clamp-2">
+                            {translateFinding(ins.headline || '', locale)}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {ins.type?.replace(/_/g, ' ')}
+                          </p>
+                        </div>
+                      </button>
+                    )
+                  }) : (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      {locale === 'de' ? 'Analyse starten für Erkenntnisse' : 'Run analysis for findings'}
                     </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* ─── CARD 4: Critical Findings (icon + business statements) ─── */}
-              <Card className="relative col-span-full overflow-hidden lg:col-span-3">
-                <CardContent className="grid pt-6 sm:grid-cols-2">
-                  <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
-                    <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                      <Shield className="m-auto size-5" strokeWidth={1} />
-                    </div>
-                    <div className="space-y-2">
-                      <h2 className="text-lg font-medium text-zinc-800 transition">
-                        {locale === 'de' ? 'Verifizierte Erkenntnisse' : 'Verified findings'}
-                      </h2>
-                      <p className="text-sm text-muted-foreground">
-                        {topInsights.length > 0
-                          ? (locale === 'de'
-                            ? `${topInsights.length} Erkenntnisse aus Ihren Daten berechnet — nicht geraten`
-                            : `${topInsights.length} findings computed from your data — not guessed`)
-                          : (locale === 'de' ? 'Analyse wird Erkenntnisse liefern' : 'Analysis will surface findings')
-                        }
-                      </p>
-                    </div>
-                  </div>
-                  <div className="rounded-tl-lg relative -mb-6 -mr-6 mt-6 h-fit border-l border-t p-5 py-5 sm:ml-6">
-                    <div className="absolute left-3 top-2 flex gap-1">
-                      <span className="block size-2 rounded-full border bg-red-200/60" />
-                      <span className="block size-2 rounded-full border bg-amber-200/60" />
-                      <span className="block size-2 rounded-full border bg-emerald-200/60" />
-                    </div>
-                    <div className="mt-4 space-y-3">
-                      {topInsights.length > 0 ? topInsights.map((ins: any, i: number) => {
-                        const isHigh = (ins.effect_size || 0) > 0.5
-                        const isMed = (ins.effect_size || 0) > 0.2
-                        const dotColor = isHigh ? 'bg-red-500' : isMed ? 'bg-amber-500' : 'bg-emerald-500'
-                        return (
-                          <button key={i} onClick={() => router.push(`${basePath}/insights`)} className="flex items-start gap-2.5 w-full text-left group">
-                            <div className={`mt-1.5 size-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
-                            <p className="text-xs leading-relaxed text-muted-foreground group-hover:text-foreground transition line-clamp-2">
-                              {translateFinding(ins.headline || '', locale)}
-                            </p>
-                          </button>
-                        )
-                      }) : (
-                        <p className="text-xs text-muted-foreground italic">
-                          {locale === 'de' ? 'Daten werden analysiert...' : 'Analyzing your data...'}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* ─── CARD 5: Connected Sources (icon + source tree) ─── */}
-              <Card className="relative col-span-full overflow-hidden lg:col-span-3">
-                <CardContent className="grid h-full pt-6 sm:grid-cols-2">
-                  <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
-                    <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                      <Layers className="m-auto size-5" strokeWidth={1} />
-                    </div>
-                    <div className="space-y-2">
-                      <h2 className="text-lg font-medium text-zinc-800 transition">
-                        {locale === 'de' ? 'Ihre Datenquellen' : 'Your data sources'}
-                      </h2>
-                      <p className="text-sm text-muted-foreground">
-                        {locale === 'de'
-                          ? `${sources.length} ${sources.length === 1 ? 'Quelle verbunden' : 'Quellen verbunden'} mit insgesamt ${smartFormat(totalRecords)} Datensätzen`
-                          : `${sources.length} ${sources.length === 1 ? 'source connected' : 'sources connected'} with ${smartFormat(totalRecords)} total records`
-                        }
-                      </p>
-                    </div>
-                  </div>
-                  <div className="before:bg-border relative mt-6 before:absolute before:inset-0 before:mx-auto before:w-px sm:-my-6 sm:-mr-6">
-                    <div className="relative flex h-full flex-col justify-center space-y-4 py-6">
-                      {sources.slice(0, 3).map((src, i) => {
-                        const isLeft = i % 2 === 0
-                        const badge = src.source_type === 'postgres' ? 'bg-blue-100 text-blue-700'
-                          : src.source_type === 'csv' ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-amber-100 text-amber-700'
-                        const label = src.source_type === 'postgres' ? 'PG' : src.source_type.slice(0, 2).toUpperCase()
-                        return isLeft ? (
-                          <div key={src.id} className="relative flex w-[calc(50%+0.875rem)] items-center justify-end gap-2">
-                            <span className="block h-fit rounded border px-2 py-1 text-xs shadow-sm truncate max-w-[120px]">{src.name}</span>
-                            <div className={`ring-background size-7 ring-4 rounded-full flex items-center justify-center text-[10px] font-bold ${badge}`}>{label}</div>
-                          </div>
-                        ) : (
-                          <div key={src.id} className="relative ml-[calc(50%-1rem)] flex items-center gap-2">
-                            <div className={`ring-background size-7 ring-4 rounded-full flex items-center justify-center text-[10px] font-bold ${badge}`}>{label}</div>
-                            <span className="block h-fit rounded border px-2 py-1 text-xs shadow-sm truncate max-w-[120px]">{src.name}</span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-            </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
 
-        {/* Quick Actions */}
-        {hasSources && (
-          <section className="mt-10">
-            <h2 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3">{t('home.quickActions')}</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { icon: Database, label: t('home.addSource'), desc: t('home.addSourceDesc'), href: `${basePath}/sources/new` },
-                { icon: BarChart2, label: t('home.viewInsights'), desc: t('home.viewInsightsDesc'), href: `${basePath}/insights` },
-                { icon: MessageSquare, label: t('home.askData'), desc: t('home.askDataDesc'), href: `${basePath}/ask` },
-                { icon: FlaskConical, label: t('home.openStudio'), desc: t('home.openStudioDesc'), href: `${basePath}/studio` },
-              ].map(action => (
-                <button key={action.label} onClick={() => router.push(action.href)}
-                  className="text-left p-3.5 rounded-xl border hover:border-zinc-300 hover:shadow-sm transition-all flex items-start gap-3 group">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center border group-hover:bg-zinc-900 group-hover:border-zinc-900 transition-colors flex-shrink-0">
-                    <action.icon size={16} className="text-muted-foreground group-hover:text-white transition-colors" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-zinc-800 mb-0.5">{action.label}</p>
-                    <p className="text-xs text-muted-foreground">{action.desc}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-      </div>
+          {/* ── Quick Actions ── */}
+          <div className="grid gap-3 md:grid-cols-4">
+            {[
+              { icon: Database, label: t('home.addSource'), href: `${basePath}/sources/new` },
+              { icon: BarChart2, label: t('home.viewInsights'), href: `${basePath}/insights` },
+              { icon: MessageSquare, label: t('home.askData'), href: `${basePath}/ask` },
+              { icon: FlaskConical, label: t('home.openStudio'), href: `${basePath}/studio` },
+            ].map(a => (
+              <button key={a.label} onClick={() => router.push(a.href)}
+                className="flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm font-medium hover:bg-accent transition-colors text-left"
+              >
+                <a.icon className="h-4 w-4 text-muted-foreground" />
+                {a.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
