@@ -19,6 +19,7 @@ import { isDbSource } from '@/lib/source-types'
 import type { AutoAnalysisResult, AutoAnalysisInsight } from '@/types/pipeline'
 import type { DrillFilter } from '@/types/drill'
 import { DataSourceSelector } from '@/components/DataSourceSelector'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const INSIGHT_ICONS: Record<string, typeof Zap> = {
   correlation: GitBranch,
@@ -55,6 +56,7 @@ const INSIGHT_COLORS: Record<string, string> = {
 
 export default function AutoAnalysisPage() {
   const t = useTranslations()
+  const locale = useLocale()
   const params = useParams()
   const router = useRouter()
   const { projectId, basePath } = useProjectContext()
@@ -201,53 +203,89 @@ export default function AutoAnalysisPage() {
 
   return (
     <DrillProvider>
-      <div className="max-w-[1200px] mx-auto px-6 py-6 space-y-6">
+      <div className="flex-1 space-y-4 p-8 pt-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-[20px] font-black text-dl-text-dark">{t('insights.title')}</h1>
-            <p className="text-dl-text-light text-dl-xs mt-0.5">
-              Auto-Analysis{analysis.row_count ? ` — ${analysis.row_count.toLocaleString()} rows, ${analysis.column_count} columns` : ''}
-              {analysis.measures?.length ? ` (${analysis.measures.length} measures, ${analysis.dimensions?.length || 0} dimensions, ${analysis.binaries?.length || 0} binary, ${analysis.dates?.length || 0} dates)` : ''}
+            <h2 className="text-2xl font-bold tracking-tight">{t('insights.title')}</h2>
+            <p className="text-muted-foreground text-sm">
+              {sourceName} — {analysis.row_count?.toLocaleString()} {locale === 'de' ? 'Zeilen' : 'rows'}, {analysis.column_count} {locale === 'de' ? 'Spalten' : 'columns'}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <DataSourceSelector />
-            <span className="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-dl-xs font-bold">
-              {analysis.top_insights.length} {t('home.insights')}
+            <span className="inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-medium">
+              {analysis.top_insights.length} {locale === 'de' ? 'Erkenntnisse' : 'findings'}
             </span>
           </div>
         </div>
 
-        {/* KPI Row */}
-        <div className="grid grid-cols-5 gap-3">
-          <KPICard label={t('common.rows')} value={analysis.row_count} size="sm" />
-          <KPICard label={t('analysis.measures')} value={analysis.measures.length} unit={`${t('common.of')} ${analysis.column_count} ${t('common.columns').toLowerCase()}`} size="sm" />
-          <KPICard label={t('analysis.sigCorrelations')} value={analysis.correlations.pairs.filter(p => p.significant).length}
-            unit={`${t('common.of')} ${analysis.correlations.pairs.length}`} size="sm" />
-          <KPICard label={t('analysis.outlierColumns')} value={analysis.anomalies.length}
-            unit={`${t('common.of')} ${analysis.measures.length}`} size="sm" />
-          <KPICard label={t('analysis.clustersFound')} value={analysis.clusters.n_clusters} size="sm" />
+        {/* KPI Row — shadcn dashboard pattern */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{t('common.rows')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analysis.row_count.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">{analysis.column_count} {t('common.columns').toLowerCase()}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{t('analysis.measures')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analysis.measures.length}</div>
+              <p className="text-xs text-muted-foreground">{analysis.dimensions?.length || 0} {locale === 'de' ? 'Dimensionen' : 'dimensions'}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{t('analysis.sigCorrelations')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analysis.correlations.pairs.filter(p => p.significant).length}</div>
+              <p className="text-xs text-muted-foreground">{locale === 'de' ? 'von' : 'of'} {analysis.correlations.pairs.length} {locale === 'de' ? 'Paaren' : 'pairs'}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{t('analysis.outlierColumns')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analysis.anomalies.length}</div>
+              <p className="text-xs text-muted-foreground">{locale === 'de' ? 'Spalten mit Ausreißern' : 'columns with outliers'}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{t('analysis.clustersFound')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{analysis.clusters.n_clusters}</div>
+              <p className="text-xs text-muted-foreground">{locale === 'de' ? 'Segmente erkannt' : 'segments detected'}</p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-1 border-b border-dl-border">
+        {/* Tab Navigation — clean, minimal */}
+        <div className="flex items-center gap-1 border-b">
           {([
-            { id: 'insights' as const, label: t('analysis.topInsights'), icon: Zap, count: analysis.top_insights.length },
-            { id: 'correlations' as const, label: t('analysis.correlationMatrix'), icon: GitBranch, count: analysis.correlations.pairs.length },
-            { id: 'distributions' as const, label: t('analysis.distributions'), icon: Layers, count: analysis.distributions.length },
-            { id: 'segments' as const, label: t('analysis.segmentsInfluencers'), icon: BarChart3, count: analysis.segments.length + analysis.key_influencers.length },
-            { id: 'advanced' as const, label: t('analysis.advanced'), icon: Sparkles, count: analysis.clusters.n_clusters + analysis.contribution_analysis.length + analysis.majority.length },
+            { id: 'insights' as const, label: t('analysis.topInsights'), count: analysis.top_insights.length },
+            { id: 'correlations' as const, label: t('analysis.correlationMatrix'), count: analysis.correlations.pairs.length },
+            { id: 'distributions' as const, label: t('analysis.distributions'), count: analysis.distributions.length },
+            { id: 'segments' as const, label: t('analysis.segmentsInfluencers'), count: analysis.segments.length + analysis.key_influencers.length },
+            { id: 'advanced' as const, label: t('analysis.advanced'), count: analysis.clusters.n_clusters + analysis.contribution_analysis.length + analysis.majority.length },
           ]).map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-[12px] font-medium border-b-2 transition-colors ${
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.id
-                  ? 'border-dl-brand text-dl-brand'
-                  : 'border-transparent text-dl-text-medium hover:text-dl-text-dark'
+                  ? 'border-foreground text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}>
-              <tab.icon size={13} />
               {tab.label}
-              {tab.count > 0 && <span className="text-dl-xs bg-dl-bg-medium px-1.5 py-0.5 rounded-full">{tab.count}</span>}
+              {tab.count > 0 && <span className="ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full">{tab.count}</span>}
             </button>
           ))}
         </div>
@@ -519,37 +557,37 @@ export default function AutoAnalysisPage() {
 function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight; index: number; onDrill: (f: DrillFilter) => void }) {
   const locale = useLocale()
   const t = useTranslations()
-  const Icon = INSIGHT_ICONS[insight.type] || Zap
-  const colorClass = INSIGHT_COLORS[insight.type] || 'border-dl-border bg-white'
+
+  // Severity from effect size — not type-based rainbow
+  const es = insight.effect_size || 0
+  const isAnomaly = insight.type === 'anomaly' || insight.type === 'outlier_explanation'
+  const severity = isAnomaly || es > 0.6 ? 'critical' : es > 0.3 ? 'warning' : es > 0.1 ? 'info' : 'neutral'
+  const borderColor = severity === 'critical' ? 'border-l-red-500' : severity === 'warning' ? 'border-l-amber-500' : severity === 'info' ? 'border-l-blue-500' : 'border-l-transparent'
+  const dotColor = severity === 'critical' ? 'bg-red-500' : severity === 'warning' ? 'bg-amber-500' : severity === 'info' ? 'bg-blue-500' : 'bg-gray-300'
+  const tagBg = severity === 'critical' ? 'bg-red-50 text-red-700' : severity === 'warning' ? 'bg-amber-50 text-amber-700' : severity === 'info' ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-600'
 
   return (
-    <div className={`border rounded-dl-lg p-4 ${colorClass}`}>
+    <div className={`rounded-lg border border-l-[3px] ${borderColor} bg-card p-4`}>
       <div className="flex items-start gap-3">
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-dl-xs font-black text-dl-text-light">#{index}</span>
-          <Icon size={16} className="text-dl-text-medium" />
-        </div>
+        <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${dotColor}`} />
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] text-dl-text-dark leading-relaxed">{translateFinding(insight.headline, locale)}</p>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="text-dl-xs px-1.5 py-0.5 rounded bg-white/70 text-dl-text-medium font-medium">{insight.type}</span>
-            {insight.p_value != null && (
-              <span className="text-dl-xs text-dl-text-light">
-                p={insight.p_value < 0.001 ? '<0.001' : insight.p_value.toFixed(4)}
-              </span>
-            )}
-            {insight.effect_size != null && (
-              <span className="text-dl-xs text-dl-text-light">
-                effect={insight.effect_size.toFixed(3)}
+          <p className="text-sm leading-relaxed">{translateFinding(insight.headline, locale)}</p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${tagBg}`}>
+              {insight.type?.replace(/_/g, ' ')}
+            </span>
+            {insight.p_value != null && insight.p_value < 0.05 && (
+              <span className="text-[10px] text-muted-foreground">
+                p{insight.p_value < 0.001 ? '<0.001' : `=${insight.p_value.toFixed(3)}`}
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Inline chart if available — compact height */}
+      {/* Inline chart if available */}
       {insight.chart_data && insight.chart_data.data && insight.chart_data.data.length > 0 && (
-        <div className="mt-3 max-h-[240px] overflow-hidden rounded-dl-md border border-white/50">
+        <div className="mt-3 max-h-[220px] overflow-hidden rounded-md border">
           <InteractiveChart chart={{
             type: insight.chart_data.chart_type as ChartData['type'],
             title: '',
