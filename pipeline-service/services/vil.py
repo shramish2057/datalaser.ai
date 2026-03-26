@@ -1382,6 +1382,19 @@ class VILEngine:
         except Exception as e:
             logger.warning("Failed to save training samples: %s", e)
 
+        # Auto-collect table-level training data + vocabulary (silent, no cost)
+        try:
+            from services.ml_table_features import infer_table_type_heuristic, get_role_distribution
+            from services.ml_vocabulary import save_vocabulary_from_dataset
+
+            self._save_table_training_data(
+                table_dfs, all_columns, all_fingerprints,
+                source_id, industry_type, classification_source
+            )
+            save_vocabulary_from_dataset(all_fingerprints, domain_id=industry_type)
+        except Exception as e:
+            logger.warning("Failed to save table/vocabulary training data: %s", e)
+
         # Step 4 -- map KPIs
         kpis = map_kpis(all_columns, all_fingerprints, industry_type)
 
@@ -1992,6 +2005,78 @@ Return ONLY valid JSON."""
                     logger.warning("Failed to save training samples: %s", resp.text[:200])
         except Exception as e:
             logger.warning("Training sample save error: %s", e)
+
+    def _save_table_training_data(
+        self, table_dfs: dict, all_columns: list, all_fingerprints: dict,
+        source_id: str, industry_type: str, label_source: str
+    ):
+        """Save table-level training data for table type classification."""
+        import os
+        import httpx
+        from services.ml_table_features import infer_table_type_heuristic, get_role_distribution
+
+        supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
+        supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+        if not supabase_url or not supabase_key:
+            return
+
+        table_samples = []
+        for table_name, df in table_dfs.items():
+            cols = [c for c in all_columns if c.get('table') == table_name]
+            n_cols = len(cols) or 1
+
+            numeric_count = sum(1 for c in cols if c.get('dtype') in ('numeric', 'float', 'int'))
+            text_count = sum(1 for c in cols if c.get('dtype') in ('text', 'categorical', 'string'))
+            date_count = sum(1 for c in cols if c.get('dtype') in ('datetime', 'date'))
+
+            has_ts = any(c.get('dtype') in ('datetime', 'date') for c in cols)
+            has_id = any(c['name'].lower().endswith('_id') or c['name'].lower() == 'id' for c in cols)
+            avg_card = sum(
+                all_fingerprints.get(f"{table_name}.{c['name']}", {}).get('unique_rate', 0.5)
+                for c in cols
+            ) / n_cols
+
+            role_dist = get_role_distribution(cols, all_fingerprints, table_name)
+            table_type = infer_table_type_heuristic(table_name, len(df), cols, all_fingerprints)
+
+            table_samples.append({
+                "source_id": source_id,
+                "table_name": table_name,
+                "row_count": len(df),
+                "column_count": len(cols),
+                "numeric_pct": round(numeric_count / n_cols, 3),
+                "text_pct": round(text_count / n_cols, 3),
+                "date_pct": round(date_count / n_cols, 3),
+                "has_timestamp": has_ts,
+                "has_id_column": has_id,
+                "avg_cardinality": round(avg_card, 3),
+                "role_distribution": role_dist,
+                "table_type": table_type,
+                "label_source": label_source,
+                "industry_type": industry_type,
+            })
+
+        if not table_samples:
+            return
+
+        try:
+            with httpx.Client(timeout=15) as client:
+                resp = client.post(
+                    f"{supabase_url}/rest/v1/ml_training_tables",
+                    headers={
+                        "apikey": supabase_key,
+                        "Authorization": f"Bearer {supabase_key}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal",
+                    },
+                    json=table_samples,
+                )
+                if resp.status_code in (200, 201):
+                    logger.info("Saved %d table training samples", len(table_samples))
+                else:
+                    logger.warning("Failed to save table samples: %s", resp.text[:200])
+        except Exception as e:
+            logger.warning("Table training save error: %s", e)
 
 
 # Module-level singleton
