@@ -861,5 +861,32 @@
     "refresh": "Refresh",
     "keyFindings": "Key Findings",
     "recommendations": "Recommendations"
+  },
+  "overview": {
+    "topMetric": "Top Metric",
+    "noTrendData": "No trend data available",
+    "dataPoints": "{count} data points",
+    "statSignificant": "Statistically significant",
+    "keyMetrics": "Key Metrics",
+    "noMetricsYet": "No metrics available yet",
+    "by": "by",
+    "trendChart": "Trend",
+    "noTimeSeries": "No time series data",
+    "topFindings": "Top Findings",
+    "runAnalysisToSee": "Run analysis to see findings",
+    "severity": {
+      "high": "High",
+      "medium": "Medium",
+      "info": "Info"
+    },
+    "dataOverview": "Data Overview",
+    "stats": {
+      "sources": "Sources",
+      "records": "Records",
+      "alerts": "Alerts",
+      "lastAnalyzed": "Last Analyzed",
+      "never": "Never"
+    },
+    "contribution": "Contribution"
   }
 }

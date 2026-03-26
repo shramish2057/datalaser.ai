@@ -5,57 +5,36 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { normalizeInsights } from '@/lib/normalizeInsight'
 import {
   Database, BarChart2, MessageSquare, FlaskConical, ArrowRight,
-  Zap, TrendingUp, GitBranch, AlertTriangle, Target, Layers, Search
+  AlertTriangle
 } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 import { useTranslations, useLocale } from 'next-intl'
-import { translateFinding } from '@/lib/i18n/findingsMap'
 import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import type { Project } from '@/types/database'
 
-const INSIGHT_ICONS: Record<string, typeof Zap> = {
-  correlation: GitBranch, group_difference: BarChart2, anomaly: AlertTriangle,
-  distribution: Layers, association: GitBranch, trend: TrendingUp,
-  change_point: Zap, majority: Target, key_influencer: Search,
-  clustering: Layers, outlier_explanation: AlertTriangle, contribution: BarChart2,
-  forecast: TrendingUp, leading_indicator: TrendingUp, temporal_pattern: TrendingUp,
-  seasonality: TrendingUp,
-}
+import { TopMetricCard } from '@/components/overview/TopMetricCard'
+import { KeyKPIsCard } from '@/components/overview/KeyKPIsCard'
+import { TrendChartCard } from '@/components/overview/TrendChartCard'
+import { TopFindingsCard } from '@/components/overview/TopFindingsCard'
+import { DataOverviewCard } from '@/components/overview/DataOverviewCard'
 
-const INSIGHT_COLORS: Record<string, string> = {
-  correlation: 'border-l-blue-400', group_difference: 'border-l-green-400',
-  anomaly: 'border-l-red-400', distribution: 'border-l-purple-400',
-  association: 'border-l-teal-400', trend: 'border-l-indigo-400',
-  majority: 'border-l-amber-400', key_influencer: 'border-l-cyan-400',
-  clustering: 'border-l-gray-400', contribution: 'border-l-emerald-400',
-}
-
-interface TopInsight {
-  type: string
-  headline: string
-  columns: string[]
-  p_value: number
-  effect_size: number
-  source_name: string
-}
-
-interface SourceSummary {
+interface SourceData {
   id: string
   name: string
   source_type: string
   row_count: number
-  insight_count: number
-  quality_score: number | null
   status: string
+  pipeline_status: string | null
+  auto_analysis: Record<string, unknown> | null
+  analyzed_at: string | null
 }
 
 export default function ProjectHomePage() {
   const t = useTranslations()
   const locale = useLocale()
   const [project, setProject] = useState<Project | null>(null)
-  const [sources, setSources] = useState<SourceSummary[]>([])
-  const [topInsights, setTopInsights] = useState<TopInsight[]>([])
+  const [sources, setSources] = useState<SourceData[]>([])
   const [alertCount, setAlertCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -74,40 +53,13 @@ export default function ProjectHomePage() {
 
       const { data: srcs } = await supabase
         .from('data_sources')
-        .select('id, name, source_type, row_count, status, auto_analysis, pipeline_status')
+        .select('id, name, source_type, row_count, status, auto_analysis, pipeline_status, analyzed_at')
         .eq('project_id', projectId)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
 
-      const sourceSummaries: SourceSummary[] = []
-      const allInsights: TopInsight[] = []
+      setSources(srcs || [])
 
-      for (const src of srcs || []) {
-        const analysis = src.auto_analysis as Record<string, unknown> | null
-        const rawInsights = (analysis?.top_insights as { type: string; headline: unknown }[]) || []
-        const insights = normalizeInsights(rawInsights) as { type: string; headline: string; columns: string[]; p_value: number; effect_size: number }[]
-
-        sourceSummaries.push({
-          id: src.id,
-          name: src.name,
-          source_type: src.source_type,
-          row_count: src.row_count || 0,
-          insight_count: insights.length,
-          quality_score: null,
-          status: src.pipeline_status || 'unprepared',
-        })
-
-        for (const ins of insights.slice(0, 3)) {
-          allInsights.push({ ...ins, source_name: src.name })
-        }
-      }
-
-      // Sort insights by effect size (most impactful first), take top 5
-      allInsights.sort((a, b) => b.effect_size - a.effect_size)
-      setTopInsights(allInsights.slice(0, 5))
-      setSources(sourceSummaries)
-
-      // Fetch unresolved alert count
       const { count } = await supabase
         .from('anomalies')
         .select('id', { count: 'exact', head: true })
@@ -122,149 +74,137 @@ export default function ProjectHomePage() {
 
   if (loading) return null
 
-  const base = basePath
+  // Aggregate auto_analysis data across all sources
+  const allAnalysis = sources
+    .map(s => s.auto_analysis)
+    .filter((a): a is Record<string, unknown> => a !== null)
+
+  const allTrends = allAnalysis.flatMap(a => (a.trends as any[]) || [])
+  const allForecasts = allAnalysis.flatMap(a => (a.forecasts as any[]) || [])
+  const allMeasures = allAnalysis.flatMap(a => (a.measures as string[]) || [])
+
+  const allInsights = allAnalysis.flatMap(a => {
+    const raw = (a.top_insights as any[]) || []
+    return normalizeInsights(raw) as any[]
+  }).sort((a, b) => (b.effect_size || 0) - (a.effect_size || 0))
+
+  const allContributions = allAnalysis.flatMap(a => (a.contribution_analysis as any[]) || [])
+  const allMajority = allAnalysis.flatMap(a => (a.majority as any[]) || [])
+  const allSegments = allAnalysis.flatMap(a => (a.segments as any[]) || [])
+
+  const totalRecords = sources.reduce((s, src) => s + (src.row_count || 0), 0)
   const hasSources = sources.length > 0
-  const hasInsights = topInsights.length > 0
+  const hasAnalysis = allAnalysis.length > 0
+
+  // Get first source with contribution data for chart
+  const contribution = allContributions[0] || allMajority[0] || null
 
   return (
-    <div className="max-w-4xl mx-auto px-8 py-10">
-      {/* Health alert banner */}
+    <div className="max-w-5xl mx-auto px-8 py-10">
+      {/* Alert banner */}
       {alertCount > 0 && (
-        <div className="bg-amber-50 border border-amber-300 rounded-dl-lg p-4 mb-6 flex items-center justify-between">
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <AlertTriangle className="text-amber-500" size={18} />
-            <span className="text-dl-sm font-medium text-dl-text-dark">
+            <span className="text-sm font-medium text-gray-900">
               {t('alerts.issuesDetected', { count: alertCount })}
             </span>
           </div>
-          <Link href={`${basePath}/alerts`} className="dl-btn-secondary text-dl-xs">
+          <Link href={`${basePath}/alerts`} className="dl-btn-secondary text-xs">
             {t('alerts.viewAlerts')}
           </Link>
         </div>
       )}
 
       {/* Project header */}
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
           {project && <ProjectIconBadge icon={project.icon} color={project.color} size="lg" />}
-          <h1 className="text-dl-2xl font-black text-dl-text-dark">{project?.name}</h1>
+          <h1 className="text-2xl font-black text-gray-900">{project?.name}</h1>
         </div>
         {project?.description && (
-          <p className="text-dl-text-medium text-dl-base ml-12">{project.description}</p>
+          <p className="text-gray-500 text-sm ml-12">{project.description}</p>
         )}
       </div>
 
       {/* Empty state */}
       {!hasSources && (
-        <div className="bg-white border border-dl-border rounded-dl-lg p-8 text-center mb-6">
-          <div className="w-14 h-14 bg-dl-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
-            <Database size={24} className="text-dl-text-light" />
+        <div className="bg-white border border-gray-200 rounded-xl p-8 text-center mb-6">
+          <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Database size={24} className="text-gray-400" />
           </div>
-          <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('home.connectFirst')}</h2>
-          <p className="text-dl-text-medium text-dl-base mb-6 max-w-sm mx-auto">
+          <h2 className="text-lg font-black text-gray-900 mb-2">{t('home.connectFirst')}</h2>
+          <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">
             {t('home.connectFirstDesc')}
           </p>
-          <button onClick={() => router.push(`${base}/sources/new`)} className="dl-btn-primary px-6 py-2.5 font-black">
+          <button onClick={() => router.push(`${basePath}/sources/new`)} className="dl-btn-primary px-6 py-2.5 font-black">
             {t('home.addSource')} →
           </button>
         </div>
       )}
 
-      {/* Top Insights (from engine auto-analysis) */}
-      {hasInsights && (
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[13px] font-black text-dl-text-dark uppercase tracking-wider flex items-center gap-2">
-              <Zap size={14} className="text-dl-brand" /> {t('home.topInsights')}
-            </h2>
-            <button onClick={() => router.push(`${base}/insights`)}
-              className="text-dl-xs text-dl-brand hover:underline flex items-center gap-1">
-              {t('common.viewAll')} <ArrowRight size={10} />
-            </button>
+      {/* 5 Intelligence Cards — features-8 grid layout */}
+      {hasSources && (
+        <div className="grid grid-cols-6 gap-3 mb-8">
+          {/* Row 1: Top Metric | Key KPIs | Trend Chart */}
+          <div className="col-span-full sm:col-span-3 lg:col-span-2">
+            <TopMetricCard trends={allTrends} measures={allMeasures} />
           </div>
-          <div className="space-y-2.5">
-            {topInsights.map((ins, i) => {
-              const severity = (ins as any).severity || ((ins as any).effect_size > 0.5 ? 'warning' : 'info')
-              const dotColor = severity === 'warning' ? 'bg-amber-400' : severity === 'critical' ? 'bg-red-400' : 'bg-blue-400'
-              const bgColor = severity === 'warning' ? 'bg-amber-50/40' : severity === 'critical' ? 'bg-red-50/40' : 'bg-white'
-              return (
-                <div key={i} className={`${bgColor} border border-dl-border rounded-dl-lg px-5 py-3.5 flex items-start gap-3`}>
-                  <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-dl-sm text-dl-text-dark leading-relaxed">
-                      {translateFinding(ins.headline, locale)}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="text-dl-xs font-medium text-dl-text-medium">{ins.source_name}</span>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+          <div className="col-span-full sm:col-span-3 lg:col-span-2">
+            <KeyKPIsCard
+              insights={allInsights}
+              trends={allTrends}
+              segments={allSegments}
+              majority={allMajority}
+            />
           </div>
-        </section>
+          <div className="col-span-full lg:col-span-2">
+            <TrendChartCard trends={allTrends} forecasts={allForecasts} />
+          </div>
+
+          {/* Row 2: Top Findings | Data Overview */}
+          <div className="col-span-full lg:col-span-3">
+            <TopFindingsCard
+              insights={allInsights}
+              basePath={basePath}
+            />
+          </div>
+          <div className="col-span-full lg:col-span-3">
+            <DataOverviewCard
+              sources={sources}
+              totalRecords={totalRecords}
+              alertCount={alertCount}
+              contribution={contribution}
+            />
+          </div>
+        </div>
       )}
 
-      {/* Data Sources mini-list */}
+      {/* Quick Actions */}
       {hasSources && (
-        <section className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-[13px] font-black text-dl-text-dark uppercase tracking-wider flex items-center gap-2">
-              <Database size={14} className="text-dl-text-light" /> {t('home.dataSources')}
-            </h2>
-            <button onClick={() => router.push(`${base}/sources`)}
-              className="text-dl-xs text-dl-brand hover:underline flex items-center gap-1">
-              {t('common.manage')} <ArrowRight size={10} />
-            </button>
-          </div>
+        <section>
+          <h2 className="text-[13px] font-black text-gray-900 uppercase tracking-wider mb-3">{t('home.quickActions')}</h2>
           <div className="grid grid-cols-2 gap-2">
-            {sources.slice(0, 4).map(src => (
-              <button key={src.id}
-                onClick={() => router.push(`${base}/sources/${src.id}/analysis`)}
-                className="bg-white border border-dl-border rounded-dl-md p-3 text-left hover:border-dl-brand transition-colors group">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    src.status === 'ready' ? 'bg-dl-success' : src.insight_count > 0 ? 'bg-dl-brand' : 'bg-dl-border-dark'
-                  }`} />
-                  <span className="text-[13px] font-medium text-dl-text-dark truncate">{src.name}</span>
-                  <span className="text-dl-xs text-dl-text-light uppercase ml-auto">{src.source_type}</span>
+            {[
+              { icon: Database, label: t('home.addSource'), desc: t('home.addSourceDesc'), href: `${basePath}/sources/new` },
+              { icon: BarChart2, label: t('home.viewInsights'), desc: t('home.viewInsightsDesc'), href: `${basePath}/insights` },
+              { icon: MessageSquare, label: t('home.askData'), desc: t('home.askDataDesc'), href: `${basePath}/ask` },
+              { icon: FlaskConical, label: t('home.openStudio'), desc: t('home.openStudioDesc'), href: `${basePath}/studio` },
+            ].map(action => (
+              <button key={action.label} onClick={() => router.push(action.href)}
+                className="text-left p-3 rounded-xl border border-gray-200 hover:border-gray-900 hover:bg-gray-50 transition-all flex items-start gap-3 group">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100 group-hover:bg-gray-900 transition-colors flex-shrink-0">
+                  <action.icon size={15} className="text-gray-400 group-hover:text-white" />
                 </div>
-                <div className="flex items-center gap-3 text-dl-xs text-dl-text-light">
-                  {src.row_count > 0 && <span>{src.row_count.toLocaleString()} rows</span>}
-                  {src.insight_count > 0 && (
-                    <span className="text-dl-brand font-medium">{src.insight_count} {t('home.insights')}</span>
-                  )}
-                  {src.insight_count === 0 && <span>{t('home.notAnalyzed')}</span>}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-gray-900 mb-0.5">{action.label}</p>
+                  <p className="text-xs text-gray-500">{action.desc}</p>
                 </div>
               </button>
             ))}
           </div>
         </section>
       )}
-
-      {/* Quick Actions */}
-      <section>
-        <h2 className="text-[13px] font-black text-dl-text-dark uppercase tracking-wider mb-3">{t('home.quickActions')}</h2>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { icon: Database, label: t('home.addSource'), desc: t('home.addSourceDesc'), href: `${base}/sources/new` },
-            { icon: BarChart2, label: t('home.viewInsights'), desc: t('home.viewInsightsDesc'), href: `${base}/insights` },
-            { icon: MessageSquare, label: t('home.askData'), desc: t('home.askDataDesc'), href: `${base}/ask` },
-            { icon: FlaskConical, label: t('home.openStudio'), desc: t('home.openStudioDesc'), href: `${base}/studio` },
-          ].map(action => (
-            <button key={action.label} onClick={() => router.push(action.href)}
-              className="text-left p-3 rounded-dl-md border border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover transition-all flex items-start gap-3 group">
-              <div className="w-8 h-8 rounded-dl-md flex items-center justify-center bg-dl-bg-medium group-hover:bg-dl-brand transition-colors flex-shrink-0">
-                <action.icon size={15} className="text-dl-text-light group-hover:text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-dl-sm font-black text-dl-text-dark mb-0.5">{action.label}</p>
-                <p className="text-dl-xs text-dl-text-medium">{action.desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </section>
     </div>
   )
 }

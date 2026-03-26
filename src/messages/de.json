@@ -861,5 +861,32 @@
     "refresh": "Aktualisieren",
     "keyFindings": "Wichtigste Erkenntnisse",
     "recommendations": "Empfehlungen"
+  },
+  "overview": {
+    "topMetric": "Top-Kennzahl",
+    "noTrendData": "Keine Trenddaten vorhanden",
+    "dataPoints": "{count} Datenpunkte",
+    "statSignificant": "Statistisch signifikant",
+    "keyMetrics": "Wichtige Kennzahlen",
+    "noMetricsYet": "Noch keine Kennzahlen vorhanden",
+    "by": "nach",
+    "trendChart": "Trend",
+    "noTimeSeries": "Keine Zeitreihendaten",
+    "topFindings": "Top-Erkenntnisse",
+    "runAnalysisToSee": "Analyse starten, um Erkenntnisse zu sehen",
+    "severity": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "info": "Info"
+    },
+    "dataOverview": "Datenübersicht",
+    "stats": {
+      "sources": "Quellen",
+      "records": "Datensätze",
+      "alerts": "Warnungen",
+      "lastAnalyzed": "Zuletzt analysiert",
+      "never": "Nie"
+    },
+    "contribution": "Beitrag"
   }
 }
