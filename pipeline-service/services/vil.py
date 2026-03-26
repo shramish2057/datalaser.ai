@@ -1382,18 +1382,23 @@ class VILEngine:
         except Exception as e:
             logger.warning("Failed to save training samples: %s", e)
 
-        # Auto-collect table-level training data + vocabulary (silent, no cost)
+        # Auto-collect ALL training data (silent, no cost)
         try:
             from services.ml_table_features import infer_table_type_heuristic, get_role_distribution
             from services.ml_vocabulary import save_vocabulary_from_dataset
+            from services.ml_domain_classifier import save_dataset_training_data
 
             self._save_table_training_data(
                 table_dfs, all_columns, all_fingerprints,
                 source_id, industry_type, classification_source
             )
             save_vocabulary_from_dataset(all_fingerprints, domain_id=industry_type)
+            save_dataset_training_data(
+                source_id, all_columns, all_fingerprints,
+                len(table_dfs), industry_type, industry_confidence, classification_source
+            )
         except Exception as e:
-            logger.warning("Failed to save table/vocabulary training data: %s", e)
+            logger.warning("Failed to save training data: %s", e)
 
         # Step 4 -- map KPIs
         kpis = map_kpis(all_columns, all_fingerprints, industry_type)

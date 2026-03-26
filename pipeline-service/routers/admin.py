@@ -47,9 +47,42 @@ async def ml_stats(x_admin_key: str = Header(None)):
                 "classes": bundle.get("classes", []),
             }
 
+        # Get vocabulary stats
+        vocab_stats = {}
+        try:
+            from services.ml_vocabulary import get_vocabulary_stats
+            vocab_stats = get_vocabulary_stats()
+        except Exception:
+            pass
+
+        # Count training samples from Supabase
+        sample_counts = {}
+        try:
+            import httpx
+            supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
+            supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+            if supabase_url and supabase_key:
+                async with httpx.AsyncClient() as client:
+                    for table in ["ml_training_samples", "ml_training_tables", "ml_training_datasets", "ml_template_results", "ml_vocabulary"]:
+                        resp = await client.get(
+                            f"{supabase_url}/rest/v1/{table}?select=id&limit=1",
+                            headers={
+                                "apikey": supabase_key,
+                                "Authorization": f"Bearer {supabase_key}",
+                                "Prefer": "count=exact",
+                            },
+                            timeout=5,
+                        )
+                        count = resp.headers.get("content-range", "").split("/")[-1]
+                        sample_counts[table] = int(count) if count and count != "*" else 0
+        except Exception:
+            pass
+
         return JSONResponse(content={
             "model_count": len(model_files),
             "latest_model": latest_info,
+            "sample_counts": sample_counts,
+            "vocabulary": vocab_stats,
         })
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)

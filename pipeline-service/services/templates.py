@@ -358,7 +358,25 @@ class TemplateEngine:
                                   success=False, findings=[], warnings=[f'Runner not implemented for {template_id}'])
 
         try:
-            return runner(df, column_profiles, column_mapping, tmpl)
+            import time
+            t0 = time.time()
+            result = runner(df, column_profiles, column_mapping, tmpl)
+            elapsed_ms = int((time.time() - t0) * 1000)
+
+            # Track template execution for ML training (silent)
+            try:
+                self._track_template_result(
+                    template_id=template_id,
+                    success=result.success,
+                    findings_count=len(result.findings) if result.findings else 0,
+                    row_count=len(df),
+                    column_match_pct=len(column_mapping) / max(len(tmpl.get('patterns', [])), 1) if tmpl.get('patterns') else 1.0,
+                    execution_time_ms=elapsed_ms,
+                )
+            except Exception:
+                pass  # never fail on tracking
+
+            return result
         except Exception as e:
             return TemplateResult(template_id=template_id, name=tmpl['name'], category=tmpl['category'],
                                   success=False, findings=[], warnings=[f'Error: {str(e)}'])
@@ -1431,6 +1449,44 @@ class TemplateEngine:
             return 0.0
         index = np.arange(1, n + 1)
         return round(float((2 * np.sum(index * sorted_vals) / (n * np.sum(sorted_vals))) - (n + 1) / n), 4)
+
+
+    def _track_template_result(
+        self, template_id: str, success: bool, findings_count: int,
+        row_count: int, column_match_pct: float, execution_time_ms: int
+    ):
+        """Save template execution result for ML training. Silent, never raises."""
+        import os
+        import httpx
+
+        supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
+        supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+        if not supabase_url or not supabase_key:
+            return
+
+        data = {
+            "template_id": template_id,
+            "success": success,
+            "findings_count": findings_count,
+            "row_count": row_count,
+            "column_match_pct": round(column_match_pct, 3),
+            "execution_time_ms": execution_time_ms,
+        }
+
+        try:
+            with httpx.Client(timeout=5) as client:
+                client.post(
+                    f"{supabase_url}/rest/v1/ml_template_results",
+                    headers={
+                        "apikey": supabase_key,
+                        "Authorization": f"Bearer {supabase_key}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal",
+                    },
+                    json=data,
+                )
+        except Exception:
+            pass
 
 
 template_engine = TemplateEngine()
