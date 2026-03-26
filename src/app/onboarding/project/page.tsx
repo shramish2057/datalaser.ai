@@ -1,6 +1,6 @@
 'use client'
 import { useTranslations } from 'next-intl'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import StepIndicator from '@/components/onboarding/StepIndicator'
 import { ProjectIconPicker } from '@/components/ProjectIconPicker'
@@ -16,6 +16,14 @@ export default function ProjectPage() {
   const [error, setError] = useState('')
   const router = useRouter()
 
+  // Guard: team users should never reach this page
+  useEffect(() => {
+    const onboarding = JSON.parse(localStorage.getItem('datalaser_onboarding') || '{}')
+    if (onboarding.mode === 'team') {
+      router.replace('/onboarding/org')
+    }
+  }, [router])
+
   const handleCreate = async () => {
     if (!name.trim()) return
     setLoading(true)
@@ -29,9 +37,7 @@ export default function ProjectPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userName: onboarding.name,
-          mode: onboarding.mode,
-          orgName: onboarding.orgName,
-          workspaceName: onboarding.workspaceName,
+          mode: 'personal',
           projectName: name.trim(),
           projectIcon: icon,
           projectColor: color,
@@ -41,13 +47,15 @@ export default function ProjectPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
 
+      localStorage.removeItem('datalaser_onboarding')
+
       // Store project context for connect page
       localStorage.setItem('datalaser_project_context', JSON.stringify({
         projectId: data.project.id,
         orgSlug: data.org.slug,
         workspaceSlug: data.workspace.slug,
         projectSlug: data.project.slug,
-        isPersonal: data.org.type === 'personal',
+        isPersonal: true,
       }))
 
       router.push(`/projects/${data.project.id}`)

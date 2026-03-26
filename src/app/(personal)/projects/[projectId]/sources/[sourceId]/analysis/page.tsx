@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Loader2, ArrowLeft, Zap, TrendingUp, BarChart3, GitBranch,
@@ -56,7 +57,7 @@ export default function AutoAnalysisPage() {
   const t = useTranslations()
   const params = useParams()
   const router = useRouter()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const sourceId = params.sourceId as string
 
   const [loading, setLoading] = useState(true)
@@ -509,7 +510,7 @@ export default function AutoAnalysisPage() {
         </div>
       </div>
 
-      {showDrill && <DrillDownPanel onOpenInStudio={() => router.push(`/projects/${projectId}/studio`)} />}
+      {showDrill && <DrillDownPanel onOpenInStudio={() => router.push(`${basePath}/studio`)} />}
     </DrillProvider>
   )
 }

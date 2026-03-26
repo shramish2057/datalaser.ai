@@ -1,11 +1,8 @@
 'use client'
-import { useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import ConnectPage from '@/app/onboarding/connect/page'
 
 export default function ProjectSourcesNewPage() {
-  const t = useTranslations()
-  const params = useParams()
-  const projectId = params.projectId as string
-  return <ConnectPage projectId={projectId} />
+  const { projectId, basePath } = useProjectContext()
+  return <ConnectPage projectId={projectId} basePath={basePath} />
 }

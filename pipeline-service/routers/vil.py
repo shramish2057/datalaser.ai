@@ -148,7 +148,7 @@ async def get_graph(
 async def get_node_insight(
     source_type: str = Form(...),
     connection_string: str = Form(...),
-    table_name: str = Form(...),
+    table_name: str = Form(""),
     column_name: str = Form(""),
     node_type: str = Form("metric"),
     node_label: str = Form(""),

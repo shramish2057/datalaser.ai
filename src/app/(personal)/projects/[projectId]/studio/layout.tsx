@@ -8,6 +8,7 @@ import { ChevronLeft, Zap } from 'lucide-react'
 import StudioSidebar from '@/components/studio/StudioSidebar'
 import { DataSourceSelector } from '@/components/DataSourceSelector'
 import { ActiveSourceProvider } from '@/lib/context/ActiveSourceContext'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import type { StudioNotebook, StudioSource, QueryLibraryItem, SchemaColumn } from '@/types/studio'
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
@@ -22,7 +23,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
   const params = useParams()
   const router = useRouter()
   const pathname = usePathname()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const notebookId = params.notebookId as string || ''
 
   const supabase = createBrowserClient(
@@ -108,14 +109,14 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     <div className="flex flex-col h-screen overflow-hidden bg-white font-sans">
       {/* Top bar */}
       <div className="h-[48px] flex items-center justify-between border-b border-dl-border px-4 flex-shrink-0">
-        <Link href={`/projects/${projectId}`} className="flex items-center gap-2 text-dl-sm text-dl-text-dark hover:opacity-70 transition-opacity">
+        <Link href={`${basePath}`} className="flex items-center gap-2 text-dl-sm text-dl-text-dark hover:opacity-70 transition-opacity">
           <div className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center">
             <Zap size={12} className="text-white" />
           </div>
           <span className="font-bold tracking-tight">DataLaser Studio</span>
         </Link>
         <DataSourceSelector />
-        <Link href={`/projects/${projectId}`} className="text-dl-xs text-dl-text-light hover:text-dl-brand transition-colors">
+        <Link href={`${basePath}`} className="text-dl-xs text-dl-text-light hover:text-dl-brand transition-colors">
           {projectName}
         </Link>
       </div>

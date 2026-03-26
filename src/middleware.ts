@@ -63,14 +63,51 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  if (session && isAuthRoute) {
-    // Check cached org type to avoid DB query on every request
-    const cachedHome = req.cookies.get('dl_home')?.value
-    if (cachedHome) {
-      return NextResponse.redirect(new URL(cachedHome, req.url))
+  // Protect /overview route — owners only
+  const overviewMatch = pathname.match(/^\/([^/]+)\/overview/)
+  if (session && overviewMatch) {
+    const orgSlug = overviewMatch[1]
+    const { data: org } = await supabase
+      .from('organizations')
+      .select('id')
+      .eq('slug', orgSlug)
+      .single()
+    if (org) {
+      const { data: membership } = await supabase
+        .from('org_members')
+        .select('role')
+        .eq('org_id', org.id)
+        .eq('user_id', session.user.id)
+        .single()
+      if (!membership || membership.role !== 'owner') {
+        return NextResponse.redirect(new URL(`/${orgSlug}`, req.url))
+      }
     }
+  }
 
-    // Look up org type for this user
+  // Team users visiting /projects get redirected to their org home
+  // Check actual DB org type — never trust cached cookie (stale across logins)
+  if (session && pathname.startsWith('/projects')) {
+    const { data: membership } = await supabase
+      .from('org_members')
+      .select('organizations(type, slug)')
+      .eq('user_id', session.user.id)
+      .limit(1)
+      .single()
+
+    if (membership) {
+      const org = membership.organizations as unknown as { type: string; slug: string }
+      if (org.type === 'team') {
+        const home = `/${org.slug}`
+        const redirect = NextResponse.redirect(new URL(home, req.url))
+        redirect.cookies.set('dl_home', home, { maxAge: 3600, path: '/' })
+        return redirect
+      }
+    }
+  }
+
+  if (session && isAuthRoute) {
+    // Always check DB — cached cookie may be stale from a different account
     const { data: membership } = await supabase
       .from('org_members')
       .select('organizations(type, slug)')

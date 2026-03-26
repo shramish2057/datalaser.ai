@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Plus, Play, Loader2, Lightbulb, ChevronDown, ChevronRight, Send, FlaskConical,
@@ -37,7 +38,7 @@ const CYCLING_MSGS = [
 export default function NotebookWorkspace() {
   const t = useTranslations()
   const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId } = useProjectContext()
   const notebookId = params.notebookId as string
 
   const [notebook, setNotebook] = useState<StudioNotebook | null>(null)

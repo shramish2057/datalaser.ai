@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { Send, Loader2, Sparkles, Plus, MessageSquare, Trash2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
@@ -86,8 +86,7 @@ export default function ProjectAskPage() {
   const intentRef = useRef<IntentData | null>(null)
   const hasFiredIntent = useRef(false)
 
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const { activeSourceId, activeSource } = useActiveSource()
 
   const supabase = createBrowserClient(
@@ -359,7 +358,7 @@ export default function ProjectAskPage() {
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <div className="max-w-[860px] mx-auto space-y-6">
             {qualityReport && <DataQualityBanner report={qualityReport}
-              prepareUrl={activeSourceId ? `/projects/${projectId}/prep/${activeSourceId}` : undefined} />}
+              prepareUrl={activeSourceId ? `${basePath}/prep/${activeSourceId}` : undefined} />}
 
             {/* Empty state */}
             {messages.length === 0 && !loading && (

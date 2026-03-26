@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   CheckCircle2, Clock, AlertTriangle, Play, Loader2, Wand2, History
@@ -53,7 +54,7 @@ export default function SourceSettingsPage() {
   const t = useTranslations()
   const router = useRouter()
   const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const sourceId = params.sourceId as string
 
   const [source, setSource] = useState<{ name: string; pipeline_status: string; pipeline_recipe_id: string | null } | null>(null)
@@ -72,7 +73,7 @@ export default function SourceSettingsPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const base = `/projects/${projectId}/sources/${sourceId}`
+  const base = `${basePath}/sources/${sourceId}`
 
   useEffect(() => {
     async function load() {

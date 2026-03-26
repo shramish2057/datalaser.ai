@@ -2,15 +2,15 @@
 import { useTranslations } from 'next-intl'
 
 import { useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { FlaskConical } from 'lucide-react'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 
 export default function StudioRedirectPage() {
   const t = useTranslations()
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,7 +28,7 @@ export default function StudioRedirectPage() {
         .limit(1)
 
       if (notebooks && notebooks.length > 0) {
-        router.replace(`/projects/${projectId}/studio/${notebooks[0].id}`)
+        router.replace(`${basePath}/studio/${notebooks[0].id}`)
         return
       }
 
@@ -47,7 +47,7 @@ export default function StudioRedirectPage() {
       })
       const nb = await res.json()
       if (nb.id) {
-        router.replace(`/projects/${projectId}/studio/${nb.id}`)
+        router.replace(`${basePath}/studio/${nb.id}`)
       }
     }
     redirect()

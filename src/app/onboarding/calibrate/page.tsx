@@ -372,17 +372,17 @@ export default function CalibratePage() {
       }
 
       // 5. Redirect — DB sources go to overview, file sources go to health
+      const storedBasePath = localStorage.getItem('datalaser_base_path') || (storedProjectId ? `/projects/${storedProjectId}` : null)
       const dbSource = dbSources.find(s => typeof s === 'object' && (s as ConnectedDbSource).id)
-      if (storedProjectId && dbSource && typeof dbSource === 'object') {
-        localStorage.removeItem('datalaser_project_id')
-        router.push(`/projects/${storedProjectId}/sources/${(dbSource as ConnectedDbSource).id}/overview`)
-      } else if (storedProjectId && firstSourceId) {
-        // File source - go to health
-        localStorage.removeItem('datalaser_project_id')
-        router.push(`/projects/${storedProjectId}/sources/${firstSourceId}/health`)
-      } else if (storedProjectId) {
-        localStorage.removeItem('datalaser_project_id')
-        router.push(`/projects/${storedProjectId}`)
+      localStorage.removeItem('datalaser_project_id')
+      localStorage.removeItem('datalaser_base_path')
+
+      if (storedBasePath && dbSource && typeof dbSource === 'object') {
+        router.push(`${storedBasePath}/sources/${(dbSource as ConnectedDbSource).id}/overview`)
+      } else if (storedBasePath && firstSourceId) {
+        router.push(`${storedBasePath}/sources/${firstSourceId}/health`)
+      } else if (storedBasePath) {
+        router.push(storedBasePath)
       } else {
         router.push('/projects')
       }

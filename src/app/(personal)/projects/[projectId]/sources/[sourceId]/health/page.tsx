@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   CheckCircle2, AlertTriangle, XCircle, Loader2,
@@ -50,7 +51,7 @@ export default function DataHealthPage() {
   const t = useTranslations()
   const router = useRouter()
   const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const sourceId = params.sourceId as string
 
   const [profile, setProfile] = useState<DataProfile | null>(null)
@@ -108,7 +109,7 @@ export default function DataHealthPage() {
 
       // DB sources now use the dedicated overview page
       if (isDbSource(src.source_type)) {
-        router.replace(`/projects/${projectId}/sources/${sourceId}/overview`)
+        router.replace(`${basePath}/sources/${sourceId}/overview`)
         return
       }
 
@@ -165,7 +166,7 @@ export default function DataHealthPage() {
     init()
   }, [sourceId])
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   // Loading state
   if (loading) {
@@ -353,7 +354,7 @@ export default function DataHealthPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Option 1: Clean first */}
           <button
-            onClick={() => router.push(`/projects/${projectId}/prep/${sourceId}`)}
+            onClick={() => router.push(`${basePath}/prep/${sourceId}`)}
             className={`text-left p-5 rounded-dl-lg border transition-all group
               ${hasIssues ? 'border-dl-brand bg-dl-brand-hover' : 'border-dl-border hover:border-dl-brand hover:bg-dl-brand-hover'}`}
           >
@@ -403,7 +404,7 @@ export default function DataHealthPage() {
         {/* Auto-Analysis CTA */}
         <div className="mt-4 flex items-center justify-center gap-4">
           <button
-            onClick={() => router.push(`/projects/${projectId}/sources/${sourceId}/analysis`)}
+            onClick={() => router.push(`${basePath}/sources/${sourceId}/analysis`)}
             className="text-dl-xs font-bold text-dl-brand hover:text-dl-brand-dark transition-colors inline-flex items-center gap-1.5 bg-dl-brand-hover px-4 py-2 rounded-dl-md"
           >
             <BarChart2 size={13} /> {t('health.runAutoAnalysis')} <ArrowRight size={11} />

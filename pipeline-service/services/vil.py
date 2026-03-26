@@ -1221,9 +1221,9 @@ _EDGE_COLORS = {
     "correlation_strong": "#ef4444",
     "correlation_moderate": "#f97316",
     "correlation_weak": "#fbbf24",
-    "relationship": "#52525b",
-    "hierarchy": "#333333",
-    "kpi_dependency": "#7c3aed",
+    "relationship": "#9ca3af",
+    "hierarchy": "#9ca3af",
+    "kpi_dependency": "#a78bfa",
 }
 
 # Roles that should be excluded from metric nodes
@@ -1710,12 +1710,23 @@ class VILEngine:
                 continue
             seen_ids.add(node_id)
 
+            # Find parent table from column_mapping
+            kpi_parent = None
+            for role, col_name in kpi.get("column_mapping", {}).items():
+                for col in columns:
+                    if col["name"] == col_name:
+                        kpi_parent = f"table:{col['table']}"
+                        break
+                if kpi_parent:
+                    break
+
             nodes.append({
                 "id": node_id,
                 "type": "kpi",
                 "label": kpi["name_de"],
                 "label_en": kpi["name_en"],
                 "value": kpi_value,
+                "parent": kpi_parent,
                 "metadata": {
                     "formula": kpi["formula"],
                     "unit": kpi["unit"],
@@ -1843,26 +1854,47 @@ Return ONLY valid JSON."""
                     "color": _EDGE_COLORS["hierarchy"],
                 })
 
-        # C) KPI dependency edges (KPI -> source metrics)
+        # C) KPI dependency edges (KPI -> source metrics, fallback to parent table)
         for kpi in kpis:
             kpi_node_id = f"kpi:{kpi['id']}"
             if kpi_node_id not in node_ids:
                 continue
+
+            kpi_connected = False
+            kpi_parent_table = None
+
             for role, col_name in kpi.get("column_mapping", {}).items():
-                # Find the qualified name for this column and check it
-                # exists as a metric node
                 for col in columns:
                     if col["name"] == col_name:
                         target_id = f"{col['table']}.{col_name}"
+                        if not kpi_parent_table:
+                            kpi_parent_table = f"table:{col['table']}"
                         if target_id in node_ids:
-                            edges.append({
-                                "source": kpi_node_id,
-                                "target": target_id,
-                                "type": "kpi_dependency",
-                                "weight": 0.3,
-                                "color": _EDGE_COLORS["kpi_dependency"],
-                            })
+                            edge_key = (kpi_node_id, target_id)
+                            if edge_key not in seen_edges:
+                                seen_edges.add(edge_key)
+                                edges.append({
+                                    "source": kpi_node_id,
+                                    "target": target_id,
+                                    "type": "kpi_dependency",
+                                    "weight": 0.3,
+                                    "color": _EDGE_COLORS["kpi_dependency"],
+                                })
+                                kpi_connected = True
                         break
+
+            # Fallback: connect KPI to parent table if no metric node matched
+            if not kpi_connected and kpi_parent_table and kpi_parent_table in node_ids:
+                edge_key = (kpi_node_id, kpi_parent_table)
+                if edge_key not in seen_edges:
+                    seen_edges.add(edge_key)
+                    edges.append({
+                        "source": kpi_node_id,
+                        "target": kpi_parent_table,
+                        "type": "kpi_dependency",
+                        "weight": 0.2,
+                        "color": _EDGE_COLORS["kpi_dependency"],
+                    })
 
         return edges
 

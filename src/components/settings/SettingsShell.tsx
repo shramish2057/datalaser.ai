@@ -15,7 +15,7 @@ export function SettingsShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-1 min-h-0">
       {/* Sub-nav */}
-      <nav className="w-[160px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col px-4 py-6">
+      <nav className="w-[280px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col px-4 py-6">
         <p className="dl-section-header mb-3">Settings</p>
         <div className="space-y-0.5">
           {NAV.map(item => {

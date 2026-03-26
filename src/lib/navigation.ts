@@ -37,3 +37,7 @@ export function newProjectUrl(org: Organization, workspace: Workspace): string {
   if (org.type === 'personal') return '/projects/new'
   return `/${org.slug}/${workspace.slug}/new`
 }
+
+export function overviewUrl(org: Organization): string {
+  return `/${org.slug}/overview`
+}

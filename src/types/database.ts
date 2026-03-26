@@ -8,6 +8,7 @@ export interface Profile {
   primary_metrics: string[];
   data_update_frequency: string;
   revenue_baseline: number | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -194,6 +195,7 @@ export interface Workspace {
   description: string | null
   icon: string
   color: string
+  logo_url: string | null
   created_at: string
 }
 
@@ -202,6 +204,7 @@ export interface WorkspaceMember {
   workspace_id: string
   user_id: string
   role: 'admin' | 'editor' | 'viewer'
+  project_access_type: 'all' | 'assigned'
   created_at: string
 }
 
@@ -216,7 +219,35 @@ export interface Project {
   description: string | null
   icon: string
   color: string
+  logo_url: string | null
+  visibility: 'team' | 'assigned'
   created_by: string
+  created_at: string
+  updated_at: string
+}
+
+// ─── PROJECT ASSIGNMENT ──────────────────────────────
+
+export interface ProjectAssignment {
+  id: string
+  project_id: string
+  user_id: string
+  granted_by: string | null
+  granted_at: string
+}
+
+// ─── ORG VIL GRAPH ───────────────────────────────────
+
+export interface OrgVilGraph {
+  id: string
+  org_id: string
+  graph_data: Record<string, unknown>
+  narrative_de: string | null
+  narrative_en: string | null
+  cross_team_insights: { text: string; type: string; teams: string[]; impact?: string; node_ids?: string[] }[]
+  team_health_scores: Record<string, { score: number; status: string; key_metrics: Record<string, unknown> }>
+  health_score: number
+  built_at: string
   created_at: string
   updated_at: string
 }

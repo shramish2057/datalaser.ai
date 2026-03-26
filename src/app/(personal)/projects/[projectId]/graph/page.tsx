@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { useTranslations, useLocale } from 'next-intl'
 import { Loader2, RefreshCw, Zap, AlertTriangle } from 'lucide-react'
@@ -9,6 +9,7 @@ import Graph from 'graphology'
 import forceAtlas2 from 'graphology-layout-forceatlas2'
 import Sigma from 'sigma'
 import { useActiveSource } from '@/lib/context/ActiveSourceContext'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { DataSourceSelector } from '@/components/DataSourceSelector'
 import { InsightPanel } from '@/components/graph/InsightPanel'
 import { BottomStrip } from '@/components/graph/BottomStrip'
@@ -80,11 +81,10 @@ const NODE_HIGHLIGHT: Record<string, string> = {
 /* ------------------------------------------------------------------ */
 
 export default function VisualGraphPage() {
-  const params = useParams()
+  const { projectId } = useProjectContext()
   const router = useRouter()
   const t = useTranslations()
   const locale = useLocale()
-  const projectId = params.projectId as string
   const { activeSourceId } = useActiveSource()
 
   // State
@@ -211,7 +211,7 @@ export default function VisualGraphPage() {
     const tablePositions: Record<string, {x: number, y: number}> = {}
     tableNodes.forEach((t, i) => {
       const angle = (2 * Math.PI * i) / Math.max(tableNodes.length, 1)
-      const radius = 5
+      const radius = 15
       tablePositions[t.id] = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }
     })
 
@@ -230,36 +230,56 @@ export default function VisualGraphPage() {
         const parentPos = tablePositions[node.parent]
         const childIndex = graphData.nodes.filter(n => n.parent === node.parent).indexOf(node)
         const childAngle = (2 * Math.PI * childIndex) / Math.max(graphData.nodes.filter(n => n.parent === node.parent).length, 1)
-        const childRadius = 1.5
+        const childRadius = 3.5
         pos = {
           x: parentPos.x + Math.cos(childAngle) * childRadius,
           y: parentPos.y + Math.sin(childAngle) * childRadius,
         }
       } else {
-        // Orphan nodes: center area
+        // Orphan nodes: spread around the outside
         const angle = (2 * Math.PI * i) / graphData.nodes.length
-        pos = { x: Math.cos(angle) * 2, y: Math.sin(angle) * 2 }
+        pos = { x: Math.cos(angle) * 8, y: Math.sin(angle) * 8 }
       }
 
-      // Dynamic color: category color > type color > default
-      const bizCategory = (node.metadata as any)?.business_category as string
-      const nodeColor = (bizCategory && categoryColors[bizCategory])
-        ? categoryColors[bizCategory]
-        : NODE_COLORS[node.type] || '#71717a'
+      // Health-based color for metrics/KPIs, category color for tables
+      const trend = typeof node.trend === 'number' ? node.trend : null
+      const importance = (node.metadata as any)?.importance ?? 0.5
+      let nodeColor: string
+
+      if (node.type === 'table') {
+        // Tables keep category/type color
+        const bizCategory = (node.metadata as any)?.business_category as string
+        nodeColor = (bizCategory && categoryColors[bizCategory])
+          ? categoryColors[bizCategory]
+          : NODE_COLORS[node.type] || '#71717a'
+      } else if (trend !== null) {
+        // Trend-based health coloring
+        nodeColor = trend > 5 ? '#10b981' : trend < -5 ? '#ef4444' : '#f59e0b'
+      } else {
+        nodeColor = '#9ca3af' // no trend = gray
+      }
+
+      // Importance-based sizing
+      const nodeSize = node.type === 'table' ? 22
+        : node.type === 'kpi' ? 14 + importance * 8
+        : node.type === 'metric' ? 10 + importance * 10
+        : 8 + importance * 4
+
+      // Enhanced labels with trend arrows
+      const trendArrow = trend !== null && Math.abs(trend) > 5
+        ? (trend > 0 ? ' ↑' : ' ↓')
+        : ''
 
       graph.addNode(node.id, {
         x: pos.x,
         y: pos.y,
-        size: node.type === 'table' ? 22 :
-              node.type === 'kpi' ? 16 :
-              node.type === 'metric' ? 14 :
-              node.type === 'dimension' ? 12 : 10,
+        size: nodeSize,
         color: nodeColor,
         label: node.type === 'table'
-          ? `${node.label}\n${node.value ? node.value.toLocaleString() + ' rows' : ''}`
+          ? `${node.label} (${node.value ? node.value.toLocaleString() : ''})`
           : node.type === 'metric' && node.value != null
-            ? `${node.label}\n${typeof node.value === 'number' ? node.value.toLocaleString() : node.value}`
-            : node.label,
+            ? `${node.label}${trendArrow}\n${typeof node.value === 'number' ? node.value.toLocaleString() : node.value}`
+            : `${node.label}${trendArrow}`,
         type: 'circle',
         // Store original data
         nodeType: node.type,
@@ -272,7 +292,7 @@ export default function VisualGraphPage() {
       if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
         graph.addEdge(edge.source, edge.target, {
           size: edge.weight ? Math.max(1, edge.weight * 3) : 1.5,
-          color: edge.color || '#333333',
+          color: edge.color || '#9ca3af',
           label: edge.label || '',
           type: 'line',
         })
@@ -282,12 +302,12 @@ export default function VisualGraphPage() {
     // Run force layout only on first build (no saved positions)
     if (!hasPositions) {
       forceAtlas2.assign(graph, {
-        iterations: 500,
+        iterations: 300,
         settings: {
-          gravity: 1.5,
-          scalingRatio: 4,
+          gravity: 0.5,
+          scalingRatio: 10,
           barnesHutOptimize: true,
-          strongGravityMode: true,
+          strongGravityMode: false,
         },
       })
 
@@ -309,7 +329,7 @@ export default function VisualGraphPage() {
     const sigma = new Sigma(graph, containerRef.current, {
       renderEdgeLabels: false,
       defaultEdgeType: 'line',
-      labelColor: { color: '#ffffff' },
+      labelColor: { color: '#1f2937' },
       labelSize: 12,
       labelFont: 'Inter, system-ui, sans-serif',
       labelWeight: '500',
@@ -319,22 +339,22 @@ export default function VisualGraphPage() {
         // Just draw a subtle ring around hovered node, no duplicate label
         context.beginPath()
         context.arc(data.x, data.y, (data.size || 14) + 3, 0, Math.PI * 2)
-        context.strokeStyle = '#ffffff'
+        context.strokeStyle = '#111827'
         context.lineWidth = 2
         context.stroke()
       },
       defaultNodeColor: '#71717a',
-      defaultEdgeColor: '#333333',
+      defaultEdgeColor: '#9ca3af',
       edgeReducer(edge, data) {
         const res = { ...data }
         if (selectedNodeRef.current) {
           const src = graph.source(edge)
           const tgt = graph.target(edge)
           if (src !== selectedNodeRef.current!.id && tgt !== selectedNodeRef.current!.id) {
-            res.color = '#1a1a1a'
+            res.color = '#d1d5db'
             res.size = 0.5
           } else {
-            res.color = '#555555'
+            res.color = '#6b7280'
             res.size = 2
           }
         }
@@ -352,7 +372,7 @@ export default function VisualGraphPage() {
             // Check if neighbor
             const neighbors = graph.neighbors(selectedNodeRef.current.id)
             if (!neighbors.includes(node)) {
-              res.color = '#2a2a2a'
+              res.color = '#e5e7eb'
               res.label = ''
             }
           }
@@ -443,7 +463,7 @@ export default function VisualGraphPage() {
   /* ---- Loading / building state ---- */
   if (loading || building) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white">
+      <div className="h-screen flex flex-col items-center justify-center bg-white text-gray-900">
         <div className="flex flex-col items-center gap-8 max-w-sm">
           {/* Logo pulse */}
           <div className="relative">
@@ -457,7 +477,7 @@ export default function VisualGraphPage() {
             <h2 className="text-lg font-bold">
               {building ? t('graph.building') : t('graph.loading')}
             </h2>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-gray-500">
               {building ? t('graph.buildingDesc') : t('graph.loadingDesc')}
             </p>
           </div>
@@ -472,7 +492,7 @@ export default function VisualGraphPage() {
                   <div
                     key={step.key}
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-500
-                      ${done ? 'bg-emerald-500/10 border border-emerald-500/20' : active ? 'bg-zinc-800/60 border border-zinc-700' : 'opacity-30'}`}
+                      ${done ? 'bg-emerald-500/10 border border-emerald-500/20' : active ? 'bg-gray-100 border border-gray-200' : 'opacity-30'}`}
                   >
                     {done ? (
                       <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
@@ -481,11 +501,11 @@ export default function VisualGraphPage() {
                         </svg>
                       </div>
                     ) : active ? (
-                      <Loader2 size={18} className="text-zinc-400 animate-spin flex-shrink-0" />
+                      <Loader2 size={18} className="text-gray-500 animate-spin flex-shrink-0" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full border border-zinc-600 flex-shrink-0" />
+                      <div className="w-5 h-5 rounded-full border border-gray-300 flex-shrink-0" />
                     )}
-                    <span className={`text-sm ${done ? 'text-emerald-400' : active ? 'text-zinc-200' : 'text-zinc-500'}`}>
+                    <span className={`text-sm ${done ? 'text-emerald-400' : active ? 'text-gray-700' : 'text-gray-400'}`}>
                       {step.en}
                     </span>
                   </div>
@@ -501,7 +521,7 @@ export default function VisualGraphPage() {
   /* ---- No graph state ---- */
   if (!graphData && !loading && !building) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#0a0a0a] text-white">
+      <div className="h-screen flex flex-col items-center justify-center bg-white text-gray-900">
         <div className="flex flex-col items-center gap-6 max-w-md text-center">
           {error ? (
             <>
@@ -510,17 +530,17 @@ export default function VisualGraphPage() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-lg font-bold">{t('graph.buildFailed')}</h2>
-                <p className="text-sm text-zinc-400">{error}</p>
+                <p className="text-sm text-gray-500">{error}</p>
               </div>
             </>
           ) : (
             <>
-              <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center">
-                <Zap size={24} className="text-zinc-400" />
+              <div className="w-14 h-14 rounded-2xl bg-gray-100 border border-gray-200 flex items-center justify-center">
+                <Zap size={24} className="text-gray-500" />
               </div>
               <div className="space-y-2">
                 <h2 className="text-lg font-bold">{t('graph.noGraph')}</h2>
-                <p className="text-sm text-zinc-400">{t('graph.noGraphDesc')}</p>
+                <p className="text-sm text-gray-500">{t('graph.noGraphDesc')}</p>
               </div>
             </>
           )}
@@ -528,12 +548,12 @@ export default function VisualGraphPage() {
             onClick={buildGraph}
             disabled={!activeSourceId}
             className="px-6 py-2.5 bg-white text-black text-sm font-semibold rounded-xl
-              hover:bg-zinc-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t('graph.buildNow')}
           </button>
           {!activeSourceId && (
-            <p className="text-xs text-zinc-500">{t('graph.selectSourceFirst')}</p>
+            <p className="text-xs text-gray-400">{t('graph.selectSourceFirst')}</p>
           )}
         </div>
       </div>
@@ -542,13 +562,13 @@ export default function VisualGraphPage() {
 
   /* ---- Main graph view ---- */
   return (
-    <div className="h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden">
+    <div className="h-screen flex flex-col bg-white text-gray-900 overflow-hidden">
       {/* Top bar */}
-      <div className="h-14 flex items-center justify-between px-6 border-b border-[#222222] flex-shrink-0">
+      <div className="h-14 flex items-center justify-between px-6 border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-bold tracking-tight">{t('graph.title')}</h1>
           {graphData?.industry && (
-            <span className="text-xs text-zinc-400 bg-zinc-800/80 px-2.5 py-0.5 rounded-md border border-zinc-700/50">
+            <span className="text-xs text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-md border border-gray-200">
               {graphData.industry.type} &middot; {Math.round(graphData.industry.confidence * 100)}% {t('graph.confidence')}
             </span>
           )}
@@ -564,62 +584,80 @@ export default function VisualGraphPage() {
         </div>
       </div>
 
-      {/* Narrative banner */}
-      {(graphData as any)?.narrative_de || (graphData as any)?.narrative_en ? (
-        <div className="px-6 py-3 bg-[#111] border-b border-[#222] flex-shrink-0">
-          <p className="text-sm text-zinc-300 leading-relaxed max-w-4xl">
-            {locale === 'de' ? (graphData as any).narrative_de : (graphData as any).narrative_en}
-          </p>
-        </div>
-      ) : null}
+      {/* Health summary banner */}
+      {graphData && (() => {
+        const tables = graphData.nodes.filter(n => n.type === 'table')
+        const metrics = graphData.nodes.filter(n => n.type === 'metric')
+        const totalRecords = tables.reduce((s, t) => s + (typeof t.value === 'number' ? t.value : 0), 0)
+        const trendingCount = metrics.filter(m => typeof m.trend === 'number' && Math.abs(m.trend) > 5).length
+        return (
+          <div className="px-6 py-3 bg-gray-50 border-b border-gray-200 flex-shrink-0">
+            <p className="text-xs font-bold text-gray-800 mb-1">{t('map.healthTitle')}</p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              {tables.length} {t('map.tables')}, {totalRecords.toLocaleString()} {t('map.records')}. {metrics.length} {t('map.metricsDetected')}. {trendingCount} {t('map.trending')}.
+            </p>
+            <div className="flex items-center gap-4 mt-1.5">
+              <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-emerald-500" /> {locale === 'de' ? 'Aufwärts' : 'Trending up'}</span>
+              <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-amber-500" /> {locale === 'de' ? 'Stabil' : 'Stable'}</span>
+              <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-red-500" /> {locale === 'de' ? 'Abwärts' : 'Trending down'}</span>
+              <span className="flex items-center gap-1 text-[10px] text-gray-400"><span className="w-2 h-2 rounded-full bg-gray-300" /> {locale === 'de' ? 'Kein Trend' : 'No trend'}</span>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Main area */}
       <div className="flex-1 flex min-h-0">
         {/* Graph canvas */}
         <div
-          className="flex-1 relative bg-[#0a0a0a]"
+          className="flex-1 relative"
           ref={containerRef}
-          style={{ minHeight: 0 }}
+          style={{
+            minHeight: 0,
+            backgroundColor: '#fafafa',
+            backgroundImage: 'radial-gradient(circle, #d1d5db 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
         >
           {/* Legend overlay */}
-          <div className="absolute bottom-4 left-4 z-10 bg-[#111]/90 backdrop-blur-sm border border-[#222] rounded-xl px-4 py-3 space-y-2.5 text-xs">
-            <p className="text-zinc-500 font-semibold uppercase tracking-wider text-[10px] mb-1">Legend</p>
+          <div className="absolute bottom-4 left-4 z-10 bg-gray-50/90 backdrop-blur-sm border border-gray-200 rounded-xl px-4 py-3 space-y-2.5 text-xs">
+            <p className="text-gray-400 font-semibold uppercase tracking-wider text-[10px] mb-1">Legend</p>
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#71717a]" />
-                <span className="text-zinc-400">{locale === 'de' ? 'Tabellen (Datenbereiche)' : 'Tables (data areas)'}</span>
+                <span className="text-gray-500">{locale === 'de' ? 'Tabellen (Datenbereiche)' : 'Tables (data areas)'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#10b981]" />
-                <span className="text-zinc-400">{locale === 'de' ? 'Kennzahlen (Messwerte)' : 'Metrics (measures)'}</span>
+                <span className="text-gray-500">{locale === 'de' ? 'Kennzahlen (Messwerte)' : 'Metrics (measures)'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#3b82f6]" />
-                <span className="text-zinc-400">{locale === 'de' ? 'Dimensionen (Kategorien)' : 'Dimensions (categories)'}</span>
+                <span className="text-gray-500">{locale === 'de' ? 'Dimensionen (Kategorien)' : 'Dimensions (categories)'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#7c3aed]" />
-                <span className="text-zinc-400">{locale === 'de' ? 'KPIs (berechnete Werte)' : 'KPIs (computed values)'}</span>
+                <span className="text-gray-500">{locale === 'de' ? 'KPIs (berechnete Werte)' : 'KPIs (computed values)'}</span>
               </div>
             </div>
-            <div className="border-t border-[#222] pt-2 space-y-1.5">
+            <div className="border-t border-gray-200 pt-2 space-y-1.5">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-0.5 bg-[#52525b]" />
-                <span className="text-zinc-500">{locale === 'de' ? 'Tabellenbeziehung' : 'Table relationship'}</span>
+                <span className="text-gray-400">{locale === 'de' ? 'Tabellenbeziehung' : 'Table relationship'}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-5 h-0.5 bg-[#333]" />
-                <span className="text-zinc-500">{locale === 'de' ? 'Gehört zu (Hierarchie)' : 'Belongs to (hierarchy)'}</span>
+                <div className="w-5 h-0.5 bg-gray-500" />
+                <span className="text-gray-400">{locale === 'de' ? 'Gehört zu (Hierarchie)' : 'Belongs to (hierarchy)'}</span>
               </div>
             </div>
-            <p className="text-zinc-600 text-[10px] pt-1">{locale === 'de' ? 'Klicken Sie auf einen Knoten für Details' : 'Click any node for details'}</p>
+            <p className="text-gray-400 text-[10px] pt-1">{locale === 'de' ? 'Klicken Sie auf einen Knoten für Details' : 'Click any node for details'}</p>
           </div>
         </div>
 
         {/* Right panel (slides in) */}
         <div
           className={`transition-all duration-300 ease-out overflow-hidden flex-shrink-0
-            ${selectedNode ? 'w-[380px] border-l border-[#222222]' : 'w-0'}`}
+            ${selectedNode ? 'w-[380px] border-l border-gray-200' : 'w-0'}`}
         >
           {selectedNode && (
             <InsightPanel

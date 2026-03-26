@@ -7,7 +7,7 @@ import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Home, BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
-  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical, Bell, Network
+  ChevronRight, LogOut, Plus, FolderOpen, Wand2, FlaskConical, Bell, Network, GitBranch
 } from 'lucide-react'
 import { LocaleToggle } from '@/components/LocaleToggle'
 import { useTranslations } from 'next-intl'
@@ -94,12 +94,12 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
       .order('created_at', { ascending: false })
     setProjects(allProjects ?? [])
 
-    // Fetch unresolved alert count
+    // Fetch unread alert count
     const { count } = await supabase
       .from('anomalies')
       .select('id', { count: 'exact', head: true })
       .eq('project_id', projectId)
-      .is('resolved_at', null)
+      .eq('is_read', false)
     setAlertCount(count ?? 0)
 
     setLoading(false)
@@ -124,7 +124,7 @@ function ProjectShell({ children }: { children: React.ReactNode }) {
   const projectNav = [
     { icon: Home, label: t('nav.home'), path: '' },
     { icon: BarChart2, label: t('nav.insights'), path: '/insights' },
-    { icon: Network, label: t('nav.graph'), path: '/graph' },
+    { icon: Network, label: t('nav.dataMap'), path: '/map' },
     { icon: MessageSquare, label: t('nav.askData'), path: '/ask' },
     { icon: FlaskConical, label: t('nav.studio'), path: '/studio', badge: t('common.pro') },
     { icon: Bell, label: t('nav.alerts'), path: '/alerts', alertCount },

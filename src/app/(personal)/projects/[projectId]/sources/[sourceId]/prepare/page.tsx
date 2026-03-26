@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   CheckCircle2, AlertTriangle, XCircle, Loader2,
@@ -72,7 +73,7 @@ export default function PreparePage() {
 
   const router = useRouter()
   const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const sourceId = params.sourceId as string
 
   const [step, setStep] = useState<PipelineStep>('profile')
@@ -363,7 +364,7 @@ export default function PreparePage() {
     }
   }
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   // ── Render ─────────────────────────────────────────────────
 

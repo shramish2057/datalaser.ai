@@ -164,17 +164,26 @@ function ProjectsShell({ children }: { children: React.ReactNode }) {
 
         {/* Bottom */}
         <div className="border-t border-dl-border flex-shrink-0">
-          <Link
-            href="/settings"
+          <button
+            onClick={() => {
+              if (pathname.startsWith('/settings')) {
+                router.push('/projects')
+              } else {
+                router.push('/settings')
+              }
+            }}
             className={`
               flex items-center h-[40px] w-full font-bold text-dl-sm
-              text-dl-text-light hover:text-dl-brand hover:bg-dl-bg-light transition-colors
+              transition-colors
               ${sidebarExpanded ? 'px-4 gap-3' : 'justify-center'}
+              ${pathname.startsWith('/settings')
+                ? 'text-dl-brand bg-dl-brand-hover'
+                : 'text-dl-text-light hover:text-dl-brand hover:bg-dl-bg-light'}
             `}
           >
             <Settings size={15} className="flex-shrink-0" />
             {sidebarExpanded && <span>{t('nav.settings')}</span>}
-          </Link>
+          </button>
 
           {sidebarExpanded && userName && (
             <div className="px-4 py-2 border-t border-dl-border">

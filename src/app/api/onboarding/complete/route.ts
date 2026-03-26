@@ -36,14 +36,18 @@ export async function POST(request: Request) {
       workspace = result.workspace
     }
 
-    const project = await createProject(
-      user.id,
-      workspace.id,
-      org.id,
-      projectName,
-      projectIcon,
-      projectColor,
-    )
+    // Only create project for personal users (team users create projects inside their team)
+    let project = null
+    if (mode === 'personal' && projectName) {
+      project = await createProject(
+        user.id,
+        workspace.id,
+        org.id,
+        projectName,
+        projectIcon,
+        projectColor,
+      )
+    }
 
     // Update user profile with name
     await supabase.from('profiles').upsert({

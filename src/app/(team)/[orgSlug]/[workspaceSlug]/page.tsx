@@ -60,9 +60,9 @@ export default function WorkspaceHomePage() {
   return (
     <div className="font-sans">
       <div className="max-w-5xl mx-auto px-8 py-10">
-        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">Projects</h1>
+        <h1 className="text-dl-2xl font-black text-dl-text-dark mb-1">{t('projects.title')}</h1>
         <p className="text-dl-text-medium text-dl-base mb-8">
-          Select a project to view insights, ask questions, and build dashboards.
+          {t('projects.subtitle')}
         </p>
 
         {projects.length === 0 ? (
@@ -70,10 +70,10 @@ export default function WorkspaceHomePage() {
             <div className="w-16 h-16 bg-dl-bg-medium rounded-full flex items-center justify-center mx-auto mb-4">
               <BarChart2 size={28} className="text-dl-text-light" />
             </div>
-            <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">No projects yet</h2>
-            <p className="text-dl-text-medium text-dl-base mb-6">Create your first project to start analysing your data.</p>
+            <h2 className="text-dl-xl font-black text-dl-text-dark mb-2">{t('projects.noProjects')}</h2>
+            <p className="text-dl-text-medium text-dl-base mb-6">{t('projects.noProjectsDesc')}</p>
             <button onClick={() => router.push(`${wsBase}/new`)} className="dl-btn-primary px-6 py-2.5 font-black">
-              Create your first project &rarr;
+              {t('projects.createFirst')} &rarr;
             </button>
           </div>
         ) : (
@@ -85,11 +85,11 @@ export default function WorkspaceHomePage() {
                 <h3 className="text-dl-base font-black text-dl-text-dark mb-1 group-hover:text-dl-brand transition-colors">{project.name}</h3>
                 {project.description && <p className="text-dl-sm text-dl-text-medium mb-3 line-clamp-2">{project.description}</p>}
                 <div className="flex items-center gap-3 mt-3 pt-3 border-t border-dl-border">
-                  <span className="flex items-center gap-1 text-dl-xs text-dl-text-light"><BarChart2 size={12} /> Insights</span>
-                  <span className="flex items-center gap-1 text-dl-xs text-dl-text-light"><MessageSquare size={12} /> Ask</span>
-                  <span className="flex items-center gap-1 text-dl-xs text-dl-text-light"><Database size={12} /> Sources</span>
+                  <span className="flex items-center gap-1 text-dl-xs text-dl-text-light"><BarChart2 size={12} /> {t('projects.insights')}</span>
+                  <span className="flex items-center gap-1 text-dl-xs text-dl-text-light"><MessageSquare size={12} /> {t('projects.ask')}</span>
+                  <span className="flex items-center gap-1 text-dl-xs text-dl-text-light"><Database size={12} /> {t('projects.sources')}</span>
                 </div>
-                <p className="text-dl-xs text-dl-text-light mt-2">Created {new Date(project.created_at).toLocaleDateString()}</p>
+                <p className="text-dl-xs text-dl-text-light mt-2">{t('projects.created')} {new Date(project.created_at).toLocaleDateString()}</p>
               </button>
             ))}
             <button onClick={() => router.push(`${wsBase}/new`)}
@@ -98,8 +98,8 @@ export default function WorkspaceHomePage() {
               <div className="w-10 h-10 rounded-dl-md bg-dl-bg-medium flex items-center justify-center mb-3">
                 <Plus size={20} className="text-dl-text-light" />
               </div>
-              <p className="text-dl-sm font-black text-dl-text-medium">New Project</p>
-              <p className="text-dl-xs text-dl-text-light mt-1">Add another analysis project</p>
+              <p className="text-dl-sm font-black text-dl-text-medium">{t('projects.newProject')}</p>
+              <p className="text-dl-xs text-dl-text-light mt-1">{t('projects.addAnother')}</p>
             </button>
           </div>
         )}

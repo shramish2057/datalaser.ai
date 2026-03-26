@@ -1,29 +1,31 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { ArrowLeft } from 'lucide-react'
 
 export function WsSettingsShell({ orgSlug, workspaceSlug, children }: {
   orgSlug: string; workspaceSlug: string; children: React.ReactNode
 }) {
+  const t = useTranslations()
   const pathname = usePathname()
   const base = `/${orgSlug}/${workspaceSlug}/settings`
   const nav = [
-    { label: 'General', href: base },
-    { label: 'Members', href: `${base}/members` },
+    { label: t('teams.general'), href: base },
+    { label: t('teams.members'), href: `${base}/members` },
   ]
 
   return (
     <div className="flex h-full font-sans">
-      <nav className="w-[160px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
+      <nav className="w-[280px] flex-shrink-0 border-r border-dl-border bg-dl-bg flex flex-col">
         <div className="px-4 pt-5 pb-3 border-b border-dl-border">
           <Link href={`/${orgSlug}/${workspaceSlug}`}
             className="flex items-center gap-1.5 text-dl-xs font-bold text-dl-text-light hover:text-dl-brand transition-colors">
-            <ArrowLeft size={12} /> Back to projects
+            <ArrowLeft size={12} /> {t('teams.backToProjects')}
           </Link>
         </div>
         <div className="px-4 py-4 flex-1">
-          <p className="dl-section-header mb-3">Workspace</p>
+          <p className="dl-section-header mb-3">{t('teams.settings')}</p>
           <div className="space-y-0.5">
             {nav.map(item => {
               const active = pathname === item.href

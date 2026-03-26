@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { LayoutGrid, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { formatDistanceToNow } from 'date-fns'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 
 type DashboardRow = {
   id: string
@@ -22,8 +23,7 @@ export default function ProjectDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [showToast, setShowToast] = useState(false)
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

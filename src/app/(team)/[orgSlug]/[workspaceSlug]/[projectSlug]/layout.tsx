@@ -6,13 +6,16 @@ import { useRouter, usePathname, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
-  BarChart2, MessageSquare, LayoutGrid,
+  Home, BarChart2, MessageSquare, LayoutGrid,
   Database, Settings, ChevronLeft,
-  ChevronRight, LogOut, Plus, FolderOpen, ChevronRight as Chevron
+  ChevronRight, LogOut, Plus, FolderOpen, ChevronRight as Chevron,
+  Wand2, FlaskConical, Bell, Network, GitBranch
 } from 'lucide-react'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 import { TeamProjectCtx } from '@/lib/teamContext'
+import { LocaleToggle } from '@/components/LocaleToggle'
+import { ActiveSourceProvider } from '@/lib/context/ActiveSourceContext'
 
 export default function TeamProjectLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -91,10 +94,15 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
   const wsBase = `/${orgSlug}/${workspaceSlug}`
 
   const projectNav = [
-    { icon: BarChart2, label: 'Insights', path: '' },
-    { icon: MessageSquare, label: 'Ask Data', path: '/ask' },
-    { icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
-    { icon: Database, label: 'Data Sources', path: '/sources' },
+    { icon: Home, label: t('nav.home'), path: '' },
+    { icon: BarChart2, label: t('nav.insights'), path: '/insights' },
+    { icon: Network, label: t('nav.dataMap'), path: '/map' },
+    { icon: MessageSquare, label: t('nav.askData'), path: '/ask' },
+    { icon: FlaskConical, label: t('nav.studio'), path: '/studio', badge: t('common.pro') },
+    { icon: Bell, label: t('nav.alerts'), path: '/alerts' },
+    { icon: Database, label: t('nav.dataSources'), path: '/sources' },
+    { icon: Wand2, label: t('nav.dataPrep'), path: '/prep' },
+    { icon: LayoutGrid, label: t('nav.dashboard'), path: '/dashboard' },
     { icon: Settings, label: t('nav.settings'), path: '/settings' },
   ]
 
@@ -122,13 +130,13 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
       `}>
         {/* Logo */}
         <div className={`
-          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
-          ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
+          h-[48px] flex items-center border-b border-dl-border flex-shrink-0
+          ${sidebarExpanded ? 'px-4' : 'justify-center'}
         `}>
           {sidebarExpanded ? (
             <button
               onClick={() => router.push(`/${orgSlug}`)}
-              className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+              className="hover:opacity-70 transition-opacity"
             >
               <Logo size="sm" />
             </button>
@@ -166,7 +174,7 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
 
         {/* Nav items */}
         <nav className="flex-1 py-2 overflow-y-auto">
-          {projectNav.map(({ icon: Icon, label, path }) => {
+          {projectNav.map(({ icon: Icon, label, path, badge }: { icon: typeof BarChart2; label: string; path: string; badge?: string }) => {
             const active = isActive(path)
             return (
               <Link
@@ -185,7 +193,14 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
                   <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-dl-brand rounded-r-sm" />
                 )}
                 <Icon size={16} className="flex-shrink-0" />
-                {sidebarExpanded && <span>{label}</span>}
+                {sidebarExpanded && (
+                  <span className="flex items-center gap-1.5">
+                    {label}
+                    {badge && (
+                      <span className="text-dl-xs font-semibold px-1 py-px rounded bg-yellow-100 text-yellow-700">{badge}</span>
+                    )}
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -204,6 +219,12 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
             <FolderOpen size={15} className="flex-shrink-0" />
             {sidebarExpanded && <span>{t('common.allProjects')}</span>}
           </button>
+
+          {sidebarExpanded && (
+            <div className="flex items-center justify-center py-2">
+              <LocaleToggle />
+            </div>
+          )}
 
           <button onClick={toggleSidebar}
             className="flex items-center justify-center w-full h-[40px]
@@ -261,14 +282,16 @@ export default function TeamProjectLayout({ children }: { children: React.ReactN
         </header>
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden bg-dl-bg-light">
-          <TeamProjectCtx.Provider value={{
-            projectId: project?.id ?? '',
-            base,
-            wsBase,
-            orgBase: `/${orgSlug}`,
-          }}>
-            {children}
-          </TeamProjectCtx.Provider>
+          <ActiveSourceProvider projectId={project?.id ?? ''}>
+            <TeamProjectCtx.Provider value={{
+              projectId: project?.id ?? '',
+              base,
+              wsBase,
+              orgBase: `/${orgSlug}`,
+            }}>
+              {children}
+            </TeamProjectCtx.Provider>
+          </ActiveSourceProvider>
         </main>
       </div>
     </div>

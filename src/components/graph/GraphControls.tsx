@@ -59,8 +59,8 @@ export function GraphControls({ onRefresh, onEdit, onFullscreen, editMode }: Gra
             title={btn.label}
             className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150
               ${btn.active
-                ? 'bg-white/10 border border-white/20 text-white'
-                : 'text-zinc-400 hover:text-white hover:bg-zinc-800 border border-transparent'
+                ? 'bg-gray-900 border border-gray-700 text-white'
+                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 border border-transparent'
               }`}
           >
             <Icon size={15} />

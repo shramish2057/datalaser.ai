@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Loader2, CheckCircle2, AlertTriangle, XCircle,
@@ -52,7 +53,7 @@ export default function DatabaseOverviewPage() {
   const t = useTranslations()
   const router = useRouter()
   const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const sourceId = params.sourceId as string
 
   const [loading, setLoading] = useState(true)
@@ -88,7 +89,7 @@ export default function DatabaseOverviewPage() {
 
       // If not a DB source, redirect to health page
       if (!isDbSource(src.source_type)) {
-        router.replace(`/projects/${projectId}/sources/${sourceId}/health`)
+        router.replace(`${basePath}/sources/${sourceId}/health`)
         return
       }
 
@@ -132,7 +133,7 @@ export default function DatabaseOverviewPage() {
     init()
   }, [sourceId])
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   // Loading state with animated progress
   if (loading) {

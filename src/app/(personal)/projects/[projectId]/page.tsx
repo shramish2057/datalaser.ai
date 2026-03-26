@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { normalizeInsights } from '@/lib/normalizeInsight'
 import {
@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
 import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import type { Project } from '@/types/database'
 
 const INSIGHT_ICONS: Record<string, typeof Zap> = {
@@ -58,8 +59,7 @@ export default function ProjectHomePage() {
   const [alertCount, setAlertCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -112,7 +112,7 @@ export default function ProjectHomePage() {
         .from('anomalies')
         .select('id', { count: 'exact', head: true })
         .eq('project_id', projectId)
-        .is('resolved_at', null)
+        .eq('is_read', false)
       setAlertCount(count ?? 0)
 
       setLoading(false)
@@ -122,7 +122,7 @@ export default function ProjectHomePage() {
 
   if (loading) return null
 
-  const base = `/projects/${projectId}`
+  const base = basePath
   const hasSources = sources.length > 0
   const hasInsights = topInsights.length > 0
 
@@ -137,7 +137,7 @@ export default function ProjectHomePage() {
               {t('alerts.issuesDetected', { count: alertCount })}
             </span>
           </div>
-          <Link href={`/projects/${projectId}/alerts`} className="dl-btn-secondary text-dl-xs">
+          <Link href={`${basePath}/alerts`} className="dl-btn-secondary text-dl-xs">
             {t('alerts.viewAlerts')}
           </Link>
         </div>

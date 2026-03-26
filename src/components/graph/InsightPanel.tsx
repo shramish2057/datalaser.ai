@@ -82,12 +82,12 @@ const TYPE_COLOR: Record<string, string> = {
 }
 
 const TYPE_BG: Record<string, string> = {
-  table: 'bg-zinc-500/10 border-zinc-500/20',
-  metric: 'bg-emerald-500/10 border-emerald-500/20',
-  dimension: 'bg-blue-500/10 border-blue-500/20',
-  kpi: 'bg-purple-500/10 border-purple-500/20',
-  date: 'bg-amber-500/10 border-amber-500/20',
-  id: 'bg-zinc-500/10 border-zinc-500/20',
+  table: 'bg-zinc-100 border-zinc-200',
+  metric: 'bg-emerald-50 border-emerald-200',
+  dimension: 'bg-blue-50 border-blue-200',
+  kpi: 'bg-purple-50 border-purple-200',
+  date: 'bg-amber-50 border-amber-200',
+  id: 'bg-zinc-100 border-zinc-200',
 }
 
 const TREND_ICON = {
@@ -117,9 +117,10 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
   useEffect(() => {
     if (!node) return
 
-    // Check external cache first — survives panel unmount/remount
-    if (insightCache[node.id]) {
-      setInsight(insightCache[node.id] as InsightData)
+    // Check external cache first — only use if it has a valid finding
+    const cached = insightCache[node.id] as InsightData | undefined
+    if (cached && cached.finding) {
+      setInsight(cached)
       setInsightLoading(false)
       return
     }
@@ -146,7 +147,10 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
     })
     .then(r => r.json())
     .then(data => {
-      insightCache[node.id] = data
+      // Only cache successful responses with actual findings
+      if (data && data.finding) {
+        insightCache[node.id] = data
+      }
       setInsight(data)
     })
     .catch(() => {})
@@ -173,15 +177,15 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
   }, [router, projectId])
 
   return (
-    <div className="h-full flex flex-col bg-[#0a0a0a] overflow-hidden">
+    <div className="h-full flex flex-col bg-white overflow-hidden">
       {/* Header */}
-      <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-[#222222]">
+      <div className="flex items-start justify-between px-5 pt-5 pb-4 border-b border-gray-200">
         <div className="flex items-start gap-3 min-w-0">
           <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 ${TYPE_BG[node.type]}`}>
             <Icon size={18} style={{ color: TYPE_COLOR[node.type] }} />
           </div>
           <div className="min-w-0">
-            <h2 className="text-sm font-bold text-white truncate">{node.label}</h2>
+            <h2 className="text-sm font-bold text-gray-900 truncate">{node.label}</h2>
             <span
               className="text-xs font-medium uppercase tracking-wider"
               style={{ color: TYPE_COLOR[node.type] }}
@@ -192,20 +196,20 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-zinc-800 transition-colors flex-shrink-0"
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
         >
-          <X size={16} className="text-zinc-400" />
+          <X size={16} className="text-gray-400" />
         </button>
       </div>
 
       {/* Value display */}
-      <div className="px-5 py-4 border-b border-[#222]">
+      <div className="px-5 py-4 border-b border-gray-200">
         <div className="flex items-baseline gap-3">
-          <span className="text-2xl font-bold text-white">
+          <span className="text-2xl font-bold text-gray-900">
             {node.value != null ? (typeof node.value === 'number' ? node.value.toLocaleString() : node.value) : '\u2014'}
           </span>
           {node.trend && (
-            <span className={`text-sm font-semibold ${node.trend === 'up' ? 'text-emerald-400' : node.trend === 'down' ? 'text-red-400' : 'text-zinc-400'}`}>
+            <span className={`text-sm font-semibold ${node.trend === 'up' ? 'text-emerald-600' : node.trend === 'down' ? 'text-red-500' : 'text-gray-400'}`}>
               {node.trend === 'up' ? '\u2191' : node.trend === 'down' ? '\u2193' : '\u2192'} {node.trend}
             </span>
           )}
@@ -215,7 +219,7 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
       {/* Insight content */}
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
         {insightLoading ? (
-          <div className="flex flex-col items-center gap-3 text-zinc-400 text-sm py-12">
+          <div className="flex flex-col items-center gap-3 text-gray-400 text-sm py-12">
             <Loader2 size={20} className="animate-spin" />
             <span>{locale === 'de' ? 'Analyse wird erstellt...' : 'Generating insight...'}</span>
           </div>
@@ -223,50 +227,50 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
           <>
             {/* Trend line */}
             {insight.trend_text && (
-              <div className="bg-[#111] border border-[#222] rounded-lg px-4 py-2.5">
-                <p className="text-sm font-semibold text-white">{insight.trend_text}</p>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+                <p className="text-sm font-semibold text-gray-900">{insight.trend_text}</p>
               </div>
             )}
 
             {/* Verified Finding */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">{t('graph.verified')}</span>
+                <ShieldCheck size={14} className="text-emerald-500" />
+                <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">{t('graph.verified')}</span>
               </div>
-              <p className="text-sm text-zinc-200 leading-relaxed">{insight.finding}</p>
+              <p className="text-sm text-gray-700 leading-relaxed">{insight.finding}</p>
             </div>
 
             {/* Financial Impact (most important for CFO) */}
             {insight.financial_impact && (
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
-                <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">
                   {locale === 'de' ? 'Finanzieller Einfluss' : 'Financial Impact'}
                 </p>
-                <p className="text-sm font-bold text-amber-300">{insight.financial_impact}</p>
+                <p className="text-sm font-bold text-amber-700">{insight.financial_impact}</p>
               </div>
             )}
 
             {/* Recommendation */}
             {insight.recommendation && (
-              <div className="bg-[#1a1a2e] border border-[#2a2a4e] rounded-lg px-4 py-3">
-                <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
                   {locale === 'de' ? 'Empfehlung' : 'Recommendation'}
                 </p>
-                <p className="text-sm text-zinc-300 leading-relaxed">{insight.recommendation}</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{insight.recommendation}</p>
               </div>
             )}
 
             {/* Data Points */}
             {insight.data_points?.length > 0 && (
-              <div className="bg-[#111] border border-[#222] rounded-lg divide-y divide-[#222]">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg divide-y divide-gray-200">
                 {insight.data_points.map((dp, i) => (
                   <div key={i} className="flex items-center justify-between px-4 py-2.5">
-                    <span className="text-xs text-zinc-400">{dp.label}</span>
+                    <span className="text-xs text-gray-500">{dp.label}</span>
                     <span className={`text-sm font-bold ${
-                      dp.severity === 'critical' ? 'text-red-400' :
-                      dp.severity === 'warning' ? 'text-amber-400' :
-                      dp.severity === 'success' ? 'text-emerald-400' : 'text-zinc-300'
+                      dp.severity === 'critical' ? 'text-red-500' :
+                      dp.severity === 'warning' ? 'text-amber-500' :
+                      dp.severity === 'success' ? 'text-emerald-500' : 'text-gray-700'
                     }`}>{dp.value}</span>
                   </div>
                 ))}
@@ -274,7 +278,7 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
             )}
           </>
         ) : (
-          <p className="text-sm text-zinc-500 text-center py-8">
+          <p className="text-sm text-gray-400 text-center py-8">
             {locale === 'de' ? 'Klicken Sie auf einen Knoten' : 'Click a node to see insights'}
           </p>
         )}
@@ -282,18 +286,18 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
         {/* Connected nodes */}
         {connectedNodes.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               {t('graph.connections')} ({connectedNodes.length})
             </h3>
             <div className="space-y-1">
               {connectedNodes.slice(0, 6).map(n => (
-                <div key={n.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900/40 hover:bg-zinc-800/60 transition-colors">
+                <div key={n.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div
                     className="w-2 h-2 rounded-full flex-shrink-0"
                     style={{ backgroundColor: TYPE_COLOR[n.type] }}
                   />
-                  <span className="text-xs text-zinc-300 truncate">{n.label}</span>
-                  <span className="text-xs text-zinc-600 ml-auto flex-shrink-0">{n.type}</span>
+                  <span className="text-xs text-gray-700 truncate">{n.label}</span>
+                  <span className="text-xs text-gray-400 ml-auto flex-shrink-0">{n.type}</span>
                 </div>
               ))}
             </div>
@@ -302,35 +306,35 @@ export function InsightPanel({ node, graphData, onClose, projectId, locale = 'en
       </div>
 
       {/* Action buttons */}
-      <div className="px-5 pb-5 pt-3 border-t border-[#222222] space-y-2">
+      <div className="px-5 pb-5 pt-3 border-t border-gray-200 space-y-2">
         <button
           onClick={() => navigate('ask')}
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50
-            hover:bg-zinc-700/80 hover:border-zinc-600 transition-all text-sm text-white"
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200
+            hover:bg-gray-100 hover:border-gray-300 transition-all text-sm text-gray-700"
         >
-          <MessageSquare size={15} className="text-zinc-400 flex-shrink-0" />
+          <MessageSquare size={15} className="text-gray-400 flex-shrink-0" />
           {t('graph.askAbout')}
         </button>
         <button
           onClick={() => navigate('insights')}
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50
-            hover:bg-zinc-700/80 hover:border-zinc-600 transition-all text-sm text-white"
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200
+            hover:bg-gray-100 hover:border-gray-300 transition-all text-sm text-gray-700"
         >
-          <BarChart3 size={15} className="text-zinc-400 flex-shrink-0" />
+          <BarChart3 size={15} className="text-gray-400 flex-shrink-0" />
           {t('graph.runAnalysis')}
         </button>
         <button
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50
-            hover:bg-zinc-700/80 hover:border-zinc-600 transition-all text-sm text-white"
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200
+            hover:bg-gray-100 hover:border-gray-300 transition-all text-sm text-gray-700"
         >
-          <PlusCircle size={15} className="text-zinc-400 flex-shrink-0" />
+          <PlusCircle size={15} className="text-gray-400 flex-shrink-0" />
           {t('graph.addToStudio')}
         </button>
         <button
-          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-800/80 border border-zinc-700/50
-            hover:bg-zinc-700/80 hover:border-zinc-600 transition-all text-sm text-white"
+          className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200
+            hover:bg-gray-100 hover:border-gray-300 transition-all text-sm text-gray-700"
         >
-          <Bell size={15} className="text-zinc-400 flex-shrink-0" />
+          <Bell size={15} className="text-gray-400 flex-shrink-0" />
           {t('graph.setAlert')}
         </button>
       </div>

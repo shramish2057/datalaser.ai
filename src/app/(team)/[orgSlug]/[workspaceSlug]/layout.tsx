@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import type { Project, Workspace, Organization } from '@/types/database'
 import { ProjectIconBadge } from '@/components/ProjectIcon'
+import { Logo } from '@/components/Logo'
 
 export default function WorkspaceShellLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations()
@@ -112,17 +113,33 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
         flex-shrink-0 h-screen bg-dl-bg border-r border-dl-border
         flex flex-col transition-all duration-150
       `}>
-        {/* Back to org + workspace name */}
+        {/* Logo */}
         <div className={`
-          h-[72px] flex items-center border-b border-dl-border flex-shrink-0
-          ${sidebarExpanded ? 'px-4 gap-2' : 'justify-center'}
+          h-[48px] flex items-center border-b border-dl-border flex-shrink-0
+          ${sidebarExpanded ? 'px-4' : 'justify-center'}
+        `}>
+          {sidebarExpanded ? (
+            <Link href={`/${orgSlug}`} className="hover:opacity-70 transition-opacity">
+              <Logo size="sm" />
+            </Link>
+          ) : (
+            <Link href={`/${orgSlug}`}>
+              <span className="w-6 h-6 rounded-md bg-gray-900 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span>
+            </Link>
+          )}
+        </div>
+
+        {/* Back to teams + team name */}
+        <div className={`
+          flex items-center border-b border-dl-border flex-shrink-0
+          ${sidebarExpanded ? 'px-4 py-3' : 'justify-center py-3'}
         `}>
           {sidebarExpanded ? (
             <div>
               <Link href={`/${orgSlug}`} className="flex items-center gap-1.5 text-dl-text-light hover:text-dl-brand text-dl-xs font-bold transition-colors">
-                <ArrowLeft size={11} /> {org?.name}
+                <ArrowLeft size={11} /> {org?.name} &middot; {t('teams.title')}
               </Link>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-lg">{workspace?.icon || '💼'}</span>
                 <span className="font-black text-dl-text-dark text-dl-sm truncate">{workspace?.name}</span>
               </div>
@@ -136,7 +153,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
 
         {/* Projects */}
         <div className="flex-1 overflow-y-auto py-2">
-          {sidebarExpanded && <p className="dl-section-header px-4 mb-2">Projects</p>}
+          {sidebarExpanded && <p className="dl-section-header px-4 mb-2">{t('projects.title')}</p>}
 
           {projects.map(p => {
             const active = pathname.startsWith(`${wsBase}/${p.slug}`)
@@ -164,7 +181,7 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
           {sidebarExpanded && (
             <>
               <div className="h-px bg-dl-border mx-4 my-3" />
-              <p className="dl-section-header px-4 mb-2">Workspace</p>
+              <p className="dl-section-header px-4 mb-2">{t('teams.title')}</p>
             </>
           )}
 
@@ -172,17 +189,25 @@ function WorkspaceShell({ orgSlug, workspaceSlug, children }: {
             { icon: Users, label: t('settings.members'), href: `${wsBase}/settings/members` },
             { icon: Settings, label: t('nav.settings'), href: `${wsBase}/settings` },
           ].map(item => {
-            const active = pathname === item.href
+            const active = pathname === item.href || pathname.startsWith(item.href + '/')
+            const isInSettings = pathname.startsWith(`${wsBase}/settings`)
             return (
-              <Link key={item.label} href={item.href}
-                className={`relative flex items-center h-[40px] font-sans font-bold text-dl-sm
+              <button key={item.label}
+                onClick={() => {
+                  if (active || (item.href === `${wsBase}/settings` && isInSettings)) {
+                    router.push(wsBase)
+                  } else {
+                    router.push(item.href)
+                  }
+                }}
+                className={`relative flex items-center h-[40px] w-full font-sans font-bold text-dl-sm
                   transition-colors duration-100 cursor-pointer
                   ${sidebarExpanded ? 'px-4 gap-2.5' : 'justify-center'}
                   ${active ? 'text-dl-brand bg-dl-brand-hover' : 'text-dl-text-medium hover:text-dl-text-dark hover:bg-dl-bg-light'}`}>
                 {active && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-dl-brand rounded-r-sm" />}
                 <item.icon size={14} className="flex-shrink-0" />
                 {sidebarExpanded && <span>{item.label}</span>}
-              </Link>
+              </button>
             )
           })}
         </div>

@@ -247,7 +247,7 @@ const DB_FIELDS: Record<string, { label: string; placeholder: string; type?: str
   ],
 }
 
-export default function ConnectPage({ projectId }: { projectId?: string } = {}) {
+export default function ConnectPage({ projectId, basePath }: { projectId?: string; basePath?: string } = {}) {
   const t = useTranslations()
   const [category, setCategory] = useState('All')
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
@@ -459,8 +459,8 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
 
   const handleContinue = () => {
     if (projectId) {
-      // Store projectId so downstream pages can redirect correctly
       localStorage.setItem('datalaser_project_id', projectId)
+      if (basePath) localStorage.setItem('datalaser_base_path', basePath)
     }
     const hasOnlyFiles = uploadedFiles.length > 0 && connectedSources.length === 0
     if (hasOnlyFiles) {
@@ -473,7 +473,7 @@ export default function ConnectPage({ projectId }: { projectId?: string } = {}) 
   const handleSkip = () => {
     if (projectId) {
       localStorage.setItem('datalaser_project_id', projectId)
-      router.push(`/projects/${projectId}`)
+      router.push(basePath || `/projects/${projectId}`)
       return
     }
     router.push('/onboarding/calibrate')

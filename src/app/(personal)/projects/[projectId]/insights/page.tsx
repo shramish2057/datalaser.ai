@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   BarChart2, Database, Zap, Loader2, Play,
@@ -11,6 +11,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { translateFinding } from '@/lib/i18n/findingsMap'
 import { isDbSource } from '@/lib/source-types'
 import { normalizeInsights } from '@/lib/normalizeInsight'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { useActiveSource } from '@/lib/context/ActiveSourceContext'
 import { DataSourceSelector } from '@/components/DataSourceSelector'
 
@@ -18,8 +19,7 @@ export default function InsightsPage() {
   const t = useTranslations()
   const locale = useLocale()
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const { activeSourceId, activeSource } = useActiveSource()
 
   const [analysis, setAnalysis] = useState<Record<string, unknown> | null>(null)
@@ -104,7 +104,7 @@ export default function InsightsPage() {
     loadAnalysis()
   }, [activeSourceId])
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   if (loading) {
     return (
@@ -130,7 +130,7 @@ export default function InsightsPage() {
   // redirect to the dedicated analysis page which renders all tabs and charts
   const hasFullAnalysis = analysis?.correlations && analysis?.distributions
   if (hasFullAnalysis && activeSourceId) {
-    router.replace(`/projects/${projectId}/sources/${activeSourceId}/analysis`)
+    router.replace(`${basePath}/sources/${activeSourceId}/analysis`)
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 size={24} className="text-dl-brand animate-spin" />

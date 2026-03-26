@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import {
   Loader2, CheckCircle2, AlertTriangle, XCircle,
@@ -103,7 +104,7 @@ export default function QuickCleanPage() {
   const params = useParams()
   const searchParams = useSearchParams()
 
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const sourceId = params.sourceId as string
   const tableName = searchParams.get('table') || ''
 
@@ -121,7 +122,7 @@ export default function QuickCleanPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const overviewUrl = `/projects/${projectId}/sources/${sourceId}/overview`
+  const overviewUrl = `${basePath}/sources/${sourceId}/overview`
 
   /* Step 1: profile the table and extract warnings */
   useEffect(() => {

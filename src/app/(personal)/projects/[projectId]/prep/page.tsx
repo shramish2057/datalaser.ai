@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { useDropzone } from 'react-dropzone'
@@ -13,6 +13,7 @@ import {
   Trash2, X
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 
 type SourceRow = {
   id: string
@@ -61,15 +62,14 @@ export default function DataPrepPage() {
   const [uploadError, setUploadError] = useState('')
 
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   const loadData = useCallback(async () => {
     const { data: srcList } = await supabase

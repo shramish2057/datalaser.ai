@@ -2,7 +2,7 @@
 import { useTranslations, useLocale } from 'next-intl'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { Save, Trash2, Globe } from 'lucide-react'
 import {
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ProjectIconPicker } from '@/components/ProjectIconPicker'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 
 const COLORS = ['#191919','#4A9EDA','#84BB4C','#F9CF48','#ED6E6E','#A989C5','#F1B556','#98D9D9','#7172AD']
 
@@ -36,8 +37,7 @@ export default function ProjectSettingsPage() {
   const [deleting, setDeleting] = useState(false)
 
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

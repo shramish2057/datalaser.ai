@@ -2,7 +2,7 @@
 import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { History, ArrowLeft } from 'lucide-react'
@@ -28,8 +28,7 @@ export default function PrepHistoryPage() {
   const [runs, setRuns] = useState<RunRecord[]>([])
   const [sourceNames, setSourceNames] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -79,7 +78,7 @@ export default function PrepHistoryPage() {
     load()
   }, [projectId])
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   if (loading) {
     return (

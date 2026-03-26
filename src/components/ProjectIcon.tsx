@@ -31,15 +31,17 @@ export function resolveProjectIcon(stored: string): LucideIcon {
   return BarChart3
 }
 
-/** Render a project icon in a styled container */
+/** Render a project icon in a styled container. Shows logo_url image if provided. */
 export function ProjectIconBadge({
   icon,
   color,
   size = 'md',
+  logoUrl,
 }: {
   icon: string
   color: string
   size?: 'sm' | 'md' | 'lg'
+  logoUrl?: string | null
 }) {
   const Icon = resolveProjectIcon(icon)
   const sizeClasses = {
@@ -48,6 +50,16 @@ export function ProjectIconBadge({
     lg: 'w-10 h-10',
   }
   const iconSizes = { sm: 13, md: 16, lg: 20 }
+
+  if (logoUrl) {
+    return (
+      <div
+        className={`${sizeClasses[size]} rounded-dl-md overflow-hidden flex-shrink-0`}
+      >
+        <img src={logoUrl} alt="" className="w-full h-full object-cover" />
+      </div>
+    )
+  }
 
   return (
     <div

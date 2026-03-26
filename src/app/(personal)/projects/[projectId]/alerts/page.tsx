@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 import Link from 'next/link'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { XCircle, AlertTriangle, CheckCircle2 } from 'lucide-react'
@@ -17,14 +17,13 @@ interface Anomaly {
   message: string
   metadata: Record<string, unknown> | null
   created_at: string
-  resolved_at: string | null
+  is_read: boolean
   source_name?: string
 }
 
 export default function AlertsPage() {
   const t = useTranslations()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
   const [alerts, setAlerts] = useState<Anomaly[]>([])
   const [loading, setLoading] = useState(true)
   const [dismissing, setDismissing] = useState<Record<string, boolean>>({})
@@ -40,7 +39,7 @@ export default function AlertsPage() {
       .from('anomalies')
       .select('*')
       .eq('project_id', projectId)
-      .is('resolved_at', null)
+      .eq('is_read', false)
       .order('created_at', { ascending: false })
 
     if (!anomalies || anomalies.length === 0) {
@@ -78,13 +77,13 @@ export default function AlertsPage() {
     setDismissing(prev => ({ ...prev, [alertId]: true }))
     await supabase
       .from('anomalies')
-      .update({ resolved_at: new Date().toISOString() })
+      .update({ is_read: true })
       .eq('id', alertId)
     setAlerts(prev => prev.filter(a => a.id !== alertId))
     setDismissing(prev => ({ ...prev, [alertId]: false }))
   }
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   if (loading) {
     return (

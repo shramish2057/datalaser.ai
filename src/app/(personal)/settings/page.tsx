@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { Save, Mail, Globe } from 'lucide-react'
 import { SettingsShell } from '@/components/settings/SettingsShell'
+import { ImageUpload } from '@/components/ImageUpload'
 
 const LANGUAGES = [
   { code: 'de', label: 'Deutsch', flag: '🇩🇪', region: 'Deutschland' },
@@ -16,8 +17,10 @@ export default function AccountSettingsPage() {
   const t = useTranslations()
   const locale = useLocale()
   const router = useRouter()
+  const [userId, setUserId] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const [plan, setPlan] = useState('free')
   const [selectedLocale, setSelectedLocale] = useState(locale)
   const [saving, setSaving] = useState(false)
@@ -34,8 +37,17 @@ export default function AccountSettingsPage() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+      setUserId(user.id)
       setEmail(user.email ?? '')
       setDisplayName(user.user_metadata?.full_name ?? user.user_metadata?.name ?? '')
+
+      // Load avatar from profiles
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', user.id)
+        .single()
+      if (profile?.avatar_url) setAvatarUrl(profile.avatar_url)
 
       const { data: membership } = await supabase
         .from('org_members')
@@ -52,6 +64,13 @@ export default function AccountSettingsPage() {
     }
     load()
   }, [])
+
+  const handleAvatarChange = async (url: string | null) => {
+    setAvatarUrl(url)
+    if (userId) {
+      await supabase.from('profiles').update({ avatar_url: url }).eq('id', userId)
+    }
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -98,6 +117,24 @@ export default function AccountSettingsPage() {
       <h1 className="text-dl-2xl font-black text-dl-text-dark mb-6">
         {locale === 'de' ? 'Konto' : 'Account'}
       </h1>
+
+      {/* Avatar */}
+      <div className="mb-6">
+        <label className="dl-label mb-2">{locale === 'de' ? 'Profilbild' : 'Profile picture'}</label>
+        <ImageUpload
+          value={avatarUrl}
+          onChange={handleAvatarChange}
+          entityType="user"
+          entityId={userId}
+          shape="circle"
+          size="lg"
+          fallback={
+            <span className="text-xl font-black text-dl-text-medium">
+              {displayName?.[0]?.toUpperCase() || '?'}
+            </span>
+          }
+        />
+      </div>
 
       {/* Display name */}
       <div className="mb-6">

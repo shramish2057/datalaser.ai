@@ -2,12 +2,13 @@
 import { useTranslations } from 'next-intl'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/auth-helpers-nextjs'
 import { Database, Plus, RefreshCw, Trash2, Wand2, CheckCircle2, Settings, HeartPulse } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { isDbSource } from '@/lib/source-types'
+import { useProjectContext } from '@/lib/hooks/useProjectContext'
 
 type Source = {
   id: string
@@ -25,8 +26,7 @@ export default function ProjectSourcesPage() {
   const [loading, setLoading] = useState(true)
   const [refreshingId, setRefreshingId] = useState<string | null>(null)
   const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
+  const { projectId, basePath } = useProjectContext()
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,7 +48,7 @@ export default function ProjectSourcesPage() {
     loadSources()
   }, [projectId])
 
-  const base = `/projects/${projectId}`
+  const base = basePath
 
   const handleRefresh = async (sourceId: string) => {
     setRefreshingId(sourceId)
