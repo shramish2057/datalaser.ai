@@ -117,9 +117,6 @@ export default function ProjectHomePage() {
     }
   }, [sources])
 
-  if (loading) return null
-
-  const hasSources = sources.length > 0
   const trendPct = topTrend?.total_change_pct || 0
   const trendUp = trendPct > 0
   const trendLabel = topTrend?.measure_column?.replace(/_/g, ' ') || ''
@@ -140,6 +137,11 @@ export default function ProjectHomePage() {
   }, [chartPoints])
 
   const chartFillPath = chartPath ? `${chartPath} L386 65 L0 65 Z` : ''
+
+  // All hooks above — early return AFTER hooks
+  if (loading) return null
+
+  const hasSources = sources.length > 0
 
   return (
     <div className="py-10 md:py-16">
