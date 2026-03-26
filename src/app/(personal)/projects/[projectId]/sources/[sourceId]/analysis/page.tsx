@@ -305,41 +305,52 @@ export default function AutoAnalysisPage() {
         )}
 
         {/* TAB: Correlations */}
-        {activeTab === 'correlations' && (<>
-        {/* Correlation Heatmap */}
-        {analysis.correlations.columns.length >= 2 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <GitBranch size={16} className="text-blue-500" /> Correlation Matrix
-            </h2>
-            <div className="bg-white border border-dl-border rounded-dl-lg p-4">
-              <HeatmapChart
-                matrix={analysis.correlations.matrix}
-                columns={analysis.correlations.columns}
-                title={t("analysis.correlationMatrix")}
-              />
-              {analysis.correlations.pairs.length > 0 && (
-                <div className="mt-3 border-t border-dl-border pt-3">
-                  <p className="text-dl-xs font-semibold uppercase tracking-wider text-dl-text-light mb-2">Top Pairs</p>
-                  <div className="space-y-1">
-                    {analysis.correlations.pairs.slice(0, 5).map((p, i) => (
-                      <div key={i} className="flex items-center gap-2 text-[12px]">
-                        <span className={`w-2 h-2 rounded-full ${p.significant ? 'bg-dl-brand' : 'bg-dl-border-dark'}`} />
-                        <span className="text-dl-text-dark font-medium">{p.col1} ↔ {p.col2}</span>
-                        <span className="text-dl-text-light">r={p.r}</span>
-                        <span className={`text-dl-xs px-1.5 py-0.5 rounded ${p.significant ? 'bg-green-50 text-green-700' : 'bg-dl-bg-light text-dl-text-light'}`}>
-                          {t(`strength.${p.strength}` as Parameters<typeof t>[0])}
-                        </span>
+        {activeTab === 'correlations' && (
+          <div className="space-y-4">
+            {analysis.correlations.columns.length >= 2 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">{t('analysis.correlationMatrix')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <HeatmapChart
+                    matrix={analysis.correlations.matrix}
+                    columns={analysis.correlations.columns}
+                    title=""
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {analysis.correlations.pairs.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    {locale === 'de' ? 'Stärkste Korrelationen' : 'Strongest Correlations'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {analysis.correlations.pairs.slice(0, 8).map((p, i) => (
+                      <div key={i} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                        <div className="flex items-center gap-2">
+                          <div className={`h-2 w-2 rounded-full ${p.significant ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                          <span className="text-sm font-medium">{p.col1} ↔ {p.col2}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm tabular-nums text-muted-foreground">r={p.r}</span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${p.significant ? 'bg-emerald-50 text-emerald-700' : 'bg-muted text-muted-foreground'}`}>
+                            {t(`strength.${p.strength}` as Parameters<typeof t>[0])}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-            </div>
-          </section>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
-
-        </>)}
 
         {/* TAB: Distributions */}
         {activeTab === 'distributions' && (<>
