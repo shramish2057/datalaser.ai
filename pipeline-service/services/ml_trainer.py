@@ -112,9 +112,8 @@ def train_column_role_model(
     if not version:
         version = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Save model
-    model_path = MODELS_DIR / f"column_role_v{version}.joblib"
-    joblib.dump({
+    # Model bundle
+    model_bundle = {
         'model': model,
         'feature_names': FEATURE_NAMES,
         'classes': list(model.classes_),
@@ -122,19 +121,20 @@ def train_column_role_model(
         'accuracy': accuracy,
         'trained_at': datetime.now().isoformat(),
         'dataset_size': len(X),
-    }, model_path)
+    }
 
-    # Also save as 'latest' for serving
-    latest_path = MODELS_DIR / "column_role_latest.joblib"
-    joblib.dump({
-        'model': model,
-        'feature_names': FEATURE_NAMES,
-        'classes': list(model.classes_),
-        'version': version,
-        'accuracy': accuracy,
-        'trained_at': datetime.now().isoformat(),
-        'dataset_size': len(X),
-    }, latest_path)
+    # Save to Supabase Storage + local cache (survives Railway redeploy)
+    try:
+        from services.ml_storage import save_model
+        storage_path = save_model(model_bundle, "column_role", version)
+        model_path = storage_path
+    except Exception as e:
+        # Fallback: save locally only
+        logger.warning("Storage save failed, saving locally: %s", e)
+        model_path = MODELS_DIR / f"column_role_v{version}.joblib"
+        joblib.dump(model_bundle, model_path)
+        joblib.dump(model_bundle, MODELS_DIR / "column_role_latest.joblib")
+        model_path = str(model_path)
 
     # Feature importance
     importances = dict(zip(FEATURE_NAMES, model.feature_importances_))

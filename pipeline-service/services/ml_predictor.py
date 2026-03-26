@@ -21,27 +21,37 @@ _model_cache: dict = {}
 
 
 def _load_model(model_name: str = "column_role") -> Optional[dict]:
-    """Load model from disk into memory cache."""
+    """Load model from memory cache → local disk → Supabase Storage."""
     if model_name in _model_cache:
         return _model_cache[model_name]
 
-    path = MODELS_DIR / f"{model_name}_latest.joblib"
-    if not path.exists():
-        logger.info("No trained model found at %s", path)
-        return None
-
+    # Try loading from Supabase Storage (persistent) + local cache
     try:
-        bundle = joblib.load(path)
-        _model_cache[model_name] = bundle
-        logger.info(
-            "Loaded %s model v%s (accuracy: %.3f, classes: %d)",
-            model_name, bundle.get('version', '?'),
-            bundle.get('accuracy', 0), len(bundle.get('classes', []))
-        )
-        return bundle
+        from services.ml_storage import load_model as storage_load
+        bundle = storage_load(model_name)
+        if bundle:
+            _model_cache[model_name] = bundle
+            logger.info(
+                "Loaded %s model v%s (accuracy: %.3f, classes: %d)",
+                model_name, bundle.get('version', '?'),
+                bundle.get('accuracy', 0), len(bundle.get('classes', []))
+            )
+            return bundle
     except Exception as e:
-        logger.error("Failed to load model %s: %s", model_name, e)
-        return None
+        logger.warning("Storage load failed for %s: %s", model_name, e)
+
+    # Fallback: try local filesystem directly
+    path = MODELS_DIR / f"{model_name}_latest.joblib"
+    if path.exists():
+        try:
+            bundle = joblib.load(path)
+            _model_cache[model_name] = bundle
+            return bundle
+        except Exception:
+            pass
+
+    logger.info("No trained model found for %s", model_name)
+    return None
 
 
 def reload_model(model_name: str = "column_role"):
