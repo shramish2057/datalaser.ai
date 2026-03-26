@@ -192,7 +192,7 @@ export default function ProjectHomePage() {
           <div className="relative">
             <div className="relative z-10 grid grid-cols-6 gap-3">
 
-              {/* ─── CARD 1: Top Metric (big number + SVG blob) ─── */}
+              {/* ─── CARD 1: Primary Insight (big number + SVG blob) ─── */}
               <Card className="relative col-span-full flex overflow-hidden lg:col-span-2">
                 <CardContent className="relative m-auto size-fit pt-6">
                   <div className="relative flex h-24 w-56 items-center">
@@ -203,13 +203,26 @@ export default function ProjectHomePage() {
                       {topTrend ? smartFormat(Math.abs(trendPct)) + '%' : smartFormat(totalRecords)}
                     </span>
                   </div>
-                  <h2 className="mt-6 text-center text-3xl font-semibold">
-                    {topTrend ? (trendUp ? '↑' : '↓') : ''} {trendLabel || (locale === 'de' ? 'Datensätze' : 'Records')}
+                  <h2 className="mt-6 text-center text-xl font-semibold">
+                    {topTrend
+                      ? (locale === 'de'
+                        ? `${trendLabel} ${trendUp ? 'steigt' : 'fällt'}`
+                        : `${trendLabel} ${trendUp ? 'growing' : 'declining'}`)
+                      : (locale === 'de' ? 'Datensätze analysiert' : 'Records analyzed')
+                    }
                   </h2>
+                  {topTrend && (
+                    <p className="mt-2 text-center text-xs text-muted-foreground max-w-[200px]">
+                      {locale === 'de'
+                        ? `${trendUp ? 'Anstieg' : 'Rückgang'} um ${Math.abs(trendPct).toFixed(1)}% über den gesamten Zeitraum`
+                        : `${trendUp ? 'Increased' : 'Decreased'} ${Math.abs(trendPct).toFixed(1)}% across the full period`
+                      }
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* ─── CARD 2: Data Quality (fingerprint SVG + score ring) ─── */}
+              {/* ─── CARD 2: Data Reliability (circle + quality context) ─── */}
               <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
                 <CardContent className="pt-6">
                   <div className="relative mx-auto flex aspect-square size-32 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
@@ -218,15 +231,25 @@ export default function ProjectHomePage() {
                     </span>
                   </div>
                   <div className="relative z-10 mt-6 space-y-2 text-center">
-                    <h2 className="text-lg font-medium text-zinc-800 transition">{locale === 'de' ? 'Datenqualität' : 'Data Quality'}</h2>
+                    <h2 className="text-lg font-medium text-zinc-800 transition">
+                      {qualityScore >= 90
+                        ? (locale === 'de' ? 'Zuverlässige Daten' : 'Reliable data')
+                        : qualityScore >= 70
+                          ? (locale === 'de' ? 'Daten prüfenswert' : 'Data needs review')
+                          : (locale === 'de' ? 'Datenqualität kritisch' : 'Critical data issues')
+                      }
+                    </h2>
                     <p className="text-sm text-muted-foreground">
-                      {sources.length} {locale === 'de' ? 'Quellen' : 'sources'} · {smartFormat(totalRecords)} {locale === 'de' ? 'Datensätze' : 'records'}
+                      {locale === 'de'
+                        ? `${smartFormat(totalRecords)} Datensätze aus ${sources.length} ${sources.length === 1 ? 'Quelle' : 'Quellen'} geprüft`
+                        : `${smartFormat(totalRecords)} records from ${sources.length} ${sources.length === 1 ? 'source' : 'sources'} verified`
+                      }
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* ─── CARD 3: Trend Chart (SVG area + gradient) ─── */}
+              {/* ─── CARD 3: Trend Movement (SVG chart + business statement) ─── */}
               <Card className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2">
                 <CardContent className="pt-6">
                   <div className="pt-6 lg:px-2">
@@ -246,31 +269,42 @@ export default function ProjectHomePage() {
                   </div>
                   <div className="relative z-10 mt-8 space-y-2 text-center">
                     <h2 className="text-lg font-medium transition">
-                      {topTrend?.measure_column?.replace(/_/g, ' ').replace(/^\w/, (c: string) => c.toUpperCase()) || (locale === 'de' ? 'Trend' : 'Trend')}
+                      {topTrend
+                        ? (locale === 'de'
+                          ? `${trendUp ? 'Aufwärtstrend' : 'Abwärtstrend'} erkannt`
+                          : `${trendUp ? 'Upward' : 'Downward'} trend detected`)
+                        : (locale === 'de' ? 'Kein Zeitverlauf' : 'No time series')
+                      }
                     </h2>
                     <p className="text-sm text-muted-foreground">
                       {topTrend
-                        ? `${trendUp ? '+' : ''}${trendPct.toFixed(1)}% ${locale === 'de' ? 'Veränderung' : 'change'} · R²=${(topTrend.r_squared || 0).toFixed(2)}`
-                        : (locale === 'de' ? 'Keine Trenddaten verfügbar' : 'No trend data available')
+                        ? (locale === 'de'
+                          ? `${trendLabel} zeigt ${trendUp ? 'positive' : 'negative'} Entwicklung mit ${Math.abs(trendPct).toFixed(1)}% Veränderung`
+                          : `${trendLabel} shows ${trendUp ? 'positive' : 'negative'} movement at ${Math.abs(trendPct).toFixed(1)}% change`)
+                        : (locale === 'de' ? 'Verbinden Sie Daten mit Datumspalte' : 'Connect data with a date column')
                       }
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* ─── CARD 4: Top Findings (icon left + chart panel right) ─── */}
+              {/* ─── CARD 4: Critical Findings (icon + business statements) ─── */}
               <Card className="relative col-span-full overflow-hidden lg:col-span-3">
                 <CardContent className="grid pt-6 sm:grid-cols-2">
                   <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                     <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                      <Zap className="m-auto size-5" strokeWidth={1} />
+                      <Shield className="m-auto size-5" strokeWidth={1} />
                     </div>
                     <div className="space-y-2">
-                      <h2 className="text-lg font-medium text-zinc-800 transition">{locale === 'de' ? 'Wichtigste Erkenntnisse' : 'Top Findings'}</h2>
+                      <h2 className="text-lg font-medium text-zinc-800 transition">
+                        {locale === 'de' ? 'Verifizierte Erkenntnisse' : 'Verified findings'}
+                      </h2>
                       <p className="text-sm text-muted-foreground">
                         {topInsights.length > 0
-                          ? (locale === 'de' ? `${topInsights.length} verifizierte Erkenntnisse` : `${topInsights.length} verified findings`)
-                          : (locale === 'de' ? 'Analyse starten für Erkenntnisse' : 'Run analysis for findings')
+                          ? (locale === 'de'
+                            ? `${topInsights.length} Erkenntnisse aus Ihren Daten berechnet — nicht geraten`
+                            : `${topInsights.length} findings computed from your data — not guessed`)
+                          : (locale === 'de' ? 'Analyse wird Erkenntnisse liefern' : 'Analysis will surface findings')
                         }
                       </p>
                     </div>
@@ -283,18 +317,20 @@ export default function ProjectHomePage() {
                     </div>
                     <div className="mt-4 space-y-3">
                       {topInsights.length > 0 ? topInsights.map((ins: any, i: number) => {
-                        const severity = (ins.effect_size || 0) > 0.5 ? 'text-red-600' : (ins.effect_size || 0) > 0.2 ? 'text-amber-600' : 'text-blue-600'
+                        const isHigh = (ins.effect_size || 0) > 0.5
+                        const isMed = (ins.effect_size || 0) > 0.2
+                        const dotColor = isHigh ? 'bg-red-500' : isMed ? 'bg-amber-500' : 'bg-emerald-500'
                         return (
-                          <button key={i} onClick={() => router.push(`${basePath}/insights`)} className="block w-full text-left group">
+                          <button key={i} onClick={() => router.push(`${basePath}/insights`)} className="flex items-start gap-2.5 w-full text-left group">
+                            <div className={`mt-1.5 size-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
                             <p className="text-xs leading-relaxed text-muted-foreground group-hover:text-foreground transition line-clamp-2">
-                              <span className={`font-bold ${severity}`}>#{i + 1}</span>{' '}
                               {translateFinding(ins.headline || '', locale)}
                             </p>
                           </button>
                         )
                       }) : (
                         <p className="text-xs text-muted-foreground italic">
-                          {locale === 'de' ? 'Noch keine Erkenntnisse' : 'No findings yet'}
+                          {locale === 'de' ? 'Daten werden analysiert...' : 'Analyzing your data...'}
                         </p>
                       )}
                     </div>
@@ -302,17 +338,22 @@ export default function ProjectHomePage() {
                 </CardContent>
               </Card>
 
-              {/* ─── CARD 5: Data Overview (stats left + source indicators right) ─── */}
+              {/* ─── CARD 5: Connected Sources (icon + source tree) ─── */}
               <Card className="relative col-span-full overflow-hidden lg:col-span-3">
                 <CardContent className="grid h-full pt-6 sm:grid-cols-2">
                   <div className="relative z-10 flex flex-col justify-between space-y-12 lg:space-y-6">
                     <div className="relative flex aspect-square size-12 rounded-full border before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5">
-                      <Database className="m-auto size-5" strokeWidth={1} />
+                      <Layers className="m-auto size-5" strokeWidth={1} />
                     </div>
                     <div className="space-y-2">
-                      <h2 className="text-lg font-medium text-zinc-800 transition">{locale === 'de' ? 'Datenübersicht' : 'Data Overview'}</h2>
+                      <h2 className="text-lg font-medium text-zinc-800 transition">
+                        {locale === 'de' ? 'Ihre Datenquellen' : 'Your data sources'}
+                      </h2>
                       <p className="text-sm text-muted-foreground">
-                        {smartFormat(totalRecords)} {locale === 'de' ? 'Datensätze aus' : 'records across'} {sources.length} {locale === 'de' ? 'Quellen' : 'sources'}
+                        {locale === 'de'
+                          ? `${sources.length} ${sources.length === 1 ? 'Quelle verbunden' : 'Quellen verbunden'} mit insgesamt ${smartFormat(totalRecords)} Datensätzen`
+                          : `${sources.length} ${sources.length === 1 ? 'source connected' : 'sources connected'} with ${smartFormat(totalRecords)} total records`
+                        }
                       </p>
                     </div>
                   </div>
@@ -320,18 +361,18 @@ export default function ProjectHomePage() {
                     <div className="relative flex h-full flex-col justify-center space-y-4 py-6">
                       {sources.slice(0, 3).map((src, i) => {
                         const isLeft = i % 2 === 0
+                        const badge = src.source_type === 'postgres' ? 'bg-blue-100 text-blue-700'
+                          : src.source_type === 'csv' ? 'bg-emerald-100 text-emerald-700'
+                          : 'bg-amber-100 text-amber-700'
+                        const label = src.source_type === 'postgres' ? 'PG' : src.source_type.slice(0, 2).toUpperCase()
                         return isLeft ? (
                           <div key={src.id} className="relative flex w-[calc(50%+0.875rem)] items-center justify-end gap-2">
                             <span className="block h-fit rounded border px-2 py-1 text-xs shadow-sm truncate max-w-[120px]">{src.name}</span>
-                            <div className={`ring-background size-7 ring-4 rounded-full flex items-center justify-center text-[10px] font-bold ${src.source_type === 'postgres' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                              {src.source_type === 'postgres' ? 'PG' : src.source_type.slice(0, 2).toUpperCase()}
-                            </div>
+                            <div className={`ring-background size-7 ring-4 rounded-full flex items-center justify-center text-[10px] font-bold ${badge}`}>{label}</div>
                           </div>
                         ) : (
                           <div key={src.id} className="relative ml-[calc(50%-1rem)] flex items-center gap-2">
-                            <div className={`ring-background size-7 ring-4 rounded-full flex items-center justify-center text-[10px] font-bold ${src.source_type === 'postgres' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
-                              {src.source_type === 'postgres' ? 'PG' : src.source_type.slice(0, 2).toUpperCase()}
-                            </div>
+                            <div className={`ring-background size-7 ring-4 rounded-full flex items-center justify-center text-[10px] font-bold ${badge}`}>{label}</div>
                             <span className="block h-fit rounded border px-2 py-1 text-xs shadow-sm truncate max-w-[120px]">{src.name}</span>
                           </div>
                         )
