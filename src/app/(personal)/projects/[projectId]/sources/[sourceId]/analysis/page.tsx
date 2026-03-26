@@ -220,72 +220,86 @@ export default function AutoAnalysisPage() {
           </div>
         </div>
 
-        {/* KPI Row — shadcn dashboard pattern */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t('common.rows')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analysis.row_count.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">{analysis.column_count} {t('common.columns').toLowerCase()}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t('analysis.measures')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analysis.measures.length}</div>
-              <p className="text-xs text-muted-foreground">{analysis.dimensions?.length || 0} {locale === 'de' ? 'Dimensionen' : 'dimensions'}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t('analysis.sigCorrelations')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analysis.correlations.pairs.filter(p => p.significant).length}</div>
-              <p className="text-xs text-muted-foreground">{locale === 'de' ? 'von' : 'of'} {analysis.correlations.pairs.length} {locale === 'de' ? 'Paaren' : 'pairs'}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t('analysis.outlierColumns')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analysis.anomalies.length}</div>
-              <p className="text-xs text-muted-foreground">{locale === 'de' ? 'Spalten mit Ausreißern' : 'columns with outliers'}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t('analysis.clustersFound')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analysis.clusters.n_clusters}</div>
-              <p className="text-xs text-muted-foreground">{locale === 'de' ? 'Segmente erkannt' : 'segments detected'}</p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* KPI Cards — each with distinct color tint + icon */}
+        {(() => {
+          const qualityPct = analysis.row_count > 0 ? Math.max(0, Math.round((1 - analysis.anomalies.reduce((s: number, a: any) => s + (a.outlier_count || 0), 0) / analysis.row_count) * 100)) : 100
+          const sigCorr = analysis.correlations.pairs.filter(p => p.significant).length
+          const insightCount = analysis.top_insights.length
+          const importantCount = analysis.top_insights.filter((i: any) => (i.effect_size || 0) > 0.3).length
 
-        {/* Tab Navigation — clean, minimal */}
+          return (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {/* Data Volume */}
+              <Card className="border-blue-200/50 bg-blue-50/30">
+                <CardContent className="pt-5">
+                  <div className="text-lg mb-1">📊</div>
+                  <div className="text-2xl font-bold">{analysis.row_count.toLocaleString()}</div>
+                  <p className="text-sm font-medium mt-1">{locale === 'de' ? 'Datensätze' : 'Records'}</p>
+                  <p className="text-xs text-muted-foreground">{analysis.column_count} {locale === 'de' ? 'Spalten' : 'columns'} · {analysis.measures.length} {locale === 'de' ? 'Kennzahlen' : 'measures'}</p>
+                </CardContent>
+              </Card>
+
+              {/* Quality */}
+              <Card className={qualityPct >= 90 ? 'border-emerald-200/50 bg-emerald-50/30' : 'border-amber-200/50 bg-amber-50/30'}>
+                <CardContent className="pt-5">
+                  <div className="text-lg mb-1">{qualityPct >= 90 ? '✅' : '⚠️'}</div>
+                  <div className="text-2xl font-bold">{qualityPct}%</div>
+                  <p className="text-sm font-medium mt-1">{locale === 'de' ? 'Datenqualität' : 'Data Quality'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {qualityPct >= 90 ? (locale === 'de' ? 'Zuverlässig' : 'Reliable') : (locale === 'de' ? 'Ausreißer prüfen' : 'Check outliers')}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Insights */}
+              <Card className="border-violet-200/50 bg-violet-50/30">
+                <CardContent className="pt-5">
+                  <div className="text-lg mb-1">💡</div>
+                  <div className="text-2xl font-bold">{insightCount}</div>
+                  <p className="text-sm font-medium mt-1">{locale === 'de' ? 'Erkenntnisse' : 'Findings'}</p>
+                  <p className="text-xs text-muted-foreground">{importantCount} {locale === 'de' ? 'wichtig' : 'important'}</p>
+                </CardContent>
+              </Card>
+
+              {/* Alerts */}
+              <Card className={analysis.anomalies.length > 0 ? 'border-amber-200/50 bg-amber-50/30' : 'border-gray-200/50'}>
+                <CardContent className="pt-5">
+                  <div className="text-lg mb-1">{analysis.anomalies.length > 0 ? '⚠️' : '🔍'}</div>
+                  <div className="text-2xl font-bold">{analysis.anomalies.length}</div>
+                  <p className="text-sm font-medium mt-1">{locale === 'de' ? 'Ausreißer-Spalten' : 'Outlier Columns'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {analysis.anomalies.length > 0
+                      ? (locale === 'de' ? 'Prüfung empfohlen' : 'Review recommended')
+                      : (locale === 'de' ? 'Keine Auffälligkeiten' : 'No anomalies')
+                    }
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )
+        })()}
+
+        {/* Tab Navigation — active tab with background */}
         <div className="flex items-center gap-1 border-b">
           {([
-            { id: 'insights' as const, label: t('analysis.topInsights'), count: analysis.top_insights.length },
-            { id: 'correlations' as const, label: t('analysis.correlationMatrix'), count: analysis.correlations.pairs.length },
-            { id: 'distributions' as const, label: t('analysis.distributions'), count: analysis.distributions.length },
-            { id: 'segments' as const, label: t('analysis.segmentsInfluencers'), count: analysis.segments.length + analysis.key_influencers.length },
-            { id: 'advanced' as const, label: t('analysis.advanced'), count: analysis.clusters.n_clusters + analysis.contribution_analysis.length + analysis.majority.length },
+            { id: 'insights' as const, label: locale === 'de' ? 'Erkenntnisse' : 'Findings', count: analysis.top_insights.length },
+            { id: 'correlations' as const, label: locale === 'de' ? 'Zusammenhänge' : 'Correlations', count: analysis.correlations.pairs.length },
+            { id: 'distributions' as const, label: locale === 'de' ? 'Verteilungen' : 'Distributions', count: analysis.distributions.length },
+            { id: 'segments' as const, label: locale === 'de' ? 'Segmente' : 'Segments', count: analysis.segments.length + analysis.key_influencers.length },
+            { id: 'advanced' as const, label: locale === 'de' ? 'Erweitert' : 'Advanced', count: analysis.clusters.n_clusters + analysis.contribution_analysis.length + analysis.majority.length },
           ]).map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-all ${
                 activeTab === tab.id
-                  ? 'border-foreground text-foreground'
+                  ? 'border-foreground text-foreground bg-muted/50 rounded-t-md'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}>
               {tab.label}
-              {tab.count > 0 && <span className="ml-1.5 text-xs bg-muted px-1.5 py-0.5 rounded-full">{tab.count}</span>}
+              {tab.count > 0 && (
+                <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${
+                  activeTab === tab.id ? 'bg-foreground/10' : 'bg-muted'
+                }`}>{tab.count}</span>
+              )}
             </button>
           ))}
         </div>
@@ -574,48 +588,58 @@ export default function AutoAnalysisPage() {
 
 function InsightCard({ insight, index, onDrill }: { insight: AutoAnalysisInsight; index: number; onDrill: (f: DrillFilter) => void }) {
   const locale = useLocale()
-  const t = useTranslations()
+  const de = locale === 'de'
+  const router = useRouter()
 
-  // Severity from effect size — not type-based rainbow
   const es = insight.effect_size || 0
   const isAnomaly = insight.type === 'anomaly' || insight.type === 'outlier_explanation'
-  const severity = isAnomaly || es > 0.6 ? 'critical' : es > 0.3 ? 'warning' : es > 0.1 ? 'info' : 'neutral'
-  const borderColor = severity === 'critical' ? 'border-l-red-500' : severity === 'warning' ? 'border-l-amber-500' : severity === 'info' ? 'border-l-blue-500' : 'border-l-transparent'
-  const dotColor = severity === 'critical' ? 'bg-red-500' : severity === 'warning' ? 'bg-amber-500' : severity === 'info' ? 'bg-blue-500' : 'bg-gray-300'
-  const tagBg = severity === 'critical' ? 'bg-red-50 text-red-700' : severity === 'warning' ? 'bg-amber-50 text-amber-700' : severity === 'info' ? 'bg-blue-50 text-blue-700' : 'bg-gray-50 text-gray-600'
+  const severity = isAnomaly || es > 0.6 ? 'critical' : es > 0.3 ? 'warning' : es > 0.1 ? 'info' : 'positive'
+
+  const config = {
+    critical: { border: 'border-l-red-500', icon: '🔴', bg: 'bg-red-50/40' },
+    warning: { border: 'border-l-amber-500', icon: '⚠️', bg: 'bg-amber-50/40' },
+    info: { border: 'border-l-blue-500', icon: 'ℹ️', bg: 'bg-blue-50/30' },
+    positive: { border: 'border-l-emerald-500', icon: '✅', bg: 'bg-emerald-50/30' },
+  }[severity]
 
   return (
-    <div className={`rounded-lg border border-l-[3px] ${borderColor} bg-card p-4`}>
-      <div className="flex items-start gap-3">
-        <div className={`mt-1.5 h-2 w-2 rounded-full flex-shrink-0 ${dotColor}`} />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm leading-relaxed">{translateFinding(insight.headline, locale)}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${tagBg}`}>
-              {insight.type?.replace(/_/g, ' ')}
-            </span>
-            {insight.p_value != null && insight.p_value < 0.05 && (
-              <span className="text-[10px] text-muted-foreground">
-                p{insight.p_value < 0.001 ? '<0.001' : `=${insight.p_value.toFixed(3)}`}
-              </span>
-            )}
+    <Card className={`border-l-[4px] ${config.border} ${config.bg}`}>
+      <CardContent className="py-4 px-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <span className="text-sm mt-0.5 flex-shrink-0">{config.icon}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium leading-relaxed">
+                {translateFinding(insight.headline, locale)}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={() => {
+              if (insight.chart_data?.data?.length) {
+                onDrill({ column: insight.columns?.[0] || '', value: '', operator: 'eq', label: insight.headline || '' })
+              }
+            }}
+            className="text-xs font-medium text-muted-foreground hover:text-foreground border rounded-md px-2.5 py-1 hover:bg-accent transition flex-shrink-0"
+          >
+            {de ? 'Details' : 'Details'} →
+          </button>
         </div>
-      </div>
 
-      {/* Inline chart if available */}
-      {insight.chart_data && insight.chart_data.data && insight.chart_data.data.length > 0 && (
-        <div className="mt-3 max-h-[220px] overflow-hidden rounded-md border">
-          <InteractiveChart chart={{
-            type: insight.chart_data.chart_type as ChartData['type'],
-            title: '',
-            data: insight.chart_data.data.slice(0, 15),
-            xKey: insight.chart_data.x_key,
-            yKey: insight.chart_data.y_keys[0],
-            yKeys: insight.chart_data.y_keys,
-          }} onDrillDown={onDrill} />
-        </div>
-      )}
-    </div>
+        {/* Inline chart */}
+        {insight.chart_data && insight.chart_data.data && insight.chart_data.data.length > 0 && (
+          <div className="mt-3 max-h-[200px] overflow-hidden rounded-md border bg-card">
+            <InteractiveChart chart={{
+              type: insight.chart_data.chart_type as ChartData['type'],
+              title: '',
+              data: insight.chart_data.data.slice(0, 15),
+              xKey: insight.chart_data.x_key,
+              yKey: insight.chart_data.y_keys[0],
+              yKeys: insight.chart_data.y_keys,
+            }} onDrillDown={onDrill} />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }
