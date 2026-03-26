@@ -1317,29 +1317,48 @@ class VILEngine:
             all_columns, all_fingerprints
         )
 
-        # Step 3b -- AI-powered column classification (statistical metadata only)
+        # Step 3b -- Column classification: ML model first, Claude fallback
         ai_categories = None
         ai_result = None
-        columns_metadata = []
-        for qname, fp in all_fingerprints.items():
-            columns_metadata.append({
-                'name': qname.split('.')[-1],
-                'table': qname.split('.')[0],
-                'qualified_name': qname,
-                'dtype': fp.get('dtype', 'unknown'),
-                'min': fp.get('min_value'),
-                'max': fp.get('max_value'),
-                'mean': fp.get('mean_value'),
-                'std': fp.get('std_value'),
-                'unique_count': fp.get('unique_count', 0),
-                'null_rate': fp.get('null_rate', 0),
-                'distribution': fp.get('distribution_shape', ''),
-            })
+        classification_source = 'regex'  # default
 
-        ai_result = classify_columns_with_ai_sync(columns_metadata)
+        # Try ML model first (zero API cost)
+        try:
+            from services.ml_predictor import predict_all_columns
+            ml_result = predict_all_columns(all_fingerprints, confidence_threshold=0.80)
+            if ml_result:
+                ai_result = ml_result
+                classification_source = 'ml'
+                logger.info("ML model used for classification (avg confidence: %.3f)", ml_result.get('avg_confidence', 0))
+        except Exception as e:
+            logger.warning("ML prediction failed, falling back: %s", e)
+
+        # Fall back to Claude if ML not available or not confident enough
+        if not ai_result:
+            columns_metadata = []
+            for qname, fp in all_fingerprints.items():
+                columns_metadata.append({
+                    'name': qname.split('.')[-1],
+                    'table': qname.split('.')[0],
+                    'qualified_name': qname,
+                    'dtype': fp.get('dtype', 'unknown'),
+                    'min': fp.get('min_value'),
+                    'max': fp.get('max_value'),
+                    'mean': fp.get('mean_value'),
+                    'std': fp.get('std_value'),
+                    'unique_count': fp.get('unique_count', 0),
+                    'null_rate': fp.get('null_rate', 0),
+                    'distribution': fp.get('distribution_shape', ''),
+                })
+
+            ai_result = classify_columns_with_ai_sync(columns_metadata)
+            if ai_result:
+                classification_source = 'claude'
+                logger.info("Claude used for classification (ML not available/confident)")
+
+        # Apply classification results to fingerprints
         if ai_result:
             for ai_col in ai_result.get('columns', []):
-                # Find matching fingerprint and enrich it
                 for qname, fp in all_fingerprints.items():
                     if qname.endswith(f".{ai_col['name']}"):
                         fp['business_role_hint'] = ai_col['business_role']
@@ -1348,14 +1367,20 @@ class VILEngine:
                         fp['label_en'] = ai_col['label_en']
                         fp['importance'] = ai_col['importance']
 
-            # Store AI-detected categories for graph coloring
             ai_categories = ai_result.get('categories', [])
             ai_industry = ai_result.get('industry', industry_type)
             ai_confidence = ai_result.get('industry_confidence', industry_confidence)
-            # Override industry if AI is more confident
-            if ai_confidence > industry_confidence:
+            if ai_confidence and ai_confidence > industry_confidence:
                 industry_type = ai_industry
                 industry_confidence = ai_confidence
+
+        # Auto-collect training data (silent, no cost)
+        try:
+            self._save_training_samples(
+                all_fingerprints, ai_result, source_id, industry_type, classification_source
+            )
+        except Exception as e:
+            logger.warning("Failed to save training samples: %s", e)
 
         # Step 4 -- map KPIs
         kpis = map_kpis(all_columns, all_fingerprints, industry_type)
@@ -1897,6 +1922,76 @@ Return ONLY valid JSON."""
                     })
 
         return edges
+
+    # -- training data collection -----------------------------------------------
+
+    def _save_training_samples(
+        self, fingerprints: dict, ai_result: dict | None,
+        source_id: str, industry_type: str, label_source: str
+    ):
+        """Save column features + labels to ml_training_samples for ML training."""
+        import os
+        import httpx
+
+        supabase_url = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL", "")
+        supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+        if not supabase_url or not supabase_key:
+            return
+
+        ai_columns = {}
+        if ai_result:
+            for col in ai_result.get('columns', []):
+                ai_columns[col['name']] = col
+
+        samples = []
+        for qname, fp in fingerprints.items():
+            col_name = qname.split('.')[-1]
+            table_name = qname.split('.')[0]
+            ai_col = ai_columns.get(col_name, {})
+
+            samples.append({
+                "source_id": source_id,
+                "table_name": table_name,
+                "column_name": col_name,
+                "dtype": fp.get("dtype"),
+                "distribution_shape": fp.get("distribution_shape"),
+                "value_scale": fp.get("value_scale"),
+                "null_rate": fp.get("null_rate"),
+                "unique_rate": fp.get("unique_rate"),
+                "unique_count": fp.get("unique_count"),
+                "min_value": fp.get("min_value"),
+                "max_value": fp.get("max_value"),
+                "mean_value": fp.get("mean_value"),
+                "std_dev": fp.get("std_value"),
+                "skewness": fp.get("skewness"),
+                "kurtosis": fp.get("kurtosis"),
+                "is_integer": fp.get("is_integer", False),
+                "business_role": ai_col.get("business_role") or fp.get("business_role_hint", "unknown"),
+                "business_category": ai_col.get("business_category", ""),
+                "importance": ai_col.get("importance"),
+                "label_source": label_source,
+                "industry_type": industry_type,
+            })
+
+        # Batch insert
+        try:
+            with httpx.Client(timeout=15) as client:
+                resp = client.post(
+                    f"{supabase_url}/rest/v1/ml_training_samples",
+                    headers={
+                        "apikey": supabase_key,
+                        "Authorization": f"Bearer {supabase_key}",
+                        "Content-Type": "application/json",
+                        "Prefer": "return=minimal",
+                    },
+                    json=samples,
+                )
+                if resp.status_code in (200, 201):
+                    logger.info("Saved %d training samples (source: %s)", len(samples), label_source)
+                else:
+                    logger.warning("Failed to save training samples: %s", resp.text[:200])
+        except Exception as e:
+            logger.warning("Training sample save error: %s", e)
 
 
 # Module-level singleton
