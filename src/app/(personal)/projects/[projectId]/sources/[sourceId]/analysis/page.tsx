@@ -353,203 +353,210 @@ export default function AutoAnalysisPage() {
         )}
 
         {/* TAB: Distributions */}
-        {activeTab === 'distributions' && (<>
-        {analysis.distributions.length > 0 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Layers size={16} className="text-purple-500" /> Distributions
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {analysis.distributions.slice(0, 6).map((dist, i) => (
-                <div key={i} className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
+        {activeTab === 'distributions' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {analysis.distributions.slice(0, 6).map((dist, i) => (
+              <Card key={i} className="overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium">{dist.column?.replace(/_/g, ' ')}</CardTitle>
+                    <span className="text-xs text-muted-foreground">{dist.shape}</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-3">
                   <InteractiveChart chart={{
                     type: 'histogram',
-                    title: `${dist.column} — ${dist.shape}`,
-                    data: dist.counts.map((c, j) => ({
+                    title: '',
+                    data: dist.counts.map((c: number, j: number) => ({
                       bin: Math.round((dist.bins[j] + dist.bins[j + 1]) / 2 * 100) / 100,
                       count: c,
                     })),
                     xKey: 'bin', yKey: 'count', yKeys: ['count'],
                   }} />
-                  <div className="px-4 pb-3 flex gap-4 text-dl-xs text-dl-text-medium">
-                    <span>Mean: <b>{dist.mean.toLocaleString()}</b></span>
-                    <span>Median: <b>{dist.median.toLocaleString()}</b></span>
-                    <span>Skew: <b>{dist.skewness}</b></span>
+                  <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                    <span>{locale === 'de' ? 'Mittelwert' : 'Mean'}: <span className="font-medium text-foreground">{dist.mean?.toLocaleString()}</span></span>
+                    <span>{locale === 'de' ? 'Median' : 'Median'}: <span className="font-medium text-foreground">{dist.median?.toLocaleString()}</span></span>
+                    <span>{locale === 'de' ? 'Schiefe' : 'Skew'}: <span className="font-medium text-foreground">{dist.skewness}</span></span>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                </CardContent>
+              </Card>
+            ))}
+            {analysis.distributions.length === 0 && (
+              <p className="text-sm text-muted-foreground py-8 text-center col-span-2">
+                {locale === 'de' ? 'Keine Verteilungen verfügbar' : 'No distributions available'}
+              </p>
+            )}
+          </div>
         )}
-
-        </>)}
 
         {/* TAB: Segments & Influencers */}
-        {activeTab === 'segments' && (<>
-        {analysis.segments.length > 0 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <BarChart3 size={16} className="text-green-500" /> Segment Comparisons
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {analysis.segments.slice(0, 4).map((seg, i) => (
-                <InteractiveChart key={i} chart={{
-                  type: 'bar',
-                  title: `${seg.measure} by ${seg.dimension} (p=${seg.p_value < 0.001 ? '<0.001' : seg.p_value.toFixed(4)})`,
-                  data: seg.groups,
-                  xKey: 'group', yKey: 'mean', yKeys: ['mean'],
-                  referenceLines: [{
-                    value: seg.groups.reduce((sum, g) => sum + g.mean * g.n, 0) / Math.max(seg.groups.reduce((sum, g) => sum + g.n, 0), 1),
-                    label: 'Overall mean', color: '#ED6E6E',
-                  }],
-                }} onDrillDown={handleDrill} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Key Influencers */}
-        {analysis.key_influencers.length > 0 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Search size={16} className="text-cyan-500" /> Key Influencers
-            </h2>
-            <div className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
-              <table className="w-full text-[12px]">
-                <thead>
-                  <tr className="border-b border-dl-border bg-dl-bg-light">
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Target</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Influencer</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">{t("common.type")}</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Effect</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Detail</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analysis.key_influencers.map((inf, i) => (
-                    <tr key={i} className="border-b border-dl-border hover:bg-dl-bg-light">
-                      <td className="px-4 py-2 font-medium text-dl-text-dark">{inf.target}</td>
-                      <td className="px-4 py-2 text-dl-brand font-medium">{inf.influencer}</td>
-                      <td className="px-4 py-2">
-                        <span className={`px-1.5 py-0.5 rounded text-dl-xs font-bold ${inf.type === 'categorical' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
-                          {inf.type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-2 font-mono">
-                        {inf.cramers_v ? `V=${inf.cramers_v.toFixed(3)}` : inf.correlation ? `r=${inf.correlation.toFixed(3)}` : '—'}
-                      </td>
-                      <td className="px-4 py-2 text-dl-text-medium">
-                        {inf.best_group ? `${inf.best_group}: ${((inf.best_rate || 0) * 100).toFixed(1)}% vs ${inf.worst_group}: ${((inf.worst_rate || 0) * 100).toFixed(1)}%` :
-                         inf.correlation ? `p=${inf.p_value < 0.001 ? '<0.001' : inf.p_value.toFixed(4)}` : '—'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
-
-        </>)}
-
-        {/* TAB: Advanced */}
-        {activeTab === 'advanced' && (<>
-        {/* Contribution Analysis */}
-        {analysis.contribution_analysis.length > 0 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Target size={16} className="text-amber-500" /> Contribution Analysis
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {analysis.contribution_analysis.slice(0, 4).map((contrib, i) => (
-                <InteractiveChart key={i} chart={{
-                  type: 'bar',
-                  title: `${contrib.measure} by ${contrib.dimension} (top: ${contrib.top_contributor} = ${contrib.top_contribution_pct}%)`,
-                  data: (contrib.chart_data as { data: Record<string, unknown>[] })?.data || [],
-                  xKey: 'category', yKey: 'contribution', yKeys: ['contribution'],
-                }} onDrillDown={handleDrill} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Clusters */}
-        {analysis.clusters.n_clusters >= 2 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Layers size={16} className="text-gray-700" /> Auto-Detected Clusters
-            </h2>
-            <div className="bg-white border border-dl-border rounded-dl-lg p-4">
-              <p className="text-[13px] text-dl-text-dark mb-3">
-                Data naturally segments into <b>{analysis.clusters.n_clusters} clusters</b> based on {analysis.clusters.columns_used.join(', ')}.
-              </p>
-              <div className="grid grid-cols-3 gap-3">
-                {analysis.clusters.clusters.map((cl, i) => (
-                  <div key={i} className="border border-dl-border rounded-dl-md p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12px] font-bold text-dl-text-dark">Cluster {(cl as Record<string, unknown>).cluster as number}</span>
-                      <span className="text-dl-xs text-dl-text-light">{(cl as Record<string, unknown>).size as number} rows ({(cl as Record<string, unknown>).pct as number}%)</span>
-                    </div>
-                    <div className="space-y-1">
-                      {analysis.clusters.columns_used.slice(0, 4).map(col => (
-                        <div key={col} className="flex justify-between text-dl-xs">
-                          <span className="text-dl-text-medium">{col}</span>
-                          <span className="font-mono text-dl-text-dark">
-                            {typeof (cl as Record<string, unknown>)[`${col}_mean`] === 'number'
-                              ? ((cl as Record<string, unknown>)[`${col}_mean`] as number).toLocaleString(undefined, { maximumFractionDigits: 2 })
-                              : '—'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+        {activeTab === 'segments' && (
+          <div className="space-y-4">
+            {analysis.segments.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {analysis.segments.slice(0, 4).map((seg, i) => (
+                  <Card key={i} className="overflow-hidden">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        {seg.measure?.replace(/_/g, ' ')} {locale === 'de' ? 'nach' : 'by'} {seg.dimension?.replace(/_/g, ' ')}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        p={seg.p_value < 0.001 ? '<0.001' : seg.p_value?.toFixed(3)} · η²={seg.eta_squared?.toFixed(3)}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="pb-3">
+                      <InteractiveChart chart={{
+                        type: 'bar',
+                        title: '',
+                        data: seg.groups,
+                        xKey: 'group', yKey: 'mean', yKeys: ['mean'],
+                        referenceLines: [{
+                          value: seg.groups.reduce((sum: number, g: any) => sum + g.mean * g.n, 0) / Math.max(seg.groups.reduce((sum: number, g: any) => sum + g.n, 0), 1),
+                          label: locale === 'de' ? 'Durchschnitt' : 'Average', color: '#ef4444',
+                        }],
+                      }} onDrillDown={handleDrill} />
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-            </div>
-          </section>
-        )}
+            )}
 
-        {/* Majority Detections */}
-        {analysis.majority.length > 0 && (
-          <section>
-            <h2 className="text-[14px] font-black text-dl-text-dark uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Target size={16} className="text-amber-500" /> Dominant Categories
-            </h2>
-            <div className="bg-white border border-dl-border rounded-dl-lg overflow-hidden">
-              <table className="w-full text-[12px]">
-                <thead>
-                  <tr className="border-b border-dl-border bg-dl-bg-light">
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Dimension</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Measure</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Dominant</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Share</th>
-                    <th className="px-4 py-2 text-left text-dl-xs font-bold text-dl-text-light uppercase">Categories</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analysis.majority.slice(0, 8).map((m, i) => (
-                    <tr key={i} className="border-b border-dl-border hover:bg-dl-bg-light">
-                      <td className="px-4 py-2 text-dl-text-dark">{m.dimension}</td>
-                      <td className="px-4 py-2 text-dl-text-medium">{m.measure}</td>
-                      <td className="px-4 py-2 font-medium text-dl-brand">{m.dominant_category}</td>
-                      <td className="px-4 py-2">
+            {analysis.key_influencers.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    {locale === 'de' ? 'Einflussfaktoren' : 'Key Influencers'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {analysis.key_influencers.map((inf, i) => (
+                      <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 bg-dl-bg-medium rounded-full overflow-hidden">
-                            <div className="h-full bg-dl-brand rounded-full" style={{ width: `${m.dominant_share}%` }} />
-                          </div>
-                          <span className="text-dl-xs font-mono">{m.dominant_share}%</span>
+                          <span className="text-sm font-medium">{inf.influencer?.replace(/_/g, ' ')}</span>
+                          <span className="text-xs text-muted-foreground">→ {inf.target?.replace(/_/g, ' ')}</span>
                         </div>
-                      </td>
-                      <td className="px-4 py-2 text-dl-text-light">{m.total_categories}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${inf.type === 'categorical' ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-blue-700'}`}>
+                            {inf.cramers_v ? `V=${inf.cramers_v.toFixed(2)}` : inf.correlation ? `r=${inf.correlation.toFixed(2)}` : inf.type}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {analysis.segments.length === 0 && analysis.key_influencers.length === 0 && (
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                {locale === 'de' ? 'Keine Segmente oder Einflussfaktoren erkannt' : 'No segments or influencers detected'}
+              </p>
+            )}
+          </div>
         )}
 
-        </>)}
+        {/* TAB: Advanced */}
+        {activeTab === 'advanced' && (
+          <div className="space-y-4">
+            {/* Contribution Analysis */}
+            {analysis.contribution_analysis.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {analysis.contribution_analysis.slice(0, 4).map((contrib, i) => (
+                  <Card key={i} className="overflow-hidden">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        {contrib.measure?.replace(/_/g, ' ')} {locale === 'de' ? 'nach' : 'by'} {contrib.dimension?.replace(/_/g, ' ')}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        {locale === 'de' ? 'Top' : 'Top'}: {contrib.top_contributor} = {contrib.top_contribution_pct}%
+                      </p>
+                    </CardHeader>
+                    <CardContent className="pb-3">
+                      <InteractiveChart chart={{
+                        type: 'bar',
+                        title: '',
+                        data: (contrib.chart_data as { data: Record<string, unknown>[] })?.data || [],
+                        xKey: 'category', yKey: 'contribution', yKeys: ['contribution'],
+                      }} onDrillDown={handleDrill} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Clusters */}
+            {analysis.clusters.n_clusters >= 2 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    {locale === 'de' ? 'Automatisch erkannte Segmente' : 'Auto-Detected Segments'}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {analysis.clusters.n_clusters} {locale === 'de' ? 'Cluster basierend auf' : 'clusters based on'} {analysis.clusters.columns_used?.join(', ')}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {analysis.clusters.clusters?.map((cl: any, i: number) => (
+                      <div key={i} className="rounded-md border p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Cluster {cl.cluster}</span>
+                          <span className="text-xs text-muted-foreground">{cl.size} ({cl.pct}%)</span>
+                        </div>
+                        <div className="space-y-1">
+                          {analysis.clusters.columns_used?.slice(0, 4).map((col: string) => (
+                            <div key={col} className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">{col?.replace(/_/g, ' ')}</span>
+                              <span className="font-medium tabular-nums">
+                                {typeof cl[`${col}_mean`] === 'number' ? cl[`${col}_mean`].toLocaleString(undefined, { maximumFractionDigits: 1 }) : '—'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Dominant Categories */}
+            {analysis.majority.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    {locale === 'de' ? 'Dominante Kategorien' : 'Dominant Categories'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {analysis.majority.slice(0, 8).map((m, i) => (
+                      <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-sm font-medium truncate">{m.dominant_category}</span>
+                          <span className="text-xs text-muted-foreground">{m.measure?.replace(/_/g, ' ')} {locale === 'de' ? 'nach' : 'by'} {m.dimension?.replace(/_/g, ' ')}</span>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-foreground/70 rounded-full" style={{ width: `${m.dominant_share}%` }} />
+                          </div>
+                          <span className="text-xs font-medium tabular-nums w-10 text-right">{m.dominant_share}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {analysis.contribution_analysis.length === 0 && analysis.clusters.n_clusters < 2 && analysis.majority.length === 0 && (
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                {locale === 'de' ? 'Keine erweiterten Analysen verfügbar' : 'No advanced analyses available'}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center py-4 border-t border-dl-border">
